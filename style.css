@@ -22,7 +22,8 @@ html, body {
 /* ===========================
    Sidebar Navigation Styles
    =========================== */
-nav.sidebar {
+nav.sidebar,
+aside.sidebar {
   position: fixed;
   top: 0;
   left: 0;
@@ -35,24 +36,31 @@ nav.sidebar {
   overflow-y: auto;
 }
 
-nav.sidebar h2 {
+nav.sidebar h2,
+aside.sidebar h2 {
   color: #00ffc8;
   font-size: 1.5rem;
   margin-bottom: 2rem;
   text-align: center;
 }
 
-nav.sidebar ul {
+nav.sidebar ul,
+aside.sidebar ul,
+aside.sidebar nav ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-nav.sidebar li {
+nav.sidebar li,
+aside.sidebar li,
+aside.sidebar nav li {
   margin: 1.2rem 0;
 }
 
-nav.sidebar a {
+nav.sidebar a,
+aside.sidebar a,
+aside.sidebar nav a {
   display: block;
   color: #a8ffb0;
   text-decoration: none;
@@ -62,7 +70,9 @@ nav.sidebar a {
   transition: all 0.3s ease;
 }
 
-nav.sidebar a:hover {
+nav.sidebar a:hover,
+aside.sidebar a:hover,
+aside.sidebar nav a:hover {
   background-color: rgba(0, 255, 200, 0.1);
   color: #00ffc8;
   transform: translateX(5px);
@@ -131,12 +141,14 @@ footer span {
    Responsive Design
    =========================== */
 @media screen and (max-width: 768px) {
-  nav.sidebar {
+  nav.sidebar,
+  aside.sidebar {
     transform: translateX(-100%);
     transition: transform 0.3s ease;
   }
 
-  nav.sidebar.active {
+  nav.sidebar.active,
+  aside.sidebar.active {
     transform: translateX(0);
   }
 
