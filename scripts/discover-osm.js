@@ -19,6 +19,9 @@
 const fs = require('fs');
 const path = require('path');
 
+// Note: This script uses the native fetch API available in Node.js 18+
+// No additional dependencies are required for HTTP requests
+
 // Territory bounding boxes (south, west, north, east)
 const TERRITORIES = {
   GP: { name: 'Guadeloupe', bbox: [15.83, -61.81, 16.51, -61.00] },
@@ -150,12 +153,14 @@ async function discoverPartners() {
   const allCandidates = [];
   
   // Query each territory sequentially to respect API rate limits
-  for (const [code, _] of Object.entries(TERRITORIES)) {
+  const territoryEntries = Object.entries(TERRITORIES);
+  for (let i = 0; i < territoryEntries.length; i++) {
+    const [code, _] = territoryEntries[i];
     const candidates = await discoverTerritory(code);
     allCandidates.push(...candidates);
     
     // Wait 2 seconds between requests to be respectful of the API
-    if (code !== Object.keys(TERRITORIES)[Object.keys(TERRITORIES).length - 1]) {
+    if (i < territoryEntries.length - 1) {
       await new Promise(resolve => setTimeout(resolve, 2000));
     }
   }
