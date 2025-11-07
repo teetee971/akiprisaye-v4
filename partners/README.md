@@ -68,7 +68,9 @@ When new candidates are found:
 
 ## Candidates File Format
 
-The `candidates.json` file contains:
+The `candidates.json` file contains discovered partners with rich metadata. See `candidates.example.json` for a sample with realistic data.
+
+Structure:
 
 ```json
 {
