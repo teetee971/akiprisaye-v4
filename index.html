@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>A KI PRI SA YÉ — Gérez votre budget</title>
+  <meta name="description" content="Comparez les prix, gérez votre budget facilement et luttez contre la vie chère." />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="public/assets/icon_192.png" />
+  <link rel="icon" type="image/png" sizes="256x256" href="public/assets/icon_256.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="public/assets/icon_512.png" />
+  <link rel="apple-touch-icon" href="public/assets/icon_192.png" />
+  <meta name="theme-color" content="#0f62fe" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #0f62fe;
+      --primary-dark: #0353e9;
+      --bg: #0b0d17;
+      --surface: #1a1d2e;
+      --text: #ffffff;
+      --text-dim: #b8b8b8;
+      --border: #2a2d3e;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      padding: 1rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 2.5rem 1rem;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 1.75rem;
+      margin-bottom: 0.75rem;
+      line-height: 1.2;
+    }
+
+    .hero p {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      opacity: 0.95;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 1.5rem;
+      color: var(--primary);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.2s;
+      border: 1px solid var(--border);
+      display: block;
+    }
+
+    .card:active {
+      transform: scale(0.98);
+      box-shadow: 0 4px 12px rgba(15, 98, 254, 0.3);
+    }
+
+    .card-icon {
+      font-size: 2.25rem;
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      color: var(--primary);
+    }
+
+    .card-desc {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      line-height: 1.4;
+    }
+
+    .about {
+      background: var(--surface);
+      padding: 2rem 1rem;
+      margin: 2rem 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .about-content {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .about h2 {
+      margin-bottom: 1rem;
+      color: var(--primary);
+      font-size: 1.5rem;
+    }
+
+    .about p {
+      color: var(--text-dim);
+      margin-bottom: 0.75rem;
+      line-height: 1.6;
+    }
+
+    .footer {
+      background: var(--surface);
+      padding: 1.5rem 1rem;
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .footer-links a {
+      color: var(--text-dim);
+      text-decoration: none;
+    }
+
+    .footer-links a:active {
+      color: var(--primary);
+    }
+
+    .footer-copy {
+      color: var(--text-dim);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      .hero h1 {
+        font-size: 1.5rem;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .hero h1 {
+        font-size: 2.25rem;
+      }
+      .hero p {
+        font-size: 1.15rem;
+      }
+      .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(15, 98, 254, 0.2);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-content">
+      <a href="/" class="logo">A KI PRI SA YÉ</a>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>Gérez votre budget facilement</h1>
+    <p>Comparez les prix et luttez contre la vie chère</p>
+    <p>en Outre-mer</p>
+  </section>
+
+  <div class="container">
+    <h2 class="section-title">🎯 Fonctionnalités</h2>
+    <div class="grid">
+      <a href="comparateur.html" class="card">
+        <span class="card-icon">🔍</span>
+        <div class="card-title">Comparateur de Prix</div>
+        <div class="card-desc">Comparez les prix par code EAN</div>
+      </a>
+
+      <a href="scanner.html" class="card">
+        <span class="card-icon">📷</span>
+        <div class="card-title">Scanner</div>
+        <div class="card-desc">Scannez vos produits</div>
+      </a>
+
+      <a href="upload-ticket.html" class="card">
+        <span class="card-icon">🎫</span>
+        <div class="card-title">Upload Tickets</div>
+        <div class="card-desc">Téléchargez vos tickets</div>
+      </a>
+
+      <a href="modules.html" class="card">
+        <span class="card-icon">🧩</span>
+        <div class="card-title">Modules</div>
+        <div class="card-desc">Tous les modules</div>
+      </a>
+
+      <a href="carte.html" class="card">
+        <span class="card-icon">🗺️</span>
+        <div class="card-title">Carte</div>
+        <div class="card-desc">Prix géolocalisés</div>
+      </a>
+
+      <a href="historique.html" class="card">
+        <span class="card-icon">📊</span>
+        <div class="card-title">Historique</div>
+        <div class="card-desc">Vos recherches</div>
+      </a>
+
+      <a href="ia-conseiller.html" class="card">
+        <span class="card-icon">🤖</span>
+        <div class="card-title">IA Conseiller</div>
+        <div class="card-desc">Conseils personnalisés</div>
+      </a>
+
+      <a href="mon-compte.html" class="card">
+        <span class="card-icon">👤</span>
+        <div class="card-title">Mon Compte</div>
+        <div class="card-desc">Gérez votre profil</div>
+      </a>
+    </div>
+  </div>
+
+  <section class="about">
+    <div class="about-content">
+      <h2>🎗️ Notre Mission</h2>
+      <p><strong>A KI PRI SA YÉ</strong> est une plateforme citoyenne dédiée à la transparence des prix en Outre-mer.</p>
+      <p>Comparez facilement les prix, signalez les abus et gérez votre budget plus efficacement.</p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">Contact</a>
+      <a href="mentions.html">Mentions</a>
+      <a href="partenaires.html">Partenaires</a>
+    </div>
+    <p class="footer-copy">© 2025 A KI PRI SA YÉ</p>
+  </footer>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js').catch(err => {
+          console.error('Service Worker erreur:', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
