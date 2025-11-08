@@ -190,6 +190,140 @@
       font-size: 0.85rem;
     }
 
+    .hero-btn {
+      margin-top: 1.5rem;
+      padding: 0.875rem 2rem;
+      font-size: 1rem;
+      font-weight: bold;
+      color: var(--text);
+      background: linear-gradient(135deg, #0f62fe, #0353e9);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(15, 98, 254, 0.3);
+    }
+
+    .hero-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(15, 98, 254, 0.4);
+    }
+
+    .hero-btn:active {
+      transform: translateY(0);
+    }
+
+    .secondary-btn {
+      padding: 0.75rem 1.5rem;
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: var(--text);
+      background: var(--surface);
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .secondary-btn:hover {
+      background: var(--primary);
+      transform: scale(1.05);
+    }
+
+    .search-box {
+      display: flex;
+      gap: 1rem;
+      margin: 2rem auto;
+      max-width: 600px;
+      flex-wrap: wrap;
+    }
+
+    .search-box input {
+      flex: 1;
+      min-width: 250px;
+      padding: 0.875rem 1rem;
+      font-size: 1rem;
+      color: var(--text);
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      transition: border-color 0.3s;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .search-box button {
+      padding: 0.875rem 2rem;
+      font-size: 1rem;
+      font-weight: bold;
+      color: var(--text);
+      background: var(--primary);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .search-box button:hover {
+      background: var(--primary-dark);
+      transform: scale(1.05);
+    }
+
+    #product-results {
+      margin-top: 2rem;
+      min-height: 200px;
+    }
+
+    .product-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .product-item:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(15, 98, 254, 0.2);
+    }
+
+    .product-name {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .price-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 0.75rem;
+    }
+
+    .price {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #4caf50;
+    }
+
+    .store-info {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-dim);
+    }
+
     @media (max-width: 768px) {
       .grid {
         grid-template-columns: 1fr;
@@ -220,16 +354,17 @@
     </div>
   </header>
 
-  <section class="hero">
+  <section class="hero" id="landing-section">
     <h1>Gérez votre budget facilement</h1>
     <p>Comparez les prix et luttez contre la vie chère</p>
     <p>en Outre-mer</p>
+    <button id="discover-app-btn" class="hero-btn">Découvrir l'application</button>
   </section>
 
-  <div class="container">
+  <div class="container" id="app-section" style="display: none;">
     <h2 class="section-title">🎯 Fonctionnalités</h2>
     <div class="grid">
-      <a href="comparateur.html" class="card">
+      <a href="#" class="card" data-navigate="price-comparison">
         <span class="card-icon">🔍</span>
         <div class="card-title">Comparateur de Prix</div>
         <div class="card-desc">Comparez les prix par code EAN</div>
@@ -277,6 +412,21 @@
         <div class="card-desc">Gérez votre profil</div>
       </a>
     </div>
+    <div style="text-align: center; margin-top: 2rem;">
+      <button id="back-to-landing-btn" class="secondary-btn">← Retour à l'accueil</button>
+    </div>
+  </div>
+
+  <div class="container" id="price-comparison-section" style="display: none;">
+    <h2 class="section-title">🔍 Comparateur de Prix</h2>
+    <div class="search-box">
+      <input type="text" id="product-search" placeholder="Rechercher un produit (ex: Lait, Pain, Riz...)" />
+      <button id="search-btn">Rechercher</button>
+    </div>
+    <div id="product-results"></div>
+    <div style="text-align: center; margin-top: 2rem;">
+      <button id="back-to-app-btn" class="secondary-btn">← Retour aux fonctionnalités</button>
+    </div>
   </div>
 
   <section class="about">
@@ -306,5 +456,7 @@
       });
     }
   </script>
+
+  <script src="app.js"></script>
 </body>
 </html>
