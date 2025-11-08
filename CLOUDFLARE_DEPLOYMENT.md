@@ -23,23 +23,46 @@ npm run build
 ```
 
 Cela devrait créer un dossier `dist/` avec :
-- `index.html` - Page d'accueil avec carrousel
+- `index.html` - Page d'accueil complète avec header, hero, et cartes de fonctionnalités
+- Tous les fichiers HTML liés (comparateur.html, scanner.html, etc.)
 - `assets/` - Icônes et images optimisées
-- Autres fichiers HTML de la PWA
+- Fichiers JavaScript et CSS nécessaires
+- `manifest.json` et `service-worker.js`
 
 ## Structure Attendue
 
 ```
 dist/
-├── index.html (page principale avec carrousel)
+├── index.html (page principale avec interface complète de l'application)
+├── comparateur.html
+├── scanner.html
+├── upload-ticket.html
+├── modules.html
+├── carte.html
+├── historique.html
+├── ia-conseiller.html
+├── mon-compte.html
+├── faq.html
+├── contact.html
+├── mentions.html
+├── partenaires.html
+├── *.js (fichiers JavaScript nécessaires)
+├── style.css
 ├── assets/
 │   ├── icon_192.png
 │   ├── icon_256.png
 │   ├── icon_512.png
-│   └── images du carrousel
+│   └── autres ressources optimisées
 ├── manifest.json
 └── service-worker.js
 ```
+
+## Cohérence avec Firebase Hosting
+
+La configuration Vite a été mise à jour pour assurer que le déploiement Cloudflare Pages serve exactement le même contenu que Firebase Hosting :
+- L'entrée principale est maintenant `./index.html` (racine du projet) au lieu de `./public/index.html`
+- Tous les fichiers HTML liés depuis l'index sont inclus dans le build
+- Les fichiers JavaScript et CSS sont copiés via le plugin `vite-plugin-static-copy`
 
 ## Dépannage
 
@@ -48,3 +71,4 @@ Si le site affiche une page blanche :
 2. Vérifier que le output directory est bien `dist`
 3. Vérifier les logs de déploiement dans Cloudflare Pages
 4. S'assurer qu'aucune erreur n'apparaît lors du build
+5. Vérifier que le fichier `dist/index.html` contient bien l'interface complète de l'application (pas seulement un carrousel)
