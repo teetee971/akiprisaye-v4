@@ -1,25 +1,28 @@
 // Service Worker pour A KI PRI SA YÉ
 // Ce fichier gère le cache statique afin de permettre l'accès hors-ligne.
 
-const CACHE_NAME = 'aki-pri-sa-ye-cache-v1';
+const CACHE_NAME = 'aki-pri-sa-ye-cache-v2';
 
 // Liste des ressources à mettre en cache lors de l'installation
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/comparateur.html',
+  '/scanner.html',
+  '/modules.html',
   '/manifest.json',
+  '/shared-nav.css',
+  '/shared-nav.js',
+  '/app.js',
+  '/style.css',
+  '/public/assets/icon_64.webp',
+  '/public/assets/icon_128.webp',
   '/public/assets/icon_192.png',
   '/public/assets/icon_256.png',
   '/public/assets/icon_512.png',
   '/public/assets/icon_192.webp',
   '/public/assets/icon_256.webp',
   '/public/assets/icon_512.webp',
-  '/public/assets/0d3bd9ac-734a-4f7d-b671-6dc715ae9e94_lg.webp',
-  '/public/assets/84ba022c-9450-4e4f-841b-64d5363aaae1_lg.webp',
-  '/public/assets/b3ced496-7272-4600-b46e-c14cf625667e_lg.webp',
-  '/public/assets/logo_base.webp',
-  '/public/assets/aki_pri_sa_ye_banner.webp',
-  '/public/assets/aki_pri_sa_ye_banner_dark.webp'
 ];
 
 // Événement d'installation : mise en cache des ressources statiques
