@@ -162,6 +162,19 @@ footer span {
   h2 {
     font-size: 1.5rem;
   }
+
+  .search-box {
+    flex-direction: column;
+  }
+
+  .search-box input {
+    width: 100%;
+  }
+
+  .price-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 /* Mobile menu toggle button */
@@ -232,6 +245,10 @@ button:hover {
   transform: scale(1.05);
 }
 
+button:active {
+  transform: scale(0.98);
+}
+
 /* ===========================
    Form Elements
    =========================== */
@@ -252,4 +269,11 @@ label {
   display: block;
   margin-bottom: 0.5rem;
   color: #a8ffb0;
+}
+
+/* ===========================
+   Additional Utility Styles
+   =========================== */
+.smooth-transition {
+  transition: all 0.3s ease;
 }
