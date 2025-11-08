@@ -3,8 +3,27 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>A KI PRI SA YÉ — Gérez votre budget</title>
-  <meta name="description" content="Comparez les prix, gérez votre budget facilement et luttez contre la vie chère." />
+  <title>A KI PRI SA YÉ — Gérez votre budget en Outre-mer</title>
+  <meta name="description" content="Comparez les prix, gérez votre budget facilement et luttez contre la vie chère en Outre-mer. Application citoyenne pour la transparence des prix." />
+  <meta name="keywords" content="prix, comparateur, outre-mer, budget, vie chère, DOM-TOM, Martinique, Guadeloupe, Guyane, Réunion" />
+  <meta name="author" content="A KI PRI SA YÉ" />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://akiprisaye.web.app/" />
+  <meta property="og:title" content="A KI PRI SA YÉ — Gérez votre budget en Outre-mer" />
+  <meta property="og:description" content="Comparez les prix, gérez votre budget facilement et luttez contre la vie chère en Outre-mer." />
+  <meta property="og:image" content="/public/assets/icon_512.png" />
+  <meta property="og:locale" content="fr_FR" />
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://akiprisaye.web.app/" />
+  <meta name="twitter:title" content="A KI PRI SA YÉ — Gérez votre budget" />
+  <meta name="twitter:description" content="Comparez les prix et luttez contre la vie chère en Outre-mer" />
+  <meta name="twitter:image" content="/public/assets/icon_512.png" />
+  
+  <!-- PWA -->
   <link rel="manifest" href="/manifest.json" />
   <link rel="icon" type="image/png" sizes="192x192" href="/public/assets/icon_192.png" />
   <link rel="icon" type="image/png" sizes="256x256" href="/public/assets/icon_256.png" />
@@ -13,6 +32,7 @@
   <meta name="theme-color" content="#0f62fe" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="AKIPRISAYE" />
   <style>
     * {
       margin: 0;
@@ -331,6 +351,15 @@
       .hero h1 {
         font-size: 1.5rem;
       }
+      .hero {
+        padding: 1.5rem 1rem;
+      }
+      .burger-menu {
+        display: flex !important;
+      }
+      .header-nav {
+        display: none;
+      }
     }
 
     @media (min-width: 769px) {
@@ -344,70 +373,290 @@
         transform: translateY(-4px);
         box-shadow: 0 8px 20px rgba(15, 98, 254, 0.2);
       }
+      .burger-menu {
+        display: none;
+      }
+    }
+
+    /* Burger Menu Styles */
+    .burger-menu {
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      cursor: pointer;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+
+    .burger-menu:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .burger-line {
+      width: 24px;
+      height: 3px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    .burger-menu.active .burger-line:nth-child(1) {
+      transform: rotate(45deg) translate(6px, 6px);
+    }
+
+    .burger-menu.active .burger-line:nth-child(2) {
+      opacity: 0;
+    }
+
+    .burger-menu.active .burger-line:nth-child(3) {
+      transform: rotate(-45deg) translate(6px, -6px);
+    }
+
+    /* Mobile Navigation */
+    .mobile-nav {
+      position: fixed;
+      top: 0;
+      left: -100%;
+      width: 280px;
+      height: 100vh;
+      background: var(--surface);
+      z-index: 999;
+      transition: left 0.3s ease;
+      overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .mobile-nav.active {
+      left: 0;
+    }
+
+    .mobile-nav-header {
+      padding: 1.5rem 1rem;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .mobile-nav-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: var(--text);
+    }
+
+    .close-nav {
+      cursor: pointer;
+      font-size: 1.5rem;
+      color: var(--text);
+      padding: 0.25rem 0.5rem;
+    }
+
+    .mobile-nav-list {
+      list-style: none;
+      padding: 1rem 0;
+    }
+
+    .mobile-nav-list li {
+      margin: 0;
+    }
+
+    .mobile-nav-list a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      color: var(--text);
+      text-decoration: none;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+    }
+
+    .mobile-nav-list a:hover,
+    .mobile-nav-list a:active {
+      background: rgba(15, 98, 254, 0.1);
+      border-left-color: var(--primary);
+    }
+
+    .mobile-nav-icon {
+      font-size: 1.25rem;
+      width: 24px;
+      text-align: center;
+    }
+
+    /* Overlay */
+    .nav-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 998;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .nav-overlay.active {
+      display: block;
+      opacity: 1;
+    }
+
+    /* Desktop Navigation */
+    .header-nav {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .header-nav a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+    }
+
+    .header-nav a:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* PWA Install Button */
+    .install-button {
+      display: none;
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: var(--text);
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      transition: all 0.3s ease;
+      gap: 0.5rem;
+      align-items: center;
+      margin-top: 1rem;
+    }
+
+    .install-button.show {
+      display: inline-flex;
+    }
+
+    .install-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+      background: linear-gradient(135deg, #059669, #047857);
+    }
+
+    .install-button:active {
+      transform: translateY(0);
     }
   </style>
 </head>
 <body>
+  <!-- Mobile Navigation Overlay -->
+  <div class="nav-overlay" id="nav-overlay"></div>
+  
+  <!-- Mobile Navigation -->
+  <nav class="mobile-nav" id="mobile-nav" role="navigation" aria-label="Navigation mobile">
+    <div class="mobile-nav-header">
+      <span class="mobile-nav-title">Menu</span>
+      <span class="close-nav" id="close-nav" role="button" aria-label="Fermer le menu">&times;</span>
+    </div>
+    <ul class="mobile-nav-list">
+      <li><a href="/"><span class="mobile-nav-icon">🏠</span>Accueil</a></li>
+      <li><a href="/comparateur.html"><span class="mobile-nav-icon">🔍</span>Comparateur</a></li>
+      <li><a href="/scanner.html"><span class="mobile-nav-icon">📷</span>Scanner</a></li>
+      <li><a href="/carte.html"><span class="mobile-nav-icon">🗺️</span>Carte</a></li>
+      <li><a href="/modules.html"><span class="mobile-nav-icon">🧩</span>Modules</a></li>
+      <li><a href="/ia-conseiller.html"><span class="mobile-nav-icon">🤖</span>IA Conseiller</a></li>
+      <li><a href="/historique.html"><span class="mobile-nav-icon">📊</span>Historique</a></li>
+      <li><a href="/mon-compte.html"><span class="mobile-nav-icon">👤</span>Mon Compte</a></li>
+      <li><a href="/faq.html"><span class="mobile-nav-icon">❓</span>FAQ</a></li>
+      <li><a href="/contact.html"><span class="mobile-nav-icon">📧</span>Contact</a></li>
+    </ul>
+  </nav>
+
   <header class="header">
     <div class="header-content">
-      <a href="/" class="logo">A KI PRI SA YÉ</a>
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <div class="burger-menu" id="burger-menu" role="button" aria-label="Menu" aria-expanded="false">
+          <div class="burger-line"></div>
+          <div class="burger-line"></div>
+          <div class="burger-line"></div>
+        </div>
+        <a href="/" class="logo" aria-label="A KI PRI SA YÉ - Accueil">A KI PRI SA YÉ</a>
+      </div>
+      <nav class="header-nav" role="navigation" aria-label="Navigation principale">
+        <a href="/comparateur.html">Comparateur</a>
+        <a href="/scanner.html">Scanner</a>
+        <a href="/modules.html">Modules</a>
+        <a href="/mon-compte.html">Mon Compte</a>
+      </nav>
     </div>
   </header>
 
-  <section class="hero" id="landing-section">
+  <section class="hero" id="landing-section" role="banner">
     <h1>Gérez votre budget facilement</h1>
     <p>Comparez les prix et luttez contre la vie chère</p>
     <p>en Outre-mer</p>
-    <button id="discover-app-btn" class="hero-btn">Découvrir l'application</button>
+    <button id="discover-app-btn" class="hero-btn" aria-label="Découvrir l'application A KI PRI SA YÉ">Découvrir l'application</button>
+    <button id="install-pwa-btn" class="install-button" aria-label="Installer l'application">
+      <span>📱</span>
+      <span>Installer l'app</span>
+    </button>
   </section>
 
   <div class="container" id="app-section" style="display: none;">
     <h2 class="section-title">🎯 Fonctionnalités</h2>
-    <div class="grid">
-      <a href="#" class="card" data-navigate="price-comparison">
-        <span class="card-icon">🔍</span>
+    <div class="grid" role="list">
+      <a href="#" class="card" data-navigate="price-comparison" role="listitem" aria-label="Comparateur de Prix - Comparez les prix par code EAN">
+        <span class="card-icon" aria-hidden="true">🔍</span>
         <div class="card-title">Comparateur de Prix</div>
         <div class="card-desc">Comparez les prix par code EAN</div>
       </a>
 
-      <a href="scanner.html" class="card">
-        <span class="card-icon">📷</span>
+      <a href="scanner.html" class="card" role="listitem" aria-label="Scanner - Scannez vos produits">
+        <span class="card-icon" aria-hidden="true">📷</span>
         <div class="card-title">Scanner</div>
         <div class="card-desc">Scannez vos produits</div>
       </a>
 
-      <a href="upload-ticket.html" class="card">
-        <span class="card-icon">🎫</span>
+      <a href="upload-ticket.html" class="card" role="listitem" aria-label="Upload Tickets - Téléchargez vos tickets">
+        <span class="card-icon" aria-hidden="true">🎫</span>
         <div class="card-title">Upload Tickets</div>
         <div class="card-desc">Téléchargez vos tickets</div>
       </a>
 
-      <a href="modules.html" class="card">
-        <span class="card-icon">🧩</span>
+      <a href="modules.html" class="card" role="listitem" aria-label="Modules - Tous les modules">
+        <span class="card-icon" aria-hidden="true">🧩</span>
         <div class="card-title">Modules</div>
         <div class="card-desc">Tous les modules</div>
       </a>
 
-      <a href="carte.html" class="card">
-        <span class="card-icon">🗺️</span>
+      <a href="carte.html" class="card" role="listitem" aria-label="Carte - Prix géolocalisés">
+        <span class="card-icon" aria-hidden="true">🗺️</span>
         <div class="card-title">Carte</div>
         <div class="card-desc">Prix géolocalisés</div>
       </a>
 
-      <a href="historique.html" class="card">
-        <span class="card-icon">📊</span>
+      <a href="historique.html" class="card" role="listitem" aria-label="Historique - Vos recherches">
+        <span class="card-icon" aria-hidden="true">📊</span>
         <div class="card-title">Historique</div>
         <div class="card-desc">Vos recherches</div>
       </a>
 
-      <a href="ia-conseiller.html" class="card">
-        <span class="card-icon">🤖</span>
+      <a href="ia-conseiller.html" class="card" role="listitem" aria-label="IA Conseiller - Conseils personnalisés">
+        <span class="card-icon" aria-hidden="true">🤖</span>
         <div class="card-title">IA Conseiller</div>
         <div class="card-desc">Conseils personnalisés</div>
       </a>
 
-      <a href="mon-compte.html" class="card">
-        <span class="card-icon">👤</span>
+      <a href="mon-compte.html" class="card" role="listitem" aria-label="Mon Compte - Gérez votre profil">
+        <span class="card-icon" aria-hidden="true">👤</span>
         <div class="card-title">Mon Compte</div>
         <div class="card-desc">Gérez votre profil</div>
       </a>
@@ -429,25 +678,26 @@
     </div>
   </div>
 
-  <section class="about">
+  <section class="about" role="region" aria-labelledby="mission-title">
     <div class="about-content">
-      <h2>🎗️ Notre Mission</h2>
+      <h2 id="mission-title">🎗️ Notre Mission</h2>
       <p><strong>A KI PRI SA YÉ</strong> est une plateforme citoyenne dédiée à la transparence des prix en Outre-mer.</p>
       <p>Comparez facilement les prix, signalez les abus et gérez votre budget plus efficacement.</p>
     </div>
   </section>
 
-  <footer class="footer">
-    <div class="footer-links">
-      <a href="faq.html">FAQ</a>
-      <a href="contact.html">Contact</a>
-      <a href="mentions.html">Mentions</a>
-      <a href="partenaires.html">Partenaires</a>
-    </div>
-    <p class="footer-copy">© 2025 A KI PRI SA YÉ</p>
+  <footer class="footer" role="contentinfo">
+    <nav class="footer-links" aria-label="Navigation du pied de page">
+      <a href="faq.html" aria-label="Foire aux questions">FAQ</a>
+      <a href="contact.html" aria-label="Nous contacter">Contact</a>
+      <a href="mentions.html" aria-label="Mentions légales">Mentions légales</a>
+      <a href="partenaires.html" aria-label="Nos partenaires">Partenaires</a>
+    </nav>
+    <p class="footer-copy">© 2025 A KI PRI SA YÉ - Tous droits réservés</p>
   </footer>
 
   <script>
+    // Service Worker Registration
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         // Check if service-worker.js exists before registering
@@ -469,8 +719,97 @@
           });
       });
     }
+
+    // Burger Menu Toggle
+    const burgerMenu = document.getElementById('burger-menu');
+    const mobileNav = document.getElementById('mobile-nav');
+    const navOverlay = document.getElementById('nav-overlay');
+    const closeNav = document.getElementById('close-nav');
+
+    function openMobileNav() {
+      mobileNav.classList.add('active');
+      navOverlay.classList.add('active');
+      burgerMenu.classList.add('active');
+      burgerMenu.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden'; // Prevent scrolling when menu is open
+    }
+
+    function closeMobileNav() {
+      mobileNav.classList.remove('active');
+      navOverlay.classList.remove('active');
+      burgerMenu.classList.remove('active');
+      burgerMenu.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = ''; // Restore scrolling
+    }
+
+    if (burgerMenu) {
+      burgerMenu.addEventListener('click', openMobileNav);
+    }
+
+    if (closeNav) {
+      closeNav.addEventListener('click', closeMobileNav);
+    }
+
+    if (navOverlay) {
+      navOverlay.addEventListener('click', closeMobileNav);
+    }
+
+    // Close mobile nav when a link is clicked
+    const mobileNavLinks = document.querySelectorAll('.mobile-nav-list a');
+    mobileNavLinks.forEach(link => {
+      link.addEventListener('click', closeMobileNav);
+    });
+
+    // PWA Install Button
+    let deferredPrompt;
+    const installButton = document.getElementById('install-pwa-btn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Prevent the mini-infobar from appearing on mobile
+      e.preventDefault();
+      // Stash the event so it can be triggered later
+      deferredPrompt = e;
+      // Show the install button
+      if (installButton) {
+        installButton.classList.add('show');
+      }
+    });
+
+    if (installButton) {
+      installButton.addEventListener('click', async () => {
+        if (!deferredPrompt) {
+          return;
+        }
+        // Show the install prompt
+        deferredPrompt.prompt();
+        // Wait for the user to respond to the prompt
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to the install prompt: ${outcome}`);
+        // Clear the deferredPrompt for later use
+        deferredPrompt = null;
+        // Hide the install button
+        installButton.classList.remove('show');
+      });
+    }
+
+    // Hide install button if already installed
+    window.addEventListener('appinstalled', () => {
+      console.log('PWA was installed');
+      if (installButton) {
+        installButton.classList.remove('show');
+      }
+      deferredPrompt = null;
+    });
+
+    // Check if app is already installed (standalone mode)
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+      console.log('App is running in standalone mode');
+      if (installButton) {
+        installButton.style.display = 'none';
+      }
+    }
   </script>
 
-  <script src="app.js"></script>
+  <script src="app.js" defer></script>
 </body>
 </html>
