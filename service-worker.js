@@ -1,7 +1,7 @@
 // Service Worker pour A KI PRI SA YÉ
 // Ce fichier gère le cache statique afin de permettre l'accès hors-ligne.
 
-const CACHE_NAME = 'aki-pri-sa-ye-cache-v2';
+const CACHE_NAME = 'aki-pri-sa-ye-cache-v3';
 
 // Liste des ressources à mettre en cache lors de l'installation
 const STATIC_ASSETS = [
@@ -10,6 +10,15 @@ const STATIC_ASSETS = [
   '/comparateur.html',
   '/scanner.html',
   '/modules.html',
+  '/carte.html',
+  '/historique.html',
+  '/ia-conseiller.html',
+  '/mon-compte.html',
+  '/upload-ticket.html',
+  '/faq.html',
+  '/contact.html',
+  '/mentions.html',
+  '/partenaires.html',
   '/manifest.json',
   '/shared-nav.css',
   '/shared-nav.js',
