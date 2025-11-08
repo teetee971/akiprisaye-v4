@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>A KI PRI SA YÉ — Gérez votre budget</title>
   <meta name="description" content="Comparez les prix, gérez votre budget facilement et luttez contre la vie chère." />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" type="image/png" sizes="192x192" href="public/assets/icon_192.png" />
-  <link rel="icon" type="image/png" sizes="256x256" href="public/assets/icon_256.png" />
-  <link rel="icon" type="image/png" sizes="512x512" href="public/assets/icon_512.png" />
-  <link rel="apple-touch-icon" href="public/assets/icon_192.png" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/public/assets/icon_192.png" />
+  <link rel="icon" type="image/png" sizes="256x256" href="/public/assets/icon_256.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/public/assets/icon_512.png" />
+  <link rel="apple-touch-icon" href="/public/assets/icon_192.png" />
   <meta name="theme-color" content="#0f62fe" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -300,9 +300,23 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js').catch(err => {
-          console.error('Service Worker erreur:', err);
-        });
+        // Check if service-worker.js exists before registering
+        fetch('/service-worker.js', { method: 'HEAD' })
+          .then(response => {
+            if (response.ok) {
+              return navigator.serviceWorker.register('/service-worker.js');
+            } else {
+              console.warn('Service Worker file not found');
+            }
+          })
+          .then(registration => {
+            if (registration) {
+              console.log('Service Worker registered successfully');
+            }
+          })
+          .catch(err => {
+            console.error('Service Worker error:', err);
+          });
       });
     }
   </script>
