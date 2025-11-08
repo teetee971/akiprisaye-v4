@@ -2,11 +2,123 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Scanner de produit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scanner de produit - A KI PRI SA YÉ</title>
+  <meta name="description" content="Scanner un code-barres de produit pour comparer les prix en Outre-mer." />
+  <meta name="keywords" content="scanner, code-barres, produit, prix" />
+  
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Scanner de produit - A KI PRI SA YÉ" />
+  <meta property="og:description" content="Scanner un code-barres pour comparer les prix" />
+  
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0f62fe" />
+  
+  <link rel="stylesheet" href="shared-nav.css" />
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #0b0d17;
+      color: #ffffff;
+    }
+    
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    
+    h1 {
+      color: #0f62fe;
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .scanner-container {
+      background: #1a1d2e;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+    }
+    
+    input[type="file"] {
+      display: block;
+      margin: 1.5rem auto;
+      padding: 1rem;
+      border: 2px dashed #0f62fe;
+      border-radius: 8px;
+      background: #0b0d17;
+      color: #ffffff;
+      cursor: pointer;
+    }
+    
+    input[type="file"]:hover {
+      border-color: #0353e9;
+      background: #1a1d2e;
+    }
+    
+    .info {
+      color: #b8b8b8;
+      line-height: 1.6;
+      margin-top: 1rem;
+    }
+  </style>
 </head>
 <body>
-  <h2>📷 Scanner de code-barres (simulation)</h2>
-  <input type="file" accept="image/*" capture="environment">
-  <p>Ce module analysera les tickets ou codes-barres à l’avenir.</p>
+  <!-- Mobile Navigation Overlay -->
+  <div class="nav-overlay" id="nav-overlay"></div>
+  
+  <!-- Mobile Navigation -->
+  <nav class="mobile-nav" id="mobile-nav" role="navigation" aria-label="Navigation mobile">
+    <div class="mobile-nav-header">
+      <span class="mobile-nav-title">Menu</span>
+      <button class="close-nav" id="close-nav" aria-label="Fermer le menu">&times;</button>
+    </div>
+    <ul class="mobile-nav-list">
+      <li><a href="/"><span class="mobile-nav-icon">🏠</span>Accueil</a></li>
+      <li><a href="/comparateur.html"><span class="mobile-nav-icon">🔍</span>Comparateur</a></li>
+      <li><a href="/scanner.html"><span class="mobile-nav-icon">📷</span>Scanner</a></li>
+      <li><a href="/carte.html"><span class="mobile-nav-icon">🗺️</span>Carte</a></li>
+      <li><a href="/modules.html"><span class="mobile-nav-icon">🧩</span>Modules</a></li>
+      <li><a href="/ia-conseiller.html"><span class="mobile-nav-icon">🤖</span>IA Conseiller</a></li>
+      <li><a href="/historique.html"><span class="mobile-nav-icon">📊</span>Historique</a></li>
+      <li><a href="/mon-compte.html"><span class="mobile-nav-icon">👤</span>Mon Compte</a></li>
+      <li><a href="/faq.html"><span class="mobile-nav-icon">❓</span>FAQ</a></li>
+      <li><a href="/contact.html"><span class="mobile-nav-icon">📧</span>Contact</a></li>
+    </ul>
+  </nav>
+
+  <header class="shared-header">
+    <div class="shared-header-content">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <button class="burger-menu" id="burger-menu" aria-label="Menu" aria-expanded="false">
+          <div class="burger-line"></div>
+          <div class="burger-line"></div>
+          <div class="burger-line"></div>
+        </button>
+        <a href="/" class="shared-logo" aria-label="A KI PRI SA YÉ - Accueil">A KI PRI SA YÉ</a>
+      </div>
+      <nav class="header-nav" role="navigation" aria-label="Navigation principale">
+        <a href="/comparateur.html">Comparateur</a>
+        <a href="/scanner.html" aria-current="page">Scanner</a>
+        <a href="/modules.html">Modules</a>
+        <a href="/mon-compte.html">Mon Compte</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <h1>📷 Scanner de code-barres</h1>
+    <div class="scanner-container">
+      <input type="file" accept="image/*" capture="environment" aria-label="Sélectionner une image de code-barres" />
+      <p class="info">Ce module analysera les tickets ou codes-barres à l'avenir. Fonctionnalité en développement.</p>
+    </div>
+  </main>
+  
+  <script src="shared-nav.js" defer></script>
 </body>
 </html>

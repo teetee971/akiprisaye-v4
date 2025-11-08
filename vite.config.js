@@ -20,11 +20,12 @@ export default defineConfig({
             'score_utilisateur.js',
             'signalement_auto.js',
             'vwapei_voice.js',
+            'shared-nav.js',
           ],
           dest: '',
         },
         {
-          src: 'style.css',
+          src: ['style.css', 'shared-nav.css'],
           dest: '',
         },
       ],
