@@ -1,24 +1,123 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Conseiller IA - A KI PRI SA YÉ</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IA Conseiller - A KI PRI SA YÉ</title>
+  <meta name="description" content="Obtenez des conseils personnalisés pour optimiser votre budget." />
+  
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="IA Conseiller - A KI PRI SA YÉ" />
+  
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0f62fe" />
+  
+  <link rel="stylesheet" href="shared-nav.css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #0b0d17;
+      color: #ffffff;
+    }
+    
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    
+    h1 {
+      color: #0f62fe;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .ai-container {
+      background: #1a1d2e;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+    }
+    
+    .ai-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+    
+    .info {
+      color: #b8b8b8;
+      line-height: 1.6;
+      margin: 1rem 0;
+    }
+    
+    .coming-soon {
+      background: linear-gradient(135deg, #0f62fe, #0353e9);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      display: inline-block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-  <nav class="sidebar">
-    <ul>
-      <li><a href="index.html">Accueil</a></li>
-      <li><a href="modules.html">Modules</a></li>
-      <li><a href="scanner.html">Scan Ticket</a></li>
-      <li><a href="contact.html">Contact</a></li>
+  <!-- Mobile Navigation Overlay -->
+  <div class="nav-overlay" id="nav-overlay"></div>
+  
+  <!-- Mobile Navigation -->
+  <nav class="mobile-nav" id="mobile-nav" role="navigation" aria-label="Navigation mobile">
+    <div class="mobile-nav-header">
+      <span class="mobile-nav-title">Menu</span>
+      <button class="close-nav" id="close-nav" aria-label="Fermer le menu">&times;</button>
+    </div>
+    <ul class="mobile-nav-list">
+      <li><a href="/"><span class="mobile-nav-icon">🏠</span>Accueil</a></li>
+      <li><a href="/comparateur.html"><span class="mobile-nav-icon">🔍</span>Comparateur</a></li>
+      <li><a href="/scanner.html"><span class="mobile-nav-icon">📷</span>Scanner</a></li>
+      <li><a href="/carte.html"><span class="mobile-nav-icon">🗺️</span>Carte</a></li>
+      <li><a href="/modules.html"><span class="mobile-nav-icon">🧩</span>Modules</a></li>
+      <li><a href="/ia-conseiller.html"><span class="mobile-nav-icon">🤖</span>IA Conseiller</a></li>
+      <li><a href="/historique.html"><span class="mobile-nav-icon">📊</span>Historique</a></li>
+      <li><a href="/mon-compte.html"><span class="mobile-nav-icon">👤</span>Mon Compte</a></li>
+      <li><a href="/faq.html"><span class="mobile-nav-icon">❓</span>FAQ</a></li>
+      <li><a href="/contact.html"><span class="mobile-nav-icon">📧</span>Contact</a></li>
     </ul>
   </nav>
+
+  <header class="shared-header">
+    <div class="shared-header-content">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <button class="burger-menu" id="burger-menu" aria-label="Menu" aria-expanded="false">
+          <div class="burger-line"></div>
+          <div class="burger-line"></div>
+          <div class="burger-line"></div>
+        </button>
+        <a href="/" class="shared-logo" aria-label="A KI PRI SA YÉ - Accueil">A KI PRI SA YÉ</a>
+      </div>
+      <nav class="header-nav" role="navigation" aria-label="Navigation principale">
+        <a href="/comparateur.html">Comparateur</a>
+        <a href="/scanner.html">Scanner</a>
+        <a href="/modules.html">Modules</a>
+        <a href="/mon-compte.html">Mon Compte</a>
+      </nav>
+    </div>
+  </header>
+
   <main>
-    <h1>🧠 Conseiller IA "Achat Malin"</h1>
-    <label>Quel produit cherchez-vous ?</label><br>
-    <input type="text" placeholder="Ex: Lait 1L"><button>🔎</button>
-    <p><em>Suggestion IA : Attendez les promos Carrefour semaine prochaine ou préférez U Bio</em></p>
+    <h1>🤖 IA Conseiller Budget</h1>
+    <div class="ai-container">
+      <div class="ai-icon">🤖</div>
+      <p class="info">Notre assistant IA vous aidera à optimiser vos dépenses et à trouver les meilleures offres.</p>
+      <p class="info">Analysez vos habitudes de consommation et recevez des conseils personnalisés.</p>
+      <div class="coming-soon">Bientôt disponible</div>
+    </div>
   </main>
+  
+  <script src="shared-nav.js" defer></script>
 </body>
 </html>

@@ -1,40 +1,134 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>FAQ - A KI PRI SA YÉ</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ - A KI PRI SA YÉ</title>
+  <meta name="description" content="Questions fréquemment posées sur A KI PRI SA YÉ." />
+  
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="FAQ - A KI PRI SA YÉ" />
+  
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0f62fe" />
+  
+  <link rel="stylesheet" href="shared-nav.css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #0b0d17;
+      color: #ffffff;
+    }
+    
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    
+    h1 {
+      color: #0f62fe;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .faq-item {
+      background: #1a1d2e;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid #0f62fe;
+    }
+    
+    .faq-item h2 {
+      color: #0f62fe;
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    .faq-item p {
+      color: #b8b8b8;
+      line-height: 1.6;
+      margin: 0;
+    }
+  </style>
 </head>
 <body>
-    <nav class="sidebar">
-        <h2>A KI PRI SA YÉ</h2>
-        <ul>
-            <li><a href="index.html">Accueil</a></li>
-            <li><a href="modules.html">Modules</a></li>
-            <li><a href="scanner.html">Scan Ticket</a></li>
-            <li><a href="contact.html">Contact</a></li>
-            <li><a href="mentions.html">Mentions Légales</a></li>
-            <li><a href="plan.html">Plan du site</a></li>
-            <li><a href="faq.html">FAQ</a></li>
-            <li><a href="partenaires.html">Partenaires</a></li>
-        </ul>
-    </nav>
-    <main>
-        <h1>Foire Aux Questions (FAQ)</h1>
-        <section>
-            <h2>Comment fonctionne l'application ?</h2>
-            <p>L'application scanne les prix des produits en Outre-mer et les compare à ceux de la Métropole.</p>
+  <!-- Mobile Navigation Overlay -->
+  <div class="nav-overlay" id="nav-overlay"></div>
+  
+  <!-- Mobile Navigation -->
+  <nav class="mobile-nav" id="mobile-nav" role="navigation" aria-label="Navigation mobile">
+    <div class="mobile-nav-header">
+      <span class="mobile-nav-title">Menu</span>
+      <button class="close-nav" id="close-nav" aria-label="Fermer le menu">&times;</button>
+    </div>
+    <ul class="mobile-nav-list">
+      <li><a href="/"><span class="mobile-nav-icon">🏠</span>Accueil</a></li>
+      <li><a href="/comparateur.html"><span class="mobile-nav-icon">🔍</span>Comparateur</a></li>
+      <li><a href="/scanner.html"><span class="mobile-nav-icon">📷</span>Scanner</a></li>
+      <li><a href="/carte.html"><span class="mobile-nav-icon">🗺️</span>Carte</a></li>
+      <li><a href="/modules.html"><span class="mobile-nav-icon">🧩</span>Modules</a></li>
+      <li><a href="/ia-conseiller.html"><span class="mobile-nav-icon">🤖</span>IA Conseiller</a></li>
+      <li><a href="/historique.html"><span class="mobile-nav-icon">📊</span>Historique</a></li>
+      <li><a href="/mon-compte.html"><span class="mobile-nav-icon">👤</span>Mon Compte</a></li>
+      <li><a href="/faq.html"><span class="mobile-nav-icon">❓</span>FAQ</a></li>
+      <li><a href="/contact.html"><span class="mobile-nav-icon">📧</span>Contact</a></li>
+    </ul>
+  </nav>
 
-            <h2>Est-ce que c’est gratuit ?</h2>
-            <p>Oui, l'application est gratuite pour les fonctionnalités de base. Des modules Premium sont disponibles.</p>
+  <header class="shared-header">
+    <div class="shared-header-content">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <button class="burger-menu" id="burger-menu" aria-label="Menu" aria-expanded="false">
+          <div class="burger-line"></div>
+          <div class="burger-line"></div>
+          <div class="burger-line"></div>
+        </button>
+        <a href="/" class="shared-logo" aria-label="A KI PRI SA YÉ - Accueil">A KI PRI SA YÉ</a>
+      </div>
+      <nav class="header-nav" role="navigation" aria-label="Navigation principale">
+        <a href="/comparateur.html">Comparateur</a>
+        <a href="/scanner.html">Scanner</a>
+        <a href="/modules.html">Modules</a>
+        <a href="/mon-compte.html">Mon Compte</a>
+      </nav>
+    </div>
+  </header>
 
-            <h2>Comment signaler un prix abusif ?</h2>
-            <p>Vous pouvez le faire directement via l'application, en cliquant sur le bouton dédié.</p>
-        </section>
-    </main>
-    <footer class="footer">
-        <p>© 2025 A KI PRI SA YÉ – Tous droits réservés · Appli 100 % péyi 🇬🇵</p>
-    </footer>
+  <main>
+    <h1>❓ Foire Aux Questions (FAQ)</h1>
+    
+    <div class="faq-item">
+      <h2>Comment fonctionne l'application ?</h2>
+      <p>L'application scanne les prix des produits en Outre-mer et les compare à ceux de la Métropole pour vous aider à trouver les meilleures offres.</p>
+    </div>
+
+    <div class="faq-item">
+      <h2>Est-ce que c'est gratuit ?</h2>
+      <p>Oui, l'application est gratuite pour les fonctionnalités de base. Des modules Premium sont disponibles pour des fonctionnalités avancées.</p>
+    </div>
+
+    <div class="faq-item">
+      <h2>Comment scanner un produit ?</h2>
+      <p>Utilisez le module Scanner pour capturer le code-barres d'un produit avec votre appareil photo. L'application identifiera le produit et affichera les prix disponibles.</p>
+    </div>
+
+    <div class="faq-item">
+      <h2>Puis-je installer l'application sur mon téléphone ?</h2>
+      <p>Oui ! A KI PRI SA YÉ est une PWA (Progressive Web App). Vous pouvez l'installer sur votre téléphone via le bouton "Installer l'app" qui apparaît sur la page d'accueil.</p>
+    </div>
+
+    <div class="faq-item">
+      <h2>Comment signaler un prix incorrect ?</h2>
+      <p>Contactez-nous via la page Contact pour signaler toute erreur de prix. Votre contribution aide à maintenir la précision des données.</p>
+    </div>
+  </main>
+  
+  <script src="shared-nav.js" defer></script>
 </body>
 </html>

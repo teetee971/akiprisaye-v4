@@ -1,164 +1,179 @@
 <!DOCTYPE html>
-
 <html lang="fr">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="Simulation de scan de ticket de caisse pour A KI PRI SA YÉ." name="description"/>
-<title>Scan Ticket - A KI PRI SA YÉ</title>
-<link href="style.css" rel="stylesheet"/>
-<style>
-/* Animations générales */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.fade-in-up {
-  animation: fadeInUp 0.6s ease-out both;
-}
-
-/* Hover sur les boutons et liens */
-a, button {
-  transition: all 0.3s ease;
-}
-a:hover, button:hover {
-  color: #00ffc8;
-  transform: scale(1.05);
-}
-
-/* Pied de page dynamique */
-footer {
-  margin-top: 3rem;
-  padding: 1rem;
-  text-align: center;
-  font-size: 0.9rem;
-  color: #ccc;
-  border-top: 1px solid #333;
-  background: #0e1a1a;
-}
-footer span {
-  color: #00ffc8;
-  font-weight: bold;
-}
-</style>
-
-<style>
-/* Sidebar Desktop */
-nav.sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 220px;
-  height: 100%;
-  background-color: #0f1f1f;
-  padding-top: 2rem;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
-  z-index: 999;
-}
-nav.sidebar ul {
-  list-style: none;
-  padding: 0;
-}
-nav.sidebar li {
-  margin: 20px 0;
-  text-align: center;
-}
-nav.sidebar a {
-  color: #a8ffb0;
-  text-decoration: none;
-  font-weight: bold;
-  transition: all 0.3s ease;
-}
-nav.sidebar a:hover {
-  color: #00ffc8;
-  transform: scale(1.05);
-}
-
-/* Main content shifted right */
-main, header {
-  margin-left: 230px;
-}
-
-/* Responsive burger menu */
-.burger {
-  display: none;
-  position: fixed;
-  top: 15px;
-  left: 15px;
-  z-index: 1000;
-  cursor: pointer;
-  flex-direction: column;
-}
-.burger div {
-  width: 25px;
-  height: 3px;
-  background-color: #a8ffb0;
-  margin: 4px;
-}
-
-/* Mobile adjustments */
-@media screen and (max-width: 768px) {
-  nav.sidebar {
-    transform: translateX(-250px);
-    transition: transform 0.3s ease;
-  }
-  nav.sidebar.active {
-    transform: translateX(0);
-  }
-  .burger {
-    display: flex;
-  }
-  main, header {
-    margin-left: 0;
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-}
-</style></head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact - A KI PRI SA YÉ</title>
+  <meta name="description" content="Contactez l'équipe A KI PRI SA YÉ pour toute question ou suggestion."/>
+  
+  <!-- Open Graph -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Contact - A KI PRI SA YÉ"/>
+  
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json"/>
+  <meta name="theme-color" content="#0f62fe"/>
+  
+  <link rel="stylesheet" href="shared-nav.css"/>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #0b0d17;
+      color: #ffffff;
+    }
+    
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    
+    h1 {
+      color: #0f62fe;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .contact-form {
+      background: #1a1d2e;
+      border-radius: 12px;
+      padding: 2rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #b8b8b8;
+      font-weight: 500;
+    }
+    
+    input, textarea {
+      width: 100%;
+      padding: 0.75rem;
+      background: #0b0d17;
+      border: 1px solid #2a2d3e;
+      border-radius: 6px;
+      color: #ffffff;
+      font-family: inherit;
+    }
+    
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #0f62fe;
+    }
+    
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+    
+    button {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, #0f62fe, #0353e9);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(15, 98, 254, 0.4);
+    }
+    
+    .contact-info {
+      margin-top: 2rem;
+      text-align: center;
+      color: #b8b8b8;
+    }
+  </style>
+</head>
 <body>
-<!-- HTML menu + burger -->
-<div class="burger" onclick="toggleMenu()">
-<div></div><div></div><div></div>
-</div>
-<nav class="sidebar" id="sidebar">
-<ul>
-<li><a href="index.html">Accueil</a></li>
-<li><a href="modules.html">Modules</a></li>
-<li><a href="scanner.html">Scan Ticket</a></li>
-<li><a href="contact.html">Contact</a></li>
-</ul>
-</nav>
-<script>
-function toggleMenu() {
-  document.getElementById('sidebar').classList.toggle('active');
-}
-</script>
+  <!-- Mobile Navigation Overlay -->
+  <div class="nav-overlay" id="nav-overlay"></div>
+  
+  <!-- Mobile Navigation -->
+  <nav class="mobile-nav" id="mobile-nav" role="navigation" aria-label="Navigation mobile">
+    <div class="mobile-nav-header">
+      <span class="mobile-nav-title">Menu</span>
+      <button class="close-nav" id="close-nav" aria-label="Fermer le menu">&times;</button>
+    </div>
+    <ul class="mobile-nav-list">
+      <li><a href="/"><span class="mobile-nav-icon">🏠</span>Accueil</a></li>
+      <li><a href="/comparateur.html"><span class="mobile-nav-icon">🔍</span>Comparateur</a></li>
+      <li><a href="/scanner.html"><span class="mobile-nav-icon">📷</span>Scanner</a></li>
+      <li><a href="/carte.html"><span class="mobile-nav-icon">🗺️</span>Carte</a></li>
+      <li><a href="/modules.html"><span class="mobile-nav-icon">🧩</span>Modules</a></li>
+      <li><a href="/ia-conseiller.html"><span class="mobile-nav-icon">🤖</span>IA Conseiller</a></li>
+      <li><a href="/historique.html"><span class="mobile-nav-icon">📊</span>Historique</a></li>
+      <li><a href="/mon-compte.html"><span class="mobile-nav-icon">👤</span>Mon Compte</a></li>
+      <li><a href="/faq.html"><span class="mobile-nav-icon">❓</span>FAQ</a></li>
+      <li><a href="/contact.html"><span class="mobile-nav-icon">📧</span>Contact</a></li>
+    </ul>
+  </nav>
 
+  <header class="shared-header">
+    <div class="shared-header-content">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <button class="burger-menu" id="burger-menu" aria-label="Menu" aria-expanded="false">
+          <div class="burger-line"></div>
+          <div class="burger-line"></div>
+          <div class="burger-line"></div>
+        </button>
+        <a href="/" class="shared-logo" aria-label="A KI PRI SA YÉ - Accueil">A KI PRI SA YÉ</a>
+      </div>
+      <nav class="header-nav" role="navigation" aria-label="Navigation principale">
+        <a href="/comparateur.html">Comparateur</a>
+        <a href="/scanner.html">Scanner</a>
+        <a href="/modules.html">Modules</a>
+        <a href="/mon-compte.html">Mon Compte</a>
+      </nav>
+    </div>
+  </header>
 
-<header>
-<h1>🧾 Scan Intelligent de Ticket</h1>
-<p>Simulation de détection automatique des produits et prix</p>
-</header>
-<main class="fade-in-up">
-<section>
-<form>
-<label for="ticket-upload">Téléversez une image de ticket :</label><br/><br/>
-<input accept="image/*" id="ticket-upload" type="file"/><br/><br/>
-<button type="button">📷 Lancer la reconnaissance</button>
-</form>
-<p style="margin-top:2rem;">Résultat simulé :</p>
-<div style="background:#1e2f2f;padding:1rem;border-radius:10px;">
-<p><strong>Produit :</strong> Riz Basmati 1kg</p>
-<p><strong>Prix détecté :</strong> 3,89 €</p>
-<p><strong>Écart métropole :</strong> +42%</p>
-<p><strong>Alerte :</strong> Prix au-dessus du seuil moyen</p>
-</div>
-</section>
-<p style="text-align:center;margin-top:2rem;"><a href="modules.html" onmouseout="this.style.color='#a8ffb0'" onmouseover="this.style.color='#ffffff'" style="color: #a8ffb0; text-decoration: none;">← Retour aux modules</a></p>
-</main>
-<footer>
-<div>© 2025 <span>A KI PRI SA YÉ</span> – Tous droits réservés · Appli 100 % péyi 💛</div>
-</footer>
+  <main>
+    <h1>📧 Contactez-nous</h1>
+    
+    <form class="contact-form">
+      <div class="form-group">
+        <label for="name">Nom</label>
+        <input type="text" id="name" name="name" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="subject">Sujet</label>
+        <input type="text" id="subject" name="subject" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="message">Message</label>
+        <textarea id="message" name="message" required></textarea>
+      </div>
+      
+      <button type="submit">Envoyer le message</button>
+    </form>
+    
+    <div class="contact-info">
+      <p>Vous pouvez aussi nous joindre par email :</p>
+      <p><strong>contact@akiprisaye.fr</strong></p>
+    </div>
+  </main>
+  
+  <script src="shared-nav.js" defer></script>
 </body>
 </html>

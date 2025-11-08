@@ -1,42 +1,124 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Mon Historique de Prix – A KI PRI SA YÉ</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-  <script src="firebase-config.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Historique - A KI PRI SA YÉ</title>
+  <meta name="description" content="Consultez l'historique de vos recherches de prix." />
+  
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Historique - A KI PRI SA YÉ" />
+  
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0f62fe" />
+  
+  <link rel="stylesheet" href="shared-nav.css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #0b0d17;
+      color: #ffffff;
+    }
+    
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    
+    h1 {
+      color: #0f62fe;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .history-list {
+      background: #1a1d2e;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    
+    .history-item {
+      padding: 1rem;
+      border-bottom: 1px solid #2a2d3e;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .history-item:last-child {
+      border-bottom: none;
+    }
+    
+    .history-date {
+      color: #b8b8b8;
+      font-size: 0.9rem;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #b8b8b8;
+    }
+  </style>
 </head>
-<body class="dark">
-  <h1>🧾 Mon Historique de Prix</h1>
-  <div id="historique-container">Chargement de vos données...</div>
+<body>
+  <!-- Mobile Navigation Overlay -->
+  <div class="nav-overlay" id="nav-overlay"></div>
+  
+  <!-- Mobile Navigation -->
+  <nav class="mobile-nav" id="mobile-nav" role="navigation" aria-label="Navigation mobile">
+    <div class="mobile-nav-header">
+      <span class="mobile-nav-title">Menu</span>
+      <button class="close-nav" id="close-nav" aria-label="Fermer le menu">&times;</button>
+    </div>
+    <ul class="mobile-nav-list">
+      <li><a href="/"><span class="mobile-nav-icon">🏠</span>Accueil</a></li>
+      <li><a href="/comparateur.html"><span class="mobile-nav-icon">🔍</span>Comparateur</a></li>
+      <li><a href="/scanner.html"><span class="mobile-nav-icon">📷</span>Scanner</a></li>
+      <li><a href="/carte.html"><span class="mobile-nav-icon">🗺️</span>Carte</a></li>
+      <li><a href="/modules.html"><span class="mobile-nav-icon">🧩</span>Modules</a></li>
+      <li><a href="/ia-conseiller.html"><span class="mobile-nav-icon">🤖</span>IA Conseiller</a></li>
+      <li><a href="/historique.html"><span class="mobile-nav-icon">📊</span>Historique</a></li>
+      <li><a href="/mon-compte.html"><span class="mobile-nav-icon">👤</span>Mon Compte</a></li>
+      <li><a href="/faq.html"><span class="mobile-nav-icon">❓</span>FAQ</a></li>
+      <li><a href="/contact.html"><span class="mobile-nav-icon">📧</span>Contact</a></li>
+    </ul>
+  </nav>
 
-  <script>
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+  <header class="shared-header">
+    <div class="shared-header-content">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <button class="burger-menu" id="burger-menu" aria-label="Menu" aria-expanded="false">
+          <div class="burger-line"></div>
+          <div class="burger-line"></div>
+          <div class="burger-line"></div>
+        </button>
+        <a href="/" class="shared-logo" aria-label="A KI PRI SA YÉ - Accueil">A KI PRI SA YÉ</a>
+      </div>
+      <nav class="header-nav" role="navigation" aria-label="Navigation principale">
+        <a href="/comparateur.html">Comparateur</a>
+        <a href="/scanner.html">Scanner</a>
+        <a href="/modules.html">Modules</a>
+        <a href="/mon-compte.html">Mon Compte</a>
+      </nav>
+    </div>
+  </header>
 
-    auth.signInAnonymously().then(() => {
-      const uid = auth.currentUser.uid;
-      db.collection("historique")
-        .where("uid", "==", uid)
-        .orderBy("date", "desc")
-        .get()
-        .then(snapshot => {
-          const container = document.getElementById("historique-container");
-          container.innerHTML = "";
-          snapshot.forEach(doc => {
-            const data = doc.data();
-            const entry = document.createElement("div");
-            entry.className = "historique-entry";
-            entry.innerHTML = `<b>${data.produit}</b> - ${data.prix.toFixed(2)} € à ${data.magasin || 'lieu inconnu'} le ${new Date(data.date.seconds * 1000).toLocaleDateString()}`;
-            container.appendChild(entry);
-          });
-        });
-    });
-  </script>
+  <main>
+    <h1>📊 Historique de vos recherches</h1>
+    <div class="history-list">
+      <div class="empty-state">
+        <p>Aucun historique pour le moment</p>
+        <p style="margin-top: 1rem;">Vos recherches de prix apparaîtront ici</p>
+      </div>
+    </div>
+  </main>
+  
+  <script src="shared-nav.js" defer></script>
 </body>
 </html>
