@@ -100,11 +100,14 @@
       font-size: 2.8rem;
       margin: 0 0 1rem 0;
       letter-spacing: 0.05rem;
+      max-width: 90%;
+      word-wrap: break-word;
     }
 
     p.slogan {
       font-size: 1.5rem;
       margin: 0.5rem 0;
+      max-width: 90%;
     }
 
     .btn {
@@ -123,12 +126,73 @@
     }
 
     /* Ajustements responsifs pour petits écrans */
-    @media (max-width: 768px) {
+    /* Écrans très petits (smartphones en mode portrait) */
+    @media (max-width: 360px) {
+      .overlay {
+        padding: 1rem;
+      }
+      h1 {
+        font-size: 1.5rem;
+        margin: 0 0 0.75rem 0;
+      }
+      p.slogan {
+        font-size: 0.9rem;
+        margin: 0.3rem 0;
+      }
+      .btn {
+        padding: 0.7rem 1.2rem;
+        font-size: 0.9rem;
+        margin-top: 1.5rem;
+      }
+    }
+
+    /* Smartphones */
+    @media (min-width: 361px) and (max-width: 480px) {
+      .overlay {
+        padding: 1.25rem;
+      }
+      h1 {
+        font-size: 1.75rem;
+        margin: 0 0 0.85rem 0;
+      }
+      p.slogan {
+        font-size: 1rem;
+        margin: 0.4rem 0;
+      }
+      .btn {
+        padding: 0.75rem 1.4rem;
+        font-size: 0.95rem;
+        margin-top: 1.75rem;
+      }
+    }
+
+    /* Smartphones plus grands et petites tablettes en mode portrait */
+    @media (min-width: 481px) and (max-width: 768px) {
+      .overlay {
+        padding: 1.5rem;
+      }
       h1 {
         font-size: 2rem;
+        margin: 0 0 1rem 0;
       }
       p.slogan {
         font-size: 1.1rem;
+        margin: 0.5rem 0;
+      }
+      .btn {
+        padding: 0.8rem 1.6rem;
+        font-size: 1rem;
+        margin-top: 2rem;
+      }
+    }
+
+    /* Tablettes */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      h1 {
+        font-size: 2.4rem;
+      }
+      p.slogan {
+        font-size: 1.3rem;
       }
     }
   </style>
