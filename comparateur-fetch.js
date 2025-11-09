@@ -163,21 +163,39 @@ async function handleSearch(event) {
     return;
   }
   
-  // Show loading state
+  // Show loading state with animated spinner
   const resultsDiv = document.getElementById('price-results');
   if (resultsDiv) {
-    resultsDiv.innerHTML = '<p class="loading">⏳ Chargement des prix...</p>';
+    resultsDiv.innerHTML = `
+      <div class="loading">
+        <div style="font-size: 3rem; animation: spin 1s linear infinite;">⏳</div>
+        <p>Recherche des meilleurs prix...</p>
+      </div>
+      <style>
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      </style>
+    `;
   }
   
   try {
     const data = await fetchPrices(ean);
     renderPricesTable(data);
+    
+    // Add to search history if function is available
+    if (typeof window.addToSearchHistory === 'function') {
+      const productName = data.product?.name || 'Produit inconnu';
+      window.addToSearchHistory(ean, productName);
+    }
   } catch (error) {
     if (resultsDiv) {
       resultsDiv.innerHTML = `
         <div class="error">
           <p>❌ Erreur lors de la récupération des prix</p>
           <p class="hint">${escapeHtml(error.message)}</p>
+          <p class="hint">Astuce : Vérifiez votre connexion ou réessayez plus tard</p>
         </div>
       `;
     }
