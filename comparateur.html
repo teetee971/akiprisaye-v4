@@ -25,8 +25,8 @@
     <div class="search-container"><form id="comparateur-form"><label for="ean-input">Code EAN :</label><input type="text" id="ean-input" name="ean" placeholder="Ex: 3017620422003" required pattern="[0-9]{8,14}" title="Code EAN (8 à 14 chiffres)"><button type="submit">🔍 Comparer les prix</button></form></div>
     <div id="price-results"><p class="hint">Entrez un code EAN pour comparer les prix dans différents magasins.</p></div>
   </main>
-  <script src="shared-nav.js" defer></script>
-  <script src="comparateur-fetch.js" defer></script>
+  <script type="module" src="shared-nav.js"></script>
+  <script type="module" src="comparateur-fetch.js"></script>
   <script type="module" src="comparateur-autofill.js"></script>
 </body>
 </html>
