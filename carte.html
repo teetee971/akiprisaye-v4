@@ -43,6 +43,60 @@
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
+    
+    .map-controls {
+      margin-bottom: 1rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    
+    .territory-select {
+      padding: 0.75rem 1rem;
+      background: #1a1d2e;
+      border: 1px solid #2a2d3e;
+      border-radius: 8px;
+      color: #ffffff;
+      font-size: 1rem;
+      cursor: pointer;
+      min-width: 200px;
+    }
+    
+    .territory-select:focus {
+      outline: none;
+      border-color: #0f62fe;
+    }
+    
+    .map-legend {
+      background: rgba(26, 29, 46, 0.95);
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid #2a2d3e;
+      margin-top: 1rem;
+    }
+    
+    .map-legend h3 {
+      margin: 0 0 0.5rem 0;
+      color: #0f62fe;
+      font-size: 1rem;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0.25rem 0;
+      font-size: 0.9rem;
+      color: #b8b8b8;
+    }
+    
+    .legend-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #0f62fe;
+    }
   </style>
 </head>
 <body>
@@ -90,26 +144,119 @@
 
   <main>
     <h1>🗺️ Carte interactive des magasins</h1>
+    
+    <div class="map-controls">
+      <select class="territory-select" id="territory-filter" aria-label="Filtrer par territoire">
+        <option value="all">Tous les territoires</option>
+        <option value="guadeloupe" selected>🇬🇵 Guadeloupe</option>
+        <option value="martinique">🇲🇶 Martinique</option>
+        <option value="guyane">🇬🇫 Guyane</option>
+        <option value="reunion">🇷🇪 La Réunion</option>
+        <option value="mayotte">🇾🇹 Mayotte</option>
+        <option value="spm">🇵🇲 Saint-Pierre-et-Miquelon</option>
+        <option value="stbarth">🇧🇱 Saint-Barthélemy</option>
+        <option value="stmartin">🇲🇫 Saint-Martin</option>
+        <option value="wallis">🇼🇫 Wallis-et-Futuna</option>
+        <option value="polynesie">🇵🇫 Polynésie française</option>
+        <option value="noumea">🇳🇨 Nouvelle-Calédonie</option>
+        <option value="taaf">🇹🇫 Terres australes</option>
+      </select>
+    </div>
+    
     <div id="map"></div>
+    
+    <div class="map-legend">
+      <h3>📍 Légende</h3>
+      <div class="legend-item">
+        <span class="legend-icon"></span>
+        <span>Magasins partenaires</span>
+      </div>
+      <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #b8b8b8;">
+        💡 Cliquez sur un marqueur pour voir les informations du magasin
+      </p>
+    </div>
   </main>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
+    // Territory coordinates for map centering
+    const territories = {
+      guadeloupe: { lat: 16.265, lon: -61.551, zoom: 10 },
+      martinique: { lat: 14.641, lon: -61.024, zoom: 10 },
+      guyane: { lat: 4.938, lon: -52.330, zoom: 8 },
+      reunion: { lat: -21.115, lon: 55.536, zoom: 10 },
+      mayotte: { lat: -12.823, lon: 45.166, zoom: 11 },
+      spm: { lat: 46.779, lon: -56.180, zoom: 11 },
+      stbarth: { lat: 17.900, lon: -62.833, zoom: 13 },
+      stmartin: { lat: 18.073, lon: -63.082, zoom: 13 },
+      wallis: { lat: -13.282, lon: -176.176, zoom: 12 },
+      polynesie: { lat: -17.679, lon: -149.407, zoom: 9 },
+      noumea: { lat: -22.276, lon: 166.458, zoom: 10 },
+      taaf: { lat: -49.280, lon: 69.348, zoom: 6 }
+    };
+
     var map = L.map('map').setView([16.265, -61.551], 10); // Guadeloupe par défaut
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap'
+    // Dark theme map tiles (CartoDB Dark Matter)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap © CARTO',
+      maxZoom: 19
     }).addTo(map);
 
-    const magasins = [
-      { name: "Carrefour Destreland", lat: 16.2676, lon: -61.5252 },
-      { name: "E.Leclerc Abymes", lat: 16.2731, lon: -61.5062 },
-      { name: "Leader Price Baie-Mahault", lat: 16.2679, lon: -61.5863 }
-    ];
+    // Store markers data (expandable for all territories)
+    const magasinsData = {
+      guadeloupe: [
+        { name: "Carrefour Destreland", lat: 16.2676, lon: -61.5252 },
+        { name: "E.Leclerc Abymes", lat: 16.2731, lon: -61.5062 },
+        { name: "Leader Price Baie-Mahault", lat: 16.2679, lon: -61.5863 }
+      ],
+      martinique: [
+        { name: "Carrefour Dillon", lat: 14.616, lon: -61.053 }
+      ],
+      // Add more territories as data becomes available
+    };
 
-    magasins.forEach(m => {
-      L.marker([m.lat, m.lon]).addTo(map)
-        .bindPopup('<strong>' + m.name + '</strong>');
+    let currentMarkers = [];
+
+    function showStoresForTerritory(territory) {
+      // Clear existing markers
+      currentMarkers.forEach(marker => map.removeLayer(marker));
+      currentMarkers = [];
+
+      if (territory === 'all') {
+        // Show all stores from all territories
+        Object.keys(magasinsData).forEach(terr => {
+          const stores = magasinsData[terr] || [];
+          stores.forEach(m => {
+            const marker = L.marker([m.lat, m.lon]).addTo(map)
+              .bindPopup(`<strong>${m.name}</strong><br><small>${terr}</small>`);
+            currentMarkers.push(marker);
+          });
+        });
+        map.setView([16.265, -61.551], 4); // Zoomed out view
+      } else {
+        // Show stores for selected territory
+        const stores = magasinsData[territory] || [];
+        stores.forEach(m => {
+          const marker = L.marker([m.lat, m.lon]).addTo(map)
+            .bindPopup(`<strong>${m.name}</strong>`);
+          currentMarkers.push(marker);
+        });
+        
+        // Center map on territory
+        if (territories[territory]) {
+          const t = territories[territory];
+          map.setView([t.lat, t.lon], t.zoom);
+        }
+      }
+    }
+
+    // Initial load - show Guadeloupe stores
+    showStoresForTerritory('guadeloupe');
+
+    // Territory filter change handler
+    document.getElementById('territory-filter')?.addEventListener('change', function(e) {
+      showStoresForTerritory(e.target.value);
     });
   </script>
   

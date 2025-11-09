@@ -64,6 +64,68 @@
       padding: 3rem;
       color: #b8b8b8;
     }
+    
+    .history-actions {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      justify-content: flex-end;
+    }
+    
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #0f62fe, #0353e9);
+      color: #ffffff;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(15, 98, 254, 0.4);
+    }
+    
+    .btn-danger {
+      background: transparent;
+      color: #ef4444;
+      border: 2px solid #ef4444;
+    }
+    
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.1);
+    }
+    
+    .history-product {
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 0.25rem;
+    }
+    
+    .history-ean {
+      color: #b8b8b8;
+      font-size: 0.85rem;
+    }
+    
+    .history-link {
+      color: #0f62fe;
+      text-decoration: none;
+      font-size: 0.9rem;
+      padding: 0.5rem 1rem;
+      border: 1px solid #0f62fe;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+    
+    .history-link:hover {
+      background: rgba(15, 98, 254, 0.1);
+    }
   </style>
 </head>
 <body>
@@ -111,15 +173,151 @@
 
   <main>
     <h1>📊 Historique de vos recherches</h1>
-    <div class="history-list">
-      <div class="empty-state">
-        <p>Aucun historique pour le moment</p>
+    
+    <div class="history-actions" id="history-actions" style="display: none;">
+      <button class="btn btn-danger" id="clear-history" aria-label="Effacer l'historique">
+        🗑️ Effacer l'historique
+      </button>
+    </div>
+    
+    <div class="history-list" id="history-container">
+      <div class="empty-state" id="empty-state">
+        <p>📭 Aucun historique pour le moment</p>
         <p style="margin-top: 1rem;">Vos recherches de prix apparaîtront ici</p>
+        <a href="/comparateur.html" class="history-link" style="display: inline-block; margin-top: 1rem;">
+          Commencer une recherche →
+        </a>
       </div>
     </div>
   </main>
   
   <script type="module" src="shared-nav.js"></script>
   <script src="cookie-consent.js"></script>
+  
+  <script>
+    // History management using localStorage
+    class SearchHistory {
+      constructor() {
+        this.storageKey = 'akiprisaye-search-history';
+        this.maxItems = 50; // Limit history to 50 items
+        this.init();
+      }
+      
+      init() {
+        this.displayHistory();
+      }
+      
+      getHistory() {
+        try {
+          const data = localStorage.getItem(this.storageKey);
+          return data ? JSON.parse(data) : [];
+        } catch (e) {
+          console.error('Error reading history:', e);
+          return [];
+        }
+      }
+      
+      displayHistory() {
+        const history = this.getHistory();
+        const container = document.getElementById('history-container');
+        const emptyState = document.getElementById('empty-state');
+        const actions = document.getElementById('history-actions');
+        
+        if (history.length === 0) {
+          emptyState.style.display = 'block';
+          actions.style.display = 'none';
+          return;
+        }
+        
+        emptyState.style.display = 'none';
+        actions.style.display = 'flex';
+        
+        // Sort by date (newest first)
+        history.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        container.innerHTML = history.map(item => `
+          <div class="history-item">
+            <div>
+              <div class="history-product">${this.escapeHtml(item.product || item.ean)}</div>
+              <div class="history-ean">EAN: ${this.escapeHtml(item.ean)}</div>
+              <div class="history-date">${this.formatDate(item.date)}</div>
+            </div>
+            <a href="/comparateur.html?ean=${encodeURIComponent(item.ean)}" class="history-link">
+              Rechercher à nouveau →
+            </a>
+          </div>
+        `).join('');
+      }
+      
+      clearHistory() {
+        if (confirm('Êtes-vous sûr de vouloir effacer tout l\'historique ?')) {
+          localStorage.removeItem(this.storageKey);
+          this.displayHistory();
+        }
+      }
+      
+      formatDate(dateStr) {
+        const date = new Date(dateStr);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+        
+        if (diffMins < 1) return 'À l\'instant';
+        if (diffMins < 60) return `Il y a ${diffMins} min`;
+        if (diffHours < 24) return `Il y a ${diffHours}h`;
+        if (diffDays < 7) return `Il y a ${diffDays} jour${diffDays > 1 ? 's' : ''}`;
+        
+        return date.toLocaleDateString('fr-FR', { 
+          year: 'numeric', 
+          month: 'short', 
+          day: 'numeric' 
+        });
+      }
+      
+      escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+    }
+    
+    // Initialize history
+    const searchHistory = new SearchHistory();
+    
+    // Clear history button
+    document.getElementById('clear-history')?.addEventListener('click', () => {
+      searchHistory.clearHistory();
+    });
+    
+    // Export function for comparateur to add to history
+    window.addToSearchHistory = function(ean, product) {
+      try {
+        const history = JSON.parse(localStorage.getItem('akiprisaye-search-history') || '[]');
+        
+        // Check if this EAN already exists, update it
+        const existingIndex = history.findIndex(item => item.ean === ean);
+        if (existingIndex !== -1) {
+          history.splice(existingIndex, 1);
+        }
+        
+        history.unshift({
+          ean: ean,
+          product: product,
+          date: new Date().toISOString()
+        });
+        
+        // Keep only the last 50 items
+        if (history.length > 50) {
+          history.splice(50);
+        }
+        
+        localStorage.setItem('akiprisaye-search-history', JSON.stringify(history));
+      } catch (e) {
+        console.error('Error saving to history:', e);
+      }
+    };
+  </script>
 </body>
 </html>
