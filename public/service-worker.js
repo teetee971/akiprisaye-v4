@@ -1,9 +1,9 @@
-// Service Worker v4 pour A KI PRI SA YÉ
+// Service Worker v1.2 pour A KI PRI SA YÉ - Glass Pro Edition
 // Gère le cache statique et permet l'accès hors-ligne avec stratégie améliorée
 
-const CACHE_VERSION = 'v4';
-const CACHE_NAME = `akipsy-cache-${CACHE_VERSION}`;
-const DYNAMIC_CACHE = `akipsy-dynamic-${CACHE_VERSION}`;
+const CACHE_NAME = "akiprisaye-v1.2";
+const DYNAMIC_CACHE = `akipsy-dynamic-v1.2`;
+const OFFLINE_URL = "/offline.html";
 
 // Liste des ressources à mettre en cache lors de l'installation
 const STATIC_ASSETS = [
@@ -31,14 +31,14 @@ const CACHE_BLACKLIST = [
 ];
 
 // Événement d'installation : mise en cache des ressources statiques
-self.addEventListener('install', (event) => {
-  console.log('[SW] Installing Service Worker v4...');
+self.addEventListener('install', (e) => {
+  console.log('[SW] Installing Service Worker v1.2...');
   
-  event.waitUntil(
+  e.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('[SW] Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
+        return cache.addAll([OFFLINE_URL]);
       })
       .catch((err) => {
         console.error('[SW] Cache addAll failed:', err);
@@ -52,7 +52,7 @@ self.addEventListener('install', (event) => {
 
 // Événement d'activation : nettoyage des anciens caches
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating Service Worker v4...');
+  console.log('[SW] Activating Service Worker v1.2...');
   
   event.waitUntil(
     caches.keys()
@@ -148,28 +148,10 @@ async function cacheFirst(request) {
 }
 
 // Événement de récupération : stratégie adaptative selon le type de requête
-self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  const url = new URL(request.url);
-  
-  // Ignore les requêtes non-GET
-  if (request.method !== 'GET') {
-    return;
-  }
-  
-  // Ignore les requêtes chrome-extension
-  if (url.protocol === 'chrome-extension:') {
-    return;
-  }
-  
-  // Stratégie Network First pour les API
-  if (url.pathname.startsWith('/api/')) {
-    event.respondWith(networkFirst(request));
-    return;
-  }
-  
-  // Stratégie Cache First pour tout le reste
-  event.respondWith(cacheFirst(request));
+self.addEventListener('fetch', (e) => {
+  e.respondWith(
+    fetch(e.request).catch(() => caches.match(e.request).then((r) => r || caches.match(OFFLINE_URL)))
+  );
 });
 
 // Événement de message : permet la communication avec l'app
@@ -205,4 +187,4 @@ async function syncPrices() {
   }
 }
 
-console.log('[SW] Service Worker v4 loaded');
+console.log('[SW] Service Worker v1.2 Glass Pro Edition loaded');

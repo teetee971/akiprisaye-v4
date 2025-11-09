@@ -88,26 +88,26 @@ export default function NewsWidget({ limit = 3, showFullButton = true }) {
 
   if (loading) {
     return (
-      <div className="bg-[#1e1e1e] rounded-xl border border-gray-700 p-6">
+      <section className="p-6 bg-surface backdrop-blur-md rounded-xl shadow-lg">
         <div className="animate-pulse space-y-4">
           <div className="h-4 bg-gray-700 rounded w-3/4"></div>
           <div className="h-4 bg-gray-700 rounded w-1/2"></div>
           <div className="h-4 bg-gray-700 rounded w-5/6"></div>
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="bg-[#1e1e1e] rounded-xl border border-gray-700 p-6">
+    <section className="p-6 bg-surface backdrop-blur-md rounded-xl shadow-lg">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-          📰 Actualités
+        <h2 className="text-2xl font-semibold text-text flex items-center gap-2">
+          📰 Fil d'actualité
         </h2>
         {showFullButton && (
           <a 
             href="/actualites.html" 
-            className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors"
+            className="text-accent hover:underline text-sm font-medium transition-colors"
           >
             Voir tout →
           </a>
@@ -118,7 +118,7 @@ export default function NewsWidget({ limit = 3, showFullButton = true }) {
         {news.map((item) => (
           <article 
             key={item.id} 
-            className="bg-[#252525] rounded-lg p-4 hover:bg-[#2a2a2a] transition-colors border border-gray-700"
+            className="border-b border-white/10 pb-3 mb-3 last:border-b-0"
           >
             <div className="flex items-start gap-3">
               <div className="flex-1">
@@ -126,15 +126,15 @@ export default function NewsWidget({ limit = 3, showFullButton = true }) {
                   <span className={`text-xs px-2 py-1 rounded-full text-white font-medium ${getCategoryColor(item.category)}`}>
                     {item.category}
                   </span>
-                  <span className="text-xs text-gray-400">{item.territory}</span>
+                  <span className="text-sm text-gray-400">{item.territory}</span>
                 </div>
-                <h3 className="text-white font-semibold mb-2 leading-tight">
+                <a href="#" className="text-accent hover:underline font-semibold">
                   {item.title}
-                </h3>
-                <p className="text-gray-400 text-sm mb-2 line-clamp-2">
+                </a>
+                <p className="text-gray-400 text-sm mb-2 line-clamp-2 mt-1">
                   {item.summary}
                 </p>
-                <time className="text-xs text-gray-500">
+                <time className="text-xs text-gray-400">
                   {formatDate(item.date)}
                 </time>
               </div>
@@ -148,6 +148,6 @@ export default function NewsWidget({ limit = 3, showFullButton = true }) {
           <p>Aucune actualité disponible pour le moment.</p>
         </div>
       )}
-    </div>
+    </section>
   );
 }

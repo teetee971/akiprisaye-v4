@@ -2,6 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import './styles/glass.css';
 import Home from './pages/Home';
 import ChatIALocal from './components/ChatIALocal';
 import ScanOCR from './pages/ScanOCR';
