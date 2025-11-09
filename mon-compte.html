@@ -28,6 +28,7 @@
       max-width: 800px;
       margin: 0 auto;
       padding: 2rem 1rem;
+      padding-bottom: max(2rem, env(safe-area-inset-bottom));
     }
     
     h1 {
@@ -78,6 +79,7 @@
     .btn-primary {
       width: 100%;
       padding: 1rem;
+      min-height: 48px;
       background: linear-gradient(135deg, #0f62fe, #0353e9);
       color: white;
       border: none;
@@ -86,6 +88,7 @@
       font-size: 1rem;
       cursor: pointer;
       transition: all 0.3s;
+      touch-action: manipulation;
     }
     
     .btn-primary:hover {
@@ -163,11 +166,24 @@
           <label for="territory">Territoire</label>
           <select id="territory" name="territory">
             <option value="">Sélectionnez votre territoire</option>
-            <option value="guadeloupe">Guadeloupe</option>
-            <option value="martinique">Martinique</option>
-            <option value="guyane">Guyane</option>
-            <option value="reunion">Réunion</option>
-            <option value="mayotte">Mayotte</option>
+            <optgroup label="DROM (Départements et Régions d'Outre-Mer)">
+              <option value="guadeloupe">🇬🇵 Guadeloupe</option>
+              <option value="martinique">🇲🇶 Martinique</option>
+              <option value="guyane">🇬🇫 Guyane</option>
+              <option value="reunion">🇷🇪 La Réunion</option>
+              <option value="mayotte">🇾🇹 Mayotte</option>
+            </optgroup>
+            <optgroup label="COM (Collectivités d'Outre-Mer)">
+              <option value="polynesie">🇵🇫 Polynésie française</option>
+              <option value="nouvellecaledonie">🇳🇨 Nouvelle-Calédonie</option>
+              <option value="wallisetfutuna">🇼🇫 Wallis-et-Futuna</option>
+              <option value="saintmartin">🇲🇫 Saint-Martin</option>
+              <option value="saintbarthelemy">🇧🇱 Saint-Barthélemy</option>
+              <option value="saintpierreetmiquelon">🇵🇲 Saint-Pierre-et-Miquelon</option>
+            </optgroup>
+            <optgroup label="Autres territoires">
+              <option value="taaf">🇹🇫 Terres australes et antarctiques françaises (TAAF)</option>
+            </optgroup>
           </select>
         </div>
         
