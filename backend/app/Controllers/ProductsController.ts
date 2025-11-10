@@ -8,6 +8,42 @@ interface Product {
   image: string | null;
 }
 
+// Simple in-memory cache for trending products
+const trendingCache = new Map<string, { data: Product[]; timestamp: number }>();
+const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+// Static seed data for trending products by territory
+const TRENDING_SEEDS: Record<string, Product[]> = {
+  Guadeloupe: [
+    { ean: '3017620422003', name: 'Nutella 400g', brand: 'Ferrero', image: null },
+    { ean: '3560070557547', name: 'Huile Tournesol 1L', brand: 'Lesieur', image: null },
+    { ean: '3270160648023', name: 'Riz Basmati 1kg', brand: 'Taureau Ailé', image: null },
+    { ean: '3564700256602', name: 'Lait demi-écrémé 1L', brand: 'Lactel', image: null },
+    { ean: '3560070557554', name: 'Pâtes Spaghetti 500g', brand: 'Panzani', image: null },
+  ],
+  Martinique: [
+    { ean: '3017620422003', name: 'Nutella 400g', brand: 'Ferrero', image: null },
+    { ean: '3560070557547', name: 'Huile Tournesol 1L', brand: 'Lesieur', image: null },
+    { ean: '3270160648023', name: 'Riz Basmati 1kg', brand: 'Taureau Ailé', image: null },
+    { ean: '3564700256602', name: 'Lait demi-écrémé 1L', brand: 'Lactel', image: null },
+    { ean: '3560070557554', name: 'Pâtes Spaghetti 500g', brand: 'Panzani', image: null },
+  ],
+  Réunion: [
+    { ean: '3017620422003', name: 'Nutella 400g', brand: 'Ferrero', image: null },
+    { ean: '3560070557547', name: 'Huile Tournesol 1L', brand: 'Lesieur', image: null },
+    { ean: '3270160648023', name: 'Riz Basmati 1kg', brand: 'Taureau Ailé', image: null },
+    { ean: '3564700256602', name: 'Lait demi-écrémé 1L', brand: 'Lactel', image: null },
+    { ean: '3560070557554', name: 'Pâtes Spaghetti 500g', brand: 'Panzani', image: null },
+  ],
+  Guyane: [
+    { ean: '3017620422003', name: 'Nutella 400g', brand: 'Ferrero', image: null },
+    { ean: '3560070557547', name: 'Huile Tournesol 1L', brand: 'Lesieur', image: null },
+    { ean: '3270160648023', name: 'Riz Basmati 1kg', brand: 'Taureau Ailé', image: null },
+    { ean: '3564700256602', name: 'Lait demi-écrémé 1L', brand: 'Lactel', image: null },
+    { ean: '3560070557554', name: 'Pâtes Spaghetti 500g', brand: 'Panzani', image: null },
+  ],
+};
+
 class ProductsController {
   /**
    * GET /api/products/search
@@ -43,6 +79,45 @@ class ProductsController {
       console.error('Erreur API produits :', error);
       return response.internalServerError({
         error: 'Error searching products',
+        message: error.message
+      });
+    }
+  }
+
+  /**
+   * GET /api/products/trending
+   * Get trending/popular products by territory with 24h cache
+   */
+  async trending({ request, response }) {
+    try {
+      const territory = request.qs().territory || 'Guadeloupe';
+      const cacheKey = `trending:${territory}`;
+      const now = Date.now();
+      
+      // Check cache
+      if (trendingCache.has(cacheKey)) {
+        const cached = trendingCache.get(cacheKey)!;
+        if (now - cached.timestamp < CACHE_TTL) {
+          return response.ok(cached.data);
+        }
+        // Cache expired, remove it
+        trendingCache.delete(cacheKey);
+      }
+      
+      // Get seed data or default to Guadeloupe
+      const data = TRENDING_SEEDS[territory] || TRENDING_SEEDS.Guadeloupe;
+      
+      // Store in cache
+      trendingCache.set(cacheKey, {
+        data,
+        timestamp: now,
+      });
+      
+      return response.ok(data);
+    } catch (error) {
+      console.error('Erreur API trending :', error);
+      return response.internalServerError({
+        error: 'Error fetching trending products',
         message: error.message
       });
     }

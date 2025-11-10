@@ -120,6 +120,25 @@ export default [
         process: 'readonly',
         Buffer: 'readonly',
         global: 'readonly',
+        // Cloudflare Workers / Edge runtime globals
+        Response: 'readonly',
+        Request: 'readonly',
+        fetch: 'readonly',
+        URL: 'readonly',
+        console: 'readonly',
+      },
+    },
+  },
+  
+  // React components configuration
+  {
+    files: ['src/**/*.jsx', 'src/**/*.js'],
+    languageOptions: {
+      globals: {
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
       },
     },
   },
