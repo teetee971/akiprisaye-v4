@@ -144,7 +144,7 @@ export default function Home() {
             </Link>
           </div>
         </div>
-      </section>
+      </main>
 
       {/* Mission Section */}
       <section className="bg-slate-900 border-t border-slate-800 py-12 px-4 sm:px-6 lg:px-8">
