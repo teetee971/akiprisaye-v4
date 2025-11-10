@@ -5,6 +5,7 @@
 *.pem
 *.env
 *.env.*
+!.env.example
 .env
 .env.local
 .env.development.local
