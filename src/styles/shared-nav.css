@@ -11,6 +11,24 @@
   --border: #2a2d3e;
 }
 
+/* Skip to content link for accessibility */
+.skip-to-content {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--primary);
+  color: var(--text);
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  z-index: 1000;
+  border-radius: 0 0 4px 0;
+  font-weight: 500;
+}
+
+.skip-to-content:focus {
+  top: 0;
+}
+
 /* Header Styles */
 .shared-header {
   position: sticky;
@@ -157,6 +175,12 @@
   border-left-color: var(--primary);
 }
 
+.mobile-nav-list a.active {
+  background: rgba(15, 98, 254, 0.15);
+  border-left-color: var(--primary);
+  font-weight: 600;
+}
+
 .mobile-nav-icon {
   font-size: 1.25rem;
   width: 24px;
@@ -200,6 +224,12 @@
 
 .header-nav a:hover {
   background: rgba(255, 255, 255, 0.1);
+}
+
+.header-nav a.active {
+  background: rgba(255, 255, 255, 0.2);
+  font-weight: 600;
+  border-bottom: 2px solid var(--text);
 }
 
 /* Responsive Styles */

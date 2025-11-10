@@ -17,6 +17,11 @@ describe('Layout Component', () => {
     expect(screen.getByLabelText('A KI PRI SA YÉ - Accueil')).toBeInTheDocument();
   });
 
+  it('should render skip to content link', () => {
+    renderLayout();
+    expect(screen.getByText('Aller au contenu principal')).toBeInTheDocument();
+  });
+
   it('should render desktop navigation links', () => {
     renderLayout();
     const comparateurLinks = screen.getAllByText('Comparateur');
@@ -55,6 +60,20 @@ describe('Layout Component', () => {
     expect(mobileNav).not.toHaveClass('active');
   });
 
+  it('should close mobile navigation when Escape key is pressed', () => {
+    renderLayout();
+    const burgerButton = screen.getByLabelText('Menu');
+    const mobileNav = document.querySelector('.mobile-nav');
+    
+    // Open menu
+    fireEvent.click(burgerButton);
+    expect(mobileNav).toHaveClass('active');
+    
+    // Press Escape
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(mobileNav).not.toHaveClass('active');
+  });
+
   it('should render footer with links', () => {
     renderLayout();
     expect(screen.getByText('Mentions légales')).toBeInTheDocument();
@@ -65,5 +84,11 @@ describe('Layout Component', () => {
     renderLayout();
     const currentYear = new Date().getFullYear();
     expect(screen.getByText(new RegExp(currentYear.toString()))).toBeInTheDocument();
+  });
+
+  it('should have main content with proper id for skip link', () => {
+    renderLayout();
+    const mainContent = document.getElementById('main-content');
+    expect(mainContent).toBeInTheDocument();
   });
 });
