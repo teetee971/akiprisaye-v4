@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './styles/glass.css';
 import Home from './pages/Home';
+import Layout from './components/Layout';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ThemeProvider } from './context/ThemeContext';
 
@@ -15,6 +16,7 @@ const Actualites = lazy(() => import('./pages/Actualites'));
 const MentionsLegales = lazy(() => import('./pages/MentionsLegales'));
 const MonCompte = lazy(() => import('./pages/MonCompte'));
 const Pricing = lazy(() => import('./pages/Pricing'));
+const Contact = lazy(() => import('./pages/Contact'));
 
 // Loading component
 function LoadingFallback() {
@@ -35,15 +37,18 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <BrowserRouter>
           <Suspense fallback={<LoadingFallback />}>
             <Routes>
-              <Route path='/' element={<Home />} />
-              <Route path='/chat' element={<ChatIALocal />} />
-              <Route path='/scan' element={<ScanOCR />} />
-              <Route path='/comparateur' element={<Comparateur />} />
-              <Route path='/carte' element={<Carte />} />
-              <Route path='/actualites' element={<Actualites />} />
-              <Route path='/mentions-legales' element={<MentionsLegales />} />
-              <Route path='/mon-compte' element={<MonCompte />} />
-              <Route path='/pricing' element={<Pricing />} />
+              <Route path='/' element={<Layout />}>
+                <Route index element={<Home />} />
+                <Route path='chat' element={<ChatIALocal />} />
+                <Route path='scan' element={<ScanOCR />} />
+                <Route path='comparateur' element={<Comparateur />} />
+                <Route path='carte' element={<Carte />} />
+                <Route path='actualites' element={<Actualites />} />
+                <Route path='mentions-legales' element={<MentionsLegales />} />
+                <Route path='mon-compte' element={<MonCompte />} />
+                <Route path='pricing' element={<Pricing />} />
+                <Route path='contact' element={<Contact />} />
+              </Route>
             </Routes>
           </Suspense>
         </BrowserRouter>
