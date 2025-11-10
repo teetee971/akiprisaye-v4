@@ -1,5 +1,23 @@
 // Navigation and Price Comparison Logic for A KI PRI SA YÉ
 
+/**
+ * Debounce function to limit how often a function can fire
+ * @param {Function} func - Function to debounce
+ * @param {number} wait - Wait time in milliseconds
+ * @returns {Function} Debounced function
+ */
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
 // Placeholder product data for price comparison
 const placeholderProducts = [
   {
@@ -138,8 +156,15 @@ function escapeHtml(text) {
 
 // Initialize navigation
 function initNavigation() {
-  // Discover app button
+  // Cache DOM queries
   const discoverBtn = document.getElementById('discover-app-btn');
+  const backToLandingBtn = document.getElementById('back-to-landing-btn');
+  const backToAppBtn = document.getElementById('back-to-app-btn');
+  const priceComparisonCard = document.querySelector('[data-navigate="price-comparison"]');
+  const searchBtn = document.getElementById('search-btn');
+  const productSearchInput = document.getElementById('product-search');
+  
+  // Discover app button
   if (discoverBtn) {
     discoverBtn.addEventListener('click', () => {
       showSection('app-section');
@@ -147,7 +172,6 @@ function initNavigation() {
   }
 
   // Back to landing button
-  const backToLandingBtn = document.getElementById('back-to-landing-btn');
   if (backToLandingBtn) {
     backToLandingBtn.addEventListener('click', () => {
       showSection('landing-section');
@@ -155,7 +179,6 @@ function initNavigation() {
   }
 
   // Back to app button
-  const backToAppBtn = document.getElementById('back-to-app-btn');
   if (backToAppBtn) {
     backToAppBtn.addEventListener('click', () => {
       showSection('app-section');
@@ -163,7 +186,6 @@ function initNavigation() {
   }
 
   // Navigate to price comparison from card
-  const priceComparisonCard = document.querySelector('[data-navigate="price-comparison"]');
   if (priceComparisonCard) {
     priceComparisonCard.addEventListener('click', (e) => {
       e.preventDefault();
@@ -171,25 +193,29 @@ function initNavigation() {
     });
   }
 
-  // Search functionality
-  const searchBtn = document.getElementById('search-btn');
-  const productSearchInput = document.getElementById('product-search');
-
+  // Search functionality with debouncing
   if (searchBtn && productSearchInput) {
-    searchBtn.addEventListener('click', () => {
+    const performSearch = () => {
       const keyword = productSearchInput.value;
       const results = searchProducts(keyword);
       renderProductResults(results);
-    });
+    };
+    
+    // Debounced search for input typing
+    const debouncedSearch = debounce(performSearch, 300);
+    
+    searchBtn.addEventListener('click', performSearch);
 
-    // Allow search on Enter key
+    // Allow search on Enter key (immediate) or debounce on typing
     productSearchInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
-        const keyword = productSearchInput.value;
-        const results = searchProducts(keyword);
-        renderProductResults(results);
+        e.preventDefault();
+        performSearch();
       }
     });
+    
+    // Debounce for real-time search as user types
+    productSearchInput.addEventListener('input', debouncedSearch);
   }
 }
 
