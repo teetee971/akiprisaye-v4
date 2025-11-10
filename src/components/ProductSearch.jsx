@@ -1,88 +1,77 @@
 import { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
+import Fuse from 'fuse.js';
+import { normalizeText } from '../utils/text';
 
 const DEBOUNCE = 250;
-const HISTORY_KEY = 'akiprisaye_search_history';
-const MAX_HISTORY = 5;
+const MAX_RESULTS = 15;
 
-// Get search history from localStorage
-function getSearchHistory() {
-  try {
-    const stored = localStorage.getItem(HISTORY_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch (err) {
-    console.error('Error reading search history:', err);
-    return [];
-  }
-}
-
-// Save to search history
-function saveToHistory(product) {
-  try {
-    const history = getSearchHistory();
-    // Remove if already exists to avoid duplicates
-    const filtered = history.filter(p => p.ean !== product.ean);
-    // Add to beginning
-    const updated = [product, ...filtered].slice(0, MAX_HISTORY);
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
-  } catch (err) {
-    console.error('Error saving to history:', err);
-  }
-}
-
-// Clear search history
-function clearHistory() {
-  try {
-    localStorage.removeItem(HISTORY_KEY);
-  } catch (err) {
-    console.error('Error clearing history:', err);
-  }
-}
-
-export default function ProductSearch({ territory, onPickEAN }) {
+export default function ProductSearch({ territory = 'Guadeloupe', onPickEAN }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [trending, setTrending] = useState([]);
-  const [history, setHistory] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [focused, setFocused] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+  
   const inputRef = useRef(null);
+  const listboxRef = useRef(null);
+  // ignoreBlurRef prevents blur from closing list when clicking an option
+  const ignoreBlurRef = useRef(false);
 
-  // Load trending products on mount and when territory changes
+  // Search products when query changes (debounced)
   useEffect(() => {
-    async function loadTrending() {
-      try {
-        const res = await fetch(`/api/products/trending?territory=${encodeURIComponent(territory || 'Guadeloupe')}`);
-        const data = await res.json();
-        setTrending(data);
-      } catch (err) {
-        console.error('Error loading trending products:', err);
-      }
-    }
-    loadTrending();
-  }, [territory]);
-
-  // Load search history on mount
-  useEffect(() => {
-    setHistory(getSearchHistory());
-  }, []);
-
-  // Search products when query changes
-  useEffect(() => {
-    if (query.trim().length < 3) {
+    const trimmedQuery = query.trim();
+    
+    if (trimmedQuery.length < 3) {
       setResults([]);
+      setIsOpen(false);
       return;
     }
 
     const timer = setTimeout(async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/products/search?q=${encodeURIComponent(query)}&territory=${encodeURIComponent(territory || 'Guadeloupe')}`);
+        const res = await fetch(
+          `/api/products/search?q=${encodeURIComponent(trimmedQuery)}&territory=${encodeURIComponent(territory)}`,
+        );
         const data = await res.json();
-        setResults(data);
+        
+        // Apply fuzzy re-ranking with Fuse.js if we have results
+        let rankedResults = data;
+        if (data && data.length > 0) {
+          const normalizedQuery = normalizeText(trimmedQuery);
+          
+          // Configure Fuse.js for fuzzy matching
+          const fuse = new Fuse(data, {
+            keys: [
+              { name: 'name', weight: 0.6 },
+              { name: 'brand', weight: 0.4 },
+            ],
+            threshold: 0.38,
+            ignoreLocation: true,
+            useExtendedSearch: false,
+            // Use normalized query for better matching
+            getFn: (obj, path) => {
+              const value = obj[path];
+              return value ? normalizeText(value) : '';
+            },
+          });
+          
+          const fuseResults = fuse.search(normalizedQuery);
+          
+          // If fuzzy search returns results, use them; otherwise fallback to original order
+          rankedResults = fuseResults.length > 0
+            ? fuseResults.map(r => r.item)
+            : data;
+        }
+        
+        setResults(rankedResults.slice(0, MAX_RESULTS));
+        setIsOpen(rankedResults.length > 0);
+        setActiveIndex(-1);
       } catch (err) {
         console.error('Erreur recherche produit :', err);
+        setResults([]);
+        setIsOpen(false);
       } finally {
         setLoading(false);
       }
@@ -91,121 +80,157 @@ export default function ProductSearch({ territory, onPickEAN }) {
     return () => clearTimeout(timer);
   }, [query, territory]);
 
-  // Determine if we should show suggestions
-  useEffect(() => {
-    setShowSuggestions(focused && query.length < 3);
-  }, [focused, query]);
+  // Handle keyboard navigation
+  const handleKeyDown = (e) => {
+    if (!isOpen || results.length === 0) {
+      // Esc closes even if no results
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+        setActiveIndex(-1);
+      }
+      return;
+    }
 
-  const handlePickProduct = (product) => {
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setActiveIndex((prev) => (prev < results.length - 1 ? prev + 1 : prev));
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setActiveIndex((prev) => (prev > 0 ? prev - 1 : -1));
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (activeIndex >= 0 && activeIndex < results.length) {
+          handleSelectProduct(results[activeIndex]);
+        }
+        break;
+      case 'Escape':
+        e.preventDefault();
+        setIsOpen(false);
+        setActiveIndex(-1);
+        break;
+      case 'Tab':
+        // Tab closes the list and allows normal focus flow
+        setIsOpen(false);
+        setActiveIndex(-1);
+        break;
+    }
+  };
+
+  const handleSelectProduct = (product) => {
     onPickEAN(product.ean);
-    saveToHistory(product);
-    setHistory(getSearchHistory()); // Refresh history
     setQuery('');
     setResults([]);
-    setShowSuggestions(false);
+    setIsOpen(false);
+    setActiveIndex(-1);
+    inputRef.current?.focus();
   };
 
-  const handleClearHistory = () => {
-    clearHistory();
-    setHistory([]);
+  const handleInputFocus = () => {
+    if (results.length > 0) {
+      setIsOpen(true);
+    }
   };
+
+  const handleInputBlur = () => {
+    // Delay to allow click selection to happen first
+    setTimeout(() => {
+      if (!ignoreBlurRef.current) {
+        setIsOpen(false);
+        setActiveIndex(-1);
+      }
+      ignoreBlurRef.current = false;
+    }, 200);
+  };
+
+  const handleMouseDown = () => {
+    // Prevent blur from closing the list when clicking an option
+    ignoreBlurRef.current = true;
+  };
+
+  // Generate stable IDs for ARIA
+  const getOptionId = (index) => `product-option-${index}`;
+  const listboxId = 'product-listbox';
 
   return (
     <div className="relative w-full max-w-xl mx-auto">
+      {/* Screen reader instructions */}
+      <div className="sr-only" id="search-instructions">
+        Use up and down arrow keys to navigate search results. Press Enter to select. Press Escape to close.
+      </div>
+      
       <input
         ref={inputRef}
         type="text"
+        role="combobox"
+        aria-autocomplete="list"
+        aria-expanded={isOpen}
+        aria-controls={listboxId}
+        aria-activedescendant={activeIndex >= 0 ? getOptionId(activeIndex) : undefined}
+        aria-describedby="search-instructions"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setTimeout(() => setFocused(false), 200)}
+        onKeyDown={handleKeyDown}
+        onFocus={handleInputFocus}
+        onBlur={handleInputBlur}
         placeholder="🔍 Rechercher un produit (ex : riz basmati, lait, pâtes...)"
         className="w-full p-3 rounded-xl bg-slate-800 text-white outline-none placeholder-gray-400"
       />
-      {loading && <div className="absolute right-3 top-3 text-xs text-gray-400">Chargement…</div>}
+      
+      {/* Loading indicator */}
+      {loading && (
+        <div className="absolute right-3 top-3 text-xs text-gray-400">
+          Chargement…
+        </div>
+      )}
+      
+      {/* Live region for loading state */}
+      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {loading ? 'Recherche en cours...' : ''}
+      </div>
+      
+      {/* Live region for result count */}
+      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {!loading && isOpen && results.length > 0 ? `${results.length} résultat${results.length > 1 ? 's' : ''} disponible${results.length > 1 ? 's' : ''}` : ''}
+      </div>
       
       {/* Search Results */}
-      {results.length > 0 && (
-        <ul className="absolute z-20 mt-2 w-full bg-slate-900/95 backdrop-blur-lg border border-white/10 rounded-xl shadow-xl max-h-80 overflow-auto">
-          {results.map((p) => (
+      {isOpen && results.length > 0 && (
+        <ul
+          ref={listboxRef}
+          id={listboxId}
+          role="listbox"
+          className="absolute z-20 mt-2 w-full bg-slate-900/95 backdrop-blur-lg border border-white/10 rounded-xl shadow-xl max-h-80 overflow-auto"
+        >
+          {results.map((product, index) => (
             <li
-              key={p.ean}
-              onClick={() => handlePickProduct(p)}
-              className="flex items-center gap-3 p-3 hover:bg-white/5 cursor-pointer"
+              key={product.ean}
+              id={getOptionId(index)}
+              role="option"
+              aria-selected={index === activeIndex}
+              onMouseDown={handleMouseDown}
+              onClick={() => handleSelectProduct(product)}
+              className={`flex items-center gap-3 p-3 cursor-pointer ${
+                index === activeIndex ? 'bg-white/10' : 'hover:bg-white/5'
+              }`}
             >
-              {p.image && (
-                <img src={p.image} alt={p.name} className="w-8 h-8 rounded object-cover" />
+              {product.image && (
+                <img
+                  src={product.image}
+                  alt=""
+                  className="w-8 h-8 rounded object-cover"
+                  aria-hidden="true"
+                />
               )}
               <div>
-                <div className="text-gray-100 text-sm">{p.name}</div>
-                <div className="text-gray-400 text-xs">{p.brand}</div>
+                <div className="text-gray-100 text-sm">{product.name}</div>
+                <div className="text-gray-400 text-xs">{product.brand}</div>
               </div>
             </li>
           ))}
         </ul>
-      )}
-      
-      {/* Suggestions (History + Trending) when focused and query < 3 chars */}
-      {showSuggestions && (
-        <div className="absolute z-20 mt-2 w-full bg-slate-900/95 backdrop-blur-lg border border-white/10 rounded-xl shadow-xl max-h-80 overflow-auto">
-          {/* Search History */}
-          {history.length > 0 && (
-            <div>
-              <div className="flex items-center justify-between px-3 py-2 border-b border-white/10">
-                <div className="text-xs font-semibold text-gray-400 uppercase">
-                  🕒 Recherches récentes
-                </div>
-                <button
-                  onClick={handleClearHistory}
-                  className="text-xs text-red-400 hover:text-red-300"
-                >
-                  Effacer
-                </button>
-              </div>
-              {history.map((p) => (
-                <div
-                  key={p.ean}
-                  onClick={() => handlePickProduct(p)}
-                  className="flex items-center gap-3 p-3 hover:bg-white/5 cursor-pointer"
-                >
-                  {p.image && (
-                    <img src={p.image} alt={p.name} className="w-8 h-8 rounded object-cover" />
-                  )}
-                  <div>
-                    <div className="text-gray-100 text-sm">{p.name}</div>
-                    <div className="text-gray-400 text-xs">{p.brand}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          
-          {/* Trending Products */}
-          {trending.length > 0 && (
-            <div>
-              <div className="px-3 py-2 border-b border-white/10">
-                <div className="text-xs font-semibold text-gray-400 uppercase">
-                  🔥 Produits populaires
-                </div>
-              </div>
-              {trending.map((p) => (
-                <div
-                  key={p.ean}
-                  onClick={() => handlePickProduct(p)}
-                  className="flex items-center gap-3 p-3 hover:bg-white/5 cursor-pointer"
-                >
-                  {p.image && (
-                    <img src={p.image} alt={p.name} className="w-8 h-8 rounded object-cover" />
-                  )}
-                  <div>
-                    <div className="text-gray-100 text-sm">{p.name}</div>
-                    <div className="text-gray-400 text-xs">{p.brand}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
       )}
     </div>
   );
