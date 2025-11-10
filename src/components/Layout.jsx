@@ -11,6 +11,7 @@ export default function Layout() {
     { path: '/comparateur', label: 'Comparateur' },
     { path: '/scan', label: 'Scanner' },
     { path: '/carte', label: 'Carte' },
+    { path: '/ti-panie', label: 'Ti-Panié' },
     { path: '/actualites', label: 'Actualités' },
     { path: '/mon-compte', label: 'Mon compte' },
     { path: '/pricing', label: 'Tarifs' },
