@@ -1,7 +1,7 @@
 {
   "name": "A KI PRI SA YÉ",
   "short_name": "AKPSY",
-  "description": "Application citoyenne pour lutter contre la vie chère dans les Outre-mer. Comparez les prix, scannez vos tickets et gérez votre budget facilement.",
+  "description": "Comparez les prix et luttez contre la vie chère en Outre-mer grâce à A KI PRI SA YÉ, la plateforme citoyenne de transparence économique.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0F172A",
@@ -12,34 +12,16 @@
   "categories": ["finance", "utilities", "shopping", "lifestyle"],
   "icons": [
     {
-      "src": "/icons/icon-192x192.png",
+      "src": "/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icons/icon-512x512.png",
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
-    },
-    {
-      "src": "/public/assets/icon_192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/public/assets/icon_256.png",
-      "sizes": "256x256",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/public/assets/icon_512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
     }
   ],
   "screenshots": [
