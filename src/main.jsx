@@ -6,6 +6,8 @@ import Home from './pages/Home';
 import Layout from './components/Layout';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
+import NotFound from './pages/NotFound';
 
 // Lazy load other pages for better performance
 const ChatIALocal = lazy(() => import('./components/ChatIALocal'));
@@ -17,6 +19,11 @@ const MentionsLegales = lazy(() => import('./pages/MentionsLegales'));
 const MonCompte = lazy(() => import('./pages/MonCompte'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 const Contact = lazy(() => import('./pages/Contact'));
+const IaConseiller = lazy(() => import('./pages/IaConseiller'));
+const TiPanie = lazy(() => import('./pages/TiPanie'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const AIDashboard = lazy(() => import('./pages/AIDashboard'));
+const AiMarketInsights = lazy(() => import('./pages/AiMarketInsights'));
 
 // Loading component
 function LoadingFallback() {
@@ -30,28 +37,46 @@ function LoadingFallback() {
   );
 }
 
+// Service Worker registration
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/sw.js')
+      .then(() => console.log('Service Worker enregistré'))
+      .catch((err) => console.warn('Erreur SW :', err));
+  });
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
       <ThemeProvider>
-        <BrowserRouter>
-          <Suspense fallback={<LoadingFallback />}>
-            <Routes>
-              <Route path='/' element={<Layout />}>
-                <Route index element={<Home />} />
-                <Route path='chat' element={<ChatIALocal />} />
-                <Route path='scan' element={<ScanOCR />} />
-                <Route path='comparateur' element={<Comparateur />} />
-                <Route path='carte' element={<Carte />} />
-                <Route path='actualites' element={<Actualites />} />
-                <Route path='mentions-legales' element={<MentionsLegales />} />
-                <Route path='mon-compte' element={<MonCompte />} />
-                <Route path='pricing' element={<Pricing />} />
-                <Route path='contact' element={<Contact />} />
-              </Route>
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
+        <AuthProvider>
+          <BrowserRouter>
+            <Suspense fallback={<LoadingFallback />}>
+              <Routes>
+                <Route path='/' element={<Layout />}>
+                  <Route index element={<Home />} />
+                  <Route path='chat' element={<ChatIALocal />} />
+                  <Route path='scan' element={<ScanOCR />} />
+                  <Route path='comparateur' element={<Comparateur />} />
+                  <Route path='carte' element={<Carte />} />
+                  <Route path='actualites' element={<Actualites />} />
+                  <Route path='mentions-legales' element={<MentionsLegales />} />
+                  <Route path='mon-compte' element={<MonCompte />} />
+                  <Route path='pricing' element={<Pricing />} />
+                  <Route path='contact' element={<Contact />} />
+                  <Route path='ia-conseiller' element={<IaConseiller />} />
+                  <Route path='ti-panie' element={<TiPanie />} />
+                  <Route path='admin/dashboard' element={<AdminDashboard />} />
+                  <Route path='admin/ai-dashboard' element={<AIDashboard />} />
+                  <Route path='admin/ai-market-insights' element={<AiMarketInsights />} />
+                  <Route path='*' element={<NotFound />} />
+                </Route>
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </AuthProvider>
       </ThemeProvider>
     </ErrorBoundary>
   </React.StrictMode>
