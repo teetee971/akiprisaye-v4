@@ -19,10 +19,10 @@
     video { width:100%; height:100%; object-fit:cover; }
     .scan-overlay { position:absolute; inset:0; pointer-events:none; box-shadow: inset 0 0 0 2px rgba(37,99,235,.55), inset 0 55% 0 -52% rgba(0,0,0,.35); border-radius:var(--radius); }
     .controls { display:flex; flex-wrap:wrap; gap:.6rem; margin:.5rem 0 1rem; }
-    button, label.btn-file { display:inline-flex; align-items:center; gap:.5rem; font-weight:600; padding:.6rem 1rem; border-radius:8px; border:1px solid #2c3247; background:linear-gradient(145deg, rgba(37,99,235,.25), rgba(30,58,138,.15)); color:var(--text); cursor:pointer; transition:background .18s ease; }
+    button, label.btn-file { display:inline-flex; align-items:center; gap:.5rem; font-weight:600; padding:.6rem 1rem; border-radius:8px; border:1px solid #2c3247; background:linear-gradient(145deg, #23273a, #1a1d2e); color:var(--text); cursor:pointer; transition:background .2s; }
     button:hover:not(:disabled), label.btn-file:hover { background:var(--accent); }
     button:disabled { opacity:.55; cursor:not-allowed; }
-    input[type="file"] { display:none; }
+    input[type]="file" { display:none; }
     .divider { color:var(--text-muted); font-size:.85rem; padding:.4rem .8rem; }
     .status { min-height:1.5rem; font-size:.9rem; margin-top:.25rem; color:var(--text-muted); }
     .status strong { color:var(--accent); }
@@ -89,6 +89,17 @@
       </div>
       <div id="status" class="status" aria-live="polite">Caméra inactive.</div>
       <div class="help">Astuce: Approchez le code-barres, stabilisez 1–2 secondes. Autorisez la caméra si une demande s’affiche.</div>
+
+      <!-- OCR RESULTS SECTION - START -->
+      <div id="ocr-results-section" class="hidden mt-6">
+        <h2 class="text-xl font-semibold mb-3">Résultats du Scan</h2>
+        <div id="ocr-results" class="bg-gray-800 p-4 rounded-lg text-sm"></div>
+        <button id="save-to-budget-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg mt-4 transition-colors">
+          Enregistrer dans mon budget
+        </button>
+      </div>
+      <!-- OCR RESULTS SECTION - END -->
+
     </div>
   </main>
   <script type="module" src="shared-nav.js"></script>
