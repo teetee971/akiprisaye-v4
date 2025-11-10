@@ -6,6 +6,7 @@ import {
   updateDoc,
   deleteDoc,
   doc,
+  getDoc,
   serverTimestamp,
 } from 'firebase/firestore';
 
@@ -86,9 +87,9 @@ export const checkIsAdmin = async (user) => {
       return true;
     }
 
-    // Fallback: check Firestore user document
-    const userSnapshot = await getDocs(collection(db, 'users'));
-    const userData = userSnapshot.docs.find((d) => d.id === user.uid)?.data();
+    // Fallback: check Firestore user document (ensure Firestore rules prevent users from setting isAdmin)
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    const userData = userDoc.data();
     
     return userData?.isAdmin === true;
   } catch (error) {
