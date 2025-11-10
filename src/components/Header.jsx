@@ -1,8 +1,9 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -13,6 +14,23 @@ export default function Header() {
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
     document.body.style.overflow = '';
+  };
+
+  // Close menu on Escape key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && mobileMenuOpen) {
+        closeMobileMenu();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [mobileMenuOpen]);
+
+  // Helper to check if route is active
+  const isActiveRoute = (path) => {
+    return location.pathname === path;
   };
 
   return (
@@ -50,7 +68,9 @@ export default function Header() {
           <li>
             <Link
               to="/"
-              className="flex items-center gap-3 px-6 py-3 text-white hover:bg-blue-700/20 transition-colors border-l-4 border-transparent hover:border-blue-400"
+              className={`flex items-center gap-3 px-6 py-3 text-white hover:bg-blue-700/20 transition-colors border-l-4 ${
+                isActiveRoute('/') ? 'border-blue-400 bg-blue-700/10' : 'border-transparent hover:border-blue-400'
+              }`}
               onClick={closeMobileMenu}
             >
               <span className="text-xl">🏠</span>
@@ -60,7 +80,9 @@ export default function Header() {
           <li>
             <Link
               to="/comparateur"
-              className="flex items-center gap-3 px-6 py-3 text-white hover:bg-blue-700/20 transition-colors border-l-4 border-transparent hover:border-blue-400"
+              className={`flex items-center gap-3 px-6 py-3 text-white hover:bg-blue-700/20 transition-colors border-l-4 ${
+                isActiveRoute('/comparateur') ? 'border-blue-400 bg-blue-700/10' : 'border-transparent hover:border-blue-400'
+              }`}
               onClick={closeMobileMenu}
             >
               <span className="text-xl">🔍</span>
@@ -70,7 +92,9 @@ export default function Header() {
           <li>
             <Link
               to="/scan"
-              className="flex items-center gap-3 px-6 py-3 text-white hover:bg-blue-700/20 transition-colors border-l-4 border-transparent hover:border-blue-400"
+              className={`flex items-center gap-3 px-6 py-3 text-white hover:bg-blue-700/20 transition-colors border-l-4 ${
+                isActiveRoute('/scan') ? 'border-blue-400 bg-blue-700/10' : 'border-transparent hover:border-blue-400'
+              }`}
               onClick={closeMobileMenu}
             >
               <span className="text-xl">📷</span>
@@ -80,7 +104,9 @@ export default function Header() {
           <li>
             <Link
               to="/carte"
-              className="flex items-center gap-3 px-6 py-3 text-white hover:bg-blue-700/20 transition-colors border-l-4 border-transparent hover:border-blue-400"
+              className={`flex items-center gap-3 px-6 py-3 text-white hover:bg-blue-700/20 transition-colors border-l-4 ${
+                isActiveRoute('/carte') ? 'border-blue-400 bg-blue-700/10' : 'border-transparent hover:border-blue-400'
+              }`}
               onClick={closeMobileMenu}
             >
               <span className="text-xl">🗺️</span>
@@ -90,7 +116,9 @@ export default function Header() {
           <li>
             <Link
               to="/pricing"
-              className="flex items-center gap-3 px-6 py-3 text-white hover:bg-blue-700/20 transition-colors border-l-4 border-transparent hover:border-blue-400"
+              className={`flex items-center gap-3 px-6 py-3 text-white hover:bg-blue-700/20 transition-colors border-l-4 ${
+                isActiveRoute('/pricing') ? 'border-blue-400 bg-blue-700/10' : 'border-transparent hover:border-blue-400'
+              }`}
               onClick={closeMobileMenu}
             >
               <span className="text-xl">💰</span>
@@ -100,7 +128,9 @@ export default function Header() {
           <li>
             <Link
               to="/mon-compte"
-              className="flex items-center gap-3 px-6 py-3 text-white hover:bg-blue-700/20 transition-colors border-l-4 border-transparent hover:border-blue-400"
+              className={`flex items-center gap-3 px-6 py-3 text-white hover:bg-blue-700/20 transition-colors border-l-4 ${
+                isActiveRoute('/mon-compte') ? 'border-blue-400 bg-blue-700/10' : 'border-transparent hover:border-blue-400'
+              }`}
               onClick={closeMobileMenu}
             >
               <span className="text-xl">👤</span>
@@ -131,9 +161,13 @@ export default function Header() {
                 <span className={`block w-6 h-0.5 bg-white transition-all ${mobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`} />
               </button>
 
-              {/* Logo */}
-              <Link to="/" className="flex items-center gap-2 text-white font-bold text-lg hover:opacity-90 transition-opacity">
-                <img src="/logo-akpsy.svg" alt="A KI PRI SA YÉ" className="h-10" />
+              {/* Logo with subtle hover animation */}
+              <Link to="/" className="flex items-center gap-2 text-white font-bold text-lg group">
+                <img 
+                  src="/logo-akpsy.svg" 
+                  alt="A KI PRI SA YÉ" 
+                  className="h-10 transition-transform group-hover:scale-105 motion-reduce:transform-none" 
+                />
               </Link>
             </div>
 
@@ -141,31 +175,41 @@ export default function Header() {
             <nav className="hidden lg:flex items-center gap-6" aria-label="Navigation principale">
               <Link
                 to="/comparateur"
-                className="text-white/90 hover:text-white hover:bg-blue-600/30 px-3 py-2 rounded-lg transition-all"
+                className={`text-white/90 hover:text-white hover:bg-blue-600/30 px-3 py-2 rounded-lg transition-all ${
+                  isActiveRoute('/comparateur') ? 'bg-blue-600/40 text-white font-semibold' : ''
+                }`}
               >
                 Comparateur
               </Link>
               <Link
                 to="/scan"
-                className="text-white/90 hover:text-white hover:bg-blue-600/30 px-3 py-2 rounded-lg transition-all"
+                className={`text-white/90 hover:text-white hover:bg-blue-600/30 px-3 py-2 rounded-lg transition-all ${
+                  isActiveRoute('/scan') ? 'bg-blue-600/40 text-white font-semibold' : ''
+                }`}
               >
                 Scanner
               </Link>
               <Link
                 to="/carte"
-                className="text-white/90 hover:text-white hover:bg-blue-600/30 px-3 py-2 rounded-lg transition-all"
+                className={`text-white/90 hover:text-white hover:bg-blue-600/30 px-3 py-2 rounded-lg transition-all ${
+                  isActiveRoute('/carte') ? 'bg-blue-600/40 text-white font-semibold' : ''
+                }`}
               >
                 Carte
               </Link>
               <Link
                 to="/pricing"
-                className="text-white/90 hover:text-white hover:bg-blue-600/30 px-3 py-2 rounded-lg transition-all"
+                className={`text-white/90 hover:text-white hover:bg-blue-600/30 px-3 py-2 rounded-lg transition-all ${
+                  isActiveRoute('/pricing') ? 'bg-blue-600/40 text-white font-semibold' : ''
+                }`}
               >
                 Tarifs
               </Link>
               <Link
                 to="/mon-compte"
-                className="text-white/90 hover:text-white hover:bg-blue-600/30 px-3 py-2 rounded-lg transition-all"
+                className={`text-white/90 hover:text-white hover:bg-blue-600/30 px-3 py-2 rounded-lg transition-all ${
+                  isActiveRoute('/mon-compte') ? 'bg-blue-600/40 text-white font-semibold' : ''
+                }`}
               >
                 Mon Compte
               </Link>

@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import ScrollToTop from '../components/ScrollToTop';
+import PWAInstallToast from '../components/PWAInstallToast';
+import StructuredData from '../components/StructuredData';
 
 export default function Home() {
   const [lang, setLang] = useState('fr');
@@ -49,6 +52,17 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-950 max-w-[100vw] overflow-x-hidden">
+      {/* SEO Structured Data */}
+      <StructuredData />
+      
+      {/* Skip to main content link for screen readers */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-lg focus:shadow-lg"
+      >
+        Aller au contenu principal
+      </a>
+      
       <Header />
 
       {/* Hero Section */}
@@ -77,7 +91,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
               to="/comparateur"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg transition-all shadow-lg hover:shadow-blue-600/50 hover:-translate-y-0.5"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-lg transition-all shadow-lg hover:shadow-blue-600/50 hover:-translate-y-0.5 motion-reduce:transform-none"
             >
               🔍 Découvrir l'application
             </Link>
@@ -86,7 +100,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="flex-grow py-12 px-4 sm:px-6 lg:px-8">
+      <main id="main-content" className="flex-grow py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-3xl font-bold text-white text-center mb-10">
             🎯 Fonctionnalités
@@ -95,36 +109,36 @@ export default function Home() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             <Link
               to="/comparateur"
-              className="bg-slate-900 hover:bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-blue-500 transition-all hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1"
+              className="group bg-slate-900 hover:bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-blue-500 transition-all hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1 motion-reduce:transform-none hover:scale-105 motion-reduce:hover:scale-100"
             >
-              <div className="text-4xl mb-4">🔍</div>
+              <div className="text-4xl mb-4 transition-transform group-hover:scale-110 motion-reduce:transform-none">🔍</div>
               <h3 className="text-xl font-semibold text-white mb-2">{t.budget}</h3>
               <p className="text-sm text-slate-400">{t.budgetDesc}</p>
             </Link>
 
             <Link
               to="/scan"
-              className="bg-slate-900 hover:bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-blue-500 transition-all hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1"
+              className="group bg-slate-900 hover:bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-blue-500 transition-all hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1 motion-reduce:transform-none hover:scale-105 motion-reduce:hover:scale-100"
             >
-              <div className="text-4xl mb-4">📷</div>
+              <div className="text-4xl mb-4 transition-transform group-hover:scale-110 motion-reduce:transform-none">📷</div>
               <h3 className="text-xl font-semibold text-white mb-2">{t.ocr}</h3>
               <p className="text-sm text-slate-400">{t.ocrDesc}</p>
             </Link>
 
             <Link
               to="/carte"
-              className="bg-slate-900 hover:bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-blue-500 transition-all hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1"
+              className="group bg-slate-900 hover:bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-blue-500 transition-all hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1 motion-reduce:transform-none hover:scale-105 motion-reduce:hover:scale-100"
             >
-              <div className="text-4xl mb-4">🗺️</div>
+              <div className="text-4xl mb-4 transition-transform group-hover:scale-110 motion-reduce:transform-none">🗺️</div>
               <h3 className="text-xl font-semibold text-white mb-2">{t.carte}</h3>
               <p className="text-sm text-slate-400">{t.carteDesc}</p>
             </Link>
 
             <Link
               to="/chat"
-              className="bg-slate-900 hover:bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-blue-500 transition-all hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1"
+              className="group bg-slate-900 hover:bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-blue-500 transition-all hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1 motion-reduce:transform-none hover:scale-105 motion-reduce:hover:scale-100"
             >
-              <div className="text-4xl mb-4">🧠</div>
+              <div className="text-4xl mb-4 transition-transform group-hover:scale-110 motion-reduce:transform-none">🧠</div>
               <h3 className="text-xl font-semibold text-white mb-2">{t.chat}</h3>
               <p className="text-sm text-slate-400">{t.chatDesc}</p>
             </Link>
@@ -146,6 +160,12 @@ export default function Home() {
       </section>
 
       <Footer />
+      
+      {/* PWA Install Toast */}
+      <PWAInstallToast />
+      
+      {/* Scroll to Top Button */}
+      <ScrollToTop />
     </div>
   );
 }
