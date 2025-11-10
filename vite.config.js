@@ -13,6 +13,7 @@ export default defineConfig({
             'app.js',
             'comparateur-fetch.js',
             'comparateur-autofill.js',
+            'product-search.js',
             'detecteur_contexte.js',
             'entraide_local.js',
             'firebase-config.js',

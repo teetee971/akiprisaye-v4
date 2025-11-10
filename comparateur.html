@@ -14,7 +14,7 @@
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#0f62fe" />
   <link rel="stylesheet" href="shared-nav.css" />
-  <style>body {font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Open Sans","Helvetica Neue",sans-serif;margin:0;padding:0;background-color:#0b0d17;color:#ffffff;}main {max-width:1200px;margin:0 auto;padding:20px;padding-bottom:max(20px, env(safe-area-inset-bottom));}h1 {color:#0f62fe;text-align:center;margin-bottom:2rem;}h2 {color:#0f62fe;text-align:center;}.search-container {background:white;padding:20px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);margin-bottom:20px;}#comparateur-form {display:flex;gap:10px;align-items:center;flex-wrap:wrap;}label {font-weight:bold;}#ean-input {flex:1;min-width:200px;padding:10px;border:1px solid #ddd;border-radius:4px;font-size:16px;}button {padding:10px 20px;min-height:48px;background-color:#0f62fe;color:white;border:none;border-radius:4px;cursor:pointer;font-size:16px;font-weight:bold;touch-action:manipulation;}button:hover {background-color:#0353e9;}#price-results {background:white;padding:20px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.1);}.product-info {margin-bottom:20px;padding:15px;background-color:#f0f4ff;border-radius:4px;}.product-info h3 {margin-top:0;color:#0f62fe;}.prices-table {width:100%;border-collapse:collapse;margin:20px 0;}.prices-table th,.prices-table td {padding:12px;text-align:left;border-bottom:1px solid #eee;}.prices-table th {background-color:#f8f9fa;font-weight:bold;color:#333;}.prices-table tr:hover {background-color:#f8f9fa;}.prices-table tr.best-price {background-color:#e6f4ea;font-weight:bold;}.price-cell {font-size:18px;font-weight:bold;color:#0f62fe;}.source-badge {display:inline-block;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:bold;text-transform:uppercase;}.source-partner {background-color:#e6f4ea;color:#137333;}.source-ocr {background-color:#fff4e5;color:#ea8600;}.source-user {background-color:#e8f0fe;color:#1967d2;}.best-price-summary {margin-top:20px;padding:15px;background-color:#e6f4ea;border-left:4px solid #137333;border-radius:4px;}.no-results,.error,.loading {text-align:center;padding:40px 20px;color:#666;}.hint {font-size:14px;color:#999;margin-top:10px;}@media (max-width:768px){#comparateur-form {flex-direction:column;align-items:stretch;}#ean-input {width:100%;}.prices-table {font-size:14px;}.prices-table th,.prices-table td {padding:8px 4px;}}</style>
+  <style>body {font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Open Sans","Helvetica Neue",sans-serif;margin:0;padding:0;background-color:#0b0d17;color:#ffffff;}main {max-width:1200px;margin:0 auto;padding:20px;padding-left:max(20px, env(safe-area-inset-left));padding-right:max(20px, env(safe-area-inset-right));padding-bottom:max(20px, env(safe-area-inset-bottom));}h1 {color:#0f62fe;text-align:center;margin-bottom:2rem;}h2 {color:#0f62fe;text-align:center;}.search-container {background:#1a1d2e;padding:20px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.3);margin-bottom:20px;}#comparateur-form {display:flex;flex-direction:column;gap:10px;}label {font-weight:bold;color:#b8b8b8;}#ean-input, #product-search-input {flex:1;min-width:200px;padding:10px;border:1px solid #2a2d3e;border-radius:4px;font-size:16px;background:#0f172a;color:#ffffff;}#ean-input:focus, #product-search-input:focus {outline:none;border-color:#0f62fe;}button {padding:10px 20px;min-height:48px;background-color:#0f62fe;color:white;border:none;border-radius:4px;cursor:pointer;font-size:16px;font-weight:bold;touch-action:manipulation;}button:hover {background-color:#0353e9;}#price-results {background:#1a1d2e;padding:20px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.3);}.product-info {margin-bottom:20px;padding:15px;background-color:rgba(15, 98, 254, 0.1);border-radius:4px;border-left:3px solid #0f62fe;}.product-info h3 {margin-top:0;color:#0f62fe;}.prices-table {width:100%;border-collapse:collapse;margin:20px 0;color:#ffffff;}.prices-table th,.prices-table td {padding:12px;text-align:left;border-bottom:1px solid #2a2d3e;}.prices-table th {background-color:#1a1d2e;font-weight:bold;color:#0f62fe;}.prices-table tr:hover {background-color:rgba(15, 98, 254, 0.05);}.prices-table tr.best-price {background-color:rgba(16, 185, 129, 0.1);font-weight:bold;border-left:3px solid #10b981;}.price-cell {font-size:18px;font-weight:bold;color:#10b981;}.source-badge {display:inline-block;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:bold;text-transform:uppercase;}.source-partner {background-color:rgba(16, 185, 129, 0.2);color:#10b981;}.source-ocr {background-color:rgba(245, 158, 11, 0.2);color:#f59e0b;}.source-user {background-color:rgba(59, 130, 246, 0.2);color:#3b82f6;}.best-price-summary {margin-top:20px;padding:15px;background-color:rgba(16, 185, 129, 0.1);border-left:4px solid #10b981;border-radius:4px;}.no-results,.error,.loading {text-align:center;padding:40px 20px;color:#b8b8b8;}.error {color:#ef4444;}.hint {font-size:14px;color:#999;margin-top:10px;}@media (max-width:768px){#comparateur-form {flex-direction:column;align-items:stretch;}#ean-input, #product-search-input {width:100%;}.prices-table {font-size:14px;overflow-x:auto;display:block;}.prices-table th,.prices-table td {padding:8px 4px;}}</style>
 </head>
 <body>
   <div class="nav-overlay" id="nav-overlay"></div>
@@ -22,10 +22,43 @@
   <header class="shared-header"><div class="shared-header-content"><div style="display: flex; align-items: center; gap: 1rem;"><button class="burger-menu" id="burger-menu" aria-label="Menu" aria-expanded="false"><div class="burger-line"></div><div class="burger-line"></div><div class="burger-line"></div></button><a href="/" class="shared-logo" aria-label="A KI PRI SA YÉ - Accueil"><img src="/logo-akpsy.svg" alt="A KI PRI SA YÉ" /></a></div><nav class="header-nav" role="navigation" aria-label="Navigation principale"><a href="/comparateur.html" aria-current="page">Comparateur</a><a href="/scanner.html">Scanner</a><a href="/modules.html">Modules</a><a href="/mon-compte.html">Mon Compte</a></nav></div></header>
   <main>
     <h1>🛒 Comparateur de Prix</h1>
-    <div class="search-container"><form id="comparateur-form"><label for="ean-input">Code EAN :</label><input type="text" id="ean-input" name="ean" placeholder="Ex: 3017620422003" required pattern="[0-9]{8,14}" title="Code EAN (8 à 14 chiffres)"><button type="submit">🔍 Comparer les prix</button></form></div>
-    <div id="price-results"><p class="hint">Entrez un code EAN pour comparer les prix dans différents magasins.</p></div>
+    
+    <!-- Development Notice -->
+    <div style="background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; padding: 1rem 1.5rem; margin-bottom: 1.5rem; border-radius: 8px;">
+      <p style="color: #3b82f6; font-weight: 600; margin-bottom: 0.5rem;">ℹ️ Module en phase Alpha</p>
+      <p style="color: #b8b8b8; font-size: 0.9rem; line-height: 1.6; margin: 0;">
+        Le comparateur de prix fonctionne avec les codes EAN. La recherche par nom de produit et la connexion 
+        aux bases de données de prix sont en cours de développement. Les prix affichés sont des exemples pour démonstration.
+      </p>
+    </div>
+    
+    <div class="search-container">
+      <form id="comparateur-form">
+        <div style="margin-bottom: 1rem; position: relative;">
+          <label for="product-search-input" style="display: block; margin-bottom: 0.5rem; color: #b8b8b8;">Rechercher par nom :</label>
+          <input 
+            type="text" 
+            id="product-search-input" 
+            name="product-search" 
+            placeholder="Ex: Lait, Pain, Riz..." 
+            style="width: 100%; padding: 10px; border: 1px solid #2a2d3e; border-radius: 4px; font-size: 16px; color: #ffffff; background: #0f172a;"
+          />
+          <div id="search-suggestions" style="display: none; position: absolute; background: #1a1d2e; border: 1px solid #2a2d3e; border-top: none; border-radius: 0 0 4px 4px; max-height: 300px; overflow-y: auto; width: 100%; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.3);"></div>
+        </div>
+        
+        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 0.5rem;">
+          <span style="color: #999; font-size: 14px;">OU</span>
+        </div>
+        
+        <label for="ean-input">Code EAN :</label>
+        <input type="text" id="ean-input" name="ean" placeholder="Ex: 3017620422003" pattern="[0-9]{8,14}" title="Code EAN (8 à 14 chiffres)">
+        <button type="submit">🔍 Comparer les prix</button>
+      </form>
+    </div>
+    <div id="price-results"><p class="hint">Entrez un code EAN ou recherchez un produit par nom pour comparer les prix dans différents magasins.</p></div>
   </main>
   <script type="module" src="shared-nav.js"></script>
+  <script type="module" src="product-search.js"></script>
   <script type="module" src="comparateur-fetch.js"></script>
   <script type="module" src="comparateur-autofill.js"></script>
   <script type="module" src="/cookie-consent.js"></script>
