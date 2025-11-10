@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Layout from './components/Layout';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ThemeProvider } from './context/ThemeContext';
+import NotFound from './pages/NotFound';
 
 // Lazy load other pages for better performance
 const ChatIALocal = lazy(() => import('./components/ChatIALocal'));
@@ -30,6 +31,16 @@ function LoadingFallback() {
   );
 }
 
+// Service Worker registration
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/sw.js')
+      .then(() => console.log('Service Worker enregistré'))
+      .catch((err) => console.warn('Erreur SW :', err));
+  });
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
@@ -48,6 +59,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                 <Route path='mon-compte' element={<MonCompte />} />
                 <Route path='pricing' element={<Pricing />} />
                 <Route path='contact' element={<Contact />} />
+                <Route path='*' element={<NotFound />} />
               </Route>
             </Routes>
           </Suspense>
