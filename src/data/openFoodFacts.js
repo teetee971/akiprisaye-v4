@@ -136,11 +136,30 @@ export async function getCategories() {
 }
 
 /**
+ * Memoization utility for caching function results
+ * @param {Function} fn - Function to memoize
+ * @param {Function} keyGenerator - Optional function to generate cache key
+ * @returns {Function} Memoized function
+ */
+function memoize(fn, keyGenerator = JSON.stringify) {
+  const cache = new Map();
+  return function memoized(...args) {
+    const key = keyGenerator(args);
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
+    const result = fn.apply(this, args);
+    cache.set(key, result);
+    return result;
+  };
+}
+
+/**
  * Calculate sustainability score based on OpenFoodFacts data
  * @param {Object} product - Product data from OpenFoodFacts
  * @returns {Object} Sustainability score and breakdown
  */
-export function calculateSustainabilityScore(product) {
+function calculateSustainabilityScoreCore(product) {
   let score = 0;
   let maxScore = 100;
   const breakdown = {
@@ -211,6 +230,12 @@ export function calculateSustainabilityScore(product) {
     grade: score >= 80 ? 'A' : score >= 60 ? 'B' : score >= 40 ? 'C' : score >= 20 ? 'D' : 'E',
   };
 }
+
+// Export memoized version for better performance
+export const calculateSustainabilityScore = memoize(
+  calculateSustainabilityScoreCore,
+  (args) => args[0]?.ean || JSON.stringify(args[0])
+);
 
 /**
  * Format product data for display

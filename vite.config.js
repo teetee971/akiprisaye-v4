@@ -49,6 +49,7 @@ export default defineConfig({
       compress: {
         drop_console: true,
         drop_debugger: true,
+        pure_funcs: ['console.info', 'console.debug', 'console.log'],
       },
     },
     rollupOptions: {
@@ -68,9 +69,30 @@ export default defineConfig({
         partenaires: './partenaires.html',
       },
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          firebase: ['firebase'],
+        manualChunks(id) {
+          // Separate large vendor libraries into their own chunks
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'vendor-react';
+            }
+            if (id.includes('firebase')) {
+              return 'vendor-firebase';
+            }
+            if (id.includes('tesseract')) {
+              return 'vendor-ocr';
+            }
+            if (id.includes('leaflet')) {
+              return 'vendor-maps';
+            }
+            if (id.includes('recharts')) {
+              return 'vendor-charts';
+            }
+            if (id.includes('fuse.js')) {
+              return 'vendor-search';
+            }
+            // All other node_modules
+            return 'vendor';
+          }
         },
       },
     },

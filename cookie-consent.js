@@ -86,17 +86,13 @@ class CookieConsent {
   }
 
   getConsent() {
-    const name = this.cookieName + "=";
-    const decodedCookie = decodeURIComponent(document.cookie);
-    const ca = decodedCookie.split(';');
+    const name = this.cookieName + '=';
+    const cookies = document.cookie.split(';');
     
-    for (let i = 0; i < ca.length; i++) {
-      let c = ca[i];
-      while (c.charAt(0) === ' ') {
-        c = c.substring(1);
-      }
-      if (c.indexOf(name) === 0) {
-        return c.substring(name.length, c.length);
+    for (const cookie of cookies) {
+      const trimmedCookie = cookie.trimStart();
+      if (trimmedCookie.startsWith(name)) {
+        return trimmedCookie.substring(name.length);
       }
     }
     return null;

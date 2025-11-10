@@ -152,6 +152,9 @@ function saveExpense(expense) {
  * @param {Array<object>} scannedItems - Liste des articles scannés.
  */
 function onScanComplete(scannedItems) {
+  // Stocke les éléments pour une utilisation ultérieure
+  currentScannedItems = scannedItems;
+  
   // Affiche les résultats dans la zone dédiée
   ocrResultsEl.innerHTML = scannedItems.map(item => `
     <div class="flex justify-between">
@@ -162,26 +165,32 @@ function onScanComplete(scannedItems) {
 
   // Affiche la section des résultats
   ocrResultsSection.classList.remove('hidden');
+}
 
-  // Ajoute un écouteur d'événement sur le bouton
-  saveToBudgetBtn.addEventListener('click', () => {
-    const newExpense = {
-      id: Date.now(),
-      date: new Date().toISOString(),
-      store: 'Magasin (Scan)',
-      items: scannedItems,
-      total: scannedItems.reduce((sum, item) => sum + item.price, 0)
-    };
+/**
+ * Gère la sauvegarde des dépenses scannées
+ * @param {Array<object>} scannedItems - Liste des articles scannés
+ */
+function handleSaveToBudget(scannedItems) {
+  const newExpense = {
+    id: Date.now(),
+    date: new Date().toISOString(),
+    store: 'Magasin (Scan)',
+    items: scannedItems,
+    total: scannedItems.reduce((sum, item) => sum + item.price, 0)
+  };
 
-    saveExpense(newExpense);
-    
-    alert('Dépense enregistrée dans votre budget !');
-    ocrResultsSection.classList.add('hidden'); // On cache à nouveau après sauvegarde
-  }, { once: true }); // { once: true } pour que le listener soit retiré après le clic
+  saveExpense(newExpense);
+  
+  alert('Dépense enregistrée dans votre budget !');
+  ocrResultsSection.classList.add('hidden');
 }
 
 
 // --- FIN DE LA LOGIQUE D'INTÉGRATION ---
+
+// Variables pour gérer les données scannées
+let currentScannedItems = null;
 
 startBtn.addEventListener('click', () => startScanner());
 stopBtn.addEventListener('click', () => stopScanner());
@@ -189,6 +198,13 @@ flashBtn.addEventListener('click', () => toggleTorch());
 fileInput.addEventListener('change', (e) => {
   const file = e.target.files && e.target.files[0];
   if (file) decodeImageFile(file);
+});
+
+// Gestionnaire unique pour le bouton de sauvegarde
+saveToBudgetBtn.addEventListener('click', () => {
+  if (currentScannedItems) {
+    handleSaveToBudget(currentScannedItems);
+  }
 });
 
 // Nettoyage si l’utilisateur quitte la page
@@ -213,13 +229,3 @@ window.addEventListener('beforeunload', () => stopScanner(false));
     // Non supporté partout
   }
 })();
-
-// --- APPEL DE DÉMONSTRATION ---
-// Simule un scan réussi pour tester l'interface.
-// Vous devrez retirer ceci quand le vrai scan OCR sera branché.
-const demoScannedItems = [
-  { name: 'Pain de mie', price: 2.50 },
-  { name: "Jus d'orange 1L", price: 3.15 },
-  { name: 'Yaourts x4', price: 1.99 }
-];
-onScanComplete(demoScannedItems);
