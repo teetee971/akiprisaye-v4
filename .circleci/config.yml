@@ -62,7 +62,11 @@ workflows:
   version: 2
   build_and_deploy:
     jobs:
-      - install_and_build
+      - install_and_build:
+          filters:
+            branches:
+              only:
+                - main
       - deploy:
           requires:
             - install_and_build
