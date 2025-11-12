@@ -178,7 +178,10 @@
   </main>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script>
+  <script type="module">
+    // Import stores data
+    import { SEED_STORES, getStoresByTerritory, getTerritoryNameFromCode } from './src/data/seedStores.js';
+
     // Territory coordinates for map centering
     const territories = {
       guadeloupe: { lat: 16.265, lon: -61.551, zoom: 10 },
@@ -203,19 +206,6 @@
       maxZoom: 19
     }).addTo(map);
 
-    // Store markers data (expandable for all territories)
-    const magasinsData = {
-      guadeloupe: [
-        { name: "Carrefour Destreland", lat: 16.2676, lon: -61.5252 },
-        { name: "E.Leclerc Abymes", lat: 16.2731, lon: -61.5062 },
-        { name: "Leader Price Baie-Mahault", lat: 16.2679, lon: -61.5863 }
-      ],
-      martinique: [
-        { name: "Carrefour Dillon", lat: 14.616, lon: -61.053 }
-      ],
-      // Add more territories as data becomes available
-    };
-
     let currentMarkers = [];
 
     function showStoresForTerritory(territory) {
@@ -223,31 +213,65 @@
       currentMarkers.forEach(marker => map.removeLayer(marker));
       currentMarkers = [];
 
+      let stores = [];
       if (territory === 'all') {
         // Show all stores from all territories
-        Object.keys(magasinsData).forEach(terr => {
-          const stores = magasinsData[terr] || [];
-          stores.forEach(m => {
-            const marker = L.marker([m.lat, m.lon]).addTo(map)
-              .bindPopup(`<strong>${m.name}</strong><br><small>${terr}</small>`);
-            currentMarkers.push(marker);
-          });
-        });
+        stores = SEED_STORES;
         map.setView([16.265, -61.551], 4); // Zoomed out view
       } else {
-        // Show stores for selected territory
-        const stores = magasinsData[territory] || [];
-        stores.forEach(m => {
-          const marker = L.marker([m.lat, m.lon]).addTo(map)
-            .bindPopup(`<strong>${m.name}</strong>`);
-          currentMarkers.push(marker);
-        });
+        // Get territory name from code
+        const territoryName = getTerritoryNameFromCode(territory);
+        stores = getStoresByTerritory(territoryName);
         
         // Center map on territory
         if (territories[territory]) {
           const t = territories[territory];
           map.setView([t.lat, t.lon], t.zoom);
         }
+      }
+
+      // Add markers for each store
+      stores.forEach(store => {
+        const popupContent = `
+          <div style="color: #000; min-width: 200px;">
+            <strong style="font-size: 1.1em; color: #0f62fe;">${store.name}</strong><br>
+            <em style="color: #666;">${store.chain}</em><br>
+            <br>
+            <strong>📍 Localisation:</strong><br>
+            ${store.city}, ${store.territory}<br>
+            ${store.address}<br>
+            <br>
+            <strong>🕒 Horaires:</strong><br>
+            ${store.openingHours}<br>
+            <br>
+            <strong>✨ Services:</strong><br>
+            ${store.services.map(s => {
+              const serviceIcons = {
+                'parking': '🅿️ Parking',
+                'carte_bancaire': '💳 CB',
+                'livraison': '🚚 Livraison',
+                'retrait_course': '🛒 Click & Collect',
+                'essence': '⛽ Station essence'
+              };
+              return serviceIcons[s] || s;
+            }).join(', ')}
+          </div>
+        `;
+        
+        const marker = L.marker([store.coordinates.lat, store.coordinates.lon])
+          .addTo(map)
+          .bindPopup(popupContent);
+        currentMarkers.push(marker);
+      });
+
+      // Update legend with count
+      updateLegend(stores.length);
+    }
+
+    function updateLegend(count) {
+      const legendText = document.querySelector('.legend-item span:last-child');
+      if (legendText) {
+        legendText.textContent = `${count} magasin${count > 1 ? 's' : ''} partenaire${count > 1 ? 's' : ''}`;
       }
     }
 

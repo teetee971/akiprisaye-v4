@@ -17,6 +17,7 @@ import {
   limit,
   serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getStoreById as getSeedStoreById } from './seedStores.js';
 
 /**
  * Get product by EAN
@@ -94,16 +95,21 @@ export async function getPricesByEan(ean, options = {}) {
  */
 export async function getStoreById(storeId) {
   try {
+    // Try to get from Firestore first
     const docRef = doc(db, 'stores', storeId);
     const docSnap = await getDoc(docRef);
     
     if (docSnap.exists()) {
       return { id: storeId, ...docSnap.data() };
     }
-    return null;
+    
+    // Fallback to seed data
+    const seedStore = getSeedStoreById(storeId);
+    return seedStore;
   } catch (error) {
     console.error('Error getting store:', error);
-    throw error;
+    // Fallback to seed data on error
+    return getSeedStoreById(storeId);
   }
 }
 

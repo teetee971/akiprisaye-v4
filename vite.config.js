@@ -33,6 +33,10 @@ export default defineConfig({
           src: ['style.css', 'shared-nav.css'],
           dest: '',
         },
+        {
+          src: 'src/data',
+          dest: 'src',
+        },
       ],
     }),
   ],
