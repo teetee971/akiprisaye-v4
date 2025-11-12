@@ -1,5 +1,6 @@
 import { db } from "../../firebase/config";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { saveScanOffline } from "../../utils/offlineSync";
 
 async function fetchPriceByEAN(ean: string) {
   try {
@@ -28,7 +29,16 @@ async function fetchPriceByEAN(ean: string) {
     setProductInfo(product);
   } catch (err) {
     console.error(err);
-    setError("Erreur lors du chargement ou de la sauvegarde des données");
+    setError("⚠️ Erreur réseau — données enregistrées hors ligne");
+
+    // 🔸 Sauvegarde locale différée (mode hors-ligne)
+    await saveScanOffline({
+      ean,
+      name: "Produit scanné hors-ligne",
+      price: "N/A",
+      store: "Non disponible",
+      date: new Date().toLocaleString(),
+    });
   } finally {
     setLoading(false);
   }
