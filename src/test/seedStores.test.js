@@ -11,7 +11,7 @@ import {
   searchStores,
   getStoresByChain,
   getAvailableTerritories,
-  getTerritoryNameFromCode
+  getTerritoryNameFromCode,
 } from '../data/seedStores.js';
 
 describe('Stores Data', () => {
@@ -175,7 +175,7 @@ describe('Stores Data', () => {
         'Martinique',
         'Guyane',
         'La Réunion',
-        'Mayotte'
+        'Mayotte',
       ];
 
       mainTerritories.forEach(territory => {
@@ -194,7 +194,7 @@ describe('Stores Data', () => {
         'leader_price_pointe_pitre',
         'super_score_fort_de_france',
         'hyper_u_saint_denis',
-        'hyper_u_cayenne'
+        'hyper_u_cayenne',
       ];
 
       productStoreIds.forEach(storeId => {

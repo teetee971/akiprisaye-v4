@@ -15,11 +15,11 @@ export const SEED_STORES = [
     postalCode: '97190',
     coordinates: {
       lat: 16.2731,
-      lon: -61.5062
+      lon: -61.5062,
     },
     phone: '+590 590 XX XX XX',
     openingHours: 'Lun-Sam 8h-20h, Dim 8h-13h',
-    services: ['parking', 'carte_bancaire', 'livraison']
+    services: ['parking', 'carte_bancaire', 'livraison'],
   },
   {
     id: 'carrefour_baie_mahault',
@@ -31,11 +31,11 @@ export const SEED_STORES = [
     postalCode: '97122',
     coordinates: {
       lat: 16.2676,
-      lon: -61.5252
+      lon: -61.5252,
     },
     phone: '+590 590 XX XX XX',
     openingHours: 'Lun-Sam 8h30-20h30, Dim 9h-13h',
-    services: ['parking', 'carte_bancaire', 'livraison', 'retrait_course']
+    services: ['parking', 'carte_bancaire', 'livraison', 'retrait_course'],
   },
   {
     id: 'leader_price_pointe_pitre',
@@ -47,11 +47,11 @@ export const SEED_STORES = [
     postalCode: '97110',
     coordinates: {
       lat: 16.2415,
-      lon: -61.5331
+      lon: -61.5331,
     },
     phone: '+590 590 XX XX XX',
     openingHours: 'Lun-Sam 7h-20h',
-    services: ['parking', 'carte_bancaire']
+    services: ['parking', 'carte_bancaire'],
   },
   {
     id: 'leclerc_abymes',
@@ -63,11 +63,11 @@ export const SEED_STORES = [
     postalCode: '97139',
     coordinates: {
       lat: 16.2679,
-      lon: -61.5863
+      lon: -61.5863,
     },
     phone: '+590 590 XX XX XX',
     openingHours: 'Lun-Sam 8h-20h, Dim 8h-13h',
-    services: ['parking', 'carte_bancaire', 'livraison', 'essence']
+    services: ['parking', 'carte_bancaire', 'livraison', 'essence'],
   },
   {
     id: 'intermarche_gosier',
@@ -79,11 +79,11 @@ export const SEED_STORES = [
     postalCode: '97190',
     coordinates: {
       lat: 16.2280,
-      lon: -61.5100
+      lon: -61.5100,
     },
     phone: '+590 590 XX XX XX',
     openingHours: 'Lun-Sam 8h-19h30',
-    services: ['parking', 'carte_bancaire']
+    services: ['parking', 'carte_bancaire'],
   },
 
   // ========== MARTINIQUE ==========
@@ -97,11 +97,11 @@ export const SEED_STORES = [
     postalCode: '97200',
     coordinates: {
       lat: 14.6078,
-      lon: -61.0595
+      lon: -61.0595,
     },
     phone: '+596 596 XX XX XX',
     openingHours: 'Lun-Sam 7h30-20h',
-    services: ['parking', 'carte_bancaire']
+    services: ['parking', 'carte_bancaire'],
   },
   {
     id: 'carrefour_dillon',
@@ -113,11 +113,11 @@ export const SEED_STORES = [
     postalCode: '97200',
     coordinates: {
       lat: 14.616,
-      lon: -61.053
+      lon: -61.053,
     },
     phone: '+596 596 XX XX XX',
     openingHours: 'Lun-Sam 8h30-20h, Dim 9h-13h',
-    services: ['parking', 'carte_bancaire', 'livraison', 'retrait_course']
+    services: ['parking', 'carte_bancaire', 'livraison', 'retrait_course'],
   },
   {
     id: 'hyper_u_lamentin',
@@ -129,11 +129,11 @@ export const SEED_STORES = [
     postalCode: '97232',
     coordinates: {
       lat: 14.6162,
-      lon: -61.0037
+      lon: -61.0037,
     },
     phone: '+596 596 XX XX XX',
     openingHours: 'Lun-Sam 8h-20h, Dim 8h-13h',
-    services: ['parking', 'carte_bancaire', 'livraison', 'essence']
+    services: ['parking', 'carte_bancaire', 'livraison', 'essence'],
   },
   {
     id: 'leclerc_ducos',
@@ -145,11 +145,11 @@ export const SEED_STORES = [
     postalCode: '97224',
     coordinates: {
       lat: 14.5950,
-      lon: -61.0050
+      lon: -61.0050,
     },
     phone: '+596 596 XX XX XX',
     openingHours: 'Lun-Sam 8h-20h',
-    services: ['parking', 'carte_bancaire', 'essence']
+    services: ['parking', 'carte_bancaire', 'essence'],
   },
 
   // ========== GUYANE ==========
@@ -163,11 +163,11 @@ export const SEED_STORES = [
     postalCode: '97300',
     coordinates: {
       lat: 4.9380,
-      lon: -52.3300
+      lon: -52.3300,
     },
     phone: '+594 594 XX XX XX',
     openingHours: 'Lun-Sam 8h-20h, Dim 8h-13h',
-    services: ['parking', 'carte_bancaire', 'livraison']
+    services: ['parking', 'carte_bancaire', 'livraison'],
   },
   {
     id: 'carrefour_cayenne',
@@ -179,11 +179,11 @@ export const SEED_STORES = [
     postalCode: '97300',
     coordinates: {
       lat: 4.9220,
-      lon: -52.3130
+      lon: -52.3130,
     },
     phone: '+594 594 XX XX XX',
     openingHours: 'Lun-Sam 8h30-20h',
-    services: ['parking', 'carte_bancaire', 'retrait_course']
+    services: ['parking', 'carte_bancaire', 'retrait_course'],
   },
   {
     id: 'leader_price_kourou',
@@ -195,11 +195,11 @@ export const SEED_STORES = [
     postalCode: '97310',
     coordinates: {
       lat: 5.1598,
-      lon: -52.6481
+      lon: -52.6481,
     },
     phone: '+594 594 XX XX XX',
     openingHours: 'Lun-Sam 7h-20h',
-    services: ['parking', 'carte_bancaire']
+    services: ['parking', 'carte_bancaire'],
   },
 
   // ========== LA RÉUNION ==========
@@ -213,11 +213,11 @@ export const SEED_STORES = [
     postalCode: '97490',
     coordinates: {
       lat: -20.8950,
-      lon: 55.4850
+      lon: 55.4850,
     },
     phone: '+262 262 XX XX XX',
     openingHours: 'Lun-Sam 8h-20h, Dim 8h-13h',
-    services: ['parking', 'carte_bancaire', 'livraison']
+    services: ['parking', 'carte_bancaire', 'livraison'],
   },
   {
     id: 'carrefour_saint_pierre',
@@ -229,11 +229,11 @@ export const SEED_STORES = [
     postalCode: '97410',
     coordinates: {
       lat: -21.3387,
-      lon: 55.4787
+      lon: 55.4787,
     },
     phone: '+262 262 XX XX XX',
     openingHours: 'Lun-Sam 8h30-20h',
-    services: ['parking', 'carte_bancaire', 'livraison']
+    services: ['parking', 'carte_bancaire', 'livraison'],
   },
   {
     id: 'leclerc_saint_paul',
@@ -245,11 +245,11 @@ export const SEED_STORES = [
     postalCode: '97460',
     coordinates: {
       lat: -21.0100,
-      lon: 55.2700
+      lon: 55.2700,
     },
     phone: '+262 262 XX XX XX',
     openingHours: 'Lun-Sam 8h-20h',
-    services: ['parking', 'carte_bancaire', 'essence']
+    services: ['parking', 'carte_bancaire', 'essence'],
   },
   {
     id: 'super_u_saint_andre',
@@ -261,11 +261,11 @@ export const SEED_STORES = [
     postalCode: '97440',
     coordinates: {
       lat: -20.9606,
-      lon: 55.6500
+      lon: 55.6500,
     },
     phone: '+262 262 XX XX XX',
     openingHours: 'Lun-Sam 8h-19h30',
-    services: ['parking', 'carte_bancaire']
+    services: ['parking', 'carte_bancaire'],
   },
 
   // ========== MAYOTTE ==========
@@ -279,11 +279,11 @@ export const SEED_STORES = [
     postalCode: '97600',
     coordinates: {
       lat: -12.7806,
-      lon: 45.2278
+      lon: 45.2278,
     },
     phone: '+269 269 XX XX XX',
     openingHours: 'Lun-Sam 8h30-20h',
-    services: ['parking', 'carte_bancaire']
+    services: ['parking', 'carte_bancaire'],
   },
   {
     id: 'leader_price_mamoudzou',
@@ -295,11 +295,11 @@ export const SEED_STORES = [
     postalCode: '97600',
     coordinates: {
       lat: -12.7830,
-      lon: 45.2300
+      lon: 45.2300,
     },
     phone: '+269 269 XX XX XX',
     openingHours: 'Lun-Sam 7h-20h',
-    services: ['parking', 'carte_bancaire']
+    services: ['parking', 'carte_bancaire'],
   },
 
   // ========== SAINT-PIERRE-ET-MIQUELON ==========
@@ -313,11 +313,11 @@ export const SEED_STORES = [
     postalCode: '97500',
     coordinates: {
       lat: 46.7791,
-      lon: -56.1773
+      lon: -56.1773,
     },
     phone: '+508 508 XX XX XX',
     openingHours: 'Lun-Sam 8h-19h',
-    services: ['parking', 'carte_bancaire']
+    services: ['parking', 'carte_bancaire'],
   },
 
   // ========== SAINT-BARTHÉLEMY ==========
@@ -331,11 +331,11 @@ export const SEED_STORES = [
     postalCode: '97133',
     coordinates: {
       lat: 17.8962,
-      lon: -62.8498
+      lon: -62.8498,
     },
     phone: '+590 590 XX XX XX',
     openingHours: 'Lun-Sam 8h-19h30',
-    services: ['parking', 'carte_bancaire']
+    services: ['parking', 'carte_bancaire'],
   },
 
   // ========== SAINT-MARTIN ==========
@@ -349,11 +349,11 @@ export const SEED_STORES = [
     postalCode: '97150',
     coordinates: {
       lat: 18.0679,
-      lon: -63.0823
+      lon: -63.0823,
     },
     phone: '+590 590 XX XX XX',
     openingHours: 'Lun-Sam 8h-20h',
-    services: ['parking', 'carte_bancaire']
+    services: ['parking', 'carte_bancaire'],
   },
   {
     id: 'carrefour_sandy_ground',
@@ -365,11 +365,11 @@ export const SEED_STORES = [
     postalCode: '97150',
     coordinates: {
       lat: 18.0570,
-      lon: -63.0900
+      lon: -63.0900,
     },
     phone: '+590 590 XX XX XX',
     openingHours: 'Lun-Sam 8h30-20h',
-    services: ['parking', 'carte_bancaire']
+    services: ['parking', 'carte_bancaire'],
   },
 
   // ========== WALLIS-ET-FUTUNA ==========
@@ -383,11 +383,11 @@ export const SEED_STORES = [
     postalCode: '98600',
     coordinates: {
       lat: -13.2816,
-      lon: -176.1745
+      lon: -176.1745,
     },
     phone: '+681 681 XX XX XX',
     openingHours: 'Lun-Sam 7h30-19h',
-    services: ['parking', 'carte_bancaire']
+    services: ['parking', 'carte_bancaire'],
   },
 
   // ========== POLYNÉSIE FRANÇAISE ==========
@@ -401,11 +401,11 @@ export const SEED_STORES = [
     postalCode: '98713',
     coordinates: {
       lat: -17.5350,
-      lon: -149.5690
+      lon: -149.5690,
     },
     phone: '+689 40 XX XX XX',
     openingHours: 'Lun-Sam 8h-20h',
-    services: ['parking', 'carte_bancaire', 'livraison']
+    services: ['parking', 'carte_bancaire', 'livraison'],
   },
   {
     id: 'super_u_punaauia',
@@ -417,11 +417,11 @@ export const SEED_STORES = [
     postalCode: '98717',
     coordinates: {
       lat: -17.6300,
-      lon: -149.6000
+      lon: -149.6000,
     },
     phone: '+689 40 XX XX XX',
     openingHours: 'Lun-Sam 8h-19h30',
-    services: ['parking', 'carte_bancaire']
+    services: ['parking', 'carte_bancaire'],
   },
 
   // ========== NOUVELLE-CALÉDONIE ==========
@@ -435,11 +435,11 @@ export const SEED_STORES = [
     postalCode: '98800',
     coordinates: {
       lat: -22.2758,
-      lon: 166.4580
+      lon: 166.4580,
     },
     phone: '+687 687 XX XX XX',
     openingHours: 'Lun-Sam 8h-20h',
-    services: ['parking', 'carte_bancaire', 'livraison']
+    services: ['parking', 'carte_bancaire', 'livraison'],
   },
   {
     id: 'super_u_dumbea',
@@ -451,12 +451,12 @@ export const SEED_STORES = [
     postalCode: '98835',
     coordinates: {
       lat: -22.1500,
-      lon: 166.4500
+      lon: 166.4500,
     },
     phone: '+687 687 XX XX XX',
     openingHours: 'Lun-Sam 8h-19h30',
-    services: ['parking', 'carte_bancaire']
-  }
+    services: ['parking', 'carte_bancaire'],
+  },
 ];
 
 /**
@@ -478,7 +478,7 @@ export function getStoresByTerritory(territory) {
     return SEED_STORES;
   }
   return SEED_STORES.filter(store => 
-    store.territory.toLowerCase() === territory.toLowerCase()
+    store.territory.toLowerCase() === territory.toLowerCase(),
   );
 }
 
@@ -514,7 +514,7 @@ export function searchStores(query) {
   return SEED_STORES.filter(store => 
     store.name.toLowerCase().includes(lowerQuery) ||
     store.city.toLowerCase().includes(lowerQuery) ||
-    store.chain.toLowerCase().includes(lowerQuery)
+    store.chain.toLowerCase().includes(lowerQuery),
   );
 }
 
@@ -525,7 +525,7 @@ export function searchStores(query) {
  */
 export function getStoresByChain(chain) {
   return SEED_STORES.filter(store => 
-    store.chain.toLowerCase() === chain.toLowerCase()
+    store.chain.toLowerCase() === chain.toLowerCase(),
   );
 }
 
@@ -547,7 +547,7 @@ export function getTerritoryNameFromCode(territoryCode) {
     'wallis': 'Wallis-et-Futuna',
     'polynesie': 'Polynésie française',
     'noumea': 'Nouvelle-Calédonie',
-    'taaf': 'Terres australes et antarctiques françaises'
+    'taaf': 'Terres australes et antarctiques françaises',
   };
   return mapping[territoryCode] || territoryCode;
 }
