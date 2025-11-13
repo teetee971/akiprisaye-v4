@@ -1,23 +1,49 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import { 
+    getFirestore, 
+    collection, 
+    query, 
+    where, 
+    getDocs 
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 import { firebaseConfig } from "./firebase-config.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// 🔥 Fonction correcte et exportée
+
+/**
+ * 🔥 Chargement des magasins d’un territoire
+ * - Normalise "Guadeloupe" → "guadeloupe"
+ * - Empêche les crash si aucun magasin n’est trouvé
+ * - Retourne un tableau propre et trié par nom
+ */
 export async function loadStoresForTerritory(territory) {
     try {
         const storesRef = collection(db, "stores");
-        const q = query(storesRef, where("territory", "==", territory.toLowerCase()));
+
+        const q = query(
+            storesRef,
+            where("territory", "==", territory.toLowerCase())
+        );
+
         const snapshot = await getDocs(q);
 
-        const stores = [];
-        snapshot.forEach(doc => stores.push({ id: doc.id, ...doc.data() }));
+        if (snapshot.empty) {
+            console.warn("⚠️ Aucun magasin trouvé pour :", territory);
+            return [];
+        }
 
-        return stores;
-    } catch (err) {
-        console.error("Erreur Firestore loadStoresForTerritory:", err);
+        const results = [];
+        snapshot.forEach(doc => {
+            results.push({ id: doc.id, ...doc.data() });
+        });
+
+        // Tri par ordre alphabétique
+        return results.sort((a, b) => a.name.localeCompare(b.name));
+
+    } catch (error) {
+        console.error("Erreur loadStoresForTerritory:", error);
         return [];
     }
 }
