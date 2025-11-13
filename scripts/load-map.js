@@ -1,130 +1,178 @@
-import { TERRITORIES } from "./territories.js";
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+/**
+ * load-map.js — VERSION C (Google Maps + IA + Trajets + Arrêts Promo)
+ */
 
-// -----------------------------------------
-//  CONFIG FIREBASE
-// -----------------------------------------
-const firebaseConfig = {
-    apiKey: "AIzaSyAs0uisnGSK7OIrFqQPFYF6E-ctNOPY0Sw",
-    authDomain: "a-ki-pri-sa-ye.firebaseapp.com",
-    projectId: "a-ki-pri-sa-ye",
-    storageBucket: "a-ki-pri-sa-ye.appspot.com",
-    messagingSenderId: "379907916421",
-    appId: "1:379907916421:web:3f16c0a862ed7ced362175"
-};
+import { getDB } from "../firebase-config.js";
+import {
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+import { openGPS, findPromosOnRoute, renderPromoStops } from "./gps-navigator.js";
+
+/* -------------------------------------------------------------------------- */
+/*                               GOOGLE MAPS INIT                             */
+/* -------------------------------------------------------------------------- */
 
 let map;
-let markers = [];
+let userMarker = null;
 
-// -----------------------------------------
-// STYLE PREMIUM GOOGLE MAPS
-// -----------------------------------------
-const mapStyle = [
-  { elementType: "geometry", stylers: [{ color: "#f5f5f5" }] },
-  { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-  { elementType: "labels.text.fill", stylers: [{ color: "#616161" }] },
-  { elementType: "labels.text.stroke", stylers: [{ color: "#f5f5f5" }] },
-  {
-    featureType: "road",
-    elementType: "geometry",
-    stylers: [{ color: "#ffffff" }]
-  },
-  {
-    featureType: "water",
-    elementType: "geometry",
-    stylers: [{ color: "#c9d2d8" }]
+/**
+ * Initialise Google Maps avec un style propre et épuré.
+ */
+export function initGoogleMap() {
+  map = new google.maps.Map(document.getElementById("map"), {
+    center: { lat: 16.265, lon: -61.55 },
+    zoom: 11,
+    mapId: "DEMO_MAP_ID", // si tu veux une carte stylée, je t’en ferai une
+    gestureHandling: "greedy",
+    clickableIcons: false,
+    streetViewControl: false
+  });
+
+  console.log("Google Maps initialisé.");
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               POSITION UTILISATEUR                          */
+/* -------------------------------------------------------------------------- */
+
+export function locateUser() {
+  if (!navigator.geolocation) {
+    alert("La géolocalisation n'est pas disponible.");
+    return;
   }
-];
 
-// -----------------------------------------
-//  ICÔNE MAGASIN PREMIUM BLEUE
-// -----------------------------------------
-const storeIcon = {
-    url: "https://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png",
-    scaledSize: new google.maps.Size(40, 40)
-};
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      const { latitude, longitude } = pos.coords;
+      const coords = { lat: latitude, lng: longitude };
 
-// -----------------------------------------
-// INIT GOOGLE MAPS
-// -----------------------------------------
-function initMap(lat = 14.6, lon = -53.0, zoom = 3) {
-    map = new google.maps.Map(document.getElementById("map"), {
-        center: { lat, lng: lon },
-        zoom,
-        mapTypeId: "roadmap",
-        styles: mapStyle,
-        disableDefaultUI: false
-    });
+      // Marqueur utilisateur
+      if (!userMarker) {
+        userMarker = new google.maps.Marker({
+          position: coords,
+          map,
+          title: "Vous êtes ici",
+          icon: {
+            url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+            scaledSize: new google.maps.Size(40, 40)
+          }
+        });
+      } else {
+        userMarker.setPosition(coords);
+      }
+
+      map.panTo(coords);
+    },
+    () => alert("Impossible de vous localiser.")
+  );
 }
 
-// -----------------------------------------
-// Charger magasins par territoire
-// -----------------------------------------
-export async function loadTerritory(territoryId) {
-    const t = TERRITORIES.find(x => x.id === territoryId);
-    initMap(t.center.lat, t.center.lon, t.zoom);
+/* -------------------------------------------------------------------------- */
+/*                            CHARGER MAGASINS FIRESTORE                      */
+/* -------------------------------------------------------------------------- */
 
-    markers.forEach(m => m.setMap(null));
-    markers = [];
+export async function loadStoresForTerritory(territory = "guadeloupe") {
+  const db = await getDB();
+  const storesRef = collection(db, "stores");
 
-    const q = territoryId === "all"
-        ? query(collection(db, "stores"))
-        : query(collection(db, "stores"), where("territory", "==", territoryId));
+  const snap = await getDocs(storesRef);
+  const stores = [];
 
-    const snap = await getDocs(q);
+  snap.forEach((doc) => {
+    const d = doc.data();
+    if (d.territory === territory.toLowerCase()) {
+      stores.push({ id: doc.id, ...d });
+    }
+  });
 
-    snap.forEach(doc => placeMarker(doc.data()));
+  console.log(`[MAP] Magasins trouvés (${stores.length}) :`, stores);
+  renderStoresOnMap(stores);
+
+  return stores;
 }
 
-// -----------------------------------------
-// Crée un marqueur avec popup + GPS
-// -----------------------------------------
-function placeMarker(store) {
+/* -------------------------------------------------------------------------- */
+/*                           AFFICHAGE DES MAGASINS                           */
+/* -------------------------------------------------------------------------- */
+
+function renderStoresOnMap(stores) {
+  stores.forEach((store) => {
     if (!store.lat || !store.lon) return;
 
     const marker = new google.maps.Marker({
-        position: { lat: store.lat, lng: store.lon },
-        map,
-        title: store.name,
-        icon: storeIcon
+      position: { lat: store.lat, lng: store.lon },
+      map,
+      title: store.name,
+      icon: {
+        url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+        scaledSize: new google.maps.Size(40, 40)
+      }
     });
 
-    markers.push(marker);
-
-    const popup = `
-        <div style="font-size:15px;color:black;">
-            <strong>${store.name}</strong><br>
-            ${store.address}<br><br>
-
-            <button onclick="openGPS(${store.lat}, ${store.lon})"
-             style="background:#1e90ff;color:white;padding:7px 12px;border:none;border-radius:6px;">
-                📍 Démarrer GPS
-            </button>
-        </div>
+    const content = `
+      <div style="padding:10px;">
+        <h3>${store.name}</h3>
+        <p>${store.address}</p>
+        <button onclick="window.openGPS(${store.lat},${store.lon},'${store.name}')">
+          🚗 Démarrer GPS
+        </button>
+        <br><br>
+        <button onclick="window.findPromos('${store.id}')">
+          🔥 Voir les promos près du trajet
+        </button>
+      </div>
     `;
 
-    const info = new google.maps.InfoWindow({ content: popup });
-    marker.addListener("click", () => info.open(map, marker));
+    const box = new google.maps.InfoWindow({ content });
+
+    marker.addListener("click", () => box.open({ anchor: marker, map }));
+  });
 }
 
-window.openGPS = function(lat, lon) {
-    window.open(`https://maps.google.com/?q=${lat},${lon}`, "_blank");
+/* -------------------------------------------------------------------------- */
+/*                            PROMOS SUR LE TRAJET                            */
+/* -------------------------------------------------------------------------- */
+
+window.findPromos = async function (storeId) {
+  if (!userMarker) {
+    alert("Active la géolocalisation avant !");
+    return;
+  }
+
+  const userPos = userMarker.getPosition();
+  const destStore = await getStoreById(storeId);
+
+  const promos = await findPromosOnRoute(
+    userPos.lat(),
+    userPos.lng(),
+    destStore.lat,
+    destStore.lon
+  );
+
+  const html = renderPromoStops(promos);
+
+  document.querySelector("#promo-panel").innerHTML = html;
 };
 
-// -----------------------------------------
-// INIT PAGE
-// -----------------------------------------
-window.onload = () => {
-    const select = document.getElementById("territorySelect");
-    select.innerHTML = TERRITORIES.map(t =>
-        `<option value="${t.id}">${t.flag} ${t.name}</option>`
-    ).join("");
+async function getStoreById(id) {
+  const db = await getDB();
+  const col = collection(db, "stores");
+  const snap = await getDocs(col);
 
-    select.addEventListener("change", () => loadTerritory(select.value));
+  let res = null;
+  snap.forEach((doc) => {
+    if (doc.id === id) res = { id: doc.id, ...doc.data() };
+  });
+  return res;
+}
 
-    initMap();
-};
+/* -------------------------------------------------------------------------- */
+/*                RENDRE LES FONCTIONS ACCESSIBLES AU HTML                    */
+/* -------------------------------------------------------------------------- */
+
+window.openGPS = openGPS;
+window.initGoogleMap = initGoogleMap;
+window.locateUser = locateUser;
+window.loadStoresForTerritory = loadStoresForTerritory;
