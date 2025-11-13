@@ -1,98 +1,27 @@
-// scripts/load-map.js
-// Gestion de la carte interactive + chargement des magasins Firestore
+import { initMap, addMarker } from "./map-init.js";
+import { getStoresByTerritory, getAllStores } from "./magasins-firestore.js";
 
-import { TERRITORIES } from "./territories.js";
-import { getStoresByTerritory } from "./magasins-firestore.js";
+let currentMap;
 
-let map = null;
-let markersLayer = null;
+document.addEventListener("DOMContentLoaded", async () => {
+    const select = document.getElementById("territorySelect");
 
-/**
- * Initialise la carte Leaflet
- */
-export function initMap() {
-    if (map) return; // éviter double initialisation
+    async function loadTerritory(territory) {
+        let stores = territory === "all"
+            ? await getAllStores()
+            : await getStoresByTerritory(territory);
 
-    map = L.map("map", {
-        zoomControl: true,
-        scrollWheelZoom: true,
-    });
+        const first = stores[0] || { lat: 16.24, lon: -61.53 }; // fallback Gpe
 
-    // Fond sombre CartoDB (moderne, professionnel)
-    L.tileLayer(
-        "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-        {
-            maxZoom: 19,
-            attribution: "&copy; OpenStreetMap contributors"
-        }
-    ).addTo(map);
+        currentMap = initMap({ lat: first.lat, lng: first.lon }, 11);
 
-    markersLayer = L.layerGroup().addTo(map);
-}
-
-/**
- * Charge un territoire + affiche les magasins Firestore
- */
-export async function loadTerritory(territoryId) {
-    initMap();
-
-    const territory = TERRITORIES.find(t => t.id === territoryId);
-    if (!territory) {
-        console.error("❌ Territoire introuvable :", territoryId);
-        return;
+        stores.forEach(store => addMarker(store));
     }
 
-    // Centre du territoire
-    map.setView([territory.center.lat, territory.center.lon], 11);
-
-    // Nettoyage des anciens marqueurs
-    markersLayer.clearLayers();
-
-    // Récupération Firestore
-    const shops = await getStoresByTerritory(territoryId);
-
-    console.log(`🛒 ${shops.length} magasins trouvés pour ${territoryId}`);
-
-    shops.forEach(shop => {
-        if (!shop.lat || !shop.lon) return;
-
-        const marker = L.marker([shop.lat, shop.lon]).addTo(markersLayer);
-
-        const popupHTML = `
-            <div style="font-size:14px;">
-                <strong>${shop.name}</strong><br>
-                ${shop.address}<br>
-                <em>${shop.chain || ""}</em><br><br>
-
-                <button onclick="openGPS(${shop.lat}, ${shop.lon})"
-                    style="padding:6px 10px;background:#1e90ff;color:white;border:none;border-radius:6px;">
-                    📍 Ouvrir dans GPS
-                </button>
-
-                <br><br>
-
-                <button onclick="suggestPromotions('${territoryId}')"
-                    style="padding:6px 10px;background:#ff5722;color:white;border:none;border-radius:6px;">
-                    🔥 Promotions sur le trajet
-                </button>
-            </div>
-        `;
-
-        marker.bindPopup(popupHTML);
+    select.addEventListener("change", () => {
+        const val = select.value.toLowerCase();
+        loadTerritory(val === "tous" ? "all" : val);
     });
-}
 
-/**
- * Ouvre Google Maps / Waze automatiquement
- */
-window.openGPS = function(lat, lon) {
-    const url = `https://maps.google.com/?q=${lat},${lon}`;
-    window.open(url, "_blank");
-};
-
-/**
- * Suggestions IA (préparé pour la suite)
- */
-window.suggestPromotions = function(territoryId) {
-    alert("🧠 Analyse IA du trajet & détection des promotions en préparation.");
-};
+    loadTerritory("all");
+});
