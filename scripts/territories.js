@@ -1,9 +1,3 @@
-// ---------------------------------------------------------
-// territories.js
-// Liste officielle des territoires DOM-TOM
-// avec coordonnées géographiques + niveau de zoom
-// ---------------------------------------------------------
-
 export const TERRITORIES = [
     {
         id: "all",
@@ -64,7 +58,7 @@ export const TERRITORIES = [
     {
         id: "saintpierremiquelon",
         name: "Saint-Pierre-et-Miquelon",
-        flag: "🇫🇷",
+        flag: "🇵🇲",
         center: { lat: 46.7794, lon: -56.1773 },
         zoom: 10
     },
@@ -93,7 +87,7 @@ export const TERRITORIES = [
         id: "terresautrales",
         name: "Terres australes",
         flag: "🇹🇫",
-        center: { lat: -49.3500, lon: 69.1670 },
+        center: { lat: -49.35, lon: 69.167 },
         zoom: 5
     }
 ];
