@@ -1,62 +1,127 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A KI PRI SA YÉ – Comparateur de prix Outre-mer. Transparence, économies, scanner, cartes interactives et actualités.">
-    <title>A KI PRI SA YÉ – Transparence des prix Outre-mer</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Actualités – A KI PRI SA YÉ</title>
 
-    <link rel="stylesheet" href="styles/style.css">
-    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet" />
+
+    <!-- Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDsn-8l2dxmKsJo8XKjGfPHdEtcgZxrqrc",
+            authDomain: "akipri-app.firebaseapp.com",
+            projectId: "akipri-app",
+            storageBucket: "akipri-app.appspot.com",
+            messagingSenderId: "49534995388",
+            appId: "1:49534995388:web:9f218a6d7c418ba770504d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function loadNews() {
+            const newsEl = document.getElementById("news-feed");
+            newsEl.innerHTML = "<p class='loading'>Chargement...</p>";
+
+            try {
+                const q = query(collection(db, "actualites"), orderBy("timestamp", "desc"));
+                const snap = await getDocs(q);
+
+                newsEl.innerHTML = "";
+
+                snap.forEach(doc => {
+                    const item = doc.data();
+                    const date = new Date(item.timestamp?.seconds * 1000).toLocaleString("fr-FR");
+
+                    newsEl.innerHTML += `
+                        <div class="news-card">
+                            <h3>${item.titre || "Actualité"}</h3>
+                            <p class="date">📆 ${date}</p>
+                            <p class="content">${item.contenu || ""}</p>
+
+                            ${item.lien ? `<a href="${item.lien}" target="_blank" class="btn">Voir plus</a>` : ""}
+                        </div>
+                    `;
+                });
+
+                if (snap.empty) {
+                    newsEl.innerHTML = "<p>Aucune actualité pour le moment.</p>";
+                }
+
+            } catch (e) {
+                console.error(e);
+                newsEl.innerHTML = "<p class='error'>Impossible de charger les actualités.</p>";
+            }
+        }
+
+        window.addEventListener("DOMContentLoaded", loadNews);
+    </script>
+
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #0a0a0a;
+            color: white;
+        }
+        header {
+            background: #111;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+            border-bottom: 1px solid #222;
+        }
+        #news-feed {
+            padding: 20px;
+        }
+        .news-card {
+            background: #141414;
+            padding: 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #222;
+        }
+        .news-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+        }
+        .news-card .date {
+            color: #888;
+            margin: 5px 0 10px 0;
+        }
+        .btn {
+            margin-top: 10px;
+            display: inline-block;
+            padding: 10px 14px;
+            background: #0066ff;
+            border-radius: 6px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .btn:hover {
+            background: #0050d1;
+        }
+        .loading, .error {
+            text-align: center;
+            color: #bbb;
+        }
+    </style>
 </head>
 
 <body>
+    <header>📰 Actualités – A KI PRI SA YÉ</header>
 
-    <!-- HEADER GLOBAL -->
-    <header id="app-header"></header>
-
-    <!-- SECTION HERO -->
-    <section class="hero">
-        <h1>Compare. Économise. Scan. Localise.</h1>
-        <p>La plateforme officielle de transparence des prix en Outre-mer.</p>
-
-        <div class="hero-buttons">
-            <a href="comparateur.html" class="btn btn-primary">Comparer les prix</a>
-            <a href="scanner.html" class="btn btn-secondary">Scanner un produit</a>
-            <a href="carte.html" class="btn btn-secondary">Trouver un magasin</a>
-        </div>
-    </section>
-
-    <!-- POINTS CLÉS -->
-    <section class="features">
-        <div class="feature">
-            <h3>📦 Scanner de codes-barres</h3>
-            <p>Scanne les produits et récupère le prix le moins cher du territoire.</p>
-        </div>
-
-        <div class="feature">
-            <h3>🗺️ Carte interactive</h3>
-            <p>Localise les magasins par territoire, horaires et services.</p>
-        </div>
-
-        <div class="feature">
-            <h3>📉 Suivi des prix</h3>
-            <p>Analyse des variations + alertes intelligence (bientôt dispo).</p>
-        </div>
-    </section>
-
-    <!-- ACTUALITÉS -->
-    <section class="news-preview">
-        <h2>📰 Actualités prix & consommation</h2>
-        <p>Suivi en temps réel (flux automatisé à venir).</p>
-        <a href="actualites.html" class="btn btn-primary">Voir le fil complet</a>
-    </section>
-
-    <!-- FOOTER GLOBAL -->
-    <footer id="app-footer"></footer>
-
-    <script src="components/header.js"></script>
-    <script src="components/footer.js"></script>
-
+    <section id="news-feed"></section>
 </body>
 </html>
