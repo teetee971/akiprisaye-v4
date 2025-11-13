@@ -1,145 +1,106 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>A KI PRI SA YÉ – Carte interactive</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A KI PRI SA YÉ — Carte interactive</title>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Leaflet core -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIu6VLd9gENbYQaS0pQsLnwLkLkS0Z8pcvY="
+        crossorigin=""
+    />
 
-<link rel="stylesheet" href="./shared-nav.css" />
-<link rel="stylesheet" href="./style.css" />
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1vTlZBo="
+        crossorigin=""
+    ></script>
 
-<style>
-body {
-    background-color: #0f172a;
-    margin: 0;
-    font-family: Inter, sans-serif;
-    color: white;
-}
-#map {
-    width: 100%;
-    height: calc(100vh - 140px);
-    border-radius: 12px;
-}
-.container {
-    padding: 16px;
-}
-.select-box {
-    width: 100%;
-    padding: 14px;
-    border-radius: 8px;
-    background: #1e293b;
-    border: 1px solid #334155;
-    color: white;
-    font-size: 18px;
-}
-.legend {
-    background: #1e293b;
-    padding: 14px;
-    border-radius: 12px;
-    margin-top: 12px;
-}
-</style>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0f172a;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        #map {
+            height: 70vh;
+            width: 100%;
+            margin-top: 10px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .legend {
+            background: #1e293b;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 10px;
+            font-size: 16px;
+            border: 1px solid #334155;
+        }
+
+        .legend-title {
+            font-weight: bold;
+            color: #3b82f6;
+            margin-bottom: 6px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-top: 6px;
+        }
+
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #3b82f6;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .header {
+            background: #1d4ed8;
+            padding: 15px;
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+    </style>
 </head>
 
 <body>
 
-<header class="mobile-header">
-    <button class="mobile-menu-btn" onclick="toggleMenu()">☰</button>
-    <h1 class="mobile-title">A KI PRI SA YÉ</h1>
-</header>
+    <div class="header">A KI PRI SA YÉ</div>
 
-<nav id="mobileMenu" class="mobile-nav hidden">
-    <ul>
-        <li><a href="/">🏠 Accueil</a></li>
-        <li><a href="/comparateur.html">🔍 Comparateur</a></li>
-        <li><a href="/scanner.html">📷 Scanner</a></li>
-        <li><a href="/carte.html" aria-current="page">🗺️ Carte</a></li>
-        <li><a href="/modules.html">🧩 Modules</a></li>
-    </ul>
-</nav>
+    <div id="map"></div>
 
-<script>
-function toggleMenu() {
-    document.getElementById("mobileMenu").classList.toggle("hidden");
-}
-</script>
+    <div class="legend">
+        <div class="legend-title">📍 Légende</div>
 
-<div class="container">
+        <div class="legend-item">
+            <span class="legend-color"></span> Magasins partenaires
+        </div>
 
-<select id="territoire" class="select-box">
-    <option value="guadeloupe">🇬🇵 Guadeloupe</option>
-    <option value="martinique">🇲🇶 Martinique</option>
-    <option value="guyane">🇬🇫 Guyane</option>
-    <option value="reunion">🇷🇪 La Réunion</option>
-    <option value="mayotte">🇾🇹 Mayotte</option>
-</select>
+        <div class="legend-item">
+            💡 Cliquez sur un marqueur pour voir les informations du magasin
+        </div>
+    </div>
 
-<div id="map"></div>
-
-<div class="legend">
-    <h3 style="color:#3b82f6;">📍 Légende</h3>
-    <p>🔵 Magasins Firestore</p>
-    <p>📍 Cliquez sur un marqueur pour voir les détails</p>
-</div>
-
-</div>
-
-<!-- Firestore -->
-<script type="module">
-import { loadMagasins } from "./scripts/magasins-firestore.js";
-
-const territories = {
-    guadeloupe: { lat: 16.265, lon: -61.55, zoom: 10 },
-    martinique: { lat: 14.63, lon: -61.02, zoom: 10 },
-    guyane:     { lat: 4.93, lon: -52.33, zoom: 7 },
-    reunion:    { lat: -21.115, lon: 55.536, zoom: 10 },
-    mayotte:    { lat: -12.823, lon: 45.166, zoom: 11 },
-};
-
-const map = L.map("map").setView([16.265, -61.55], 10);
-
-L.tileLayer("https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}.png", {
-    maxZoom: 20,
-}).addTo(map);
-
-let markersLayer = L.layerGroup().addTo(map);
-
-async function updateMap(territory) {
-    markersLayer.clearLayers();
-
-    const data = await loadMagasins(territory);
-
-    data.forEach(shop => {
-        const marker = L.circleMarker([shop.lat, shop.lon], {
-            radius: 8,
-            fillColor: "#3b82f6",
-            color: "#000",
-            weight: 1,
-            fillOpacity: 0.9
-        }).addTo(markersLayer);
-
-        marker.bindPopup(`
-            <b>${shop.name}</b><br>
-            ${shop.ville || ""}<br>
-            ${shop.adresse || ""}<br>
-            <small>${shop.horaires || ""}</small>
-        `);
-    });
-}
-
-// Listener territoire
-document.getElementById("territoire").addEventListener("change", (e) => {
-    const t = territories[e.target.value];
-    map.setView([t.lat, t.lon], t.zoom);
-    updateMap(e.target.value);
-});
-
-// Premier affichage
-updateMap("guadeloupe");
-</script>
+    <!-- Initialisation -->
+    <script type="module">
+        import { loadMap } from "./scripts/load-map.js";
+        loadMap();
+    </script>
 
 </body>
 </html>
