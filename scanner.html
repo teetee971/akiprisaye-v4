@@ -1,109 +1,56 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Scanner de produit - A KI PRI SA YÉ</title>
-  <meta name="description" content="Scanner un code-barres pour comparer les prix en Outre-mer." />
-  <meta name="keywords" content="scanner, code-barres, produit, comparateur, prix" />
-  <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#0F172A" />
-  <link rel="stylesheet" href="shared-nav.css" />
-  <style>
-    :root { --bg:#0B0D17; --surface:#1a1d2e; --accent:#2563EB; --accent-hover:#1D4ED8; --text:#ffffff; --text-muted:#94A3B8; --radius:12px; }
-    body { font-family: system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,sans-serif; margin:0; background:var(--bg); color:var(--text); }
-    main { max-width:820px; margin:0 auto; padding:2rem 1rem 3rem; }
-    h1 { text-align:center; margin:0 0 1.25rem; font-size:clamp(1.7rem,4vw,2.2rem); letter-spacing:.5px; }
-    .scanner-box { background:var(--surface); border:1px solid #23273a; border-radius:var(--radius); padding:1.2rem 1.2rem 1.6rem; position:relative; backdrop-filter:blur(6px); }
-    .video-wrapper { position:relative; width:100%; aspect-ratio:3 / 4; background:#000; border-radius:var(--radius); overflow:hidden; border:1px solid #23273a; margin-bottom:.85rem; }
-    video { width:100%; height:100%; object-fit:cover; }
-    .scan-overlay { position:absolute; inset:0; pointer-events:none; box-shadow: inset 0 0 0 2px rgba(37,99,235,.55), inset 0 55% 0 -52% rgba(0,0,0,.35); border-radius:var(--radius); }
-    .controls { display:flex; flex-wrap:wrap; gap:.6rem; margin:.5rem 0 1rem; }
-    button, label.btn-file { display:inline-flex; align-items:center; gap:.5rem; font-weight:600; padding:.6rem 1rem; border-radius:8px; border:1px solid #2c3247; background:linear-gradient(145deg, #23273a, #1a1d2e); color:var(--text); cursor:pointer; transition:background .2s; }
-    button:hover:not(:disabled), label.btn-file:hover { background:var(--accent); }
-    button:disabled { opacity:.55; cursor:not-allowed; }
-    input[type]="file" { display:none; }
-    .divider { color:var(--text-muted); font-size:.85rem; padding:.4rem .8rem; }
-    .status { min-height:1.5rem; font-size:.9rem; margin-top:.25rem; color:var(--text-muted); }
-    .status strong { color:var(--accent); }
-    .error { color:#FCA5A5; }
-    .help { font-size:.8rem; line-height:1.4; color:var(--text-muted); margin-top:.6rem; }
-    @media (max-width:560px){ .controls{ flex-direction:column; } .divider{ display:none; } }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Scanner de codes-barres – Comparez instantanément le prix d’un produit en Outre-mer.">
+    <title>Scanner – A KI PRI SA YÉ</title>
+
+    <link rel="stylesheet" href="styles/style.css">
+
+    <!-- ZXing pour scan caméra -->
+    <script src="https://unpkg.com/@zxing/library@latest"></script>
 </head>
+
 <body>
-  <div class="nav-overlay" id="nav-overlay"></div>
-  <nav class="mobile-nav" id="mobile-nav" role="navigation" aria-label="Navigation mobile">
-    <div class="mobile-nav-header"><span class="mobile-nav-title">Menu</span><button class="close-nav" id="close-nav" aria-label="Fermer le menu">&times;</button></div>
-    <ul class="mobile-nav-list">
-      <li><a href="/"><span class="mobile-nav-icon">🏠</span>Accueil</a></li>
-      <li><a href="/comparateur.html"><span class="mobile-nav-icon">🔍</span>Comparateur</a></li>
-      <li><a href="/scanner.html" aria-current="page"><span class="mobile-nav-icon">📷</span>Scanner</a></li>
-      <li><a href="/carte.html"><span class="mobile-nav-icon">🗺️</span>Carte</a></li>
-      <li><a href="/modules.html"><span class="mobile-nav-icon">🧩</span>Modules</a></li>
-      <li><a href="/ia-conseiller.html"><span class="mobile-nav-icon">🤖</span>IA Conseiller</a></li>
-      <li><a href="/historique.html"><span class="mobile-nav-icon">📊</span>Historique</a></li>
-      <li><a href="/mon-compte.html"><span class="mobile-nav-icon">👤</span>Mon Compte</a></li>
-      <li><a href="/faq.html"><span class="mobile-nav-icon">❓</span>FAQ</a></li>
-      <li><a href="/contact.html"><span class="mobile-nav-icon">📧</span>Contact</a></li>
-    </ul>
-  </nav>
-  <header class="shared-header">
-    <div class="shared-header-content">
-      <div style="display:flex;align-items:center;gap:1rem;">
-        <button class="burger-menu" id="burger-menu" aria-label="Menu" aria-expanded="false"><div class="burger-line"></div><div class="burger-line"></div><div class="burger-line"></div></button>
-        <a href="/" class="shared-logo" aria-label="A KI PRI SA YÉ - Accueil"><img src="/logo-akpsy.svg" alt="A KI PRI SA YÉ" /></a>
-      </div>
-      <nav class="header-nav" role="navigation" aria-label="Navigation principale">
-        <a href="/comparateur.html">Comparateur</a>
-        <a href="/scanner.html" aria-current="page">Scanner</a>
-        <a href="/modules.html">Modules</a>
-        <a href="/mon-compte.html">Mon Compte</a>
-      </nav>
-    </div>
-  </header>
-  <main>
-    <h1>📷 Scanner un code-barres</h1>
-    
-    <!-- Development Notice -->
-    <div style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 1rem 1.5rem; margin-bottom: 1.5rem; border-radius: 8px;">
-      <p style="color: #f59e0b; font-weight: 600; margin-bottom: 0.5rem;">⚠️ Fonctionnalité en développement</p>
-      <p style="color: #b8b8b8; font-size: 0.9rem; line-height: 1.6; margin: 0;">
-        Le scanner de codes-barres est actuellement en cours de développement. L'interface est présente mais 
-        la détection automatique n'est pas encore opérationnelle. Cette fonctionnalité sera activée prochainement.
-      </p>
-    </div>
-    
-    <div class="scanner-box" aria-labelledby="scanner-heading">
-      <div class="video-wrapper" aria-label="Aperçu caméra">
-        <video id="scan-video" playsinline muted></video>
-        <div class="scan-overlay" aria-hidden="true"></div>
-      </div>
-      <div class="controls">
-        <button id="btn-start" type="button">Démarrer la caméra</button>
-        <button id="btn-stop" type="button" disabled>Arrêter</button>
-        <label for="file-input" class="btn-file">Importer une image
-          <input id="file-input" type="file" accept="image/*" aria-label="Importer une image du code-barres">
-        </label>
-        <button id="btn-flash" type="button" style="display:none;">Activer flash</button>
-      </div>
-      <div id="status" class="status" aria-live="polite">Caméra inactive.</div>
-      <div class="help">Astuce: Approchez le code-barres, stabilisez 1–2 secondes. Autorisez la caméra si une demande s’affiche.</div>
 
-      <!-- OCR RESULTS SECTION - START -->
-      <div id="ocr-results-section" class="hidden mt-6">
-        <h2 class="text-xl font-semibold mb-3">Résultats du Scan</h2>
-        <div id="ocr-results" class="bg-gray-800 p-4 rounded-lg text-sm"></div>
-        <button id="save-to-budget-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg mt-4 transition-colors">
-          Enregistrer dans mon budget
-        </button>
-      </div>
-      <!-- OCR RESULTS SECTION - END -->
+    <!-- HEADER GLOBAL -->
+    <header id="app-header"></header>
 
-    </div>
-  </main>
-  <script type="module" src="shared-nav.js"></script>
-  <script type="module" src="/cookie-consent.js"></script>
-  <script type="module" src="scanner.js"></script>
+    <section class="page-title">
+        <h1>📸 Scanner un produit</h1>
+        <p class="subtitle">Scanne le code-barres pour obtenir immédiatement le meilleur prix.</p>
+    </section>
+
+    <section class="scanner-section">
+
+        <!-- Aperçu caméra -->
+        <div class="camera-container">
+            <video id="video" autoplay></video>
+            <div id="camera-loader" class="loader">Ouverture de la caméra…</div>
+        </div>
+
+        <!-- Résultat -->
+        <div id="scanResult" class="scan-result">
+            Aucun scan pour le moment…
+        </div>
+
+        <!-- Fallback input si la caméra ne marche pas -->
+        <div class="fallback">
+            <input id="manualCode" type="text" placeholder="Saisir un code-barres manuellement">
+            <button id="manualBtn" class="btn btn-primary">Rechercher</button>
+        </div>
+
+    </section>
+
+    <!-- FOOTER GLOBAL -->
+    <footer id="app-footer"></footer>
+
+    <!-- Scripts -->
+    <script src="scripts/scanner.js"></script>
+    <script src="scripts/comparateur-data.js"></script>
+    <script src="components/header.js"></script>
+    <script src="components/footer.js"></script>
+
 </body>
 </html>
