@@ -1,290 +1,102 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Carte des magasins - A KI PRI SA YÉ</title>
-  <meta name="description" content="Carte interactive des magasins en Outre-mer avec prix géolocalisés." />
-  
-  <!-- Open Graph -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="Carte des magasins - A KI PRI SA YÉ" />
-  <meta property="og:description" content="Trouvez les meilleurs prix près de chez vous" />
-  
-  <!-- PWA -->
-  <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#0f62fe" />
-  
-  <link rel="stylesheet" href="shared-nav.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: #0b0d17;
-      color: #ffffff;
-    }
-    
-    main {
-      padding: 1rem;
-      padding-bottom: max(1rem, env(safe-area-inset-bottom));
-    }
-    
-    h1 {
-      color: #0f62fe;
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    
-    #map { 
-      height: 70vh; 
-      width: 100%; 
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
-    
-    .map-controls {
-      margin-bottom: 1rem;
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    
-    .territory-select {
-      padding: 0.75rem 1rem;
-      background: #1a1d2e;
-      border: 1px solid #2a2d3e;
-      border-radius: 8px;
-      color: #ffffff;
-      font-size: 1rem;
-      cursor: pointer;
-      min-width: 200px;
-    }
-    
-    .territory-select:focus {
-      outline: none;
-      border-color: #0f62fe;
-    }
-    
-    .map-legend {
-      background: rgba(26, 29, 46, 0.95);
-      padding: 1rem;
-      border-radius: 8px;
-      border: 1px solid #2a2d3e;
-      margin-top: 1rem;
-    }
-    
-    .map-legend h3 {
-      margin: 0 0 0.5rem 0;
-      color: #0f62fe;
-      font-size: 1rem;
-    }
-    
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin: 0.25rem 0;
-      font-size: 0.9rem;
-      color: #b8b8b8;
-    }
-    
-    .legend-icon {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: #0f62fe;
-    }
-  </style>
-</head>
-<body>
-  <!-- Mobile Navigation Overlay -->
-  <div class="nav-overlay" id="nav-overlay"></div>
-  
-  <!-- Mobile Navigation -->
-  <nav class="mobile-nav" id="mobile-nav" role="navigation" aria-label="Navigation mobile">
-    <div class="mobile-nav-header">
-      <span class="mobile-nav-title">Menu</span>
-      <button class="close-nav" id="close-nav" aria-label="Fermer le menu">&times;</button>
-    </div>
-    <ul class="mobile-nav-list">
-      <li><a href="/"><span class="mobile-nav-icon">🏠</span>Accueil</a></li>
-      <li><a href="/comparateur.html"><span class="mobile-nav-icon">🔍</span>Comparateur</a></li>
-      <li><a href="/scanner.html"><span class="mobile-nav-icon">📷</span>Scanner</a></li>
-      <li><a href="/carte.html"><span class="mobile-nav-icon">🗺️</span>Carte</a></li>
-      <li><a href="/modules.html"><span class="mobile-nav-icon">🧩</span>Modules</a></li>
-      <li><a href="/ia-conseiller.html"><span class="mobile-nav-icon">🤖</span>IA Conseiller</a></li>
-      <li><a href="/historique.html"><span class="mobile-nav-icon">📊</span>Historique</a></li>
-      <li><a href="/mon-compte.html"><span class="mobile-nav-icon">👤</span>Mon Compte</a></li>
-      <li><a href="/faq.html"><span class="mobile-nav-icon">❓</span>FAQ</a></li>
-      <li><a href="/contact.html"><span class="mobile-nav-icon">📧</span>Contact</a></li>
-    </ul>
-  </nav>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carte interactive des magasins - A KI PRI SA YÉ</title>
 
-  <header class="shared-header">
-    <div class="shared-header-content">
-      <div style="display: flex; align-items: center; gap: 1rem;">
-        <button class="burger-menu" id="burger-menu" aria-label="Menu" aria-expanded="false">
-          <div class="burger-line"></div>
-          <div class="burger-line"></div>
-          <div class="burger-line"></div>
-        </button>
-        <a href="/" class="shared-logo" aria-label="A KI PRI SA YÉ - Accueil"><img src="/logo-akpsy.svg" alt="A KI PRI SA YÉ" /></a>
-      </div>
-      <nav class="header-nav" role="navigation" aria-label="Navigation principale">
-        <a href="/comparateur.html">Comparateur</a>
-        <a href="/scanner.html">Scanner</a>
-        <a href="/modules.html">Modules</a>
-        <a href="/mon-compte.html">Mon Compte</a>
-      </nav>
-    </div>
-  </header>
+    <!-- Style global -->
+    <link rel="stylesheet" href="/dist/assets/main-BXLYN4L9.css" />
 
-  <main>
-    <h1>🗺️ Carte interactive des magasins</h1>
-    
-    <div class="map-controls">
-      <select class="territory-select" id="territory-filter" aria-label="Filtrer par territoire">
-        <option value="all">Tous les territoires</option>
-        <option value="guadeloupe" selected>🇬🇵 Guadeloupe</option>
-        <option value="martinique">🇲🇶 Martinique</option>
-        <option value="guyane">🇬🇫 Guyane</option>
-        <option value="reunion">🇷🇪 La Réunion</option>
-        <option value="mayotte">🇾🇹 Mayotte</option>
-        <option value="spm">🇵🇲 Saint-Pierre-et-Miquelon</option>
-        <option value="stbarth">🇧🇱 Saint-Barthélemy</option>
-        <option value="stmartin">🇲🇫 Saint-Martin</option>
-        <option value="wallis">🇼🇫 Wallis-et-Futuna</option>
-        <option value="polynesie">🇵🇫 Polynésie française</option>
-        <option value="noumea">🇳🇨 Nouvelle-Calédonie</option>
-        <option value="taaf">🇹🇫 Terres australes</option>
-      </select>
-    </div>
-    
-    <div id="map"></div>
-    
-    <div class="map-legend">
-      <h3>📍 Légende</h3>
-      <div class="legend-item">
-        <span class="legend-icon"></span>
-        <span>Magasins partenaires</span>
-      </div>
-      <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #b8b8b8;">
-        💡 Cliquez sur un marqueur pour voir les informations du magasin
-      </p>
-    </div>
-  </main>
+    <!-- ICONES -->
+    <link rel="icon" type="image/png" href="/icon.png" />
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script type="module">
-    // Import stores data
-    import { SEED_STORES, getStoresByTerritory, getTerritoryNameFromCode } from './src/data/seedStores.js';
+    <!-- Préchargement dynamique du JS (géré par Vite) -->
+    <script type="module">
+        // Auto-import du fichier JS de la carte (Vite génère un hash différent à chaque build)
+        import("/dist/assets/carte-BorVa9RG.js")
+            .catch(err => console.error("Erreur de chargement du module carte:", err));
+    </script>
 
-    // Territory coordinates for map centering
-    const territories = {
-      guadeloupe: { lat: 16.265, lon: -61.551, zoom: 10 },
-      martinique: { lat: 14.641, lon: -61.024, zoom: 10 },
-      guyane: { lat: 4.938, lon: -52.330, zoom: 8 },
-      reunion: { lat: -21.115, lon: 55.536, zoom: 10 },
-      mayotte: { lat: -12.823, lon: 45.166, zoom: 11 },
-      spm: { lat: 46.779, lon: -56.180, zoom: 11 },
-      stbarth: { lat: 17.900, lon: -62.833, zoom: 13 },
-      stmartin: { lat: 18.073, lon: -63.082, zoom: 13 },
-      wallis: { lat: -13.282, lon: -176.176, zoom: 12 },
-      polynesie: { lat: -17.679, lon: -149.407, zoom: 9 },
-      noumea: { lat: -22.276, lon: 166.458, zoom: 10 },
-      taaf: { lat: -49.280, lon: 69.348, zoom: 6 }
-    };
-
-    var map = L.map('map').setView([16.265, -61.551], 10); // Guadeloupe par défaut
-
-    // Dark theme map tiles (CartoDB Dark Matter)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© OpenStreetMap © CARTO',
-      maxZoom: 19
-    }).addTo(map);
-
-    let currentMarkers = [];
-
-    function showStoresForTerritory(territory) {
-      // Clear existing markers
-      currentMarkers.forEach(marker => map.removeLayer(marker));
-      currentMarkers = [];
-
-      let stores = [];
-      if (territory === 'all') {
-        // Show all stores from all territories
-        stores = SEED_STORES;
-        map.setView([16.265, -61.551], 4); // Zoomed out view
-      } else {
-        // Get territory name from code
-        const territoryName = getTerritoryNameFromCode(territory);
-        stores = getStoresByTerritory(territoryName);
-        
-        // Center map on territory
-        if (territories[territory]) {
-          const t = territories[territory];
-          map.setView([t.lat, t.lon], t.zoom);
+    <style>
+        body {
+            background: #0d0f16;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, sans-serif;
+            color: #ffffff;
         }
-      }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+        .panel {
+            background: rgba(255,255,255,0.04);
+            padding: 18px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+        .map-zone {
+            width: 100%;
+            height: 70vh;
+            background: #0a0c12;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        select {
+            width: 100%;
+            background: #1a1d29;
+            border: 1px solid #2c3142;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .title {
+            font-size: 32px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 30px;
+            color: #4d9cff;
+        }
+        .legend p { margin: 6px 0; }
+    </style>
+</head>
 
-      // Add markers for each store
-      stores.forEach(store => {
-        const popupContent = `
-          <div style="color: #000; min-width: 200px;">
-            <strong style="font-size: 1.1em; color: #0f62fe;">${store.name}</strong><br>
-            <em style="color: #666;">${store.chain}</em><br>
-            <br>
-            <strong>📍 Localisation:</strong><br>
-            ${store.city}, ${store.territory}<br>
-            ${store.address}<br>
-            <br>
-            <strong>🕒 Horaires:</strong><br>
-            ${store.openingHours}<br>
-            <br>
-            <strong>✨ Services:</strong><br>
-            ${store.services.map(s => {
-              const serviceIcons = {
-                'parking': '🅿️ Parking',
-                'carte_bancaire': '💳 CB',
-                'livraison': '🚚 Livraison',
-                'retrait_course': '🛒 Click & Collect',
-                'essence': '⛽ Station essence'
-              };
-              return serviceIcons[s] || s;
-            }).join(', ')}
-          </div>
-        `;
-        
-        const marker = L.marker([store.coordinates.lat, store.coordinates.lon])
-          .addTo(map)
-          .bindPopup(popupContent);
-        currentMarkers.push(marker);
-      });
+<body>
+    <div class="container">
 
-      // Update legend with count
-      updateLegend(stores.length);
-    }
+        <h1 class="title">🗺️ Carte interactive des magasins</h1>
 
-    function updateLegend(count) {
-      const legendText = document.querySelector('.legend-item span:last-child');
-      if (legendText) {
-        legendText.textContent = `${count} magasin${count > 1 ? 's' : ''} partenaire${count > 1 ? 's' : ''}`;
-      }
-    }
+        <!-- Sélecteur DOM TOM -->
+        <div class="panel">
+            <select id="territoire-select">
+                <option value="guadeloupe">🇬🇵 Guadeloupe</option>
+                <option value="martinique">🇲🇶 Martinique</option>
+                <option value="guyane">🇬🇫 Guyane</option>
+                <option value="reunion">🇷🇪 La Réunion</option>
+                <option value="mayotte">🇾🇹 Mayotte</option>
+                <option value="saint-martin">🇫🇷 Saint-Martin</option>
+                <option value="saint-barthelemy">🇫🇷 Saint-Barthélemy</option>
+                <option value="saint-pierre-miquelon">🇫🇷 Saint-Pierre-et-Miquelon</option>
+                <option value="wallis-futuna">🇼🇫 Wallis-et-Futuna</option>
+                <option value="polynesie">🇵🇫 Polynésie française</option>
+                <option value="nouvelle-caledonie">🇳🇨 Nouvelle-Calédonie</option>
+            </select>
+        </div>
 
-    // Initial load - show Guadeloupe stores
-    showStoresForTerritory('guadeloupe');
+        <!-- Carte -->
+        <div class="map-zone" id="map"></div>
 
-    // Territory filter change handler
-    document.getElementById('territory-filter')?.addEventListener('change', function(e) {
-      showStoresForTerritory(e.target.value);
-    });
-  </script>
-  
-  <script type="module" src="shared-nav.js"></script>
-  <script type="module" src="/cookie-consent.js"></script>
+        <!-- Légende -->
+        <div class="panel legend">
+            <h2 style="color:#4d9cff; margin-top:0;">📍 Légende</h2>
+            <p>🔵 Magasins partenaires</p>
+            <p>💡 Cliquez sur un marqueur pour voir les informations du magasin</p>
+        </div>
+
+    </div>
 </body>
 </html>
