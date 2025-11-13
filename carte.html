@@ -1,101 +1,117 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carte interactive des magasins</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A KI PRI SA YÉ – Carte interactive des magasins</title>
+  <!-- Feuille de style Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIu6VLd9gENbYQaS0pQsLnwLkLkS0Z8pcvY=" crossorigin="" />
+  <!-- Script Leaflet -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTIZBo=" crossorigin=""></script>
+  <style>
+    main {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 1rem;
+      color: #ffffff;
+      font-family: sans-serif;
+    }
 
-    <!-- FEUILLES DE STYLE -->
-    <link rel="stylesheet" href="assets/shared-nav.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    h1 {
+      margin-bottom: 1rem;
+      font-size: 1.8rem;
+      text-align: center;
+    }
 
-    <!-- FIX LEAFLET – IMPORTANT -->
-    <style>
-        #map {
-            height: 480px !important;
-            min-height: 480px !important;
-            width: 100%;
-            background: #0d0d0d;
-            border-radius: 12px;
-            margin-top: 10px;
-        }
+    #territorySelect {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
 
-        @media (max-width: 600px) {
-            #map {
-                height: 420px !important;
-                min-height: 420px !important;
-            }
-        }
+    #map {
+      height: 500px;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+    }
 
-        body {
-            background: #0b0b0b;
-            color: #fff;
-            font-family: system-ui, sans-serif;
-        }
+    .legend {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 1rem;
+      border-radius: 8px;
+    }
 
-        .container {
-            padding: 15px;
-        }
-    </style>
+    .legend span {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      margin-right: 4px;
+      border-radius: 50%;
+      background-color: #1d4ed8;
+    }
+  </style>
 </head>
 
 <body>
-
-    <!-- NAVIGATION -->
-    <script type="module" src="assets/shared-nav.js"></script>
-
-    <div class="container">
-        <h1 style="font-size: 28px; text-align: center; margin-bottom: 20px;">
-            🗺️ Carte interactive des magasins
-        </h1>
-
-        <!-- SELECT DES TERRITOIRES -->
-        <select id="territory-select"
-                style="width:100%; padding:14px; border-radius:10px; background:#111; color:white; font-size:18px;">
-            <option value="guadeloupe">🇬🇵 Guadeloupe</option>
-            <option value="martinique">🇲🇶 Martinique</option>
-            <option value="guyane">🇬🇫 Guyane</option>
-            <option value="reunion">🇷🇪 La Réunion</option>
-            <option value="mayotte">🇾🇹 Mayotte</option>
-        </select>
-
-        <!-- CARTE -->
-        <div id="map"></div>
+  <!-- Contenu principal -->
+  <main>
+    <h1>Carte interactive des magasins</h1>
+    <!-- Sélecteur de territoire -->
+    <select id="territorySelect" aria-label="Sélectionner un territoire"></select>
+    <!-- Conteneur de la carte Leaflet -->
+    <div id="map"></div>
+    <!-- Légende -->
+    <div class="legend">
+      <strong>Légende</strong><br />
+      <span></span> Magasins partenaires<br />
+      📍 Cliquez sur un marqueur pour voir les informations du magasin
     </div>
+  </main>
 
-    <!-- LEAFLET JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Importation des modules JavaScript -->
+  <script type="module">
+    import { TERRITORIES } from "./scripts/territories.js";
+    import { initMap } from "./scripts/map-init.js";
+    import { loadStoresForTerritory } from "./scripts/load-map.js";
 
-    <!-- MODULES FIRESTORE + TERRITOIRES + MAP -->
-    <script type="module">
-        import { TERRITORIES } from "./scripts/territories.js";
-        import { initMap } from "./scripts/map-init.js";
-        import { loadStoresForTerritory } from "./scripts/load-map.js";
+    // Remplir la liste déroulante des territoires
+    const territorySelect = document.getElementById("territorySelect");
+    Object.entries(TERRITORIES).forEach(([code, data]) => {
+      const option = document.createElement("option");
+      option.value = code;
+      // Si un emoji de drapeau est fourni dans le fichier territories.js, l'ajouter
+      const label = data.flag ? `${data.flag} ${data.label}` : data.label;
+      option.textContent = label;
+      territorySelect.appendChild(option);
+    });
 
-        console.log("Carte — démarrage…");
+    let mapInstance;
 
-        const map = initMap();
-        window.map = map; // utile pour invalidateSize
+    // Fonction d'initialisation de la carte et chargement des magasins
+    async function init() {
+      const initialTerritory = territorySelect.value || Object.keys(TERRITORIES)[0];
+      // Initialiser la carte
+      mapInstance = await initMap(initialTerritory);
+      // Charger les magasins du territoire par défaut
+      await loadStoresForTerritory(initialTerritory, mapInstance);
 
-        const select = document.getElementById("territory-select");
+      // Mettre à jour les magasins lorsqu'un nouveau territoire est sélectionné
+      territorySelect.addEventListener("change", async () => {
+        const territory = territorySelect.value;
+        await loadStoresForTerritory(territory, mapInstance);
+      });
+    }
 
-        async function updateMap() {
-            const t = select.value;
-            console.log("Chargement territoire :", t);
-
-            const coords = TERRITORIES[t];
-            map.setView([coords.lat, coords.lon], coords.zoom);
-
-            await loadStoresForTerritory(t, map);
-
-            // FIX affichage : recalc Leaflet
-            setTimeout(() => map.invalidateSize(), 350);
-        }
-
-        select.addEventListener("change", updateMap);
-
-        updateMap(); // affichage initial
-    </script>
-
+    // Lancer l'initialisation au chargement de la page
+    init().catch(err => {
+      console.error("Erreur d'initialisation de la carte :", err);
+    });
+  </script>
 </body>
+
 </html>
