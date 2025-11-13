@@ -1,147 +1,134 @@
 /**
  * VERIFY-STORES.MJS
- * Diagnostic complet de la collection Firestore: stores
- * ------------------------------------------------------
- * - Vérification des champs obligatoires
- * - Détection des doublons
- * - Détection des documents corrompus
- * - Vérification des coordonnées GPS
- * - Vérification du code territoire
+ * -----------------------------------------------------
+ * Vérification complète des magasins dans Firestore.
  *
- * Utilisation :
- * node scripts/verify-stores.mjs
- *
- * Fonctionne sous Node + Cloudflare local + Firebase
+ * Fonctionnalités :
+ *  - Vérifie si les magasins sont valides
+ *  - Vérifie lat/lon, adresse, téléphone
+ *  - Vérifie si la chaîne possède un logo existant
+ *  - Vérifie que "territory" utilise le format standard
+ *  - Produit un rapport final pour Copilot
  */
 
-import { initializeApp } from "firebase/app";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getFirestore,
-  collection,
-  getDocs
-} from "firebase/firestore";
+  getDocs,
+  collection
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// -------------------------------------------------------------
-// 🔥 Configuration Firebase (à jour)
-// -------------------------------------------------------------
+// ------------------------------------------------------------
+// 🔥 CONFIG FIREBASE (reprend strictement firebase-config.js)
+// ------------------------------------------------------------
 const firebaseConfig = {
-  apiKey: "AIzaSyC4-AsMNI0R3Zay0aK7BomzFzkDKvuHL0wU",
-  authDomain: "akiprisaye.firebaseapp.com",
-  projectId: "akiprisaye",
-  storageBucket: "akiprisaye.appspot.com",
-  messagingSenderId: "1046042341538",
-  appId: "1:1046042341538:web:468945172af5fa39ae00c6"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "akiprisaye-web.firebaseapp.com",
+  projectId: "akiprisaye-web",
+  storageBucket: "akiprisaye-web.appspot.com",
+  messagingSenderId: "000000000000",
+  appId: "1:000000000000:web:xxxxxxx"
 };
 
-// -------------------------------------------------------------
-// 🔥 Connexion Firebase
-// -------------------------------------------------------------
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+// ------------------------------------------------------------
+// 🎯 Logos attendus dans /assets
+// ------------------------------------------------------------
+const REQUIRED_LOGOS = [
+  "logo-superu.png",
+  "logo-carrefour.png",
+  "logo-carrefourmarket.png",
+  "logo-ecomax.png",
+  "logo-casino.png",
+  "logo-leaderprice.png"
+];
 
-console.log("🔍 Vérification des magasins Firestore…");
+// ------------------------------------------------------------
+// 📌 Vérification fichiers locaux (depuis Node/Termux/GitHub)
+// ------------------------------------------------------------
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-// -------------------------------------------------------------
-// 🧩 Fonction principale
-// -------------------------------------------------------------
-async function verifyStores() {
-  const storesRef = collection(db, "stores");
-  const snapshot = await getDocs(storesRef);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-  if (snapshot.empty) {
-    console.log("❌ Aucun magasin trouvé dans Firestore !");
-    return;
-  }
+const ASSETS_DIR = path.resolve(__dirname, "..", "assets");
 
-  let total = 0;
-  let duplicates = new Set();
-  let names = new Set();
-
-  let missingCoords = [];
-  let missingTerritory = [];
-  let corrupted = [];
-  let ok = [];
-
-  console.log(`📦 ${snapshot.size} magasins trouvés.\n`);
-
-  snapshot.forEach(doc => {
-    total++;
-    const store = doc.data();
-    const id = doc.id;
-
-    // Champs obligatoires
-    const required = ["name", "address", "chain", "territory"];
-    const missing = required.filter(f => !store[f]);
-
-    if (missing.length > 0) {
-      corrupted.push({ id, missing });
-      return;
-    }
-
-    // Doublons sur le nom
-    if (names.has(store.name)) {
-      duplicates.add(store.name);
-    } else {
-      names.add(store.name);
-    }
-
-    // Coordonnées GPS
-    if (store.lat == null || store.lon == null) {
-      missingCoords.push({ id, name: store.name });
-    }
-
-    // Territoire valide
-    const t = store.territory.toLowerCase();
-    const valid = [
-      "guadeloupe",
-      "martinique",
-      "guyane",
-      "reunion",
-      "mayotte"
-    ];
-
-    if (!valid.includes(t)) {
-      missingTerritory.push({ id, territory: store.territory });
-    }
-
-    ok.push({ id, name: store.name });
-  });
-
-  // -------------------------------------------------------------
-  // 📊 Résultat final
-  // -------------------------------------------------------------
-  console.log("===== 🧪 DIAGNOSTIC COMPLET DES MAGASINS =====\n");
-
-  console.log(`✔ Magasins valides : ${ok.length}`);
-  console.log(`❌ Magasins corrompus : ${corrupted.length}`);
-  console.log(`⚠ Magasins sans coordonnées : ${missingCoords.length}`);
-  console.log(`⚠ Territoires invalides : ${missingTerritory.length}`);
-  console.log(`⚠ Doublons détectés : ${duplicates.size}`);
-
-  console.log("\n------ DÉTAILS ------");
-
-  if (corrupted.length) {
-    console.log("\n❌ Magasins corrompus :");
-    corrupted.forEach(s => console.log(`- ${s.id} → champs manquants: ${s.missing.join(", ")}`));
-  }
-
-  if (missingCoords.length) {
-    console.log("\n⚠ Magasins sans GPS :");
-    missingCoords.forEach(s => console.log(`- ${s.name} (id: ${s.id})`));
-  }
-
-  if (missingTerritory.length) {
-    console.log("\n⚠ Territoires invalides :");
-    missingTerritory.forEach(s => console.log(`- ${s.id} → territoire: ${s.territory}`));
-  }
-
-  if (duplicates.size) {
-    console.log("\n⚠ Doublons :");
-    duplicates.forEach(n => console.log(`- ${n}`));
-  }
-
-  console.log("\n🎉 Vérification terminée !");
+function assetExists(name) {
+  return fs.existsSync(path.join(ASSETS_DIR, name));
 }
 
-// -------------------------------------------------------------
+// ------------------------------------------------------------
+// 🚀 Vérification Firestore
+// ------------------------------------------------------------
+async function verifyStores() {
+  console.log("====================================================");
+  console.log("🔎 Vérification complète des MAGASINS Firestore");
+  console.log("====================================================\n");
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const snap = await getDocs(collection(db, "stores"));
+
+  let total = 0;
+  let storesNoCoords = [];
+  let storesBadTerritory = [];
+  let storesMissingLogos = [];
+  let storesMissingFields = [];
+
+  snap.forEach(doc => {
+    total++;
+    const store = doc.data();
+
+    // Vérifier coordonnées
+    if (!store.lat || !store.lon) {
+      storesNoCoords.push(store.name);
+    }
+
+    // Vérifier territory normalisé (minuscule)
+    if (!store.territory || store.territory !== store.territory.toLowerCase()) {
+      storesBadTerritory.push({ name: store.name, territory: store.territory });
+    }
+
+    // Vérifier présence du logo
+    const logoName = `logo-${store.chain.toLowerCase().replace(/\s+/g, "")}.png`;
+
+    if (!assetExists(logoName)) {
+      storesMissingLogos.push({ store: store.name, missingLogo: logoName });
+    }
+
+    // Vérifier champs obligatoires
+    if (!store.name || !store.address || !store.chain) {
+      storesMissingFields.push(store.name);
+    }
+  });
+
+  // ---------------------------------------------------------
+  // 📊 RAPPORT FINAL
+  // ---------------------------------------------------------
+  console.log("\n====================================================");
+  console.log("📊 RÉSULTATS DE VÉRIFICATION");
+  console.log("====================================================\n");
+
+  console.log(`🏪 Total magasins : ${total}\n`);
+
+  console.log("❌ Magasins sans coordonnées :", storesNoCoords.length);
+  if (storesNoCoords.length) console.log(storesNoCoords, "\n");
+
+  console.log("⚠ Territories incorrects :", storesBadTerritory.length);
+  if (storesBadTerritory.length) console.log(storesBadTerritory, "\n");
+
+  console.log("❌ Logos manquants :", storesMissingLogos.length);
+  if (storesMissingLogos.length) console.log(storesMissingLogos, "\n");
+
+  console.log("⚠ Champs manquants :", storesMissingFields.length);
+  if (storesMissingFields.length) console.log(storesMissingFields, "\n");
+
+  console.log("🎉 Vérification terminée !");
+}
+
+// ------------------------------------------------------------
+// ▶ LANCEMENT
+// ------------------------------------------------------------
 verifyStores();
