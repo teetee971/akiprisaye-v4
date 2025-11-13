@@ -1,94 +1,78 @@
+// scripts/load-map.js
+// Charge la carte + les magasins Firestore
+
 import { TERRITORIES } from "./territories.js";
 import { getStoresByTerritory } from "./magasins-firestore.js";
 
 let map = null;
-let markers = [];
+let markersLayer = null;
 
 /**
- * Initialise la carte Leaflet
+ * Initialise la carte
  */
-export function initInteractiveMap() {
-  map = L.map("map-container", {
+export function initMap() {
+  map = L.map("map", {
     zoomControl: true,
     scrollWheelZoom: true,
-  }).setView([16.265, -61.551], 11);
+  });
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "&copy; OpenStreetMap",
+  // Fond sombre (CartoDB)
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    maxZoom: 19,
+    attribution: "&copy; OpenStreetMap contributors",
   }).addTo(map);
+
+  markersLayer = L.layerGroup().addTo(map);
 }
 
 /**
  * Charge les magasins pour un territoire donné
+ * @param {string} territoryId
  */
-export async function loadStoresForTerritory(territoryId) {
-  if (!map) return console.error("Map non initialisée");
+export async function loadTerritory(territoryId) {
+  if (!map) initMap();
 
-  // Nettoyer les anciens marqueurs
-  markers.forEach((m) => map.removeLayer(m));
-  markers = [];
-
-  // Trouver le territoire
-  const territory = TERRITORIES.find(t => t.id === territoryId);
+  // Trouver territoire dans la liste
+  const territory = TERRITORIES.find((t) => t.id === territoryId);
   if (!territory) {
-    console.error("Territoire introuvable :", territoryId);
+    console.error("Territoire inconnu :", territoryId);
     return;
   }
 
-  // Centrer la carte
-  map.setView([territory.center.lat, territory.center.lon], 11);
+  // Centre et zoom du territoire
+  map.setView([territory.center.lat, territory.center.lon], 12);
 
-  // Récupération Firestore
+  // Nettoyer l’ancienne couche de marqueurs
+  markersLayer.clearLayers();
+
+  // Charger les magasins Firestore
   const stores = await getStoresByTerritory(territoryId);
 
-  if (!stores || stores.length === 0) {
-    console.warn("Aucun magasin trouvé pour", territoryId);
-    return;
-  }
+  stores.forEach((shop) => {
+    if (!shop.lat || !shop.lon) return;
 
-  stores.forEach(store => {
-    const { lat, lon, name, address, phone } = store;
+    const marker = L.marker([shop.lat, shop.lon]).addTo(markersLayer);
 
-    if (!lat || !lon) return;
-
-    // Icône personnalisée
-    const blueIcon = L.icon({
-      iconUrl: "/assets/marker-blue.png",
-      iconSize: [38, 38],
-      iconAnchor: [19, 38],
-      popupAnchor: [0, -30],
-    });
-
-    // Création du marqueur
-    const marker = L.marker([lat, lon], { icon: blueIcon }).addTo(map);
-
-    // Popup riche
-    const popupHTML = `
-      <div class="popup-store">
-        <h3>${name}</h3>
-        <p><strong>Adresse :</strong> <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}" target="_blank">${address}</a></p>
-        <p><strong>Tél :</strong> ${phone}</p>
-
-        <button onclick="launchGPS('${encodeURIComponent(address)}')" 
-          style="margin-top:10px;padding:8px 12px;border-radius:8px;background:#2563eb;color:white;">
-          Ouvrir dans Google Maps
-        </button>
-
-        <div id="promo-container-${store.id}" style="margin-top:10px;font-size:14px;color:#ddd;">
-          <em>Analyse IA des promotions sur votre trajet…</em>
-        </div>
+    // Popup + GPS + Promotions IA
+    marker.bindPopup(`
+      <div>
+        <strong>${shop.name}</strong><br>
+        ${shop.address}<br>
+        <button onclick="openGPS(${shop.lat}, ${shop.lon})">📍 Ouvrir GPS</button><br>
+        <button onclick="suggestPromotions('${territoryId}')">🔥 Promotions sur le trajet</button>
       </div>
-    `;
-
-    marker.bindPopup(popupHTML);
-    markers.push(marker);
+    `);
   });
 }
 
-/**
- * Fonction GPS (accessible globalement)
- */
-window.launchGPS = function(address) {
-  const url = `https://www.google.com/maps/dir/?api=1&destination=${address}`;
+
+// GPS
+window.openGPS = function(lat, lon) {
+  const url = `https://maps.google.com/?q=${lat},${lon}`;
   window.open(url, "_blank");
+};
+
+// Suggestions IA
+window.suggestPromotions = function(territoryId) {
+  alert("🧠 Analyse IA du trajet… bientôt disponible !");
 };
