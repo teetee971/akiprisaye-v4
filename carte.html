@@ -1,122 +1,117 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Carte des magasins - A KI PRI SA YÉ</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte des magasins - A KI PRI SA YÉ</title>
 
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet (carte) -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    ></script>
 
-  <style>
-    body {
-      background: #0d0d16;
-      color: white;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
+    <style>
+        body {
+            margin: 0;
+            background: #0d0f17;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
 
-    #map {
-      height: 60vh;
-      margin: 20px;
-      border-radius: 12px;
-      overflow: hidden;
-    }
+        #territory-select {
+            width: 90%;
+            margin: 20px auto;
+            padding: 15px;
+            background: #1a1d2e;
+            border-radius: 10px;
+            border: 1px solid #3d4a73;
+            color: white;
+            font-size: 18px;
+        }
 
-    .box {
-      background: #151521;
-      margin: 20px;
-      padding: 20px;
-      border-radius: 12px;
-    }
+        #map {
+            width: 95%;
+            height: 500px;
+            margin: auto;
+            border-radius: 15px;
+            border: 1px solid #3b3b3b;
+        }
 
-    select {
-      width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      background: #1f1f2e;
-      color: #fff;
-      border: 1px solid #333;
-      font-size: 16px;
-    }
-  </style>
+        .legend {
+            width: 90%;
+            margin: 20px auto;
+            background: #161923;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #2b2f42;
+        }
+
+        .legend-title {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 
 <body>
 
-  <div class="box">
-    <select id="territorySelector">
-      <option value="guadeloupe">🇬🇵 Guadeloupe</option>
-      <option value="martinique">🇲🇶 Martinique</option>
-      <option value="guyane">🇬🇫 Guyane</option>
-      <option value="reunion">🇷🇪 Réunion</option>
-      <option value="mayotte">🇾🇹 Mayotte</option>
-    </select>
-  </div>
+    <h2 style="text-align:center;margin-top:20px;">🛒 Magasins</h2>
 
-  <div id="map"></div>
+    <!-- Sélecteur Territoire -->
+    <select id="territory-select"></select>
 
-  <script type="module">
-    import { getDB, loadFirestore } from "./firebase-config.js";
+    <!-- Carte -->
+    <div id="map"></div>
 
-    // Initialiser la carte
-    const map = L.map("map").setView([16.265, -61.551], 11);
+    <!-- Légende -->
+    <div class="legend">
+        <div class="legend-title">📍 Légende</div>
+        <p>🔵 Magasins partenaires</p>
+    </div>
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-    }).addTo(map);
+    <!-- Scripts -->
+    <script type="module">
 
-    let markersLayer = L.layerGroup().addTo(map);
+        import { TERRITORIES } from "./scripts/territories.js";
+        import { initMap } from "./scripts/map-init.js";
+        import { loadStoresForTerritory } from "./scripts/load-map.js";
 
-    /* ------------------------------------------------------------------
-     * Charger les magasins de Firestore
-     * ------------------------------------------------------------------ */
-    async function loadStores(territory) {
-      const db = await getDB();
-      const { collection, query, where, getDocs } = await loadFirestore();
+        console.log("Carte — démarrage…");
 
-      markersLayer.clearLayers();
+        // Remplit le sélecteur de territoire
+        const select = document.getElementById("territory-select");
 
-      const q = query(
-        collection(db, "stores"),
-        where("territory", "==", territory)
-      );
+        for (let key in TERRITORIES) {
+            const t = TERRITORIES[key];
+            const option = document.createElement("option");
 
-      const snap = await getDocs(q);
+            option.value = t.code;
+            option.textContent = t.name;
 
-      snap.forEach((doc) => {
-        const s = doc.data();
-        if (!s.lat || !s.lon) return;
+            select.appendChild(option);
+        }
 
-        L.marker([s.lat, s.lon])
-          .addTo(markersLayer)
-          .bindPopup(`
-            <b>${s.name}</b><br>
-            ${s.address}<br>
-            <b>Tél :</b> ${s.phone || "Non indiqué"}
-          `);
-      });
-    }
+        // Initialise carte
+        let currentTerritory = "guadeloupe";
+        let map = initMap("map");
 
-    /* ------------------------------------------------------------------
-     * Sélection de territoire
-     * ------------------------------------------------------------------ */
-    const territorySelector = document.getElementById("territorySelector");
+        // Charge les magasins de base
+        loadStoresForTerritory(currentTerritory, map);
 
-    territorySelector.addEventListener("change", async () => {
-      const terr = territorySelector.value;
-      await loadStores(terr);
+        // Changement territoire
+        select.addEventListener("change", async (e) => {
+            currentTerritory = e.target.value;
 
-      if (terr === "guadeloupe") map.setView([16.265, -61.551], 11);
-    });
+            console.log("🔄 Changement territoire :", currentTerritory);
 
-    // Charger par défaut
-    loadStores("guadeloupe");
-  </script>
+            map = initMap("map");
+            loadStoresForTerritory(currentTerritory, map);
+        });
 
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
+    </script>
 </body>
 </html>
