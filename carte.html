@@ -6,16 +6,36 @@
     <title>Carte interactive des magasins - A KI PRI SA YÉ</title>
 
     <!-- Style global -->
-    <link rel="stylesheet" href="/dist/assets/main-BXLYN4L9.css" />
+    <link rel="stylesheet" href="/dist/assets/main.css" onerror="this.href='/dist/assets/main-BXLYN4L9.css'">
 
-    <!-- ICONES -->
-    <link rel="icon" type="image/png" href="/icon.png" />
-
-    <!-- Préchargement dynamique du JS (géré par Vite) -->
     <script type="module">
-        // Auto-import du fichier JS de la carte (Vite génère un hash différent à chaque build)
-        import("/dist/assets/carte-BorVa9RG.js")
-            .catch(err => console.error("Erreur de chargement du module carte:", err));
+        // Fonction pour récupérer automatiquement le bon JS généré par Vite
+        async function loadCarteScript() {
+            try {
+                // On récupère la liste des fichiers dans /dist/assets/
+                const res = await fetch("/dist/assets/");
+                const html = await res.text();
+
+                // On recherche un fichier du type carte-xxxx.js
+                const match = html.match(/carte-[a-zA-Z0-9]+\.js/g);
+
+                if (!match) {
+                    console.error("❌ Fichier carte-*.js introuvable.");
+                    return;
+                }
+
+                const scriptName = match[0];
+                console.log("📌 Chargement du script :", scriptName);
+
+                // Import dynamique du bon fichier
+                await import(`/dist/assets/${scriptName}`);
+
+            } catch (e) {
+                console.error("Erreur lors du chargement dynamique :", e);
+            }
+        }
+
+        loadCarteScript();
     </script>
 
     <style>
@@ -61,7 +81,6 @@
             margin-bottom: 30px;
             color: #4d9cff;
         }
-        .legend p { margin: 6px 0; }
     </style>
 </head>
 
@@ -70,7 +89,6 @@
 
         <h1 class="title">🗺️ Carte interactive des magasins</h1>
 
-        <!-- Sélecteur DOM TOM -->
         <div class="panel">
             <select id="territoire-select">
                 <option value="guadeloupe">🇬🇵 Guadeloupe</option>
@@ -87,12 +105,10 @@
             </select>
         </div>
 
-        <!-- Carte -->
         <div class="map-zone" id="map"></div>
 
-        <!-- Légende -->
-        <div class="panel legend">
-            <h2 style="color:#4d9cff; margin-top:0;">📍 Légende</h2>
+        <div class="panel">
+            <h2 style="color:#4d9cff">📍 Légende</h2>
             <p>🔵 Magasins partenaires</p>
             <p>💡 Cliquez sur un marqueur pour voir les informations du magasin</p>
         </div>
