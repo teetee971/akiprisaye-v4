@@ -1,108 +1,56 @@
-/**
- * AUTO IMPORT DES MAGASINS GUADELOUPE / MARTINIQUE / GUYANE / REUNION / MAYOTTE
- * Compatible Cloudflare Pages + Firebase JS SDK
- */
+import { getDB } from "../firebase-config.js";
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-import { 
-    getFirestore, 
-    collection, 
-    doc, 
-    setDoc, 
-    getDocs, 
-    query, 
-    where 
-} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-import { firebaseConfig } from "./firebase-config.js";
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-
-/* 🔵 LISTE MAGASINS GUADELOUPE – EXTENSIBLE */
-export const storesList = [
-  {
-    name: "Super U Bas-du-Fort",
-    address: "Bas-du-Fort, Le Gosier, Guadeloupe",
-    chain: "Super U",
-    territory: "guadeloupe"
-  },
-  {
-    name: "Carrefour Destrellan",
-    address: "Destrellan, Baie-Mahault, Guadeloupe",
-    chain: "Carrefour",
-    territory: "guadeloupe"
-  },
-  {
-    name: "Ecomax Bergevin",
-    address: "Bergevin, Pointe-à-Pitre, Guadeloupe",
-    chain: "Ecomax",
-    territory: "guadeloupe"
-  }
-];
-
-
-/* 🔵 GEO CODAGE – OpenStreetMap */
 async function geocode(address) {
   const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`;
 
-  try {
-    const res = await fetch(url, {
-      headers: {
-        "User-Agent": "akiprisaye-app/1.0 (contact)"
-      }
-    });
+  const res = await fetch(url, {
+    headers: { "User-Agent": "akiprisaye-web/1.0" }
+  });
 
-    const data = await res.json();
-    if (!data[0]) return { lat: null, lon: null };
+  const json = await res.json();
 
-    return {
-      lat: parseFloat(data[0].lat),
-      lon: parseFloat(data[0].lon)
-    };
+  if (!json[0]) return { lat: null, lon: null };
 
-  } catch (err) {
-    console.error("geocode error:", err);
-    return { lat: null, lon: null };
-  }
+  return { lat: parseFloat(json[0].lat), lon: parseFloat(json[0].lon) };
 }
 
+const STORES = [
+  {
+    name: "Carrefour Destrellan",
+    chain: "Carrefour",
+    address: "Destrellan, Baie-Mahault, Guadeloupe",
+    territory: "guadeloupe",
+  },
+  {
+    name: "Super U Bas du Fort",
+    chain: "Super U",
+    address: "Bas-du-Fort, Le Gosier, Guadeloupe",
+    territory: "guadeloupe",
+  }
+];
 
-/* 🔥 IMPORT AUTOMATIQUE */
-export async function autoImport() {
-  for (let store of storesList) {
+export async function autoImportStores() {
+  console.log("🚀 IMPORT AUTOMATIQUE…");
 
-    // Vérif si déjà existant
-    const check = await getDocs(
-        query(
-            collection(db, "stores"),
-            where("name", "==", store.name)
-        )
-    );
+  const db = await getDB();
+  const { collection, doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
 
-    if (!check.empty) {
-        console.log("⏭️ Déjà existant :", store.name);
-        continue;
-    }
+  for (const store of STORES) {
+    const geo = await geocode(store.address);
 
-    // Géodage
-    const { lat, lon } = await geocode(store.address);
+    const ref = doc(collection(db, "stores"));
 
-    await setDoc(doc(collection(db, "stores")), {
-        ...store,
-        lat,
-        lon,
-        openingHours: "08:00 - 20:00",
-        phone: store.phone || "N.C"
+    await setDoc(ref, {
+      ...store,
+      lat: geo.lat,
+      lng: geo.lon,
+      createdAt: Date.now(),
     });
 
-    console.log("✅ Ajouté :", store.name);
-
-    await new Promise(r => setTimeout(r, 1200));
+    await new Promise(r => setTimeout(r, 1000));
   }
 
-  console.log("🎉 IMPORTATION TERMINEE !");
+  console.log("🎉 Import terminé !");
 }
 
-// Lancement auto
-autoImport();
+autoImportStores();
