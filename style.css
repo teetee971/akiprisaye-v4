@@ -1,292 +1,121 @@
-/* Dark Pro CSS - Global Styles for A KI PRI SA YÉ */
-/* Version: 2025-11-07-v2 - Fixed sidebar overlapping on all pages */
+/* ===============================
+   A KI PRI SA YÉ – STYLE GLOBAL
+   Optimisé Mobile / Samsung S24
+   =============================== */
 
-/* ===========================
-   Base Styles & Reset
-   =========================== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+:root {
+    --bg-dark: #0e0e0e;
+    --bg-card: #121212;
+    --accent: #1e90ff;
+    --accent-2: #ff5722;
+    --text-light: #ffffff;
+    --border-light: #333;
 }
 
-/* Screen reader only utility class */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 html, body {
-  margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  color: #ffffff;
-  background-color: #0b0d17;
-  overflow-x: hidden;
-  line-height: 1.6;
+    height: 100%;
+    background: var(--bg-dark);
+    color: var(--text-light);
+    font-family: system-ui, sans-serif;
 }
 
-/* ===========================
-   Sidebar Navigation Styles
-   =========================== */
-nav.sidebar,
-aside.sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 250px;
-  height: 100vh;
-  background-color: #0f1f1f;
-  padding: 2rem 1rem;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
-  z-index: 1000;
-  overflow-y: auto;
+/* MENU / HEADER */
+#page-header {
+    padding: 15px;
+    background: rgba(20,20,20,0.95);
+    border-bottom: 1px solid var(--border-light);
+    position: sticky;
+    top: 0;
+    z-index: 999;
 }
 
-nav.sidebar h2,
-aside.sidebar h2 {
-  color: #00ffc8;
-  font-size: 1.5rem;
-  margin-bottom: 2rem;
-  text-align: center;
+/* SELECT TERRITOIRE */
+select {
+    width: 95%;
+    padding: 12px;
+    background: #222;
+    color: white;
+    border-radius: 10px;
+    border: 1px solid #555;
+    font-size: 1rem;
+    outline: none;
 }
 
-nav.sidebar ul,
-aside.sidebar ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-nav.sidebar li,
-aside.sidebar li {
-  margin: 1.2rem 0;
-}
-
-nav.sidebar a,
-aside.sidebar a {
-  display: block;
-  color: #a8ffb0;
-  text-decoration: none;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: all 0.3s ease;
-}
-
-nav.sidebar a:hover,
-aside.sidebar a:hover {
-  background-color: rgba(0, 255, 200, 0.1);
-  color: #00ffc8;
-  transform: translateX(5px);
-}
-
-/* ===========================
-   Main Content with Sidebar
-   =========================== */
-main {
-  margin-left: 270px;
-  padding: 2rem;
-  min-height: calc(100vh - 80px);
-}
-
-header {
-  margin-left: 270px;
-  padding: 2rem;
-  padding-bottom: 0;
-}
-
-/* ===========================
-   Typography
-   =========================== */
-h1 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  color: #00ffc8;
-}
-
-h2 {
-  font-size: 2rem;
-  margin-top: 2rem;
-  margin-bottom: 1rem;
-  color: #a8ffb0;
-}
-
-p {
-  margin-bottom: 1rem;
-  line-height: 1.8;
-}
-
-section {
-  margin-bottom: 2rem;
-}
-
-/* ===========================
-   Footer Styles
-   =========================== */
-footer, .footer {
-  margin-left: 270px;
-  margin-top: 3rem;
-  padding: 1.5rem;
-  text-align: center;
-  font-size: 0.9rem;
-  color: #ccc;
-  border-top: 1px solid #333;
-  background-color: #0e1a1a;
-}
-
-footer span {
-  color: #00ffc8;
-  font-weight: bold;
-}
-
-/* ===========================
-   Responsive Design
-   =========================== */
-@media screen and (max-width: 768px) {
-  nav.sidebar,
-  aside.sidebar {
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-  }
-
-  nav.sidebar.active,
-  aside.sidebar.active {
-    transform: translateX(0);
-  }
-
-  main, header, footer, .footer {
-    margin-left: 0;
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-
-  h1 {
-    font-size: 2rem;
-  }
-
-  h2 {
-    font-size: 1.5rem;
-  }
-
-  .search-box {
-    flex-direction: column;
-  }
-
-  .search-box input {
+/* CARTE CONTAINER */
+#map {
     width: 100%;
-  }
-
-  .price-info {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+    height: calc(100vh - 230px);
+    background: #0f0f0f; 
+    border-radius: 12px;
+    margin-top: 10px;
+    overflow: hidden;
 }
 
-/* Mobile menu toggle button */
-.burger {
-  display: none;
-  position: fixed;
-  top: 15px;
-  left: 15px;
-  z-index: 1001;
-  cursor: pointer;
-  flex-direction: column;
-  background-color: #0f1f1f;
-  padding: 10px;
-  border-radius: 5px;
+/* Leaflet fix (IMPORTANT) */
+.leaflet-container {
+    width: 100% !important;
+    height: 100% !important;
+    background: #0f0f0f !important;
 }
 
-.burger div {
-  width: 25px;
-  height: 3px;
-  background-color: #a8ffb0;
-  margin: 3px 0;
-  transition: all 0.3s ease;
+/* Popup des magasins */
+.leaflet-popup-content {
+    color: #000; /* lisible sur popup blanche */
+    font-size: 14px;
 }
 
-@media screen and (max-width: 768px) {
-  .burger {
-    display: flex;
-  }
+.leaflet-control-attribution {
+    display: none !important; /* Nettoyer l'écran */
 }
 
-/* ===========================
-   Animations
-   =========================== */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* LEGEND / FOOTER CARD */
+.legend-card {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 18px;
+    margin: 15px;
+    border: 1px solid #222;
+    color: white;
 }
 
-.fade-in-up {
-  animation: fadeInUp 0.6s ease-out both;
+/* BOUTONS DANS LE POPUP */
+.store-btn {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 14px;
+    width: 100%;
+    margin: 5px 0;
 }
 
-/* ===========================
-   Buttons & Interactive Elements
-   =========================== */
-a, button {
-  transition: all 0.3s ease;
+.gps-btn {
+    background: var(--accent);
 }
 
-button {
-  background-color: #0f62fe;
-  color: #ffffff;
-  padding: 0.8rem 1.5rem;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
+.promo-btn {
+    background: var(--accent-2);
 }
 
-button:hover {
-  background-color: #0353e9;
-  transform: scale(1.05);
-}
-
+/* Effet tactile mobile */
 button:active {
-  transform: scale(0.98);
+    opacity: 0.8;
 }
 
-/* ===========================
-   Form Elements
-   =========================== */
-input[type="file"],
-input[type="text"],
-input[type="email"],
-textarea {
-  background-color: #1e2f2f;
-  color: #ffffff;
-  border: 1px solid #333;
-  padding: 0.8rem;
-  border-radius: 4px;
-  width: 100%;
-  max-width: 500px;
-}
+/* Améliorations globales mobile */
+@media (max-width: 600px) {
+    #map {
+        height: calc(100vh - 260px);
+    }
 
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #a8ffb0;
-}
-
-/* ===========================
-   Additional Utility Styles
-   =========================== */
-.smooth-transition {
-  transition: all 0.3s ease;
+    select {
+        font-size: 1.05rem;
+    }
 }
