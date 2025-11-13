@@ -1,117 +1,135 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>A KI PRI SA YÉ – Carte interactive des magasins</title>
-  <!-- Feuille de style Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIu6VLd9gENbYQaS0pQsLnwLkLkS0Z8pcvY=" crossorigin="" />
-  <!-- Script Leaflet -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTIZBo=" crossorigin=""></script>
+  <!-- Feuille de styles de Leaflet -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIu6VLd9gENbYQaS0pQsLnwLkLkS0Z8pcvY="
+    crossorigin=""
+  />
+  <!-- Style de la page -->
   <style>
-    main {
-      max-width: 700px;
-      margin: 0 auto;
-      padding: 1rem;
-      color: #ffffff;
+    body {
       font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #060814;
+      color: #f4f4f4;
     }
-
-    h1 {
-      margin-bottom: 1rem;
-      font-size: 1.8rem;
+    header {
+      background-color: #0e64f5;
+      padding: 1rem;
+      color: white;
       text-align: center;
     }
-
+    #map-container {
+      padding: 1rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
     #territorySelect {
       width: 100%;
       padding: 0.5rem;
+      border-radius: 8px;
       margin-bottom: 1rem;
-      border-radius: 6px;
-      border: 1px solid #ccc;
     }
-
     #map {
+      width: 100%;
       height: 500px;
       border-radius: 12px;
-      margin-bottom: 1rem;
     }
-
     .legend {
-      background: rgba(0, 0, 0, 0.6);
+      background-color: #161c2e;
       padding: 1rem;
       border-radius: 8px;
+      margin: 1rem auto;
+      max-width: 900px;
+      color: #f4f4f4;
     }
-
+    .legend li {
+      list-style: none;
+      margin-bottom: 0.5rem;
+    }
     .legend span {
       display: inline-block;
       width: 12px;
       height: 12px;
-      margin-right: 4px;
       border-radius: 50%;
-      background-color: #1d4ed8;
+      margin-right: 0.5rem;
     }
   </style>
 </head>
-
 <body>
-  <!-- Contenu principal -->
-  <main>
+  <header>
     <h1>Carte interactive des magasins</h1>
-    <!-- Sélecteur de territoire -->
-    <select id="territorySelect" aria-label="Sélectionner un territoire"></select>
-    <!-- Conteneur de la carte Leaflet -->
-    <div id="map"></div>
-    <!-- Légende -->
-    <div class="legend">
-      <strong>Légende</strong><br />
-      <span></span> Magasins partenaires<br />
-      📍 Cliquez sur un marqueur pour voir les informations du magasin
-    </div>
-  </main>
+  </header>
 
-  <!-- Importation des modules JavaScript -->
+  <div id="map-container">
+    <select id="territorySelect"></select>
+    <div id="map"></div>
+  </div>
+
+  <div class="legend">
+    <h2>Légende</h2>
+    <ul>
+      <li>
+        <span style="background-color: #1e88e5;"></span> Magasins partenaires
+      </li>
+    </ul>
+  </div>
+
+  <!-- Bibliothèque Leaflet JS -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuK2/Z9VM+kNiyxNV1lvTLZBo="
+    crossorigin=""
+  ></script>
+
+  <!-- Script principal en module -->
   <script type="module">
     import { TERRITORIES } from "./scripts/territories.js";
     import { initMap } from "./scripts/map-init.js";
     import { loadStoresForTerritory } from "./scripts/load-map.js";
 
-    // Remplir la liste déroulante des territoires
-    const territorySelect = document.getElementById("territorySelect");
-    Object.entries(TERRITORIES).forEach(([code, data]) => {
+    // Récupérer la liste déroulante
+    const selectEl = document.getElementById("territorySelect");
+
+    // Remplir la liste avec les territoires définis dans territories.js
+    for (const [key, value] of Object.entries(TERRITORIES)) {
       const option = document.createElement("option");
-      option.value = code;
-      // Si un emoji de drapeau est fourni dans le fichier territories.js, l'ajouter
-      const label = data.flag ? `${data.flag} ${data.label}` : data.label;
-      option.textContent = label;
-      territorySelect.appendChild(option);
-    });
-
-    let mapInstance;
-
-    // Fonction d'initialisation de la carte et chargement des magasins
-    async function init() {
-      const initialTerritory = territorySelect.value || Object.keys(TERRITORIES)[0];
-      // Initialiser la carte
-      mapInstance = await initMap(initialTerritory);
-      // Charger les magasins du territoire par défaut
-      await loadStoresForTerritory(initialTerritory, mapInstance);
-
-      // Mettre à jour les magasins lorsqu'un nouveau territoire est sélectionné
-      territorySelect.addEventListener("change", async () => {
-        const territory = territorySelect.value;
-        await loadStoresForTerritory(territory, mapInstance);
-      });
+      option.value = key;
+      option.textContent = value.label;
+      selectEl.appendChild(option);
     }
 
-    // Lancer l'initialisation au chargement de la page
-    init().catch(err => {
-      console.error("Erreur d'initialisation de la carte :", err);
+    let mapInstance = null;
+
+    // Lorsque l'utilisateur change de territoire
+    selectEl.addEventListener("change", async (e) => {
+      const selectedKey = e.target.value;
+      const territory = TERRITORIES[selectedKey];
+      if (!territory) return;
+
+      // Initialisation ou changement de vue de la carte
+      if (!mapInstance) {
+        mapInstance = initMap(territory);
+      } else {
+        mapInstance.setView([territory.lat, territory.lon], territory.zoom);
+      }
+
+      // Charger les magasins pour le territoire sélectionné
+      await loadStoresForTerritory(mapInstance, selectedKey);
     });
+
+    // Sélectionner par défaut le premier territoire et initialiser la carte
+    const defaultKey = Object.keys(TERRITORIES)[0];
+    selectEl.value = defaultKey;
+    mapInstance = initMap(TERRITORIES[defaultKey]);
+    loadStoresForTerritory(mapInstance, defaultKey);
   </script>
 </body>
-
 </html>
