@@ -1,117 +1,95 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Carte des magasins - A KI PRI SA YÉ</title>
 
-    <!-- Leaflet (carte) -->
+    <!-- Leaflet CSS -->
     <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     />
-    <script
-        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    ></script>
 
     <style>
         body {
+            background: #0d0f16;
+            color: white;
             margin: 0;
-            background: #0d0f17;
-            color: white;
-            font-family: Arial, sans-serif;
-        }
-
-        #territory-select {
-            width: 90%;
-            margin: 20px auto;
-            padding: 15px;
-            background: #1a1d2e;
-            border-radius: 10px;
-            border: 1px solid #3d4a73;
-            color: white;
-            font-size: 18px;
+            font-family: Arial;
         }
 
         #map {
-            width: 95%;
-            height: 500px;
-            margin: auto;
-            border-radius: 15px;
-            border: 1px solid #3b3b3b;
+            width: 100%;
+            height: 70vh;
+            background: #111;
+            border-radius: 14px;
+            margin-top: 20px;
         }
 
-        .legend {
-            width: 90%;
-            margin: 20px auto;
-            background: #161923;
-            padding: 15px;
+        .container {
+            padding: 20px;
+        }
+
+        select {
+            width: 100%;
+            padding: 14px;
+            background: #121626;
+            color: white;
             border-radius: 10px;
-            border: 1px solid #2b2f42;
-        }
-
-        .legend-title {
-            font-size: 20px;
-            margin-bottom: 10px;
+            border: 1px solid #333;
+            font-size: 18px;
         }
     </style>
 </head>
 
 <body>
+    <div class="container">
+        <h1 style="text-align:center;">magasins</h1>
 
-    <h2 style="text-align:center;margin-top:20px;">🛒 Magasins</h2>
+        <select id="territorySelector">
+            <option value="guadeloupe">🇬🇵 Guadeloupe</option>
+        </select>
 
-    <!-- Sélecteur Territoire -->
-    <select id="territory-select"></select>
+        <div id="map"></div>
 
-    <!-- Carte -->
-    <div id="map"></div>
-
-    <!-- Légende -->
-    <div class="legend">
-        <div class="legend-title">📍 Légende</div>
-        <p>🔵 Magasins partenaires</p>
+        <h3 style="margin-top:25px;">📍 Légende</h3>
+        <ul>
+            <li>🔵 Magasins partenaires</li>
+        </ul>
     </div>
+
+    <!-- Leaflet JS -->
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    </script>
 
     <!-- Scripts -->
     <script type="module">
-
         import { TERRITORIES } from "./scripts/territories.js";
         import { initMap } from "./scripts/map-init.js";
         import { loadStoresForTerritory } from "./scripts/load-map.js";
 
         console.log("Carte — démarrage…");
 
-        // Remplit le sélecteur de territoire
-        const select = document.getElementById("territory-select");
+        // Initialisation de la carte
+        const map = initMap();
 
-        for (let key in TERRITORIES) {
-            const t = TERRITORIES[key];
-            const option = document.createElement("option");
+        const selector = document.getElementById("territorySelector");
 
-            option.value = t.code;
-            option.textContent = t.name;
+        async function refreshStores() {
+            const territory = selector.value;
+            console.log("Territoire sélectionné :", territory);
 
-            select.appendChild(option);
+            await loadStoresForTerritory(map, territory);
         }
 
-        // Initialise carte
-        let currentTerritory = "guadeloupe";
-        let map = initMap("map");
+        // Changement de territoire
+        selector.addEventListener("change", refreshStores);
 
-        // Charge les magasins de base
-        loadStoresForTerritory(currentTerritory, map);
-
-        // Changement territoire
-        select.addEventListener("change", async (e) => {
-            currentTerritory = e.target.value;
-
-            console.log("🔄 Changement territoire :", currentTerritory);
-
-            map = initMap("map");
-            loadStoresForTerritory(currentTerritory, map);
-        });
-
+        // Chargement initial
+        refreshStores();
     </script>
+
 </body>
 </html>
