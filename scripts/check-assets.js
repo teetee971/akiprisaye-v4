@@ -1,9 +1,13 @@
-console.log("🧪 Vérification des assets…");
+import fs from "fs";
 
-const imgs = document.querySelectorAll("img");
+console.log("🖼️ Analyse des assets (images)…");
 
-imgs.forEach(img => {
-  img.onerror = () => {
-    console.error("❌ Image introuvable :", img.src);
-  };
+const files = fs.readdirSync("./images");
+
+files.forEach(f => {
+  if (!/\.(png|jpg|jpeg|webp)$/i.test(f)) {
+    console.log(`⚠️ Fichier non image ignoré : ${f}`);
+  }
 });
+
+console.log("✔ Analyse terminée.");
