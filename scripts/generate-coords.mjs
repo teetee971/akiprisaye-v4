@@ -1,70 +1,58 @@
 import fs from "fs";
 import fetch from "node-fetch";
 
-console.log("🛰️ Générateur automatique de coordonnées GPS…");
+console.log("🌍 Génération auto des coordonnées GPS…");
 
-const inputPath = new URL("./stores.json", import.meta.url);
-const outputPath = new URL("./stores_with_coords.json", import.meta.url);
+const stores = JSON.parse(fs.readFileSync("./stores.json", "utf8"));
 
-const raw = fs.readFileSync(inputPath, "utf8");
-const stores = JSON.parse(raw);
+/** Fonction de géocodage OpenStreetMap */
+async function geocode(address) {
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
 
-// Fonction pour dormir entre 2 requêtes (évite bannissement Nominatim)
-const delay = (ms) => new Promise(res => setTimeout(res, ms));
+  try {
+    const res = await fetch(url, {
+      headers: { "User-Agent": "A-KI-PRI-SAYE/1.0 (contact@akiprisaye)" }
+    });
 
-async function fetchCoords(address) {
-  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-    address
-  )}`;
+    const data = await res.json();
+    if (!data || data.length === 0) return null;
 
-  const res = await fetch(url, {
-    headers: {
-      "User-Agent": "A-KI-PRI-SA-YE/1.0 (akiprisaye-web.pages.dev)",
-    },
-  });
+    return {
+      lat: parseFloat(data[0].lat),
+      lng: parseFloat(data[0].lon)
+    };
 
-  const data = await res.json();
-
-  if (data.length === 0) return null;
-
-  return {
-    lat: parseFloat(data[0].lat),
-    lng: parseFloat(data[0].lon),
-  };
+  } catch (err) {
+    console.error("❌ Erreur API OSM :", err);
+    return null;
+  }
 }
 
-async function processAll() {
-  let filled = 0;
+async function process() {
+  let updated = 0;
 
-  for (const store of stores) {
-    if (store.lat && store.lng) {
-      console.log(`⏭️ Déjà présent : ${store.name}`);
-      continue;
-    }
+  for (const s of stores) {
+    if (s.lat && s.lng) continue; // déjà OK
 
-    const fullAddress = `${store.city || ""}, ${store.territory || ""} ${store.address || ""}`;
-    console.log(`🔍 Recherche : ${store.name} → ${fullAddress}`);
+    const query = `${s.name} ${s.city || ""} ${s.territory || ""}`;
+    console.log(`📍 Recherche: ${query}`);
 
-    const coords = await fetchCoords(fullAddress);
+    const coords = await geocode(query);
 
-    if (!coords) {
-      console.log(`❌ Aucune coordonnée trouvée pour : ${store.name}`);
+    if (coords) {
+      s.lat = coords.lat;
+      s.lng = coords.lng;
+      console.log(`   ✔ Coordonnées trouvées: ${coords.lat}, ${coords.lng}`);
+      updated++;
     } else {
-      store.lat = coords.lat;
-      store.lng = coords.lng;
-      filled++;
-      console.log(`✅ Coordonnées trouvées : ${store.lat}, ${store.lng}`);
+      console.log(`   ❌ Impossible de trouver : ${query}`);
     }
 
-    // Pause obligatoire 1 seconde
-    await delay(1000);
+    await new Promise(res => setTimeout(res, 1000)); // délai anti-ban API
   }
 
-  fs.writeFileSync(outputPath, JSON.stringify(stores, null, 2), "utf8");
-
-  console.log(`\n🎉 FINI !`);
-  console.log(`📍 Coordonnées ajoutées pour ${filled} magasin(s).`);
-  console.log(`📦 Fichier généré : stores_with_coords.json\n`);
+  fs.writeFileSync("./stores.json", JSON.stringify(stores, null, 2));
+  console.log(`\n🎉 Terminé. ${updated} magasins mis à jour automatiquement.`);
 }
 
-processAll();
+process();
