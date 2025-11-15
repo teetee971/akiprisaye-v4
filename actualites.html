@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actualités – A KI PRI SA YÉ</title>
+
+    <!-- Design global -->
+    <link rel="stylesheet" href="public/responsive.css">
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Couleurs du thème -->
+    <style>
+        body {
+            background-color: #0b0f19;
+            color: white;
+        }
+        .title-blue { color: #3b82f6; }
+        .card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen">
+
+    <!-- HEADER GLOBAL -->
+    <header class="bg-blue-600 p-4 flex items-center justify-between">
+        <button onclick="window.location.href='index.html'">
+            <img src="public/logo.png" class="h-10" alt="Logo">
+        </button>
+
+        <button onclick="toggleMenu()" class="text-white text-3xl">☰</button>
+    </header>
+
+    <!-- MENU LATÉRAL -->
+    <div id="menu"
+         class="fixed top-0 left-0 w-64 h-full bg-gray-900 p-6 transform -translate-x-full transition-transform duration-300">
+        <button onclick="toggleMenu()" class="text-white text-2xl mb-6">✖</button>
+
+        <nav class="flex flex-col gap-4 text-lg">
+            <a class="text-blue-400" href="index.html">Accueil</a>
+            <a href="comparateur.html">Comparateur</a>
+            <a href="scanner.html">Scanner</a>
+            <a href="carte.html">Carte des magasins</a>
+            <a class="font-bold text-white" href="actualites.html">Actualités</a>
+            <a href="modules.html">Modules</a>
+        </nav>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            const m = document.getElementById("menu");
+            m.classList.toggle("-translate-x-full");
+        }
+    </script>
+
+    <!-- CONTENU -->
+    <main class="p-6">
+        <h1 class="text-3xl font-bold title-blue mb-4">📰 Actualités prix & consommation</h1>
+
+        <p class="opacity-80 mb-6">
+            Suivi en temps réel des actualités autour des prix, inflation et pouvoir d'achat en Outre-mer.
+        </p>
+
+        <h2 class="text-2xl font-bold mt-10 mb-4">Fil complet des actualités</h2>
+
+        <div id="news-container" class="space-y-4">
+            <p id="error" class="text-red-400 hidden">❌ Impossible de charger les actualités.</p>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="text-center opacity-60 py-6 text-sm">
+        © 2025 A KI PRI SA YÉ — Transparence des prix Outre-mer.
+    </footer>
+
+    <!-- SCRIPT CHARGEMENT ACTUALITÉS -->
+    <script>
+        async function loadNews() {
+            try {
+                const res = await fetch("news.json");
+                if (!res.ok) throw new Error();
+
+                const data = await res.json();
+                const container = document.getElementById("news-container");
+                container.innerHTML = "";
+
+                data.forEach(n => {
+                    const el = document.createElement("div");
+                    el.className = "card";
+                    el.innerHTML = `
+                        <h3 class="text-xl font-bold mb-2">${n.title}</h3>
+                        <p class="opacity-80 mb-2">${n.description}</p>
+                        <a class="text-blue-400 underline" href="${n.url}" target="_blank">Lire →</a>
+                    `;
+                    container.appendChild(el);
+                });
+            }
+            catch {
+                document.getElementById("error").classList.remove("hidden");
+            }
+        }
+
+        loadNews();
+    </script>
+
+</body>
+</html>
