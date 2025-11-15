@@ -1,75 +1,56 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Carte | A KI PRI SA YÉ</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Carte des Magasins • A KI PRI SA YÉ</title>
 
-  <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="./scripts/load-map.js" defer></script>
 
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: #0d1117;
-      color: white;
-      font-family: Arial, sans-serif;
-    }
+    <style>
+        #map {
+            width: 100%;
+            height: 85vh;
+            border-radius: 14px;
+            overflow: hidden;
+            margin-top: 70px;
+        }
 
-    #map {
-      width: 100%;
-      height: 75vh;
-    }
+        .territory-select {
+            width: 92%;
+            margin: 15px auto;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #555;
+            background: #111;
+            color: #fff;
+            font-size: 17px;
+        }
+    </style>
 
-    #controls {
-      padding: 15px;
-      background: #111827;
-      border-bottom: 1px solid #333;
-    }
-
-    button {
-      padding: 10px 15px;
-      border: none;
-      background: #2563eb;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 15px;
-      margin-right: 8px;
-    }
-
-    #promo-panel {
-      padding: 20px;
-      background: #0f172a;
-      min-height: 200px;
-      border-top: 1px solid #333;
-    }
-  </style>
 </head>
-
 <body>
 
-  <div id="controls">
-    <button onclick="locateUser()">📍 Me localiser</button>
-    <button onclick="loadStoresForTerritory('guadeloupe')">🏬 Magasins Guadeloupe</button>
-  </div>
+    <!-- NAVBAR AUTO-LOAD -->
+    <div id="navbar-container"></div>
 
-  <div id="map"></div>
+    <h2 style="margin-left: 15px;">Carte des magasins</h2>
 
-  <div id="promo-panel">
-    <h3>🔥 Arrêts promos suggérés</h3>
-    <p>Aucune recherche en cours…</p>
-  </div>
+    <select id="territory" class="territory-select">
+        <option value="">Sélectionner un territoire…</option>
+        <option value="guadeloupe">Guadeloupe</option>
+        <option value="martinique">Martinique</option>
+        <option value="guyane">Guyane</option>
+        <option value="reunion">La Réunion</option>
+        <option value="mayotte">Mayotte</option>
+    </select>
 
-  <!-- Scripts internes -->
-  <script type="module" src="./scripts/load-map.js"></script>
-  <script type="module" src="./scripts/territories.js"></script>
+    <div id="map"></div>
 
-  <!-- Google Maps -->
-  <script
-    src="https://maps.googleapis.com/maps/api/js?key=TA_CLE_API_ICI&callback=initGoogleMap"
-    async defer></script>
+    <!-- Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD-TA-METTRE-TA-CLE-ICI"></script>
 
 </body>
 </html>
