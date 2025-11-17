@@ -1,115 +1,128 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Actualités – A KI PRI SA YÉ</title>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+  <title>Actualités prix &amp; consommation - A KI PRI SA YÉ</title>
+  <meta
+    name="description"
+    content="Suivi en temps réel des actualités prix, consommation et pouvoir d'achat dans les territoires d'Outre-mer."
+  />
 
-    <!-- Design global -->
-    <link rel="stylesheet" href="public/responsive.css">
+  <!-- Styles globaux existants -->
+  <link rel="stylesheet" href="/public/responsive.css" />
 
-    <!-- Tailwind CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Couleurs du thème -->
-    <style>
-        body {
-            background-color: #0b0f19;
-            color: white;
-        }
-        .title-blue { color: #3b82f6; }
-        .card {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
-    </style>
+  <link rel="icon" href="/public/icons/icon-192.png" type="image/png" />
 </head>
+<body class="page-dark">
+  <!-- HEADER GLOBAL -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <span class="logo-text">A KI PRI SA YÉ</span>
+        <span class="logo-sub">Transparence des prix Outre-mer</span>
+      </a>
 
-<body class="min-h-screen">
+      <!-- Bouton menu (mobile) -->
+      <button
+        class="menu-toggle"
+        aria-label="Ouvrir le menu"
+        onclick="document.body.classList.toggle('menu-open')"
+      >
+        ☰
+      </button>
 
-    <!-- HEADER GLOBAL -->
-    <header class="bg-blue-600 p-4 flex items-center justify-between">
-        <button onclick="window.location.href='index.html'">
-            <img src="public/logo.png" class="h-10" alt="Logo">
-        </button>
-
-        <button onclick="toggleMenu()" class="text-white text-3xl">☰</button>
-    </header>
-
-    <!-- MENU LATÉRAL -->
-    <div id="menu"
-         class="fixed top-0 left-0 w-64 h-full bg-gray-900 p-6 transform -translate-x-full transition-transform duration-300">
-        <button onclick="toggleMenu()" class="text-white text-2xl mb-6">✖</button>
-
-        <nav class="flex flex-col gap-4 text-lg">
-            <a class="text-blue-400" href="index.html">Accueil</a>
-            <a href="comparateur.html">Comparateur</a>
-            <a href="scanner.html">Scanner</a>
-            <a href="carte.html">Carte des magasins</a>
-            <a class="font-bold text-white" href="actualites.html">Actualités</a>
-            <a href="modules.html">Modules</a>
-        </nav>
+      <!-- Menu principal -->
+      <nav class="main-nav">
+        <a href="index.html">Accueil</a>
+        <a href="comparateur.html">Comparateur</a>
+        <a href="scanner.html">Scanner</a>
+        <a href="carte.html">Carte des magasins</a>
+        <a href="actualites.html" class="active">Actualités</a>
+        <a href="modules.html">Modules</a>
+      </nav>
     </div>
+  </header>
 
-    <script>
-        function toggleMenu() {
-            const m = document.getElementById("menu");
-            m.classList.toggle("-translate-x-full");
-        }
-    </script>
-
-    <!-- CONTENU -->
-    <main class="p-6">
-        <h1 class="text-3xl font-bold title-blue mb-4">📰 Actualités prix & consommation</h1>
-
-        <p class="opacity-80 mb-6">
-            Suivi en temps réel des actualités autour des prix, inflation et pouvoir d'achat en Outre-mer.
+  <main>
+    <!-- HERO / TITRE PAGE -->
+    <section class="page-hero">
+      <div class="hero-inner">
+        <h1>📰 Actualités prix &amp; consommation</h1>
+        <p>
+          Suivi en temps réel de l'actualité autour des
+          <strong>prix, inflation</strong> et du
+          <strong>pouvoir d'achat</strong> pour les territoires d'Outre-mer.
         </p>
 
-        <h2 class="text-2xl font-bold mt-10 mb-4">Fil complet des actualités</h2>
-
-        <div id="news-container" class="space-y-4">
-            <p id="error" class="text-red-400 hidden">❌ Impossible de charger les actualités.</p>
+        <div class="hero-actions">
+          <a href="index.html" class="btn btn-secondary">
+            ← Retour à l'accueil
+          </a>
         </div>
-    </main>
+      </div>
+    </section>
 
-    <!-- FOOTER -->
-    <footer class="text-center opacity-60 py-6 text-sm">
-        © 2025 A KI PRI SA YÉ — Transparence des prix Outre-mer.
-    </footer>
+    <!-- FIL D'ACTUALITÉS -->
+    <section class="page-section">
+      <div class="section-header">
+        <h2>Fil complet des actualités</h2>
+        <p>
+          Les informations ci-dessous sont issues d'une source
+          <strong>JSON automatisée</strong> (connectable ensuite à Firestore,
+          API ou flux RSS).
+        </p>
+      </div>
 
-    <!-- SCRIPT CHARGEMENT ACTUALITÉS -->
-    <script>
-        async function loadNews() {
-            try {
-                const res = await fetch("news.json");
-                if (!res.ok) throw new Error();
+      <!-- Loader -->
+      <div id="news-loader" class="news-loader">
+        ⏳ Chargement des actualités en cours...
+      </div>
 
-                const data = await res.json();
-                const container = document.getElementById("news-container");
-                container.innerHTML = "";
+      <!-- Message d'erreur -->
+      <div
+        id="news-error"
+        class="news-error"
+        style="display:none"
+      ></div>
 
-                data.forEach(n => {
-                    const el = document.createElement("div");
-                    el.className = "card";
-                    el.innerHTML = `
-                        <h3 class="text-xl font-bold mb-2">${n.title}</h3>
-                        <p class="opacity-80 mb-2">${n.description}</p>
-                        <a class="text-blue-400 underline" href="${n.url}" target="_blank">Lire →</a>
-                    `;
-                    container.appendChild(el);
-                });
-            }
-            catch {
-                document.getElementById("error").classList.remove("hidden");
-            }
-        }
+      <!-- Conteneur des cartes d'actus -->
+      <div id="news-container" class="news-list">
+        <!-- Les cartes d'actualités sont injectées ici par news-feed.js -->
+      </div>
+    </section>
+  </main>
 
-        loadNews();
-    </script>
+  <!-- FOOTER GLOBAL -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p>
+        ©
+        <span id="footer-year"></span>
+        A KI PRI SA YÉ — Transparence des prix Outre-mer.
+      </p>
+      <p class="footer-links">
+        <a href="mentions.html">Mentions légales</a>
+        <span class="sep">•</span>
+        <a href="modules.html">Tous les modules</a>
+      </p>
+    </div>
+  </footer>
 
+  <!-- Scripts globaux -->
+  <script>
+    // Mise à jour année footer
+    document.addEventListener("DOMContentLoaded", function () {
+      const y = new Date().getFullYear();
+      const span = document.getElementById("footer-year");
+      if (span) span.textContent = y;
+    });
+  </script>
+
+  <!-- Fil d'actualités auto -->
+  <script src="/scripts/news-feed.js" defer></script>
 </body>
 </html>
