@@ -4,14 +4,13 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>A&nbsp;KI PRI SA YÉ — Gérez votre budget</title>
-  <meta name="description" content="Comparez les prix, gérez votre budget facilement et luttez contre la vie chère." />
-  <!-- Manifest et icônes pour mode PWA -->
-  <link rel="manifest" href="manifest.json" />
+  <meta name="description" content="Comparez les prix, gérez votre budget facilement et luttez contre la vie chère." />  <!-- Manifest et icônes pour mode PWA -->
+  <link rel="manifest" href="./manifest.json" />
   <!-- Icônes multiples pour différentes résolutions et plateformes -->
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon_192.png" />
-  <link rel="icon" type="image/png" sizes="256x256" href="assets/icon_256.png" />
-  <link rel="icon" type="image/png" sizes="512x512" href="assets/icon_512.png" />
-  <link rel="apple-touch-icon" href="assets/icon_192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./assets/icon_192.png" />
+  <link rel="icon" type="image/png" sizes="256x256" href="./assets/icon_256.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./assets/icon_512.png" />
+  <link rel="apple-touch-icon" href="./assets/icon_192.png" />
   <meta name="theme-color" content="#000000" />
   <style>
     /* Réinitialisation et styles de base */
@@ -31,9 +30,7 @@
       height: 100vh;
       width: 100vw;
       overflow: hidden;
-    }
-
-    /* Chaque diapositive occupe tout l'espace disponible et se fond avec opacité */
+    }    /* Chaque diapositive occupe tout l'espace disponible et se fond avec opacité */
     .slide {
       position: absolute;
       top: 0;
@@ -42,21 +39,22 @@
       width: 100%;
       background-size: cover;
       background-position: center;
+      background-repeat: no-repeat;
+      background-color: #0b0d17;
       opacity: 0;
       animation: slideShow 15s infinite;
-    }
-
-    /* Définition des images de fond pour chaque diapositive et leurs délais d'animation */
+      transition: opacity 0.5s ease-in-out;
+    }/* Définition des images de fond pour chaque diapositive et leurs délais d'animation */
     .slide:nth-child(1) {
-      background-image: url('assets/84ba022c-9450-4e4f-841b-64d5363aaae1_lg.webp');
+      background-image: url('./assets/84ba022c-9450-4e4f-841b-64d5363aaae1_lg.webp');
       animation-delay: 0s;
     }
     .slide:nth-child(2) {
-      background-image: url('assets/b3ced496-7272-4600-b46e-c14cf625667e_lg.webp');
+      background-image: url('./assets/b3ced496-7272-4600-b46e-c14cf625667e_lg.webp');
       animation-delay: 5s;
     }
     .slide:nth-child(3) {
-      background-image: url('assets/0d3bd9ac-734a-4f7d-b671-6dc715ae9e94_lg.webp');
+      background-image: url('./assets/0d3bd9ac-734a-4f7d-b671-6dc715ae9e94_lg.webp');
       animation-delay: 10s;
     }
 
@@ -120,6 +118,40 @@
     }
     .btn:hover {
       background-color: #0353e9;
+    }    /* Message d'erreur pour les images non chargées */
+    .slide.error {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .slide.error::before {
+      content: "🖼️ Image en cours de chargement...";
+      color: #666;
+      font-size: 1rem;
+      text-align: center;
+      animation: pulse 2s infinite;
+    }
+
+    .slide.loading {
+      background: linear-gradient(135deg, #0b0d17 0%, #1a1a2e 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide.loading::before {
+      content: "⏳ Chargement...";
+      color: #0f62fe;
+      font-size: 1rem;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
     }
 
     /* Ajustements responsifs pour petits écrans */
@@ -129,6 +161,21 @@
       }
       p.slogan {
         font-size: 1.1rem;
+      }
+      
+      .carousel {
+        min-height: 100vh;
+      }
+      
+      .overlay {
+        padding: 1rem;
+      }
+    }
+
+    /* Amélioration pour les connexions lentes */
+    @media (prefers-reduced-motion: reduce) {
+      .slide {
+        animation-duration: 30s;
       }
     }
   </style>
@@ -147,6 +194,197 @@
       <a href="#app" class="btn">Découvrir l'application</a>
     </div>
   </div>
+
+  <!-- Scripts d'amélioration de l'affichage -->
+  <script>    // Préchargement des images pour améliorer l'affichage
+    function preloadImages() {
+      const imageUrls = [
+        './assets/84ba022c-9450-4e4f-841b-64d5363aaae1_lg.webp',
+        './assets/b3ced496-7272-4600-b46e-c14cf625667e_lg.webp',
+        './assets/0d3bd9ac-734a-4f7d-b671-6dc715ae9e94_lg.webp'
+      ];
+      
+      let loadedCount = 0;
+      const totalImages = imageUrls.length;
+      
+      imageUrls.forEach((url, index) => {
+        const img = new Image();
+        img.onload = () => {
+          loadedCount++;
+          console.log(`✅ Image ${index + 1}/${totalImages} chargée avec succès`);
+          if (loadedCount === totalImages) {
+            console.log('🎉 Toutes les images sont préchargées !');
+          }
+        };
+        img.onerror = () => {
+          console.error(`❌ Erreur de chargement image ${index + 1}: ${url}`);
+          // Retry with cache-busting
+          setTimeout(() => {
+            img.src = url + '?t=' + Date.now();
+          }, 1000);
+        };
+        img.src = url;
+      });
+    }    // Détection des erreurs de chargement d'images
+    function checkImageLoading() {
+      const slides = document.querySelectorAll('.slide');
+      let loadedCount = 0;
+      const imageUrls = [
+        './assets/84ba022c-9450-4e4f-841b-64d5363aaae1_lg.webp',
+        './assets/b3ced496-7272-4600-b46e-c14cf625667e_lg.webp',
+        './assets/0d3bd9ac-734a-4f7d-b671-6dc715ae9e94_lg.webp'
+      ];
+      
+      slides.forEach((slide, index) => {
+        const computedStyle = window.getComputedStyle(slide);
+        const bgImage = computedStyle.backgroundImage;
+        
+        if (bgImage !== 'none' && bgImage !== '' && !bgImage.includes('url("")')) {
+          // Test if the image actually loads
+          const testImg = new Image();
+          testImg.onload = () => {
+            loadedCount++;
+            console.log(`✅ Slide ${index + 1} vérifié et chargé correctement`);
+            slide.classList.remove('error');
+            
+            if (loadedCount === slides.length) {
+              console.log('🎉 Toutes les images du carrousel sont chargées et vérifiées !');
+            }
+          };
+          testImg.onerror = () => {
+            slide.classList.add('error');
+            console.error(`❌ Slide ${index + 1} - Image inaccessible: ${imageUrls[index]}`);
+          };
+          testImg.src = imageUrls[index];
+        } else {
+          slide.classList.add('error');
+          console.warn(`⚠️ Slide ${index + 1} - Pas d'image de fond définie`);
+        }
+      });
+    }    // Gestion avancée du chargement et de l'affichage
+    class DisplayManager {
+      constructor() {
+        this.slides = document.querySelectorAll('.slide');
+        this.imageUrls = [
+          './assets/84ba022c-9450-4e4f-841b-64d5363aaae1_lg.webp',
+          './assets/b3ced496-7272-4600-b46e-c14cf625667e_lg.webp',
+          './assets/0d3bd9ac-734a-4f7d-b671-6dc715ae9e94_lg.webp'
+        ];
+        this.loadedImages = new Set();
+        this.failedImages = new Set();
+      }
+
+      init() {
+        console.log('🚀 DisplayManager - Initialisation...');
+        
+        // Marquer toutes les slides en loading initialement
+        this.slides.forEach(slide => slide.classList.add('loading'));
+        
+        this.setupDiscoverButton();
+        this.startImageLoading();
+      }
+
+      setupDiscoverButton() {
+        const btnDiscover = document.querySelector('.btn');
+        if (btnDiscover) {
+          btnDiscover.addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('🚀 Application en cours de développement.\n📱 Version mobile et web bientôt disponible !\n\n💡 Restez connectés pour les prochaines mises à jour.');
+          });
+        }
+      }
+
+      startImageLoading() {
+        console.log('🔄 Début du chargement des images...');
+        
+        this.imageUrls.forEach((url, index) => {
+          this.loadImage(url, index);
+        });
+
+        // Vérification après délai
+        setTimeout(() => {
+          this.checkFinalStatus();
+        }, 3000);
+      }
+
+      loadImage(url, index) {
+        const img = new Image();
+        
+        img.onload = () => {
+          this.loadedImages.add(url);
+          this.slides[index].classList.remove('loading', 'error');
+          console.log(`✅ Image ${index + 1} chargée: ${url}`);
+          
+          if (this.loadedImages.size === this.imageUrls.length) {
+            console.log('🎉 Toutes les images sont chargées !');
+          }
+        };
+        
+        img.onerror = () => {
+          this.failedImages.add(url);
+          this.slides[index].classList.remove('loading');
+          this.slides[index].classList.add('error');
+          console.error(`❌ Erreur image ${index + 1}: ${url}`);
+          
+          // Tentative de rechargement avec cache-busting
+          setTimeout(() => {
+            console.log(`🔄 Tentative de rechargement image ${index + 1}...`);
+            const retryImg = new Image();
+            retryImg.onload = () => {
+              this.failedImages.delete(url);
+              this.loadedImages.add(url);
+              this.slides[index].classList.remove('error');
+              console.log(`✅ Image ${index + 1} rechargée avec succès`);
+            };
+            retryImg.src = url + '?retry=' + Date.now();
+          }, 2000);
+        };
+        
+        img.src = url;
+      }
+
+      checkFinalStatus() {
+        const loadedCount = this.loadedImages.size;
+        const failedCount = this.failedImages.size;
+        const totalCount = this.imageUrls.length;
+        
+        console.log(`📊 État final: ${loadedCount}/${totalCount} images chargées, ${failedCount} erreurs`);
+        
+        if (loadedCount === totalCount) {
+          console.log('🎉 Affichage optimal - Toutes les images fonctionnent !');
+        } else if (loadedCount > 0) {
+          console.log('⚠️ Affichage partiel - Certaines images ne se chargent pas');
+        } else {
+          console.log('❌ Problème d\'affichage majeur - Aucune image ne se charge');
+        }
+      }
+    }
+
+    // Gestion du clic sur le bouton "Découvrir"
+    document.addEventListener('DOMContentLoaded', function() {
+      const displayManager = new DisplayManager();
+      displayManager.init();
+    });
+
+    // Initialisation au chargement complet
+    window.addEventListener('load', function () {
+      console.log('🔄 Préchargement des images...');
+      preloadImages();
+      
+      // Double vérification après 3 secondes
+      setTimeout(checkImageLoading, 3000);
+      
+      // Enregistrement du Service Worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker
+          .register('service-worker.js')
+          .then(() => console.log('✅ Service Worker enregistré avec succès'))
+          .catch(function (err) {
+            console.error('❌ Échec de l\'enregistrement du service worker :', err);
+          });
+      }
+    });
+  </script>
 
   <!-- Enregistrement du Service Worker -->
   <script>

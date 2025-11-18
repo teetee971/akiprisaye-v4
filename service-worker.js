@@ -7,6 +7,7 @@ const CACHE_NAME = 'aki-pri-sa-ye-cache-v1';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/offline.html',
   '/manifest.json',
   '/assets/icon_192.png',
   '/assets/icon_256.png',
@@ -61,8 +62,8 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         });
       }).catch(() => {
-        // En cas d'échec réseau, retourne la page d'accueil
-        return caches.match('/');
+        // En cas d'échec réseau, retourne la page offline
+        return caches.match('/offline.html');
       });
     })
   );
