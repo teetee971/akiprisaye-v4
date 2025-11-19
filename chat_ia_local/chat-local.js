@@ -24,7 +24,10 @@ form.addEventListener('submit', async (e) => {
 
 function appendMessage(sender, message) {
   const p = document.createElement('p');
-  p.innerHTML = `<strong>${sender}</strong> ${message}`;
+  const strong = document.createElement('strong');
+  strong.textContent = sender;
+  p.appendChild(strong);
+  p.appendChild(document.createTextNode(' ' + message));
   responseDiv.appendChild(p);
   responseDiv.scrollTop = responseDiv.scrollHeight;
 }

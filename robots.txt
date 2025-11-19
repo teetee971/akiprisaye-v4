@@ -1,2 +1,1 @@
-User-agent: *
-Disallow:
+Sitemap: https://akiprisaye-web.pages.dev/sitemap.xml
