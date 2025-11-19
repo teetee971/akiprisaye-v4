@@ -27,7 +27,7 @@ export default defineConfig({
   // Configuration du build
   build: {
     outDir: 'dist',
-    assetsDir: 'assets',
+    assetsDir: 'Assets',
     sourcemap: true,
     rollupOptions: {
       output: {
@@ -35,9 +35,9 @@ export default defineConfig({
           const info = assetInfo.name.split('.');
           const ext = info[info.length - 1];
           if (/\.(webp|png|jpe?g|svg|gif|tiff|bmp|ico)$/i.test(assetInfo.name)) {
-            return `assets/images/[name].[hash][extname]`;
+            return `Assets/images/[name].[hash][extname]`;
           }
-          return `assets/[name].[hash][extname]`;
+          return `Assets/[name].[hash][extname]`;
         }
       }
     }
