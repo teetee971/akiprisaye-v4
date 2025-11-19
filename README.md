@@ -3,6 +3,7 @@
 [![PWA Ready](https://img.shields.io/badge/PWA-Ready-brightgreen.svg)](https://akiprisaye.web.app)
 [![Build Status](https://img.shields.io/badge/build-passing-success.svg)]()
 [![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)]()
+[![Last Deployed](https://img.shields.io/badge/deployed-now-blue.svg)]()
 
 Application citoyenne pour lutter contre la vie chère dans les DROM-COM (Départements et Régions d'Outre-Mer et Collectivités d'Outre-Mer).
 
