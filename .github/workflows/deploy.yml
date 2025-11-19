@@ -12,3 +12,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: akiprisaye-web
           directory: ./
+      - name: 🔄 Skip cache purge (no custom domain)
+        if: success()
+        run: |
+          echo "Purge skipped: Cloudflare Pages without custom domain does not support API cache purge."
