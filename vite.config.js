@@ -27,17 +27,19 @@ export default defineConfig({
   // Configuration du build
   build: {
     outDir: 'dist',
-    assetsDir: 'Assets',
+    // Use a lowercase assets directory to avoid case-sensitivity issues between 'Assets' and 'assets'
+    assetsDir: 'assets',
     sourcemap: true,
     rollupOptions: {
       output: {
+        // Place images under assets/images and other assets under assets/
         assetFileNames: (assetInfo) => {
           const info = assetInfo.name.split('.');
           const ext = info[info.length - 1];
           if (/\.(webp|png|jpe?g|svg|gif|tiff|bmp|ico)$/i.test(assetInfo.name)) {
-            return `Assets/images/[name].[hash][extname]`;
+            return `assets/images/[name].[hash][extname]`;
           }
-          return `Assets/[name].[hash][extname]`;
+          return `assets/[name].[hash][extname]`;
         }
       }
     }
