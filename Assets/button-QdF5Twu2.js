@@ -1,2 +1,0 @@
-import{v as a,t as r,H as o,w as n,n as u}from"./index-Dli5qUS0.js";async function i(s){const t=a(n,"users",s),e=await o(t);return e.exists()&&e.data().plan||"freemium"}async function m(s,t){const e=a(n,"users",s);await r(e,{plan:t},{merge:!0})}const f=({children:s,...t})=>u.jsx("button",{...t,className:"bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition",children:s});export{f as B,i as g,m as s};
-//# sourceMappingURL=button-QdF5Twu2.js.map
