@@ -11,6 +11,10 @@ import { collection, addDoc, Timestamp } from 'firebase/firestore';
  * @param {string} language - langue utilisée
  */
 export async function logMessage(from, text, language) {
+  if (!db) {
+    console.warn('Firestore non disponible, message non enregistré');
+    return;
+  }
   try {
     await addDoc(collection(db, 'chat_logs'), {
       from,

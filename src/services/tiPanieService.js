@@ -113,7 +113,7 @@ export const getBaskets = async (filters = {}) => {
  * Save basket view to user history (Firestore)
  */
 export const saveBasketToHistory = async (userId, basket) => {
-  if (!userId) return;
+  if (!userId || !db) return;
 
   try {
     await addDoc(collection(db, 'basket_history'), {
@@ -133,7 +133,7 @@ export const saveBasketToHistory = async (userId, basket) => {
  * Get user's basket history
  */
 export const getUserBasketHistory = async (userId) => {
-  if (!userId) return [];
+  if (!userId || !db) return [];
 
   try {
     const q = query(collection(db, 'basket_history'), where('userId', '==', userId));

@@ -5,6 +5,7 @@ import { db } from '../lib/firebase';
  * Récupère l'historique utilisateur et le formate pour l'IA
  */
 export const getUserBudgetContext = async (userId) => {
+  if (!db) return "L'utilisateur n'a pas encore effectué de recherches.";
   const q = query(collection(db, 'history'), where('userId', '==', userId));
   const docs = await getDocs(q);
   const history = docs.docs.map((d) => d.data());

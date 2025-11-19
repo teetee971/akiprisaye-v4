@@ -17,6 +17,7 @@ const basketsRef = collection(db, COLLECTION_NAME);
  * Get all baskets from Firestore
  */
 export const getAllBaskets = async () => {
+  if (!db) return [];
   try {
     const snapshot = await getDocs(basketsRef);
     return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -30,6 +31,7 @@ export const getAllBaskets = async () => {
  * Add a new basket to Firestore
  */
 export const addBasket = async (data) => {
+  if (!db) throw new Error('Database not available');
   try {
     const docRef = await addDoc(basketsRef, {
       ...data,
@@ -47,6 +49,7 @@ export const addBasket = async (data) => {
  * Update an existing basket
  */
 export const updateBasket = async (id, data) => {
+  if (!db) throw new Error('Database not available');
   try {
     const docRef = doc(db, COLLECTION_NAME, id);
     await updateDoc(docRef, {
@@ -64,6 +67,7 @@ export const updateBasket = async (id, data) => {
  * Delete a basket
  */
 export const deleteBasket = async (id) => {
+  if (!db) throw new Error('Database not available');
   try {
     const docRef = doc(db, COLLECTION_NAME, id);
     await deleteDoc(docRef);
@@ -78,7 +82,7 @@ export const deleteBasket = async (id) => {
  * Check if user is admin
  */
 export const checkIsAdmin = async (user) => {
-  if (!user) return false;
+  if (!user || !db) return false;
 
   try {
     // Check custom claims first (if available)

@@ -6,6 +6,7 @@ import { doc, getDoc, collection, query, orderBy, limit, getDocs } from 'firebas
  * @returns {Promise<Object|null>} Latest market insights data
  */
 export const getMarketInsights = async () => {
+  if (!db) return null;
   try {
     const ref = doc(db, 'market_insights', 'latest');
     const snap = await getDoc(ref);
@@ -22,6 +23,7 @@ export const getMarketInsights = async () => {
  * @returns {Promise<Array>} Historical insights data
  */
 export const getInsightsHistory = async (days = 30) => {
+  if (!db) return [];
   try {
     const ref = collection(db, 'market_insights');
     const q = query(ref, orderBy('timestamp', 'desc'), limit(days));

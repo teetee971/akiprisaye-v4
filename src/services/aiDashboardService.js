@@ -5,6 +5,7 @@ import { collection, getDocs } from 'firebase/firestore';
  * Get today's baskets filtered by territory
  */
 export async function getTodayBaskets(territory) {
+  if (!db) return [];
   const col = collection(db, 'ti_panie');
   const snap = await getDocs(col);
   const today = new Date().toDateString();
@@ -24,6 +25,7 @@ export async function getTodayBaskets(territory) {
  * Get forecast data filtered by territory
  */
 export async function getForecast(territory) {
+  if (!db) return [];
   try {
     const col = collection(db, 'ti_panie_forecast');
     const snap = await getDocs(col);
