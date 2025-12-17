@@ -27,6 +27,7 @@ const TiPanie = lazy(() => import('./pages/TiPanie'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AIDashboard = lazy(() => import('./pages/AIDashboard'));
 const AiMarketInsights = lazy(() => import('./pages/AiMarketInsights'));
+const IEVR = lazy(() => import('./pages/IEVR'));
 
 // Loading component
 function LoadingFallback() {
@@ -77,6 +78,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='admin/dashboard' element={<AdminDashboard />} />
                   <Route path='admin/ai-dashboard' element={<AIDashboard />} />
                   <Route path='admin/ai-market-insights' element={<AiMarketInsights />} />
+                  <Route path='ievr' element={<IEVR />} />
                   <Route path='*' element={<NotFound />} />
                 </Route>
               </Routes>
