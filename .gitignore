@@ -84,3 +84,14 @@ unins*.exe
 *.bak
 *.backup
 *.old
+
+# Obsolete directories and scripts (production cleanup)
+akiprisaye_web/
+akiprisaye_web_final_full_*/
+test_extract/
+SentinelQuantumVanguardAIPro/
+*.ps1
+diagnostic*.ps1
+fix_*.ps1
+deploy.ps1
+build.sh

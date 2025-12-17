@@ -315,16 +315,36 @@ export default function Comparateur() {
         )}
 
         {/* Info Section */}
-        <div className="mt-8 bg-blue-900/20 border border-blue-700/30 rounded-xl p-6">
-          <h3 className="text-lg font-semibold mb-3 text-blue-400">
-            ℹ️ Comment ça marche ?
-          </h3>
-          <ul className="space-y-2 text-gray-300 text-sm">
-            <li>• Scannez le code-barres de votre produit ou saisissez-le manuellement</li>
-            <li>• Sélectionnez votre territoire pour des résultats précis</li>
-            <li>• Comparez les prix entre différents magasins en temps réel</li>
-            <li>• Les prix sont mis à jour quotidiennement par nos partenaires</li>
-          </ul>
+        <div className="mt-8 space-y-4">
+          {/* Transparency Notice */}
+          <div className="bg-yellow-900/20 border border-yellow-700 rounded-xl p-6">
+            <h3 className="text-lg font-semibold mb-3 text-yellow-400">
+              ⚠️ Transparence sur les données
+            </h3>
+            <p className="text-gray-300 text-sm mb-2">
+              <strong>Phase de développement :</strong> Les prix affichés proviennent actuellement
+              d'un jeu de données de démonstration basé sur des relevés manuels ponctuels.
+            </p>
+            <p className="text-gray-400 text-sm">
+              La collecte automatisée et citoyenne des prix sera activée progressivement.
+              Pour en savoir plus, consultez notre{' '}
+              <a href="/methodologie" className="text-blue-400 hover:text-blue-300 underline">
+                page méthodologie
+              </a>.
+            </p>
+          </div>
+          
+          <div className="bg-blue-900/20 border border-blue-700/30 rounded-xl p-6">
+            <h3 className="text-lg font-semibold mb-3 text-blue-400">
+              ℹ️ Comment ça marche ?
+            </h3>
+            <ul className="space-y-2 text-gray-300 text-sm">
+              <li>• Scannez le code-barres de votre produit ou saisissez-le manuellement</li>
+              <li>• Sélectionnez votre territoire pour des résultats précis</li>
+              <li>• Comparez les prix entre différents magasins</li>
+              <li>• Les dates de mise à jour sont affichées pour chaque prix</li>
+            </ul>
+          </div>
         </div>
       </main>
 
