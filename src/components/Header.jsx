@@ -116,6 +116,30 @@ export default function Header() {
           </li>
           <li>
             <Link
+              to="/alertes"
+              className={`flex items-center gap-3 px-6 py-3 text-white hover:bg-blue-700/20 transition-colors border-l-4 ${
+                isActiveRoute('/alertes') ? 'border-blue-400 bg-blue-700/10' : 'border-transparent hover:border-blue-400'
+              }`}
+              onClick={closeMobileMenu}
+            >
+              <span className="text-xl">🔔</span>
+              <span>Alertes</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/actualites"
+              className={`flex items-center gap-3 px-6 py-3 text-white hover:bg-blue-700/20 transition-colors border-l-4 ${
+                isActiveRoute('/actualites') ? 'border-blue-400 bg-blue-700/10' : 'border-transparent hover:border-blue-400'
+              }`}
+              onClick={closeMobileMenu}
+            >
+              <span className="text-xl">📰</span>
+              <span>Actualités</span>
+            </Link>
+          </li>
+          <li>
+            <Link
               to="/pricing"
               className={`flex items-center gap-3 px-6 py-3 text-white hover:bg-blue-700/20 transition-colors border-l-4 ${
                 isActiveRoute('/pricing') ? 'border-blue-400 bg-blue-700/10' : 'border-transparent hover:border-blue-400'
@@ -199,12 +223,20 @@ export default function Header() {
                 Carte
               </Link>
               <Link
-                to="/pricing"
+                to="/alertes"
                 className={`text-white/90 hover:text-white hover:bg-blue-600/30 px-3 py-2 rounded-lg transition-all ${
-                  isActiveRoute('/pricing') ? 'bg-blue-600/40 text-white font-semibold' : ''
+                  isActiveRoute('/alertes') ? 'bg-blue-600/40 text-white font-semibold' : ''
                 }`}
               >
-                Tarifs
+                Alertes
+              </Link>
+              <Link
+                to="/actualites"
+                className={`text-white/90 hover:text-white hover:bg-blue-600/30 px-3 py-2 rounded-lg transition-all ${
+                  isActiveRoute('/actualites') ? 'bg-blue-600/40 text-white font-semibold' : ''
+                }`}
+              >
+                Actualités
               </Link>
               <Link
                 to="/mon-compte"

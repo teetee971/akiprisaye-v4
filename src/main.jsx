@@ -15,6 +15,9 @@ const ScanOCR = lazy(() => import('./pages/ScanOCR'));
 const Comparateur = lazy(() => import('./pages/Comparateur'));
 const Carte = lazy(() => import('./pages/Carte'));
 const Actualites = lazy(() => import('./pages/Actualites'));
+const Alertes = lazy(() => import('./pages/Alertes'));
+const APropos = lazy(() => import('./pages/APropos'));
+const Methodologie = lazy(() => import('./pages/Methodologie'));
 const MentionsLegales = lazy(() => import('./pages/MentionsLegales'));
 const MonCompte = lazy(() => import('./pages/MonCompte'));
 const Pricing = lazy(() => import('./pages/Pricing'));
@@ -62,6 +65,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='comparateur' element={<Comparateur />} />
                   <Route path='carte' element={<Carte />} />
                   <Route path='actualites' element={<Actualites />} />
+                  <Route path='alertes' element={<Alertes />} />
+                  <Route path='a-propos' element={<APropos />} />
+                  <Route path='methodologie' element={<Methodologie />} />
                   <Route path='mentions-legales' element={<MentionsLegales />} />
                   <Route path='mon-compte' element={<MonCompte />} />
                   <Route path='pricing' element={<Pricing />} />

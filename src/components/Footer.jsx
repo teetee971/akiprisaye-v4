@@ -14,29 +14,29 @@ export default function Footer() {
           aria-label="Navigation du pied de page"
         >
           <Link
-            to="/actualites"
+            to="/a-propos"
             className="text-slate-300 hover:text-blue-400 transition-colors"
           >
             À propos
           </Link>
           <Link
-            to="/pricing"
+            to="/methodologie"
             className="text-slate-300 hover:text-blue-400 transition-colors"
           >
-            Tarifs
+            Méthodologie
           </Link>
-          <a
-            href="/faq.html"
+          <Link
+            to="/actualites"
             className="text-slate-300 hover:text-blue-400 transition-colors"
           >
-            FAQ
-          </a>
-          <a
-            href="/contact.html"
+            Actualités
+          </Link>
+          <Link
+            to="/contact"
             className="text-slate-300 hover:text-blue-400 transition-colors"
           >
             Contact
-          </a>
+          </Link>
           <Link
             to="/mentions-legales"
             className="text-slate-300 hover:text-blue-400 transition-colors"

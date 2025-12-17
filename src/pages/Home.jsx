@@ -135,12 +135,12 @@ export default function Home() {
             </Link>
 
             <Link
-              to="/chat"
+              to="/alertes"
               className="group bg-slate-900 hover:bg-slate-800 p-6 rounded-xl border border-slate-700 hover:border-blue-500 transition-all hover:shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1 motion-reduce:transform-none hover:scale-105 motion-reduce:hover:scale-100"
             >
-              <div className="text-4xl mb-4 transition-transform group-hover:scale-110 motion-reduce:transform-none">🧠</div>
-              <h3 className="text-xl font-semibold text-white mb-2">{t.chat}</h3>
-              <p className="text-sm text-slate-400">{t.chatDesc}</p>
+              <div className="text-4xl mb-4 transition-transform group-hover:scale-110 motion-reduce:transform-none">🔔</div>
+              <h3 className="text-xl font-semibold text-white mb-2">Alertes</h3>
+              <p className="text-sm text-slate-400">Prix anormaux, pénuries et variations</p>
             </Link>
           </div>
         </div>
@@ -153,9 +153,23 @@ export default function Home() {
           <p className="text-lg text-slate-300 mb-4">
             <strong className="text-blue-400">A KI PRI SA YÉ</strong> est une plateforme citoyenne dédiée à la transparence des prix en Outre-mer.
           </p>
-          <p className="text-slate-400">
-            Comparez facilement les prix, signalez les abus et gérez votre budget plus efficacement.
+          <p className="text-slate-400 mb-6">
+            Comparez facilement les prix, consultez les alertes et gérez votre budget plus efficacement.
           </p>
+          <div className="flex flex-wrap justify-center gap-4 mt-8">
+            <Link
+              to="/a-propos"
+              className="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-6 py-3 rounded-lg transition-all"
+            >
+              En savoir plus
+            </Link>
+            <Link
+              to="/methodologie"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition-all"
+            >
+              Notre méthodologie
+            </Link>
+          </div>
         </div>
       </section>
 
