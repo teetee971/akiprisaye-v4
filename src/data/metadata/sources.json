@@ -89,6 +89,36 @@
         "Prix carburants temps réel",
         "Historique par territoire"
       ]
+    },
+    "drees": {
+      "nom": "Direction de la recherche, des études, de l'évaluation et des statistiques",
+      "url": "https://drees.solidarites-sante.gouv.fr",
+      "type": "organisme_public",
+      "fiabilite": "officielle",
+      "donnees_utilisees": [
+        "Dépenses santé par région (si publiées)"
+      ]
+    },
+    "ministere_transition_ecologique": {
+      "nom": "Ministère de la Transition écologique",
+      "url": "https://www.ecologie.gouv.fr",
+      "type": "organisme_public",
+      "fiabilite": "officielle",
+      "donnees_utilisees": [
+        "Données énergie par région"
+      ]
+    },
+    "eurostat": {
+      "nom": "Office statistique de l'Union européenne",
+      "url": "https://ec.europa.eu/eurostat",
+      "type": "organisme_europeen",
+      "fiabilite": "officielle",
+      "donnees_utilisees": [
+        "HICP - Indice harmonisé des prix à la consommation",
+        "Niveaux de prix comparatifs",
+        "Revenus médians (EU-SILC)",
+        "Parité de pouvoir d'achat (PPA)"
+      ]
     }
   },
   "regles_utilisation": {
@@ -104,6 +134,23 @@
       "Estimer en l'absence de données",
       "Réinterpréter les chiffres"
     ]
+  },
+  "extensions_geographiques": {
+    "dom_tom": {
+      "status": "actif",
+      "territoires": ["Guadeloupe", "Martinique", "Guyane", "La Réunion", "Mayotte"],
+      "sources_principales": ["OPMR", "INSEE"]
+    },
+    "hexagone": {
+      "status": "planifié",
+      "regions": 13,
+      "sources_principales": ["INSEE", "DREES", "Ministère Transition écologique"]
+    },
+    "europe": {
+      "status": "planifié",
+      "pays_initiaux": ["France", "Belgique", "Allemagne", "Espagne", "Portugal", "Italie"],
+      "sources_principales": ["Eurostat", "Instituts statistiques nationaux"]
+    }
   },
   "statut": "OFFICIEL"
 }
