@@ -54,8 +54,16 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register('/sw.js')
-      .then(() => console.log('Service Worker enregistré'))
-      .catch((err) => console.warn('Erreur SW :', err));
+      .then(() => {
+        if (import.meta.env.DEV) {
+          console.log('Service Worker enregistré');
+        }
+      })
+      .catch((err) => {
+        if (import.meta.env.DEV) {
+          console.warn('Erreur SW :', err);
+        }
+      });
   });
 }
 

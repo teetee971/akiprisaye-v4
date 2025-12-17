@@ -26,9 +26,13 @@ try {
   db = getFirestore(app);
   storage = getStorage(app);
   functions = getFunctions(app);
-  console.log(' Firebase initialized successfully');
+  if (import.meta.env.DEV) {
+    console.log('✅ Firebase initialized successfully');
+  }
 } catch (error) {
-  console.warn(' Firebase disabled - app running without backend:', error.code || error.message);
+  if (import.meta.env.DEV) {
+    console.warn('⚠️ Firebase disabled - app running without backend:', error.code || error.message);
+  }
   // Services remain null - app will continue to function
 }
 
