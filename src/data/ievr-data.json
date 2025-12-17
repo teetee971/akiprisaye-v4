@@ -1,10 +1,14 @@
 {
   "metadata": {
     "version": "1.0.0",
+    "officialId": "IEVR-FR-v1.0",
     "lastUpdate": "2025-12-17",
     "description": "Indice d'Écart de Vie Réelle (IEVR) - Données par territoire",
-    "reference": "Hexagone",
-    "referenceScore": 100
+    "reference": "France métropolitaine (Hexagone)",
+    "referenceScore": 100,
+    "methodologyVersion": "1.0.0",
+    "methodologyLocked": true,
+    "methodologyDocument": "METHODOLOGIE_IEVR_v1.0.md"
   },
   "categories": {
     "alimentation": {
@@ -78,11 +82,13 @@
       "history": [
         {
           "date": "2025-11",
-          "score": 67
+          "score": 67,
+          "status": "forte-tension"
         },
         {
           "date": "2024-12",
-          "score": 70
+          "score": 70,
+          "status": "sous-tension"
         }
       ]
     },

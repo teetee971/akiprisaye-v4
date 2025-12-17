@@ -131,6 +131,45 @@ export function generateExplanation(territoryName, score, referenceScore = 100) 
 }
 
 /**
+ * Get territory status label based on IEVR score
+ * 
+ * Status categories:
+ * - IEVR >= 90: Normal situation
+ * - 75 <= IEVR < 90: Under pressure
+ * - IEVR < 75: High pressure
+ * 
+ * @param {number} score - IEVR score
+ * @returns {Object} Status data { label, level, color, icon, description }
+ */
+export function getTerritoryStatus(score) {
+  if (score >= 90) {
+    return {
+      label: 'Situation normale',
+      level: 'normal',
+      color: '#10b981', // green
+      icon: '✅',
+      description: 'Écart faible avec le territoire de référence'
+    };
+  } else if (score >= 75) {
+    return {
+      label: 'Sous tension',
+      level: 'pressure',
+      color: '#f59e0b', // amber
+      icon: '⚠️',
+      description: 'Écart notable nécessitant une vigilance'
+    };
+  } else {
+    return {
+      label: 'Forte tension',
+      level: 'high-pressure',
+      color: '#ef4444', // red
+      icon: '🔴',
+      description: 'Écart important nécessitant une attention particulière'
+    };
+  }
+}
+
+/**
  * Get score color based on value
  * Used for visual representation
  * 

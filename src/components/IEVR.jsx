@@ -22,7 +22,8 @@ import {
   generateExplanation,
   getScoreColor,
   getTrendIcon,
-  validateIEVRData
+  validateIEVRData,
+  getTerritoryStatus
 } from '../utils/ievrCalculations.js';
 
 export function IEVR({ selectedTerritory = null }) {
@@ -81,6 +82,7 @@ export function IEVR({ selectedTerritory = null }) {
   const currentScore = territoryData.current.score;
   const comparison = compareToReference(currentScore, referenceScore);
   const explanation = generateExplanation(territoryData.name, currentScore, referenceScore);
+  const territoryStatus = getTerritoryStatus(currentScore);
 
   // Evolution calculations
   const previousMonthScore = territoryData.history[0]?.score;
@@ -99,11 +101,19 @@ export function IEVR({ selectedTerritory = null }) {
     <div className="space-y-6">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg p-6 text-white">
-        <h2 className="text-2xl font-bold mb-2">
-          🧠 Indice d'Écart de Vie Réelle (IEVR)
-        </h2>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-2xl font-bold">
+            🧠 Indice d'Écart de Vie Réelle (IEVR)
+          </h2>
+          <span className="px-3 py-1 bg-white/20 rounded-lg text-sm font-mono">
+            {data.metadata.officialId}
+          </span>
+        </div>
         <p className="text-blue-50">
           Ce que la vie coûte vraiment, là où vous vivez.
+        </p>
+        <p className="text-blue-100 text-sm mt-2">
+          📋 Méthodologie {data.metadata.methodologyVersion} • Référence nationale : {data.metadata.reference}
         </p>
       </div>
 
@@ -173,8 +183,24 @@ export function IEVR({ selectedTerritory = null }) {
           </div>
 
           {/* Explanation */}
-          <p className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto mb-4">
             {explanation}
+          </p>
+
+          {/* Territory Status Badge */}
+          <div 
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-lg"
+            style={{ 
+              backgroundColor: `${territoryStatus.color}20`,
+              color: territoryStatus.color,
+              border: `2px solid ${territoryStatus.color}`
+            }}
+          >
+            <span className="text-2xl">{territoryStatus.icon}</span>
+            <span>{territoryStatus.label}</span>
+          </div>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+            {territoryStatus.description}
           </p>
         </div>
 
@@ -240,6 +266,51 @@ export function IEVR({ selectedTerritory = null }) {
         </div>
       </Card>
 
+      {/* Status History */}
+      {territoryData.history && territoryData.history.length > 0 && (
+        <Card className="p-6">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+            📅 Historique des statuts
+          </h3>
+          <div className="space-y-3">
+            {[
+              { date: territoryData.current.date, score: currentScore, status: territoryStatus.level },
+              ...territoryData.history
+            ].map((entry, index) => {
+              const entryStatus = index === 0 ? territoryStatus : getTerritoryStatus(entry.score);
+              const date = new Date(entry.date);
+              
+              return (
+                <div 
+                  key={`${entry.date}-${index}`}
+                  className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="text-sm font-medium text-gray-600 dark:text-gray-400 w-32">
+                      {date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{entryStatus.icon}</span>
+                      <span className="font-semibold" style={{ color: entryStatus.color }}>
+                        {entryStatus.label}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold" style={{ color: entryStatus.color }}>
+                      {entry.score}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      IEVR
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      )}
+
       {/* Category Breakdown */}
       <Card className="p-6">
         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
@@ -289,20 +360,38 @@ export function IEVR({ selectedTerritory = null }) {
       {/* Methodology Note */}
       <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg p-4">
         <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
-          📝 Méthodologie
+          📝 Méthodologie officielle
         </h4>
         <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2">
           <p>
-            L'IEVR est un indicateur synthétique calculé à partir de 5 catégories de coûts incompressibles.
+            <strong>Identifiant :</strong> {data.metadata.officialId}
+          </p>
+          <p>
+            L'IEVR est un indicateur synthétique calculé à partir de 5 catégories de coûts incompressibles,
+            avec des pondérations fixes et vérifiables.
           </p>
           <p>
             <strong>Score de référence :</strong> {data.metadata.reference} = {referenceScore}
           </p>
           <p>
+            <strong>Pondérations :</strong> Alimentation (40%), Hygiène (15%), Transport (15%), Énergie (15%), Autres (15%)
+          </p>
+          <p>
             <strong>Principe :</strong> Plus le score est bas, plus la vie est difficile avec un revenu standard.
           </p>
+          <p className="text-xs pt-2 border-t border-gray-300 dark:border-gray-600">
+            Version {data.metadata.version} • Dernière mise à jour : {data.metadata.lastUpdate}
+            {data.metadata.methodologyLocked && ' • 🔒 Méthodologie verrouillée'}
+          </p>
           <p className="text-xs">
-            Version {data.metadata.version} · Dernière mise à jour : {data.metadata.lastUpdate}
+            📄 <a 
+              href="/METHODOLOGIE_IEVR_v1.0.md" 
+              className="text-blue-600 dark:text-blue-400 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Consulter la méthodologie complète (v{data.metadata.methodologyVersion})
+            </a>
           </p>
         </div>
       </div>
