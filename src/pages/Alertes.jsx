@@ -48,11 +48,12 @@ export default function Alertes() {
   };
 
   const getSeverityIcon = (type) => {
+    // Icons removed per design specification: NO EMOJIS
     switch (type) {
-      case 'prix_eleve': return '⚠️';
-      case 'penurie': return '📦';
-      case 'variation': return '📈';
-      default: return '🔔';
+      case 'prix_eleve': return '⚠';
+      case 'penurie': return '!';
+      case 'variation': return '↑';
+      default: return '•';
     }
   };
 
@@ -62,7 +63,7 @@ export default function Alertes() {
       <header className="bg-gradient-to-r from-[#0f62fe] to-[#0353e9] p-6 shadow-lg">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-bold">🔔 Alertes Consommateurs</h1>
+            <h1 className="text-3xl font-bold">Alertes Consommateurs</h1>
             <a 
               href="/" 
               className="text-white hover:text-gray-200 transition-colors"
@@ -191,7 +192,7 @@ export default function Alertes() {
 
         {/* How it works */}
         <div className="mt-12 bg-[#1e1e1e] rounded-xl border border-gray-700 p-6">
-          <h2 className="text-xl font-semibold mb-4">❓ Comment fonctionnent les alertes ?</h2>
+          <h2 className="text-xl font-semibold mb-4">Comment fonctionnent les alertes ?</h2>
           <div className="text-gray-300 space-y-3">
             <p>
               Le système d'alertes A KI PRI SA YÉ analysera quotidiennement les prix collectés
