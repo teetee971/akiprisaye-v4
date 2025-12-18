@@ -9,6 +9,10 @@ on:
 jobs:
   merge-queue:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write        # To merge PRs and update branches
+      pull-requests: write   # To label and manage PRs
+      statuses: read         # To read status checks
     steps:
       - name: Merge Queue Action
         uses: autifyhq/merge-queue-action@v0.1.0
