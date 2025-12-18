@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { ALL_TERRITORIES } from '../constants/news';
 
 const territories = [
-  { code: 'ALL', name: 'Tous les territoires', type: 'Tous' },
+  { code: ALL_TERRITORIES, name: 'Tous les territoires', type: 'Tous' },
   { code: 'GP', name: 'Guadeloupe', type: 'DROM' },
   { code: 'MQ', name: 'Martinique', type: 'DROM' },
   { code: 'GF', name: 'Guyane', type: 'DROM' },

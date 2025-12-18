@@ -1,12 +1,13 @@
 import PropTypes from 'prop-types';
 import { categoryConfigs } from '../types/news';
+import { ALL_CATEGORIES } from '../constants/news';
 
 /**
  * CategoryFilter - Filter news by category
  */
 export default function CategoryFilter({ value, onChange, className = '' }) {
   const categories = [
-    { value: 'ALL', label: 'Toutes les catégories', icon: '📋' },
+    { value: ALL_CATEGORIES, label: 'Toutes les catégories', icon: '📋' },
     { value: 'PRIX', label: categoryConfigs.PRIX.label, icon: categoryConfigs.PRIX.icon },
     { value: 'POLITIQUE', label: categoryConfigs.POLITIQUE.label, icon: categoryConfigs.POLITIQUE.icon },
     { value: 'ALERTE', label: categoryConfigs.ALERTE.label, icon: categoryConfigs.ALERTE.icon },
@@ -17,7 +18,7 @@ export default function CategoryFilter({ value, onChange, className = '' }) {
     <div className={`flex flex-wrap gap-2 ${className}`}>
       {categories.map((category) => {
         const isActive = value === category.value;
-        const config = category.value !== 'ALL' ? categoryConfigs[category.value] : null;
+        const config = category.value !== ALL_CATEGORIES ? categoryConfigs[category.value] : null;
         
         return (
           <button

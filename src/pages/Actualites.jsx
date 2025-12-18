@@ -2,10 +2,11 @@ import NewsWidget from '../components/NewsWidget';
 import TerritorySelector from '../components/TerritorySelector';
 import CategoryFilter from '../components/CategoryFilter';
 import { useState } from 'react';
+import { ALL_TERRITORIES, ALL_CATEGORIES } from '../constants/news';
 
 export default function Actualites() {
-  const [selectedTerritory, setSelectedTerritory] = useState('ALL');
-  const [selectedCategory, setSelectedCategory] = useState('ALL');
+  const [selectedTerritory, setSelectedTerritory] = useState(ALL_TERRITORIES);
+  const [selectedCategory, setSelectedCategory] = useState(ALL_CATEGORIES);
 
   return (
     <div className="min-h-screen bg-[#121212] text-white">

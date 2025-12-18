@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import CivicNewsCard from './CivicNewsCard';
+import { ALL_TERRITORIES, MULTI_TERRITORY_VALUES, ALL_CATEGORIES } from '../constants/news';
 
 export default function NewsWidget({ limit = 3, showFullButton = true, selectedTerritory = null, selectedCategory = null }) {
   const [news, setNews] = useState([]);
@@ -37,16 +38,15 @@ export default function NewsWidget({ limit = 3, showFullButton = true, selectedT
     let filtered = newsData;
     
     // Filter by territory
-    if (selectedTerritory && selectedTerritory !== 'ALL') {
+    if (selectedTerritory && selectedTerritory !== ALL_TERRITORIES) {
       filtered = filtered.filter(item => 
         item.territory === selectedTerritory || 
-        item.territory === 'Tous territoires' ||
-        item.territory === 'DROM-COM'
+        MULTI_TERRITORY_VALUES.includes(item.territory)
       );
     }
     
     // Filter by category
-    if (selectedCategory && selectedCategory !== 'ALL') {
+    if (selectedCategory && selectedCategory !== ALL_CATEGORIES) {
       filtered = filtered.filter(item => item.category === selectedCategory);
     }
     
