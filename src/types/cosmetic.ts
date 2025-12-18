@@ -31,6 +31,14 @@ export interface CosmeticProduct {
   ingredients: Ingredient[];
 }
 
+export type WarningLevel = 'error' | 'warning' | 'info';
+
+export interface Warning {
+  level: WarningLevel;
+  message: string;
+  ingredients?: string[];
+}
+
 export interface EvaluationResult {
   product: CosmeticProduct;
   score: number;
@@ -41,7 +49,7 @@ export interface EvaluationResult {
     restrictedIngredients: number;
     prohibitedIngredients: number;
   };
-  warnings: string[];
+  warnings: Warning[];
   sources: OfficialSource[];
   evaluationDate: string;
   disclaimer: string;

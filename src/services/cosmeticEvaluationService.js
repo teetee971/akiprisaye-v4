@@ -161,7 +161,10 @@ export function calculateScore(ingredients) {
   }
 
   // Score sur 100
-  const score = Math.max(0, Math.min(100, ((totalPoints / maxPoints) * 100)));
+  // Protection contre division par zéro (déjà géré par le check initial, mais double sécurité)
+  const score = maxPoints > 0 
+    ? Math.max(0, Math.min(100, ((totalPoints / maxPoints) * 100)))
+    : 0;
 
   return {
     score: Math.round(score),
