@@ -42,6 +42,12 @@ const BudgetReelMensuel = lazy(() => import('./pages/BudgetReelMensuel'));
 const ComparateurFormats = lazy(() => import('./pages/ComparateurFormats'));
 const ListeCourses = lazy(() => import('./pages/ListeCourses'));
 
+// New simplified pages for automatic generation
+const HomeSimple = lazy(() => import('./pages/Home.tsx'));
+const CompareSimple = lazy(() => import('./pages/Compare.tsx'));
+const NewsSimple = lazy(() => import('./pages/News.tsx'));
+const PricingSimple = lazy(() => import('./pages/Pricing.tsx'));
+
 // Loading component
 function LoadingFallback() {
   return (
@@ -86,7 +92,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='scan' element={<ScanOCR />} />
                   <Route path='comparateur' element={<Comparateur />} />
                   <Route path='carte' element={<Carte />} />
-                  <Route path='actualites' element={<Actualites />} />
+                  <Route path='actualites' element={<NewsSimple />} />
                   <Route path='alertes' element={<Alertes />} />
                   <Route path='a-propos' element={<APropos />} />
                   <Route path='methodologie' element={<Methodologie />} />
@@ -111,6 +117,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='budget-reel-mensuel' element={<BudgetReelMensuel />} />
                   <Route path='comparateur-formats' element={<ComparateurFormats />} />
                   <Route path='liste-courses' element={<ListeCourses />} />
+                  
+                  {/* New simplified pages for automatic generation */}
+                  <Route path='comparer' element={<CompareSimple />} />
+                  <Route path='tarifs' element={<PricingSimple />} />
+                  
                   <Route path='*' element={<NotFound />} />
                 </Route>
               </Routes>
