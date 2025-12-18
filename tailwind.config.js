@@ -10,7 +10,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Civic Glass Design System
+        // Liquid Glass Chic Design System - INSTITUTIONAL
         background: 'rgb(var(--bg-main) / <alpha-value>)',
         foreground: 'rgb(var(--text-main) / <alpha-value>)',
         
@@ -38,44 +38,43 @@ export default {
 
         // Legacy civic colors (kept for compatibility)
         civic: {
-          background: '#0B1220',
-          glass: 'rgba(255, 255, 255, 0.08)',
-          'glass-hover': 'rgba(255, 255, 255, 0.12)',
-          primary: '#4AA3FF',
-          'primary-dark': '#3B8FE6',
-          'primary-light': '#5CB3FF',
-          secondary: '#6EE7B7',
-          'secondary-dark': '#5DD4A4',
-          'secondary-light': '#7FFACA',
-          text: '#E5E7EB',
-          'text-secondary': '#9CA3AF',
-          'text-muted': '#6B7280',
+          background: '#0E1116',
+          glass: 'rgba(255, 255, 255, 0.06)',
+          'glass-hover': 'rgba(255, 255, 255, 0.09)',
+          primary: '#3A7AFE',
+          'primary-dark': '#2E65E6',
+          'primary-light': '#4D8BFF',
+          secondary: '#2EC4B6',
+          'secondary-dark': '#27A89C',
+          'secondary-light': '#3DD5C7',
+          text: '#E6EAF0',
+          'text-secondary': '#A9B0C2',
+          'text-muted': '#7C859C',
         },
 
         // Legacy brand colors for A KI PRI SA YÉ (kept for compatibility)
         primary: {
-          DEFAULT: '#4AA3FF',
-          50: '#e6f4ff',
-          100: '#b3ddff',
-          200: '#80c6ff',
-          300: '#4dafff',
-          400: '#1a98ff',
-          500: '#4AA3FF',
-          600: '#3B8FE6',
-          700: '#2C7BCC',
-          800: '#1D67B3',
-          900: '#0E5399',
+          DEFAULT: '#3A7AFE',
+          50: '#e6f0ff',
+          100: '#b3d4ff',
+          200: '#80b8ff',
+          300: '#4d9cff',
+          400: '#1a80ff',
+          500: '#3A7AFE',
+          600: '#2E65E6',
+          700: '#2250CC',
+          800: '#163BB3',
+          900: '#0A2699',
         },
         
         dark: {
-          DEFAULT: '#0B1220',
-          50: '#1a2332',
-          100: '#141b28',
-          200: '#0f141e',
-          300: '#0B1220',
-          400: '#080d16',
-          500: '#05080c',
-          600: '#020304',
+          DEFAULT: '#0E1116',
+          50: '#1a2028',
+          100: '#151922',
+          200: '#10131a',
+          300: '#0E1116',
+          400: '#090b10',
+          600: '#05070a',
           700: '#000000',
         },
         
@@ -97,12 +96,12 @@ export default {
       },
       
       fontFamily: {
-        sans: ['Inter', 'IBM Plex Sans', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        sans: ['Inter', 'IBM Plex Sans', 'Source Sans 3', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'monospace'],
       },
       
       backdropBlur: {
-        civic: '14px',
+        civic: '12px',
         glass: 'var(--blur-civic)',
         strong: 'var(--blur-strong)',
       },
@@ -127,21 +126,21 @@ export default {
         '44': '2.75rem', // WCAG 2.1 AA minimum touch target
       },
       fontSize: {
-        'xs': ['0.75rem', { lineHeight: '1rem' }],
-        'sm': ['0.875rem', { lineHeight: '1.25rem' }],
-        'base': ['1rem', { lineHeight: '1.5rem' }],
-        'lg': ['1.125rem', { lineHeight: '1.75rem' }],
-        'xl': ['1.25rem', { lineHeight: '1.75rem' }],
-        '2xl': ['1.5rem', { lineHeight: '2rem' }],
-        '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
-        '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
-        '5xl': ['3rem', { lineHeight: '1' }],
+        'xs': ['0.75rem', { lineHeight: '1rem' }],      // 12px
+        'sm': ['0.875rem', { lineHeight: '1.25rem' }],  // 14px - WCAG minimum
+        'base': ['0.875rem', { lineHeight: '1.5rem' }], // 14px default (changed from 16px)
+        'lg': ['1rem', { lineHeight: '1.75rem' }],      // 16px
+        'xl': ['1.125rem', { lineHeight: '1.75rem' }],  // 18px
+        '2xl': ['1.5rem', { lineHeight: '2rem' }],      // 24px
+        '3xl': ['1.875rem', { lineHeight: '2.25rem' }], // 30px
+        '4xl': ['2.25rem', { lineHeight: '2.5rem' }],   // 36px
+        '5xl': ['3rem', { lineHeight: '1' }],           // 48px
       },
       boxShadow: {
-        'soft': '0 2px 8px rgba(0, 0, 0, 0.1)',
-        'medium': '0 4px 16px rgba(0, 0, 0, 0.15)',
-        'hard': '0 8px 24px rgba(0, 0, 0, 0.2)',
-        'dark': '0 4px 16px rgba(0, 0, 0, 0.4)',
+        'soft': '0 2px 8px rgba(0, 0, 0, 0.08)',
+        'medium': '0 2px 16px rgba(0, 0, 0, 0.12)',
+        'hard': '0 4px 24px rgba(0, 0, 0, 0.15)',
+        'dark': '0 4px 16px rgba(0, 0, 0, 0.3)',
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-in-out',

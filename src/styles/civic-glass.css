@@ -1,50 +1,53 @@
 /**
- * CIVIC GLASS DESIGN SYSTEM
- * Single source of truth for the institutional design
+ * LIQUID GLASS CHIC DESIGN SYSTEM
+ * Institutional • Citizen • Premium Sober
  * NO emojis, NO marketing fluff, ONLY real data
+ * 
+ * Philosophy: CHIC, SOBER, INSTITUTIONAL
+ * This is a digital public-interest tool, trust-driven, long-term usable
  */
 
 /* ========================================
-   DESIGN TOKENS - Civic Chic Palette
+   DESIGN TOKENS - Liquid Glass Chic Palette
    ======================================== */
 :root {
-  /* Background */
-  --bg-main: #0b1220;
-  --bg-secondary: #0f1624;
+  /* Background - CHARCOAL BLACK */
+  --bg-main: #0E1116;
+  --bg-secondary: #12151C;
   
-  /* Glass surfaces */
-  --glass-bg: rgba(255, 255, 255, 0.08);
-  --glass-bg-hover: rgba(255, 255, 255, 0.12);
-  --glass-border: rgba(255, 255, 255, 0.22);
-  --glass-border-hover: rgba(74, 163, 255, 0.4);
+  /* Glass surfaces - SUBTLE, NOT BLING */
+  --glass-bg: rgba(255, 255, 255, 0.06);       /* Subtle base */
+  --glass-bg-hover: rgba(255, 255, 255, 0.09); /* Slightly more on hover */
+  --glass-border: rgba(255, 255, 255, 0.12);   /* Delicate borders */
+  --glass-border-hover: rgba(58, 122, 254, 0.3); /* Accent on hover - RARE */
   
-  /* Text */
-  --text-main: #e5e7eb;
-  --text-muted: #9ca3af;
-  --text-subtle: #6b7280;
+  /* Text - READABLE & INSTITUTIONAL */
+  --text-main: #E6EAF0;      /* Primary text */
+  --text-muted: #A9B0C2;     /* Secondary text */
+  --text-subtle: #7C859C;    /* Muted text */
   
-  /* Accents */
-  --accent-primary: #4aa3ff;
-  --accent-primary-dark: #3b8fe6;
-  --accent-secondary: #6ee7b7;
+  /* Accents - INSTITUTIONAL (RARE USAGE ONLY) */
+  --accent-primary: #3A7AFE;       /* Institutional blue */
+  --accent-primary-dark: #2E65E6;
+  --accent-secondary: #2EC4B6;     /* Teal civic alternative */
   
   /* Semantic colors */
-  --info-bg: rgba(74, 163, 255, 0.1);
-  --info-border: rgba(74, 163, 255, 0.3);
-  --warning-bg: rgba(251, 191, 36, 0.1);
-  --warning-border: rgba(251, 191, 36, 0.3);
+  --info-bg: rgba(58, 122, 254, 0.08);
+  --info-border: rgba(58, 122, 254, 0.2);
+  --warning-bg: rgba(251, 191, 36, 0.08);
+  --warning-border: rgba(251, 191, 36, 0.2);
   
-  /* Shadows */
-  --shadow-glass: 0 4px 24px rgba(0, 0, 0, 0.2);
-  --shadow-glass-hover: 0 8px 32px rgba(0, 0, 0, 0.3);
+  /* Shadows - SOFT, DIFFUSED, NO GLOW */
+  --shadow-glass: 0 2px 16px rgba(0, 0, 0, 0.15);
+  --shadow-glass-hover: 0 4px 24px rgba(0, 0, 0, 0.2);
   
-  /* Blur */
-  --blur-civic: 14px;
-  --blur-strong: 20px;
+  /* Blur - SERVES READABILITY, NOT EFFECT */
+  --blur-civic: 12px;
+  --blur-strong: 16px;
   --blur-background: 40px;
   
-  /* Typography */
-  --font-sans: 'Inter', 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* Typography - INSTITUTIONAL FONTS */
+  --font-sans: 'Inter', 'IBM Plex Sans', 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, Monaco, monospace;
 }
 
@@ -207,11 +210,13 @@
 
 /* ========================================
    TYPOGRAPHY - Institutional & Readable
+   SEMIBOLD for headers, REGULAR for body
    ======================================== */
 body {
   font-family: var(--font-sans);
   background: var(--bg-main);
   color: var(--text-main);
+  font-size: 14px; /* WCAG minimum */
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -227,7 +232,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 600;
+  font-weight: 600; /* SemiBold for headers */
   color: var(--text-main);
   line-height: 1.3;
 }
