@@ -14,6 +14,7 @@ export class SubscriptionController {
   /**
    * Create a new subscription
    * POST /api/subscriptions
+   * NO FREEMIUM - All subscriptions are paid with trial period
    */
   async create(req: Request, res: Response) {
     try {
@@ -27,11 +28,11 @@ export class SubscriptionController {
         });
       }
 
-      // Verify plan exists
+      // Verify plan exists (NO FREE plan)
       if (!PlanService.isValidPlan(plan)) {
         return res.status(400).json({
           error: 'Plan invalide',
-          validPlans: ['FREE', 'CITIZEN_PREMIUM', 'PRO', 'BUSINESS', 'ENTERPRISE']
+          validPlans: ['CITIZEN', 'PRO', 'BUSINESS', 'ENTERPRISE', 'INSTITUTION']
         });
       }
 
@@ -45,22 +46,14 @@ export class SubscriptionController {
         });
       }
 
-      // Free plan doesn't require payment
-      if (plan === 'FREE') {
-        const subscription = await SubscriptionModel.create({
-          userId: user.id,
-          plan: 'FREE',
-          billingCycle: 'monthly',
-        });
+      // All plans start with 7-day trial, then require payment
+      const subscription = await SubscriptionModel.create({
+        userId: user.id,
+        plan,
+        billingCycle,
+      });
 
-        return res.json({
-          success: true,
-          subscription,
-          message: 'Accès gratuit activé'
-        });
-      }
-
-      // For paid plans, initiate payment
+      // For paid plans, initiate payment (after trial)
       const paymentIntent = await PaymentProvider.createPaymentIntent({
         userId: user.id,
         plan,
@@ -70,8 +63,10 @@ export class SubscriptionController {
 
       return res.json({
         success: true,
+        subscription,
         paymentIntent,
-        message: 'Paiement à confirmer'
+        message: '7 jours d\'essai offerts, puis paiement requis',
+        trialEndsAt: subscription.trialEndsAt,
       });
 
     } catch (error) {
@@ -85,6 +80,7 @@ export class SubscriptionController {
   /**
    * Get user subscription status
    * GET /api/subscriptions/status/:email
+   * NO FREEMIUM - Users without subscription get trial info
    */
   async getStatus(req: Request, res: Response) {
     try {
@@ -93,9 +89,10 @@ export class SubscriptionController {
       const user = await UserModel.findByEmail(email);
       if (!user) {
         return res.json({
-          plan: 'FREE',
-          status: 'active',
-          features: PlanService.getFeatures('FREE')
+          plan: null,
+          status: 'no_subscription',
+          message: 'Aucun abonnement actif - Démarrez un essai de 7 jours',
+          trialAvailable: true,
         });
       }
 
@@ -103,9 +100,10 @@ export class SubscriptionController {
 
       if (!subscription) {
         return res.json({
-          plan: 'FREE',
-          status: 'active',
-          features: PlanService.getFeatures('FREE')
+          plan: null,
+          status: 'no_subscription',
+          message: 'Aucun abonnement actif - Démarrez un essai de 7 jours',
+          trialAvailable: true,
         });
       }
 
@@ -114,6 +112,7 @@ export class SubscriptionController {
         status: subscription.status,
         billingCycle: subscription.billingCycle,
         endsAt: subscription.endsAt,
+        trialEndsAt: subscription.trialEndsAt,
         features: PlanService.getFeatures(subscription.plan)
       });
 
@@ -159,7 +158,7 @@ export class SubscriptionController {
       return res.json({
         success: true,
         message: 'Abonnement résilié immédiatement. Aucune relance ne sera envoyée.',
-        newPlan: 'FREE'
+        newStatus: 'canceled',
       });
 
     } catch (error) {
@@ -180,8 +179,19 @@ export class SubscriptionController {
 
       const user = await UserModel.findByEmail(email);
       const subscription = user ? await SubscriptionModel.findByUserId(user.id) : null;
-      const plan = subscription?.plan || 'FREE';
-
+      
+      // If no subscription or in trial/expired, deny access
+      if (!subscription || subscription.status !== 'active') {
+        return res.json({
+          hasAccess: false,
+          plan: subscription?.plan || null,
+          status: subscription?.status || 'no_subscription',
+          feature,
+          message: 'Abonnement requis pour accéder à cette fonctionnalité',
+        });
+      }
+      
+      const plan = subscription.plan;
       const hasAccess = PlanService.canUseFeature(plan, feature as any);
 
       return res.json({
