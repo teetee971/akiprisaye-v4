@@ -78,7 +78,7 @@
     color: rgb(var(--text-main));
     font-family: var(--font-sans);
     font-size: 14px; /* WCAG minimum */
-    font-feature-settings: "kern" 1, "liga" 1;
+    font-feature-settings: "kern" 1, "liga" 1, "tnum" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -90,6 +90,7 @@
   .distance {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
     letter-spacing: -0.02em;
   }
 
