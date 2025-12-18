@@ -485,7 +485,9 @@ Avant de créer ce dossier:
 ⚠️ BLOQUEUR: Données Mock Utilisées
 
 Fichier: `src/components/TiPanieSolidaire.jsx`
-Lignes 24-46: TODO: PRODUCTION IMPLEMENTATION
+Ligne 23: TODO: Connect to Firestore collections
+Ligne 29: TODO: PRODUCTION IMPLEMENTATION
+Lignes 30-46: Code Firestore commenté
 
 Actions requises:
 1. Créer collections Firestore 'paniers' et 'producteurs'
@@ -512,7 +514,9 @@ Le composant `TiPanieSolidaire.jsx` utilise des données factices (mock data).
 
 **Preuve:**
 - Fichier: `src/components/TiPanieSolidaire.jsx`
-- Lignes: 24-46 (TODO: PRODUCTION IMPLEMENTATION)
+- Ligne 23: `TODO: Connect to Firestore collections`
+- Ligne 29: `TODO: PRODUCTION IMPLEMENTATION`
+- Lignes 30-46: Code Firestore commenté
 - Ligne 49+: Mock data hardcodé
 
 ## Actions Requises

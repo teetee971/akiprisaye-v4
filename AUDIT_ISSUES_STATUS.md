@@ -12,8 +12,8 @@
 - **Modules déployés:** Analyse en cours...
 
 ### État Général
-- ✅ **DÉPLOYÉ:** Scanner de codes-barres, Comparateur, Carte interactive
-- 🔄 **EN COURS:** Ti-Panié Solidaire (mock data), Budget Vital, IA Conseiller
+- ✅ **DÉPLOYÉ:** Scanner de codes-barres, Comparateur, Carte interactive, PWA
+- 🔄 **EN COURS:** Ti-Panié Solidaire (mock data ligne 49), Budget Vital, IA Conseiller
 - ❌ **TODO:** Plusieurs modules listés dans ROADMAP_MODULES.md nécessitent implémentation
 
 ---
@@ -38,7 +38,7 @@
   - Recherche de produits
   - Comparaison multi-enseignes
   - Affichage des prix
-- **Note:** À vérifier si connecté à API réelle ou mock data
+- **Note:** ⚠️ Nécessite audit connexion données (voir issue "Audit Données Réelles vs Mock Data" recommandée)
 
 ### 3. Carte Interactive (MapLeaflet.jsx + Carte.jsx)
 **Statut:** ✅ IMPLÉMENTÉ
@@ -181,10 +181,11 @@
 - **Fichier:** `src/components/TiPanieSolidaire.jsx`
 - **Problème détecté:**
   ```javascript
-  // Ligne 24-46: TODO: PRODUCTION IMPLEMENTATION
-  // Mock data utilisé actuellement
+  // Ligne 23: TODO: Connect to Firestore collections
+  // Ligne 29: TODO: PRODUCTION IMPLEMENTATION
+  // Ligne 49+: Mock data for development (données hardcodées)
   ```
-- **Action requise:** Connecter à Firestore collection 'paniers' et 'producteurs'
+- **Action requise:** Connecter à Firestore collections 'paniers' et 'producteurs'
 - **Issue à créer:** "Connecter Ti-Panié Solidaire aux données réelles Firestore"
 
 ### 2. GPS Shopping List (GPSShoppingList.tsx)

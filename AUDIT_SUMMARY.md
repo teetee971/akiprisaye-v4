@@ -160,7 +160,7 @@
 
 ### Infrastructure Technique Vérifiée
 ```
-✅ 22 workflows GitHub Actions   (.github/workflows/)
+✅ 21 workflows GitHub Actions   (.github/workflows/)
 ✅ Firebase/Firestore configuré  (firebase_config.js)
 ✅ CI/CD Cloudflare Pages        (deploy.yml)
 ✅ Service Worker v4             (public/service-worker.js)
@@ -175,17 +175,22 @@
 
 ### Ti-Panié Solidaire - Mock Data Détecté
 **Fichier:** `src/components/TiPanieSolidaire.jsx`  
-**Ligne:** 24-46  
+**Ligne 23:** `TODO: Connect to Firestore collections`  
+**Ligne 29:** `TODO: PRODUCTION IMPLEMENTATION`  
+**Ligne 49+:** Mock data hardcodé  
 **Code:**
 ```javascript
-// TODO: PRODUCTION IMPLEMENTATION
-// const db = getFirestore();
-// ... (code commenté)
-
-// Mock data for development
-const mockPaniers = [
-  { ... } // Données fictives
-];
+// Ligne 23: TODO: Connect to Firestore collections
+async function fetchData() {
+  // Ligne 29: TODO: PRODUCTION IMPLEMENTATION
+  // const db = getFirestore();
+  // ... (code commenté lignes 30-46)
+  
+  // Ligne 48: Mock data for development
+  const mockPaniers = [
+    { ... } // Données fictives
+  ];
+}
 ```
 
 **Impact:** Module annoncé dans ROADMAP mais non fonctionnel en production.

@@ -275,7 +275,7 @@ ti-panie-solidaire - Couleur: Vert clair (#20c997)
 **Infrastructure:**
 - ✅ Firebase/Firestore configuré
 - ✅ PWA complet (offline, installable)
-- ✅ CI/CD Cloudflare Pages
+- ✅ CI/CD Cloudflare Pages (21 workflows)
 - ✅ Multi-territoires (12 DOM-COM)
 - ✅ Dark mode + design system Tailwind
 
