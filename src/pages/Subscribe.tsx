@@ -19,6 +19,8 @@ const plans = {
   CITIZEN_PREMIUM: { name: 'Citoyen Premium', monthly: 3.99, yearly: 39 },
   PRO: { name: 'Professionnel', monthly: 19, yearly: 190 },
   BUSINESS: { name: 'Business', monthly: 99, yearly: 990 },
+  ENTERPRISE: { name: 'Enterprise', yearlyRange: '2 500 € - 25 000 €' },
+  INSTITUTION: { name: 'Institution', yearlyRange: '500 € - 50 000 €' },
 };
 
 export default function Subscribe() {
@@ -39,10 +41,17 @@ export default function Subscribe() {
   const [emailError, setEmailError] = useState('');
   
   const currentPlan = plans[planId as keyof typeof plans];
-  const price = cycle === 'yearly' ? currentPlan?.yearly : currentPlan?.monthly;
-  const domPrice = isDOMTerritory && (planId === 'PRO' || planId === 'BUSINESS') 
-    ? price * 0.7 
-    : price;
+  
+  // For Enterprise and Institution, use yearly range instead of monthly/yearly calculation
+  const isCustomPricing = planId === 'ENTERPRISE' || planId === 'INSTITUTION';
+  const price = isCustomPricing 
+    ? null 
+    : (cycle === 'yearly' ? currentPlan?.yearly : currentPlan?.monthly);
+  const domPrice = isCustomPricing
+    ? null
+    : (isDOMTerritory && (planId === 'PRO' || planId === 'BUSINESS') 
+      ? price * 0.7 
+      : price);
 
   const validateEmail = (value: string) => {
     if (!value) {
@@ -129,16 +138,25 @@ export default function Subscribe() {
                 <h2 className="text-2xl font-bold text-white mb-2">
                   {currentPlan.name}
                 </h2>
-                <p className="text-4xl font-bold text-blue-400">
-                  {domPrice.toFixed(2)} €
-                  <span className="text-base text-gray-400 ml-2">
-                    / {cycle === 'yearly' ? 'an' : 'mois'}
-                  </span>
-                </p>
-                {isDOMTerritory && (planId === 'PRO' || planId === 'BUSINESS') && (
-                  <p className="text-green-400 text-sm mt-2">
-                    Prix DOM-ROM-COM (-30%)
+                {isCustomPricing ? (
+                  <p className="text-4xl font-bold text-blue-400">
+                    {(currentPlan as any).yearlyRange}
+                    <span className="text-base text-gray-400 ml-2">/ an</span>
                   </p>
+                ) : (
+                  <>
+                    <p className="text-4xl font-bold text-blue-400">
+                      {domPrice.toFixed(2)} €
+                      <span className="text-base text-gray-400 ml-2">
+                        / {cycle === 'yearly' ? 'an' : 'mois'}
+                      </span>
+                    </p>
+                    {isDOMTerritory && (planId === 'PRO' || planId === 'BUSINESS') && (
+                      <p className="text-green-400 text-sm mt-2">
+                        Prix DOM-ROM-COM (-30%)
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
 
@@ -167,6 +185,24 @@ export default function Subscribe() {
                       <li>• Tableaux de bord</li>
                       <li>• API lecture seule</li>
                       <li>• Support dédié</li>
+                    </>
+                  )}
+                  {planId === 'ENTERPRISE' && (
+                    <>
+                      <li>• Tout Business +</li>
+                      <li>• Historique complet</li>
+                      <li>• Analyses prédictives</li>
+                      <li>• API étendue</li>
+                      <li>• Accompagnement dédié</li>
+                    </>
+                  )}
+                  {planId === 'INSTITUTION' && (
+                    <>
+                      <li>• Tout Enterprise +</li>
+                      <li>• Rapports publics institutionnels</li>
+                      <li>• Transparence totale</li>
+                      <li>• Audit complet</li>
+                      <li>• Support institutionnel</li>
                     </>
                   )}
                 </ul>
@@ -342,7 +378,10 @@ export default function Subscribe() {
                   <div className="flex justify-between text-lg font-bold">
                     <span className="text-white">Total :</span>
                     <span className="text-blue-400">
-                      {domPrice.toFixed(2)} € / {cycle === 'yearly' ? 'an' : 'mois'}
+                      {isCustomPricing 
+                        ? (currentPlan as any).yearlyRange 
+                        : `${domPrice.toFixed(2)} € / ${cycle === 'yearly' ? 'an' : 'mois'}`
+                      }
                     </span>
                   </div>
                 </div>

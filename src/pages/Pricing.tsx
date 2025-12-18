@@ -92,21 +92,40 @@ const plans = [
   },
   {
     id: 'ENTERPRISE',
-    title: 'Enterprise / Institutions',
+    title: 'Enterprise',
     price: 'Sur devis',
     priceRange: '2 500 € - 25 000 € / an',
-    description: 'Analyse macro-économique',
+    description: 'Analyse macro-territoriale',
     features: [
       'Tout Business +',
       'Multi-DOM / COM',
       'Historique complet',
-      'Rapports publics',
+      'Analyses prédictives',
       'Accompagnement dédié',
+      'API étendue',
+    ],
+    limits: [
+      'Secteur privé uniquement',
+      'Pas de données sensibles',
+    ],
+  },
+  {
+    id: 'INSTITUTION',
+    title: 'Institution',
+    price: 'Licence publique',
+    priceRange: '500 € - 50 000 € / an',
+    description: 'Outil public numérique',
+    features: [
+      'Tout Enterprise +',
+      'Rapports publics institutionnels',
+      'Transparence totale',
       'Audit complet',
+      'Support institutionnel',
+      'Traçabilité complète',
     ],
     limits: [
       'Données 100% publiques',
-      'Traçabilité totale',
+      'Collectivités et organismes publics',
     ],
   },
 ];
@@ -117,7 +136,7 @@ export default function Pricing() {
 
   const getDisplayPrice = (plan: typeof plans[0]) => {
     if (plan.id === 'FREE') return '0 €';
-    if (plan.id === 'ENTERPRISE') return plan.priceRange;
+    if (plan.id === 'ENTERPRISE' || plan.id === 'INSTITUTION') return plan.priceRange;
     
     const isYearly = billingCycle === 'yearly';
     const basePrice = isYearly ? plan.priceYearly : plan.priceMonthly;

@@ -16,8 +16,8 @@ export const PLAN_PRICES = {
   CITIZEN_PREMIUM: { monthly: 3.99, yearly: 39 },
   PRO: { monthly: 19, yearly: 190 },
   BUSINESS: { monthly: 99, yearly: 990 },
-  ENTERPRISE: { monthly: null, yearly: 2500 }, // Starting price
-  INSTITUTION: { monthly: null, yearly: 500 }, // Starting price
+  ENTERPRISE: { monthly: null, yearly: 2500 }, // Starting price - private sector
+  INSTITUTION: { monthly: null, yearly: 500 }, // Starting price - public sector
 } as const;
 
 export const FEATURES = {
