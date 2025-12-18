@@ -94,4 +94,4 @@ SentinelQuantumVanguardAIPro/
 diagnostic*.ps1
 fix_*.ps1
 deploy.ps1
-build.sh
+# build.sh excluded at root, but extension/build.sh is allowed

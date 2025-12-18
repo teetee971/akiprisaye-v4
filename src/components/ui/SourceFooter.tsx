@@ -1,26 +1,29 @@
-// src/components/ui/SourceFooter.tsx
-import React from 'react';
+import { ExternalLink } from 'lucide-react';
 
 interface SourceFooterProps {
-  source: {
-    name: string;
-    url: string;
-  };
+  sourceName: string;
+  sourceUrl: string;
+  className?: string;
 }
 
-export function SourceFooter({ source }: SourceFooterProps) {
+export default function SourceFooter({ sourceName, sourceUrl, className }: SourceFooterProps) {
   return (
-    <div className="mt-4 pt-4 border-t border-gray-700">
-      <p className="text-xs text-gray-400">
-        <strong>Source :</strong>{' '}
+    <div className={`mt-3 pt-3 border-t border-white/10 ${className || ''}`}>
+      <div className="flex items-center gap-2 text-xs text-gray-400">
+        <span className="font-medium">Source officielle:</span>
         <a
-          href={source.url}
+          href={sourceUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-400 hover:text-blue-300 underline"
+          className="text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1"
+          aria-label={`Ouvrir ${sourceName} dans un nouvel onglet`}
         >
-          {source.name}
+          {sourceName}
+          <ExternalLink className="w-3 h-3" />
         </a>
+      </div>
+      <p className="text-[10px] text-gray-500 mt-1.5 italic">
+        ℹ️ Information issue d'une source publique officielle.
       </p>
     </div>
   );
