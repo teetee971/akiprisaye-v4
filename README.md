@@ -43,6 +43,19 @@ npm run build
 
 ## ✨ Nouvelles Fonctionnalités (v1.1.0)
 
+### 🏢 Registre des Entreprises (Company Registry)
+
+Module centralisé de gestion des données d'entreprises avec qualité institutionnelle :
+
+- **Identification multi-critères** : Recherche par SIRET, SIREN, TVA ou ID interne
+- **Données officielles** : Nom légal, statut d'activité, siège social, géolocalisation
+- **Validation robuste** : Vérification des codes SIRET/SIREN/TVA français
+- **Intégration magasins** : Liaison automatique magasins ↔ entreprises mères
+- **Système d'alerte** : Détection des entreprises au statut "CESSÉ" pour protection des consommateurs
+- **API complète** : 92 tests automatisés ✅
+
+📘 Voir [COMPANY_REGISTRY.md](./COMPANY_REGISTRY.md) pour la documentation complète.
+
 ### 🌍 Sélecteur de Territoires DROM-COM
 
 Nouveau composant `TerritorySelector` avec support complet des 12 territoires :
