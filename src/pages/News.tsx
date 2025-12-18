@@ -1,5 +1,5 @@
 import { GlassCard } from "../components/ui/glass-card";
-import { SourceFooter } from "../components/ui/SourceFooter";
+import SourceFooter from "../components/ui/SourceFooter";
 
 export default function News() {
   return (
@@ -12,10 +12,8 @@ export default function News() {
         alimentaires en Guadeloupe.
       </p>
       <SourceFooter
-        source={{
-          name: "DGCCRF",
-          url: "https://www.economie.gouv.fr/dgccrf"
-        }}
+        sourceName="DGCCRF"
+        sourceUrl="https://www.economie.gouv.fr/dgccrf"
       />
     </GlassCard>
   );

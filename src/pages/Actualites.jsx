@@ -1,12 +1,10 @@
-import NewsWidget from '../components/NewsWidget';
+import NewsWidgetCivic from '../components/NewsWidgetCivic';
 import TerritorySelector from '../components/TerritorySelector';
-import CategoryFilter from '../components/CategoryFilter';
+import GlobalDisclaimer from '../components/GlobalDisclaimer';
 import { useState } from 'react';
-import { ALL_TERRITORIES, ALL_CATEGORIES } from '../constants/news';
 
 export default function Actualites() {
-  const [selectedTerritory, setSelectedTerritory] = useState(ALL_TERRITORIES);
-  const [selectedCategory, setSelectedCategory] = useState(ALL_CATEGORIES);
+  const [selectedTerritory, setSelectedTerritory] = useState('');
 
   return (
     <div className="min-h-screen bg-[#121212] text-white">
@@ -45,53 +43,20 @@ export default function Actualites() {
               />
             </div>
           </div>
-
-          {/* Category Filter */}
-          <div className="bg-white/[0.05] backdrop-blur-[14px] border border-white/[0.12] rounded-xl p-6">
-            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              🏷️ Filtrer par catégorie
-            </h2>
-            <CategoryFilter 
-              value={selectedCategory}
-              onChange={setSelectedCategory}
-            />
-          </div>
         </div>
 
         {/* News Grid */}
         <div className="mb-12">
-          <NewsWidget 
+          <NewsWidgetCivic 
             limit={12} 
             showFullButton={false}
-            selectedTerritory={selectedTerritory}
-            selectedCategory={selectedCategory}
+            territory={selectedTerritory}
           />
         </div>
 
         {/* Info Section - Civic Transparency */}
-        <div className="bg-white/[0.05] backdrop-blur-[14px] border border-white/[0.12] rounded-xl p-6">
-          <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            ℹ️ Sources d&apos;information autorisées
-          </h3>
-          <div className="text-gray-300 space-y-3">
-            <p className="leading-relaxed">
-              A KI PRI SA YÉ s&apos;engage à ne publier que des informations provenant de sources officielles vérifiables :
-            </p>
-            <ul className="list-disc list-inside space-y-2 ml-4 text-gray-400">
-              <li>data.gouv.fr - Plateforme ouverte des données publiques françaises</li>
-              <li>Préfectures des territoires d&apos;Outre-mer</li>
-              <li>INSEE - Institut national de la statistique et des études économiques</li>
-              <li>DGCCRF - Direction générale de la concurrence, de la consommation et de la répression des fraudes</li>
-              <li>OPMR - Observatoire des prix, des marges et des revenus</li>
-              <li>Collectivités territoriales</li>
-            </ul>
-            <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-              <p className="text-sm text-blue-300">
-                <strong>Notre engagement éthique :</strong> Zéro manipulation, zéro sensationnalisme. 
-                Chaque actualité indique clairement sa source et un lien vers le document officiel.
-              </p>
-            </div>
-          </div>
+        <div className="mt-12">
+          <GlobalDisclaimer />
         </div>
       </main>
 

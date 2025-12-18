@@ -1,20 +1,74 @@
 /**
- * NewsItem interface for civic news display
- * All news items must have verified official sources
+ * Civic News Types for A KI PRI SA YÉ
+ * All news items MUST have verifiable official sources
  */
-export interface NewsItem {
+
+export type NewsCategory = "PRIX" | "POLITIQUE" | "ALERTE" | "INNOVATION";
+
+export interface OfficialSource {
+  name: string;
+  url: string;
+  logo?: string;
+}
+
+export interface CivicNewsItem {
   id: string;
   title: string;
   summary: string;
-  category: 'PRIX' | 'POLITIQUE' | 'ALERTE' | 'INNOVATION';
+  category: NewsCategory;
   territory: string;
   publishedAt: string;
-  source: {
-    name: string;
-    url: string;
-    logo?: string;
-  };
+  source: OfficialSource;
 }
+
+/**
+ * Authorized official sources only
+ * Any news without these sources should be rejected
+ */
+export const AUTHORIZED_SOURCES = [
+  'data.gouv.fr',
+  'insee.fr',
+  'economie.gouv.fr', // DGCCRF
+  'outre-mer.gouv.fr',
+  'guadeloupe.pref.gouv.fr',
+  'martinique.pref.gouv.fr',
+  'guyane.pref.gouv.fr',
+  'reunion.pref.gouv.fr',
+  'mayotte.pref.gouv.fr',
+] as const;
+
+/**
+ * Fixed: Use proper URL parsing to prevent false positives
+ * e.g., "fake-insee.fr.malicious.com" should be rejected
+ */
+function extractHostname(url: string): string | null {
+  try {
+    // Try parsing as a full URL first
+    return new URL(url).hostname;
+  } catch {
+    try {
+      // Fallback: allow hostnames without protocol (e.g. "insee.fr")
+      return new URL(`https://${url}`).hostname;
+    } catch {
+      return null;
+    }
+  }
+}
+
+export function isAuthorizedSource(url: string): boolean {
+  const hostname = extractHostname(url);
+  if (!hostname) return false;
+
+  return AUTHORIZED_SOURCES.some((source) => {
+    return hostname === source || hostname.endsWith(`.${source}`);
+  });
+}
+
+/**
+ * Legacy NewsItem interface for backward compatibility
+ * @deprecated Use CivicNewsItem instead
+ */
+export interface NewsItem extends CivicNewsItem {}
 
 /**
  * Category configuration for visual display
@@ -27,7 +81,7 @@ export interface CategoryConfig {
   icon: string;
 }
 
-export const categoryConfigs: Record<NewsItem['category'], CategoryConfig> = {
+export const categoryConfigs: Record<NewsCategory, CategoryConfig> = {
   PRIX: {
     label: 'PRIX',
     color: 'text-green-400',
