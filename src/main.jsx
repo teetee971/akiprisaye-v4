@@ -54,7 +54,7 @@ function LoadingFallback() {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
-      .register('/sw.js')
+      .register('/service-worker.js')
       .then(() => {
         if (import.meta.env.DEV) {
           console.log('Service Worker enregistré');
