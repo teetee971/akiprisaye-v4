@@ -14,6 +14,11 @@ export default [
       '.firebase/**',
       '*.min.js',
       'public/assets/**',
+      'Assets/**',
+      'akiprisaye_web/**',
+      'akiprisaye_web_final_full_*/**',
+      'test_extract/**',
+      'SentinelQuantumVanguardAIPro/**',
     ],
   },
   
@@ -40,6 +45,23 @@ export default [
         FormData: 'readonly',
         URL: 'readonly',
         URLSearchParams: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        requestAnimationFrame: 'readonly',
+        cancelAnimationFrame: 'readonly',
+        alert: 'readonly',
+        confirm: 'readonly',
+        prompt: 'readonly',
+        location: 'readonly',
+        history: 'readonly',
+        Event: 'readonly',
+        Request: 'readonly',
+        Response: 'readonly',
+        Headers: 'readonly',
+        // Third-party API globals
+        google: 'readonly', // Google Maps API
         // Node.js globals
         process: 'readonly',
         __dirname: 'readonly',
@@ -109,7 +131,7 @@ export default [
   
   // Node.js scripts configuration
   {
-    files: ['scripts/**/*.js', 'functions/**/*.js', 'backend/**/*.js'],
+    files: ['scripts/**/*.js', 'scripts/**/*.mjs', 'functions/**/*.js', 'backend/**/*.js', '**/*.mjs'],
     languageOptions: {
       globals: {
         __dirname: 'readonly',
@@ -126,6 +148,10 @@ export default [
         fetch: 'readonly',
         URL: 'readonly',
         console: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
       },
     },
   },

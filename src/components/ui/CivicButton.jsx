@@ -38,7 +38,7 @@ export function CivicButton({
         'disabled:opacity-50 disabled:cursor-not-allowed',
         variants[variant],
         sizes[size],
-        className
+        className,
       )}
       disabled={disabled}
       {...props}

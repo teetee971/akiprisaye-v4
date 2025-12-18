@@ -20,7 +20,7 @@ export function DataBadge({
         'bg-blue-600/10 border border-blue-500/30',
         'rounded-lg text-xs font-mono',
         'text-blue-200',
-        className
+        className,
       )}
       {...props}
     >

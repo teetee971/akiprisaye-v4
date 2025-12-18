@@ -101,7 +101,7 @@ function parseReceiptText(text) {
   const eanPattern = /\b\d{8,14}\b/;
   const pricePattern = /(\d+[.,]\d{2})\s*(EUR|€)/i;
   const totalPattern = /TOTAL\s*:?\s*(\d+[.,]\d{2})/i;
-  const datePattern = /(\d{2}[\/\-]\d{2}[\/\-]\d{4})/;
+  const datePattern = /(\d{2}[/-]\d{2}[/-]\d{4})/;
   
   // Extract store name (usually first line)
   if (lines.length > 0) {

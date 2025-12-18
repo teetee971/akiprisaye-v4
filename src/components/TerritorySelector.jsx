@@ -14,7 +14,7 @@ const territories = [
   { code: 'WF', name: 'Wallis-et-Futuna', type: 'COM' },
   { code: 'PF', name: 'Polynésie française', type: 'COM' },
   { code: 'NC', name: 'Nouvelle-Calédonie', type: 'COM' },
-  { code: 'TF', name: 'Terres australes françaises', type: 'COM' }
+  { code: 'TF', name: 'Terres australes françaises', type: 'COM' },
 ];
 
 export default function TerritorySelector({ value, onChange, className = '' }) {

@@ -1,4 +1,4 @@
-import { cn } from "../../lib/utils";
+import { cn } from '../../lib/utils';
 
 /**
  * DataNote - Transparency & Trust Panel
@@ -7,31 +7,31 @@ import { cn } from "../../lib/utils";
  */
 export function DataNote({
   children,
-  variant = "info",
+  variant = 'info',
   className,
   ...props
 }) {
   return (
     <div
       className={cn(
-        "rounded-xl border p-3",
-        "text-xs leading-relaxed",
-        "backdrop-blur-glass",
+        'rounded-xl border p-3',
+        'text-xs leading-relaxed',
+        'backdrop-blur-glass',
         
-        variant === "info" && [
-          "bg-info/10 border-info/30",
-          "text-muted",
+        variant === 'info' && [
+          'bg-info/10 border-info/30',
+          'text-muted',
         ],
-        variant === "warning" && [
-          "bg-warning/10 border-warning/30",
-          "text-muted",
+        variant === 'warning' && [
+          'bg-warning/10 border-warning/30',
+          'text-muted',
         ],
-        variant === "source" && [
-          "bg-glass border-glass-border",
-          "text-muted",
+        variant === 'source' && [
+          'bg-glass border-glass-border',
+          'text-muted',
         ],
         
-        className
+        className,
       )}
       {...props}
     >
@@ -55,7 +55,7 @@ export function SourceAttribution({
       {source}
       {description && (
         <>
-          {" — "}
+          {' — '}
           {description}
         </>
       )}

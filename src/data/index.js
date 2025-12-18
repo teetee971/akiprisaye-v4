@@ -23,6 +23,12 @@ export { default as opmrGuadeloupe } from './opmr/guadeloupe.json';
 // Données DGCCRF
 // export { default as dgccrfRapports } from './dgccrf/rapports.json';
 
+// Import for internal use
+import sourcesMetadataImport from './metadata/sources.json';
+import inseeIPCImport from './insee/ipc_dom.json';
+import revenusReferenceImport from './insee/revenus_reference.json';
+import opmrGuadeloupeImport from './opmr/guadeloupe.json';
+
 /**
  * Fonction utilitaire pour vérifier le statut des données
  */
@@ -30,7 +36,7 @@ export function verifierStatutDonnees(source) {
   if (!source || !source.statut) {
     return {
       valide: false,
-      message: 'Source invalide ou statut manquant'
+      message: 'Source invalide ou statut manquant',
     };
   }
 
@@ -38,20 +44,20 @@ export function verifierStatutDonnees(source) {
     return {
       valide: false,
       message: source.message || 'Données non disponibles',
-      actionRequise: source.action_requise
+      actionRequise: source.action_requise,
     };
   }
 
   if (source.statut === 'OFFICIEL') {
     return {
       valide: true,
-      message: 'Données officielles validées'
+      message: 'Données officielles validées',
     };
   }
 
   return {
     valide: false,
-    message: 'Statut inconnu'
+    message: 'Statut inconnu',
   };
 }
 
@@ -59,18 +65,18 @@ export function verifierStatutDonnees(source) {
  * Fonction pour obtenir les métadonnées complètes d'une source
  */
 export function obtenirMetadonneesSource(nomSource) {
-  if (!sourcesMetadata || !sourcesMetadata.sources) {
+  if (!sourcesMetadataImport || !sourcesMetadataImport.sources) {
     return null;
   }
 
-  return sourcesMetadata.sources[nomSource] || null;
+  return sourcesMetadataImport.sources[nomSource] || null;
 }
 
 export default {
-  sourcesMetadata,
-  inseeIPC,
-  revenusReference,
-  opmrGuadeloupe,
+  sourcesMetadata: sourcesMetadataImport,
+  inseeIPC: inseeIPCImport,
+  revenusReference: revenusReferenceImport,
+  opmrGuadeloupe: opmrGuadeloupeImport,
   verifierStatutDonnees,
-  obtenirMetadonneesSource
+  obtenirMetadonneesSource,
 };

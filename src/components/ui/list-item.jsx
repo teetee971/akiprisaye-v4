@@ -1,4 +1,4 @@
-import { cn } from "../../lib/utils";
+import { cn } from '../../lib/utils';
 
 /**
  * ListItem - Civic Glass list component
@@ -15,13 +15,13 @@ export function ListItem({
   return (
     <div
       className={cn(
-        "flex items-center justify-between",
-        "rounded-xl border border-glass-border",
-        "bg-glass backdrop-blur-glass",
-        "p-3",
-        "transition-all duration-200",
-        "hover:border-glass-border-hover hover:bg-glass-hover",
-        className
+        'flex items-center justify-between',
+        'rounded-xl border border-glass-border',
+        'bg-glass backdrop-blur-glass',
+        'p-3',
+        'transition-all duration-200',
+        'hover:border-glass-border-hover hover:bg-glass-hover',
+        className,
       )}
       {...props}
     >
@@ -50,11 +50,11 @@ export function ListItemStatic({
   return (
     <div
       className={cn(
-        "flex items-center justify-between",
-        "rounded-xl border border-glass-border",
-        "bg-glass backdrop-blur-glass",
-        "p-3",
-        className
+        'flex items-center justify-between',
+        'rounded-xl border border-glass-border',
+        'bg-glass backdrop-blur-glass',
+        'p-3',
+        className,
       )}
       {...props}
     >

@@ -20,7 +20,7 @@ export function UltraSimpleToggle({
         'ultra-simple-toggle',
         'inline-flex items-center gap-3 cursor-pointer',
         disabled && 'opacity-50 cursor-not-allowed',
-        className
+        className,
       )}
       {...props}
     >
@@ -38,7 +38,7 @@ export function UltraSimpleToggle({
             'peer-focus:ring-2 peer-focus:ring-blue-500 peer-focus:ring-offset-2 peer-focus:ring-offset-slate-900',
             checked 
               ? 'bg-blue-600 border-2 border-blue-500' 
-              : 'bg-white/[0.08] border-2 border-white/[0.22]'
+              : 'bg-white/[0.08] border-2 border-white/[0.22]',
           )}
         >
           <div
@@ -47,7 +47,7 @@ export function UltraSimpleToggle({
               'shadow-md',
               checked 
                 ? 'translate-x-6 bg-white' 
-                : 'translate-x-0 bg-gray-400'
+                : 'translate-x-0 bg-gray-400',
             )}
           />
         </div>

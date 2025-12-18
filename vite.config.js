@@ -20,8 +20,8 @@ export default defineConfig({
     port: 5173,
     host: true,
     fs: {
-      strict: false
-    }
+      strict: false,
+    },
   },
   
   // Configuration du build
@@ -34,15 +34,13 @@ export default defineConfig({
       output: {
         // Place images under assets/images and other assets under assets/
         assetFileNames: (assetInfo) => {
-          const info = assetInfo.name.split('.');
-          const ext = info[info.length - 1];
           if (/\.(webp|png|jpe?g|svg|gif|tiff|bmp|ico)$/i.test(assetInfo.name)) {
-            return `assets/images/[name].[hash][extname]`;
+            return 'assets/images/[name].[hash][extname]';
           }
-          return `assets/[name].[hash][extname]`;
-        }
-      }
-    }
+          return 'assets/[name].[hash][extname]';
+        },
+      },
+    },
   },
   
   // Configuration des chemins publics
@@ -50,6 +48,6 @@ export default defineConfig({
   
   // Optimisation des dépendances
   optimizeDeps: {
-    include: ['react', 'react-dom']
-  }
+    include: ['react', 'react-dom'],
+  },
 });

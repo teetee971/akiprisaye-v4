@@ -35,14 +35,12 @@ export default function AiMarketInsights() {
 
   useEffect(() => {
     checkAdminAccess();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   useEffect(() => {
     if (isAdmin) {
       loadData();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAdmin]);
 
   const checkAdminAccess = async () => {
@@ -274,7 +272,7 @@ export default function AiMarketInsights() {
                         ))}
                       </div>
                     </div>
-                  )
+                  ),
               )}
             </div>
           </div>

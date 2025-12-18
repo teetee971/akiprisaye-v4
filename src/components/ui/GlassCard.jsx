@@ -21,7 +21,7 @@ export function GlassCard({
         'border border-white/[0.22]',
         'rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.2)]',
         'overflow-hidden',
-        className
+        className,
       )}
       {...props}
     >

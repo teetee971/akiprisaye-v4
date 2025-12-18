@@ -111,6 +111,7 @@ export default {
         xl: 'var(--radius)',
         '2xl': 'calc(var(--radius) + 4px)',
         civic: 'var(--radius)',
+        '4xl': '2rem',
       },
       spacing: {
         '18': '4.5rem',
@@ -135,9 +136,6 @@ export default {
         '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
         '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
         '5xl': ['3rem', { lineHeight: '1' }],
-      },
-      borderRadius: {
-        '4xl': '2rem',
       },
       boxShadow: {
         'soft': '0 2px 8px rgba(0, 0, 0, 0.1)',

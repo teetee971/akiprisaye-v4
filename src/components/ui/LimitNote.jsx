@@ -18,7 +18,7 @@ export function LimitNote({
         'p-4 rounded-lg',
         'bg-yellow-600/10 border border-yellow-500/30',
         'text-yellow-200 text-sm',
-        className
+        className,
       )}
       role="note"
       aria-label="Limitation des données"

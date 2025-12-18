@@ -41,7 +41,7 @@ export default function NewsWidget({ limit = 3, showFullButton = true, selectedT
     if (selectedTerritory && selectedTerritory !== ALL_TERRITORIES) {
       filtered = filtered.filter(item => 
         item.territory === selectedTerritory || 
-        MULTI_TERRITORY_VALUES.includes(item.territory)
+        MULTI_TERRITORY_VALUES.includes(item.territory),
       );
     }
     
@@ -64,8 +64,8 @@ export default function NewsWidget({ limit = 3, showFullButton = true, selectedT
       source: {
         name: 'Préfecture de Guadeloupe',
         url: 'https://www.guadeloupe.gouv.fr',
-        logo: null
-      }
+        logo: null,
+      },
     },
     {
       id: '2',
@@ -77,8 +77,8 @@ export default function NewsWidget({ limit = 3, showFullButton = true, selectedT
       source: {
         name: 'Ministère des Outre-mer',
         url: 'https://www.outre-mer.gouv.fr',
-        logo: null
-      }
+        logo: null,
+      },
     },
     {
       id: '3',
@@ -90,8 +90,8 @@ export default function NewsWidget({ limit = 3, showFullButton = true, selectedT
       source: {
         name: 'DGCCRF',
         url: 'https://www.economie.gouv.fr/dgccrf',
-        logo: null
-      }
+        logo: null,
+      },
     },
     {
       id: '4',
@@ -103,8 +103,8 @@ export default function NewsWidget({ limit = 3, showFullButton = true, selectedT
       source: {
         name: 'INSEE',
         url: 'https://www.insee.fr',
-        logo: null
-      }
+        logo: null,
+      },
     },
     {
       id: '5',
@@ -116,9 +116,9 @@ export default function NewsWidget({ limit = 3, showFullButton = true, selectedT
       source: {
         name: 'data.gouv.fr',
         url: 'https://www.data.gouv.fr',
-        logo: null
-      }
-    }
+        logo: null,
+      },
+    },
   ];
 
   if (loading) {

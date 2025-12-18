@@ -21,7 +21,7 @@ export function GlassContainer({
         'rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.2)]',
         'transition-all duration-300',
         'hover:bg-white/[0.12] hover:border-blue-500/40',
-        className
+        className,
       )}
       {...props}
     >

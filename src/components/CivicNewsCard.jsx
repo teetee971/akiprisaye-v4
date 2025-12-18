@@ -13,7 +13,7 @@ export default function CivicNewsCard({
   publishedAt,
   sourceName,
   sourceUrl,
-  sourceLogo
+  sourceLogo,
 }) {
   const config = categoryConfigs[category];
 
@@ -22,7 +22,7 @@ export default function CivicNewsCard({
     return date.toLocaleDateString('fr-FR', {
       day: 'numeric',
       month: 'long',
-      year: 'numeric'
+      year: 'numeric',
     });
   };
 
@@ -111,5 +111,5 @@ CivicNewsCard.propTypes = {
   publishedAt: PropTypes.string.isRequired,
   sourceName: PropTypes.string.isRequired,
   sourceUrl: PropTypes.string.isRequired,
-  sourceLogo: PropTypes.string
+  sourceLogo: PropTypes.string,
 };
