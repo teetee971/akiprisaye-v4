@@ -28,7 +28,7 @@ export function DataSourceWarning({ dataStatus, requiredSources, compact = false
   return (
     <GlassCard className="border-2 border-red-500 bg-red-900/20">
       <div className="flex items-start gap-4">
-        <div className="text-4xl font-bold text-red-400 flex-shrink-0">⚠</div>
+        <div className="px-3 py-1 bg-red-600/30 border border-red-500 rounded text-red-200 font-bold flex-shrink-0">!</div>
         <div className="flex-1">
           <h3 className="text-xl font-bold text-red-200 mb-2">
             AVERTISSEMENT CRITIQUE - Données non officielles
@@ -101,7 +101,7 @@ export function DataUnavailableNotice({ dataType, suggestedSources }) {
   return (
     <GlassCard className="border-2 border-amber-400 bg-amber-900/20">
       <div className="flex items-start gap-4">
-        <div className="text-3xl font-bold text-amber-400 flex-shrink-0">i</div>
+        <div className="px-2 py-1 bg-amber-600/30 border border-amber-500 rounded text-amber-200 font-bold flex-shrink-0 text-sm">INFO</div>
         <div className="flex-1">
           <h3 className="text-lg font-bold text-amber-200 mb-2">
             Donnée non disponible

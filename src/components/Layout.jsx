@@ -13,7 +13,7 @@ export default function Layout() {
     { path: '/carte', label: 'Carte' },
     { path: '/liste-courses', label: 'Liste de courses' },
     { path: '/actualites', label: 'Actualités' },
-    { path: '/methodologie', label: 'Méthodologie' },
+    { path: '/pricing', label: 'Tarifs' },
     { path: '/contact', label: 'Contact' },
   ];
 
