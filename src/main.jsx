@@ -42,6 +42,7 @@ const BudgetReelMensuel = lazy(() => import('./pages/BudgetReelMensuel'));
 const ComparateurFormats = lazy(() => import('./pages/ComparateurFormats'));
 const ListeCourses = lazy(() => import('./pages/ListeCourses'));
 const CivicModules = lazy(() => import('./pages/CivicModules'));
+const EvaluationCosmetique = lazy(() => import('./pages/EvaluationCosmetique'));
 
 // New simplified pages for automatic generation
 const HomeSimple = lazy(() => import('./pages/Home.tsx'));
@@ -119,6 +120,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='comparateur-formats' element={<ComparateurFormats />} />
                   <Route path='liste-courses' element={<ListeCourses />} />
                   <Route path='civic-modules' element={<CivicModules />} />
+                  <Route path='evaluation-cosmetique' element={<EvaluationCosmetique />} />
                   
                   {/* New simplified pages for automatic generation */}
                   <Route path='comparer' element={<CompareSimple />} />
