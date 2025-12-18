@@ -22,7 +22,6 @@ const APropos = lazy(() => import('./pages/APropos'));
 const Methodologie = lazy(() => import('./pages/Methodologie'));
 const MentionsLegales = lazy(() => import('./pages/MentionsLegales'));
 const MonCompte = lazy(() => import('./pages/MonCompte'));
-const Pricing = lazy(() => import('./pages/Pricing'));
 const Contact = lazy(() => import('./pages/Contact'));
 const IaConseiller = lazy(() => import('./pages/IaConseiller'));
 const TiPanie = lazy(() => import('./pages/TiPanie'));
@@ -89,7 +88,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='methodologie' element={<Methodologie />} />
                   <Route path='mentions-legales' element={<MentionsLegales />} />
                   <Route path='mon-compte' element={<MonCompte />} />
-                  <Route path='pricing' element={<Pricing />} />
                   <Route path='contact' element={<Contact />} />
                   <Route path='ia-conseiller' element={<IaConseiller />} />
                   <Route path='ti-panie' element={<TiPanie />} />
