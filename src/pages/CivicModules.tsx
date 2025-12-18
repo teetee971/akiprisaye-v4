@@ -11,7 +11,7 @@ export default function CivicModules() {
     { id: '2', name: 'Pain de mie complet', quantity: 1 },
     { id: '3', name: 'Yaourts nature x8', quantity: 2 },
     { id: '4', name: 'Riz basmati 1kg', quantity: 1 },
-    { id: '5', name: 'Huile d\'olive 750ml', quantity: 1 },
+    { id: '5', name: "Huile d'olive 750ml", quantity: 1 },
   ];
 
   const mockPrediction = {

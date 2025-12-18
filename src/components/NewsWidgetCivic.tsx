@@ -89,8 +89,8 @@ export default function NewsWidgetCivic({ limit = 3, showFullButton = true, terr
     },
     {
       id: '4',
-      title: 'Publication des indices de prix par l\'INSEE',
-      summary: 'L\'INSEE publie les nouveaux indices de prix à la consommation pour les territoires d\'Outre-mer.',
+      title: "Publication des indices de prix par l'INSEE",
+      summary: "L'INSEE publie les nouveaux indices de prix à la consommation pour les territoires d'Outre-mer.",
       publishedAt: '2025-11-04T08:00:00Z',
       category: 'INNOVATION',
       territory: 'Tous territoires',

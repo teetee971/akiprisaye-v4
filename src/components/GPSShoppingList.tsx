@@ -44,7 +44,7 @@ export default function GPSShoppingList({ items, className }: GPSShoppingListPro
         (error) => {
           console.error('Geolocation error:', error);
           setLoading(false);
-          setError('Impossible d\'obtenir votre position. Veuillez autoriser la géolocalisation.');
+          setError("Impossible d'obtenir votre position. Veuillez autoriser la géolocalisation.");
         }
       );
     } else {
