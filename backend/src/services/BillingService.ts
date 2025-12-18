@@ -21,8 +21,8 @@ export class BillingService {
       territory
     );
 
-    if (subtotal === null) {
-      throw new Error('Cannot generate invoice for quote-based plans');
+    if (subtotal === null || subtotal === undefined || subtotal <= 0) {
+      throw new Error('Cannot generate invoice for quote-based plans or invalid pricing');
     }
 
     const invoiceData: CreateInvoiceDTO = {

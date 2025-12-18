@@ -186,7 +186,7 @@ export class AIQuoteService {
     
     // VAT (using territory rate)
     const vatRate = this.getVATRate(request.territory);
-    const vatAmount = Math.round(subtotalAfterDiscount * vatRate) / 100;
+    const vatAmount = Math.round(subtotalAfterDiscount * vatRate * 100) / 100;
     const total = subtotalAfterDiscount + vatAmount;
     
     // AI confidence based on data completeness

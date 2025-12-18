@@ -112,14 +112,30 @@ export class AuditService {
   }
 
   /**
-   * Mask IP address for privacy (192.168.1.XXX)
+   * Mask IP address for privacy (192.168.1.XXX or 2001:db8::XXX)
    */
   private static maskIP(ip: string): string {
-    const parts = ip.split('.');
-    if (parts.length === 4) {
-      parts[3] = 'XXX';
+    // Handle IPv4
+    if (ip.includes('.')) {
+      const parts = ip.split('.');
+      if (parts.length === 4) {
+        parts[3] = 'XXX';
+        return parts.join('.');
+      }
     }
-    return parts.join('.');
+    
+    // Handle IPv6
+    if (ip.includes(':')) {
+      const parts = ip.split(':');
+      if (parts.length > 2) {
+        // Mask last segment
+        parts[parts.length - 1] = 'XXX';
+        return parts.join(':');
+      }
+    }
+    
+    // Fallback for malformed IPs
+    return 'XXX.XXX.XXX.XXX';
   }
 
   /**

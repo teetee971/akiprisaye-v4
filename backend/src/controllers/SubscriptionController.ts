@@ -180,14 +180,25 @@ export class SubscriptionController {
       const user = await UserModel.findByEmail(email);
       const subscription = user ? await SubscriptionModel.findByUserId(user.id) : null;
       
-      // If no subscription or in trial/expired, deny access
-      if (!subscription || subscription.status !== 'active') {
+      // If no subscription, deny access
+      if (!subscription) {
         return res.json({
           hasAccess: false,
-          plan: subscription?.plan || null,
-          status: subscription?.status || 'no_subscription',
+          plan: null,
+          status: 'no_subscription',
           feature,
           message: 'Abonnement requis pour accéder à cette fonctionnalité',
+        });
+      }
+      
+      // Allow access during trial or active status
+      if (subscription.status !== 'active' && subscription.status !== 'trial') {
+        return res.json({
+          hasAccess: false,
+          plan: subscription.plan,
+          status: subscription.status,
+          feature,
+          message: 'Abonnement expiré ou suspendu',
         });
       }
       

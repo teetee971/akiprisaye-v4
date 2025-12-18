@@ -105,8 +105,8 @@ export class PaymentProvider {
       throw new Error('Payment intent not found');
     }
     
-    if (intent.status !== 'pending') {
-      throw new Error('Payment intent already processed');
+    if (intent.status !== 'pending' && intent.status !== 'processing') {
+      throw new Error('Payment intent already processed or in invalid state');
     }
     
     // In production: Process with payment provider (Stripe, etc.)
