@@ -131,7 +131,7 @@ export default [
   
   // Node.js scripts configuration
   {
-    files: ['scripts/**/*.js', 'functions/**/*.js', 'backend/**/*.js'],
+    files: ['scripts/**/*.js', 'scripts/**/*.mjs', 'functions/**/*.js', 'backend/**/*.js', '**/*.mjs'],
     languageOptions: {
       globals: {
         __dirname: 'readonly',
@@ -148,6 +148,10 @@ export default [
         fetch: 'readonly',
         URL: 'readonly',
         console: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
       },
     },
   },
