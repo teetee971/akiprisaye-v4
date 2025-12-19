@@ -157,6 +157,9 @@ model LegalEntity {
   
   /// Enseignes liées à cette entité légale (Sprint 4)
   brands    Brand[]
+  
+  /// Vérifications d'entreprise (Sprint 11)
+  verifications CompanyVerification[]
 
   @@index([siren])
   @@index([siret])
@@ -1184,4 +1187,299 @@ model VersionHistory {
   @@index([version])
   @@index([status])
   @@map("version_history")
+}
+
+// ============================================================
+// SPRINT 11: INTERCONNEXIONS SOURCES OFFICIELLES
+// ============================================================
+
+/// Source de données externes (INSEE, DGCCRF, Registres)
+/// Traçabilité complète des intégrations avec organismes officiels
+/// RGPD: Données publiques uniquement
+model ExternalDataSource {
+  /// Identifiant unique
+  id String @id @default(uuid())
+  
+  /// Nom de la source
+  /// Exemples: "INSEE", "DGCCRF", "rappel.conso.gouv.fr"
+  name String @db.VarChar(255)
+  
+  /// Type de source
+  sourceType DataSourceType
+  
+  /// URL API ou endpoint
+  apiUrl String? @map("api_url") @db.VarChar(500)
+  
+  /// Licence d'utilisation
+  /// Exemple: "Licence Ouverte v2.0"
+  licence String @db.VarChar(255)
+  
+  /// URL de la licence
+  licenceUrl String? @map("licence_url") @db.VarChar(500)
+  
+  /// Fréquence de mise à jour
+  updateFrequency UpdateFrequency @map("update_frequency")
+  
+  /// Dernière synchronisation réussie
+  lastSync DateTime? @map("last_sync")
+  
+  /// Fiabilité estimée (0-100%)
+  reliabilityScore Int @default(100) @map("reliability_score")
+  
+  /// Source active ou inactive
+  isActive Boolean @default(true) @map("is_active")
+  
+  /// Notes techniques
+  notes String? @db.Text
+  
+  /// Date de création
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  /// Date de mise à jour
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  recalls ProductRecall[]
+  verifications CompanyVerification[]
+  logs SourceDataLog[]
+  
+  @@index([sourceType])
+  @@index([isActive])
+  @@map("external_data_sources")
+}
+
+/// Rappels de produits (DGCCRF / rappel.conso.gouv.fr)
+/// Protection du consommateur - alertes officielles
+model ProductRecall {
+  /// Identifiant unique
+  id String @id @default(uuid())
+  
+  /// ID source externe (rappel.conso.gouv.fr)
+  externalId String? @map("external_id") @db.VarChar(255)
+  
+  /// Source de données
+  sourceId String @map("source_id")
+  source ExternalDataSource @relation(fields: [sourceId], references: [id])
+  
+  /// Nom du produit rappelé
+  productName String @map("product_name") @db.VarChar(500)
+  
+  /// Marque
+  brand String? @db.VarChar(255)
+  
+  /// Catégorie de produit
+  category String @db.VarChar(255)
+  
+  /// Motif du rappel
+  /// Exemple: "Présence de Listeria", "Risque d'étouffement"
+  reason String @db.Text
+  
+  /// Gravité
+  severity RecallSeverity
+  
+  /// Numéro de lot
+  lotNumber String? @map("lot_number") @db.VarChar(255)
+  
+  /// Code-barres (GTIN/EAN)
+  barcode String? @db.VarChar(14)
+  
+  /// Date de publication du rappel
+  publishedAt DateTime @map("published_at")
+  
+  /// Date de fin de la procédure de rappel
+  endsAt DateTime? @map("ends_at")
+  
+  /// URL de la notice officielle
+  noticeUrl String? @map("notice_url") @db.VarChar(500)
+  
+  /// Image du produit
+  imageUrl String? @map("image_url") @db.VarChar(500)
+  
+  /// Consignes aux consommateurs
+  consumerInstructions String? @map("consumer_instructions") @db.Text
+  
+  /// Rappel actif ou terminé
+  isActive Boolean @default(true) @map("is_active")
+  
+  /// Date de création dans notre système
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  /// Date de mise à jour
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  @@index([barcode])
+  @@index([category])
+  @@index([severity])
+  @@index([publishedAt])
+  @@index([isActive])
+  @@map("product_recalls")
+}
+
+/// Vérification d'entreprises (SIREN/SIRET)
+/// Registres officiels - données publiques uniquement
+model CompanyVerification {
+  /// Identifiant unique
+  id String @id @default(uuid())
+  
+  /// Lien vers LegalEntity si existant
+  legalEntityId String? @map("legal_entity_id")
+  legalEntity LegalEntity? @relation(fields: [legalEntityId], references: [id])
+  
+  /// Source de vérification
+  sourceId String @map("source_id")
+  source ExternalDataSource @relation(fields: [sourceId], references: [id])
+  
+  /// SIREN vérifié
+  siren String @db.VarChar(9)
+  
+  /// SIRET vérifié (si applicable)
+  siret String? @db.VarChar(14)
+  
+  /// Nom légal vérifié
+  legalName String @map("legal_name") @db.VarChar(500)
+  
+  /// Nom commercial
+  tradeName String? @map("trade_name") @db.VarChar(500)
+  
+  /// Statut juridique
+  /// Exemple: "SARL", "SAS", "Micro-entreprise"
+  legalStatus String? @map("legal_status") @db.VarChar(100)
+  
+  /// Statut d'activité
+  activityStatus CompanyActivityStatus @default(ACTIVE) @map("activity_status")
+  
+  /// Adresse siège social
+  address String? @db.VarChar(500)
+  
+  /// Code postal
+  postalCode String? @map("postal_code") @db.VarChar(10)
+  
+  /// Ville
+  city String? @db.VarChar(255)
+  
+  /// Département
+  department String? @db.VarChar(10)
+  
+  /// Date de création de l'entreprise
+  companyCreatedAt DateTime? @map("company_created_at")
+  
+  /// Date de cessation (si applicable)
+  companyCeasedAt DateTime? @map("company_ceased_at")
+  
+  /// Coordonnées géographiques (si publiques)
+  latitude Decimal? @db.Decimal(10, 8)
+  longitude Decimal? @db.Decimal(11, 8)
+  
+  /// Date de vérification
+  verifiedAt DateTime @default(now()) @map("verified_at")
+  
+  /// Fiabilité de la vérification (0-100%)
+  verificationScore Int @default(100) @map("verification_score")
+  
+  /// Notes de vérification
+  notes String? @db.Text
+  
+  /// Date de création
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  /// Date de mise à jour
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  @@index([siren])
+  @@index([siret])
+  @@index([activityStatus])
+  @@map("company_verifications")
+}
+
+/// Journal des accès aux sources de données externes
+/// Traçabilité complète - audit obligatoire
+/// RGPD: Art. 30 - Registre des activités de traitement
+model SourceDataLog {
+  /// Identifiant unique
+  id String @id @default(uuid())
+  
+  /// Source de données
+  sourceId String @map("source_id")
+  source ExternalDataSource @relation(fields: [sourceId], references: [id])
+  
+  /// Action effectuée
+  /// Exemple: "SYNC", "QUERY", "VERIFICATION"
+  action String @db.VarChar(100)
+  
+  /// Endpoint ou méthode appelée
+  endpoint String? @db.VarChar(500)
+  
+  /// Résultat de l'action
+  result DataActionResult
+  
+  /// Nombre d'enregistrements traités
+  recordCount Int? @map("record_count")
+  
+  /// Temps de réponse (ms)
+  responseTime Int? @map("response_time")
+  
+  /// Message d'erreur (si échec)
+  errorMessage String? @map("error_message") @db.Text
+  
+  /// Utilisateur ayant initié l'action (si applicable)
+  userId String? @map("user_id")
+  
+  /// Adresse IP
+  ipAddress String? @map("ip_address") @db.VarChar(45)
+  
+  /// User agent
+  userAgent String? @map("user_agent") @db.VarChar(500)
+  
+  /// Métadonnées supplémentaires (JSON)
+  metadata String? @db.Text
+  
+  /// Date de l'action
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  @@index([sourceId])
+  @@index([action])
+  @@index([result])
+  @@index([createdAt])
+  @@map("source_data_logs")
+}
+
+// ============================================================
+// ENUMS SPRINT 11
+// ============================================================
+
+/// Type de source de données externe
+enum DataSourceType {
+  INSEE              // Institut national de la statistique
+  DGCCRF             // Direction générale de la concurrence
+  RAPPEL_CONSO       // rappel.conso.gouv.fr
+  COMPANY_REGISTRY   // Registres d'entreprises
+  OPEN_DATA_PORTAL   // Portails open data
+  API_GOUV           // api.gouv.fr
+  OTHER              // Autres sources officielles
+}
+
+/// Gravité d'un rappel de produit
+enum RecallSeverity {
+  CRITICAL   // Danger immédiat pour la santé
+  HIGH       // Risque important
+  MEDIUM     // Risque modéré
+  LOW        // Risque faible
+  INFO       // Information préventive
+}
+
+/// Statut d'activité d'une entreprise
+enum CompanyActivityStatus {
+  ACTIVE     // Entreprise active
+  CEASED     // Activité cessée
+  SUSPENDED  // Activité suspendue
+  UNKNOWN    // Statut inconnu
+}
+
+/// Résultat d'une action sur source externe
+enum DataActionResult {
+  SUCCESS    // Succès
+  FAILURE    // Échec
+  PARTIAL    // Succès partiel
+  TIMEOUT    // Timeout
+  UNAUTHORIZED // Non autorisé
 }
