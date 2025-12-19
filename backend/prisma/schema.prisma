@@ -50,9 +50,13 @@ model User {
   
   /// Refresh tokens actifs (pour révocation)
   refreshTokens RefreshToken[]
+  
+  /// Logs d'audit créés par cet utilisateur
+  auditLogs AuditLog[]
 
   @@index([email])
   @@index([isActive])
+  @@index([role])
   @@map("users")
 }
 
@@ -86,15 +90,24 @@ model RefreshToken {
   @@map("refresh_tokens")
 }
 
-/// Rôles utilisateur (pour permissions futures - Sprint 3)
+/// Rôles utilisateur avec hiérarchie de permissions (Sprint 3)
+/// 
+/// Hiérarchie (du plus restreint au plus permissif):
+/// USER < ANALYSTE < ENSEIGNE < INSTITUTION < SUPER_ADMIN
 enum UserRole {
-  /// Utilisateur standard
+  /// Utilisateur standard - lecture seule
   USER
   
-  /// Administrateur
-  ADMIN
+  /// Analyste - lecture étendue + statistiques
+  ANALYSTE
   
-  /// Super administrateur
+  /// Enseigne - gestion entités propres
+  ENSEIGNE
+  
+  /// Institution - gestion multi-enseignes
+  INSTITUTION
+  
+  /// Super administrateur - accès complet
   SUPER_ADMIN
 }
 
@@ -157,4 +170,78 @@ enum EntityStatus {
   /// Entreprise ayant cessé son activité
   /// Inclut: radiation, liquidation, fermeture
   CEASED
+}
+
+/// Journal d'audit légal - IMMUABLE (Sprint 3)
+/// 
+/// Traçabilité complète de toutes les actions sensibles
+/// Conformité RGPD Art. 30 (registre des activités de traitement)
+/// 
+/// RÈGLES STRICTES:
+/// - ❌ Aucune modification possible
+/// - ❌ Aucune suppression possible
+/// - ✅ Création uniquement
+/// - ✅ Lecture par utilisateurs autorisés (AUDIT_READ)
+model AuditLog {
+  /// Identifiant unique
+  id        String   @id @default(uuid())
+  
+  /// Utilisateur ayant effectué l'action
+  /// RGPD: Responsabilité et traçabilité (Art. 5.2)
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  
+  /// Rôle de l'utilisateur au moment de l'action
+  /// Permet de tracer les permissions effectives
+  userRole  UserRole @map("user_role")
+  
+  /// Action effectuée
+  /// Exemples: CREATE_LEGAL_ENTITY, UPDATE_USER_ROLE, LOGIN, etc.
+  action    String   @db.VarChar(100)
+  
+  /// Type d'entité concernée
+  /// Exemples: LegalEntity, User, RefreshToken
+  entity    String?  @db.VarChar(100)
+  
+  /// ID de l'entité concernée (si applicable)
+  entityId  String?  @map("entity_id") @db.VarChar(255)
+  
+  /// Résultat de l'action
+  result    AuditResult @default(SUCCESS)
+  
+  /// Message additionnel (erreur, détails, etc.)
+  /// Ne doit pas contenir de données sensibles
+  message   String?  @db.Text
+  
+  /// Adresse IP de l'utilisateur
+  /// RGPD: Donnée personnelle - à pseudonymiser après 90 jours
+  ip        String?  @db.VarChar(45)
+  
+  /// User-Agent du navigateur/client
+  userAgent String?  @map("user_agent") @db.Text
+  
+  /// Date et heure de l'action (UTC)
+  /// Horodatage précis pour traçabilité légale
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([userRole])
+  @@index([action])
+  @@index([entity])
+  @@index([entityId])
+  @@index([result])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+/// Résultat d'une action auditée
+enum AuditResult {
+  /// Action réussie
+  SUCCESS
+  
+  /// Action échouée (erreur, validation, etc.)
+  FAILURE
+  
+  /// Accès refusé (permissions insuffisantes)
+  DENIED
 }
