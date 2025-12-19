@@ -992,3 +992,196 @@ model ComplianceDocument {
   @@index([createdAt])
   @@map("compliance_documents")
 }
+
+// =============================================================================
+// SPRINT 10: data.gouv.fr Publication & API Hub Models
+// =============================================================================
+
+/// Fréquence de mise à jour des datasets Open Data
+enum UpdateFrequency {
+  DAILY     // Quotidien
+  WEEKLY    // Hebdomadaire
+  MONTHLY   // Mensuel
+  QUARTERLY // Trimestriel
+  YEARLY    // Annuel
+  ON_DEMAND // À la demande
+}
+
+/// Format d'export des données
+enum ExportFormat {
+  CSV      // Comma-Separated Values (UTF-8)
+  JSON     // JavaScript Object Notation
+  GEOJSON  // Geographic JSON (RFC 7946)
+  XML      // Extensible Markup Language
+}
+
+/// Statut d'un export
+enum ExportStatus {
+  IN_PROGRESS // En cours
+  SUCCESS     // Réussi
+  FAILED      // Échoué
+  CANCELLED   // Annulé
+}
+
+/// Statut d'une version d'API
+enum VersionStatus {
+  ACTIVE     // Active
+  DEPRECATED // Dépréciée (6 mois avant sunset)
+  SUNSET     // Arrêtée
+}
+
+/// Dataset Open Data publié sur data.gouv.fr
+/// 
+/// Références légales:
+/// - Licence Ouverte v2.0 (Etalab)
+/// - Loi pour une République numérique (2016)
+model OpenDataDataset {
+  /// Identifiant unique
+  id String @id @default(uuid())
+  
+  /// Identifiant du dataset (slug)
+  datasetId String @unique @map("dataset_id") @db.VarChar(100)
+  
+  /// Titre officiel du dataset
+  title String @db.VarChar(255)
+  
+  /// Description détaillée
+  description String @db.Text
+  
+  /// Producteur des données
+  producer String @db.VarChar(255)
+  
+  /// Licence (ex: "Licence Ouverte v2.0")
+  licence String @db.VarChar(100)
+  
+  /// URL de la licence
+  licenceUrl String @map("licence_url") @db.VarChar(500)
+  
+  /// Fréquence de mise à jour
+  updateFrequency UpdateFrequency @map("update_frequency")
+  
+  /// Couverture territoriale (JSON array: ["DOM", "COM", "FRANCE_HEXAGONALE"])
+  territorialCoverage String @map("territorial_coverage") @db.Text
+  
+  /// Formats disponibles (JSON array: ["CSV", "JSON", "GEOJSON"])
+  formats String @db.Text
+  
+  /// Date de dernière mise à jour
+  lastUpdate DateTime? @map("last_update")
+  
+  /// Nombre d'enregistrements
+  recordCount Int @default(0) @map("record_count")
+  
+  /// URL de téléchargement CSV
+  downloadUrlCsv String? @map("download_url_csv") @db.VarChar(500)
+  
+  /// URL de téléchargement JSON
+  downloadUrlJson String? @map("download_url_json") @db.VarChar(500)
+  
+  /// URL de téléchargement GeoJSON
+  downloadUrlGeojson String? @map("download_url_geojson") @db.VarChar(500)
+  
+  /// URL data.gouv.fr
+  datagouvUrl String? @map("datagouv_url") @db.VarChar(500)
+  
+  /// Statut de publication
+  status String @db.VarChar(50) // "DRAFT" | "PUBLISHED" | "ARCHIVED"
+  
+  /// Hash SHA-256 du dernier export
+  hash String? @db.VarChar(64)
+  
+  /// Date de création
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  /// Date de mise à jour
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  /// Logs d'export
+  exports OpenDataExportLog[]
+  
+  @@index([datasetId])
+  @@index([updateFrequency])
+  @@index([status])
+  @@map("opendata_datasets")
+}
+
+/// Log d'export Open Data (traçabilité complète)
+model OpenDataExportLog {
+  /// Identifiant unique
+  id String @id @default(uuid())
+  
+  /// Identifiant du dataset
+  datasetId String @map("dataset_id")
+  
+  /// Relation vers le dataset
+  dataset OpenDataDataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  
+  /// Version de l'export (date: "YYYY-MM-DD")
+  version String @db.VarChar(50)
+  
+  /// Format d'export
+  format ExportFormat
+  
+  /// Taille du fichier en octets
+  fileSize Int @map("file_size")
+  
+  /// Nombre d'enregistrements exportés
+  recordCount Int @map("record_count")
+  
+  /// Hash SHA-256 du fichier exporté
+  hash String @db.VarChar(64)
+  
+  /// Statut de l'export
+  status ExportStatus @default(IN_PROGRESS)
+  
+  /// Message d'erreur (si échec)
+  errorMessage String? @map("error_message") @db.Text
+  
+  /// Date de génération
+  generatedAt DateTime @default(now()) @map("generated_at")
+  
+  @@index([datasetId])
+  @@index([version])
+  @@index([format])
+  @@index([status])
+  @@map("opendata_export_logs")
+}
+
+/// Historique des versions d'API (versionnement + changelog)
+/// 
+/// Politique de dépréciation: 6 mois minimum entre annonce et sunset
+model VersionHistory {
+  /// Identifiant unique
+  id String @id @default(uuid())
+  
+  /// Version de l'API (ex: "v1", "v2")
+  version String @unique @db.VarChar(20)
+  
+  /// Statut de la version
+  status VersionStatus @default(ACTIVE)
+  
+  /// Date de release
+  releasedAt DateTime @default(now()) @map("released_at")
+  
+  /// Date de dépréciation (annonce)
+  deprecatedAt DateTime? @map("deprecated_at")
+  
+  /// Date d'arrêt définitif (sunset)
+  sunsetAt DateTime? @map("sunset_at")
+  
+  /// Changelog (Markdown)
+  changelog String @db.Text
+  
+  /// Contient des breaking changes
+  breakingChanges Boolean @default(false) @map("breaking_changes")
+  
+  /// Date de création
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  /// Date de mise à jour
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  @@index([version])
+  @@index([status])
+  @@map("version_history")
+}
