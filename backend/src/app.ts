@@ -17,6 +17,17 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 
+// Import routes
+import authRoutes from './api/routes/auth.routes.js';
+import legalEntityRoutes from './api/routes/legalEntity.routes.js';
+
+// Import middlewares
+import { apiLimiter } from './api/middlewares/rateLimit.middleware.js';
+import {
+  errorMiddleware,
+  notFoundMiddleware,
+} from './api/middlewares/error.middleware.js';
+
 // Charger les variables d'environnement
 dotenv.config();
 
@@ -100,12 +111,15 @@ app.get('/health', async (_req: Request, res: Response) => {
 app.get('/', (_req: Request, res: Response) => {
   res.json({
     name: 'A KI PRI SA YÉ - Backend API',
-    version: '1.0.0',
+    version: '2.0.0',
     description: 'Backend institutionnel pour la gestion des entreprises',
     environment: nodeEnv,
     endpoints: {
       health: '/health',
-      api: '/api/v1',
+      api: '/api',
+      docs: '/api/docs',
+      auth: '/api/auth',
+      legalEntities: '/api/legal-entities',
     },
     legal: {
       rgpd: 'Conforme RGPD (EU) 2016/679',
@@ -116,42 +130,28 @@ app.get('/', (_req: Request, res: Response) => {
 });
 
 // ========================================
-// Routes API (à implémenter)
+// Routes API
 // ========================================
 
-// Placeholder pour les routes API futures
-app.use('/api/v1', (_req: Request, res: Response) => {
-  res.status(501).json({
-    message: 'API endpoints en cours de développement',
-    note: 'Les endpoints publics ne sont pas encore exposés',
-    info: 'Backend prêt pour intégration future',
-  });
-});
+// Rate limiting sur toutes les routes API
+app.use('/api', apiLimiter);
+
+// Routes d'authentification (publiques)
+app.use('/api/auth', authRoutes);
+
+// Routes des entités juridiques (protégées par JWT)
+app.use('/api/legal-entities', legalEntityRoutes);
+
 
 // ========================================
 // Gestion des erreurs
 // ========================================
 
-// Route non trouvée
-app.use((req: Request, res: Response) => {
-  res.status(404).json({
-    error: 'Route non trouvée',
-    path: req.path,
-    method: req.method,
-  });
-});
+// Route non trouvée (404)
+app.use(notFoundMiddleware);
 
 // Gestionnaire d'erreurs global
-// eslint-disable-next-line no-unused-vars
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  console.error('[ERROR]', err);
-
-  res.status(500).json({
-    error: 'Erreur interne du serveur',
-    message: nodeEnv === 'development' ? err.message : 'Une erreur est survenue',
-    timestamp: new Date().toISOString(),
-  });
-});
+app.use(errorMiddleware);
 
 // ========================================
 // Démarrage du serveur
@@ -176,9 +176,10 @@ async function startServer() {
       console.info('✅ Gestion des entreprises (SIREN/SIRET)');
       console.info('✅ Validation stricte des identifiants');
       console.info('✅ Conformité RGPD');
+      console.info('✅ API REST avec JWT');
       console.info('');
-      console.info('📚 Documentation: README.md');
-      console.info('🔒 Sécurité: Audit institutionnel ready');
+      console.info('📚 Documentation: /api/docs');
+      console.info('🔒 Sécurité: JWT + Rate limiting');
       console.info('========================================');
     });
   } catch (error) {
