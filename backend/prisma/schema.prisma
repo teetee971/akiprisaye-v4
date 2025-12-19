@@ -1,0 +1,72 @@
+// Schema Prisma pour A KI PRI SA YÉ - Backend Institutionnel
+// Conforme RGPD et législation française
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Entité légale représentant une entreprise ou établissement
+/// Conforme au système d'identification français SIREN/SIRET
+/// 
+/// Références légales:
+/// - Décret n°82-130 du 9 février 1982 (SIREN)
+/// - Article R123-220 du Code de commerce (SIRET)
+/// - Règlement (UE) 2016/679 (RGPD) - Art. 5, 25, 32
+model LegalEntity {
+  /// Identifiant unique interne
+  id        String   @id @default(uuid())
+  
+  /// SIREN: Système d'Identification du Répertoire des ENtreprises
+  /// Format: 9 chiffres exactement
+  /// Délivré par l'INSEE lors de l'inscription au Répertoire SIRENE
+  /// Algorithme de validation: Luhn (clé de contrôle)
+  /// @unique car chaque entreprise n'a qu'un seul SIREN
+  siren     String   @unique @db.VarChar(9)
+  
+  /// SIRET: Système d'Identification du Répertoire des ETablissements
+  /// Format: 14 chiffres (SIREN + NIC)
+  /// NIC = Numéro Interne de Classement (5 chiffres)
+  /// Une entreprise peut avoir plusieurs SIRET (un par établissement)
+  /// @unique car chaque établissement est unique
+  siret     String   @unique @db.VarChar(14)
+  
+  /// Raison sociale ou dénomination de l'entreprise
+  /// Donnée publique issue du Répertoire SIRENE (Open Data)
+  /// RGPD: Base légale = Art. 6.1.e (mission d'intérêt public)
+  name      String   @db.VarChar(255)
+  
+  /// Statut de l'entreprise
+  /// ACTIVE: En activité
+  /// CEASED: Cessation d'activité (radiation, liquidation)
+  /// Conforme aux codes de l'INSEE pour le Répertoire SIRENE
+  status    EntityStatus @default(ACTIVE)
+  
+  /// Date de création de l'enregistrement dans notre système
+  /// RGPD: Traçabilité des données (Art. 5.2)
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  /// Date de dernière mise à jour
+  /// RGPD: Exactitude et mise à jour des données (Art. 5.1.d)
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([siren])
+  @@index([siret])
+  @@index([status])
+  @@map("legal_entities")
+}
+
+/// Énumération des statuts possibles pour une entité légale
+/// Conforme aux catégories du Répertoire SIRENE de l'INSEE
+enum EntityStatus {
+  /// Entreprise en activité
+  ACTIVE
+  
+  /// Entreprise ayant cessé son activité
+  /// Inclut: radiation, liquidation, fermeture
+  CEASED
+}
