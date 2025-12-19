@@ -1,6 +1,6 @@
 /**
  * Tests unitaires pour la validation SIREN/SIRET
- * 
+ *
  * Conformité:
  * - Décret n°82-130 du 9 février 1982
  * - Algorithme de Luhn (ISO/IEC 7812-1)
@@ -119,7 +119,7 @@ describe('SIREN/SIRET Consistency', () => {
   });
 
   describe('extractSirenFromSiret', () => {
-    test('devrait extraire le SIREN d\'un SIRET valide', () => {
+    test("devrait extraire le SIREN d'un SIRET valide", () => {
       expect(extractSirenFromSiret('12345678200002')).toBe('123456782');
       expect(extractSirenFromSiret('98765432400019')).toBe('987654324');
       expect(extractSirenFromSiret('55210055440019')).toBe('552100554');

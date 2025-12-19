@@ -1,25 +1,25 @@
 /**
  * Service de gestion des entités légales (entreprises)
- * 
+ *
  * Ce service gère les opérations CRUD sur les entités légales
  * avec validation stricte des identifiants SIREN/SIRET
- * 
+ *
  * Conformité juridique:
  * - Validation selon le Décret n°82-130 du 9 février 1982
  * - Respect du RGPD (Règlement UE 2016/679)
  * - Données publiques issues du Répertoire SIRENE (Open Data INSEE)
- * 
+ *
  * Base légale RGPD:
  * - Article 6.1.e: mission d'intérêt public
  * - Les numéros SIREN/SIRET sont des données publiques
  */
 
 import { PrismaClient, LegalEntity, EntityStatus } from '@prisma/client';
-import {
+import type {
   CreateLegalEntityInput,
   UpdateLegalEntityInput,
   SearchLegalEntityInput,
-} from '../validators/legalEntitySchemas.js';
+} from '@validators/legalEntitySchemas';
 
 export class LegalEntityService {
   private prisma: PrismaClient;
@@ -30,13 +30,13 @@ export class LegalEntityService {
 
   /**
    * Crée une nouvelle entité légale
-   * 
+   *
    * Validation automatique via Prisma et schémas Zod
-   * 
+   *
    * @param data - Données de l'entité à créer
    * @returns L'entité légale créée
    * @throws Error si le SIREN ou SIRET existe déjà
-   * 
+   *
    * RGPD: Traçabilité via createdAt/updatedAt (Art. 5.2)
    */
   async create(data: CreateLegalEntityInput): Promise<LegalEntity> {
@@ -71,7 +71,7 @@ export class LegalEntityService {
 
   /**
    * Récupère une entité légale par son ID
-   * 
+   *
    * @param id - Identifiant UUID de l'entité
    * @returns L'entité légale ou null si non trouvée
    */
@@ -83,7 +83,7 @@ export class LegalEntityService {
 
   /**
    * Récupère une entité légale par son SIREN
-   * 
+   *
    * @param siren - Numéro SIREN (9 chiffres)
    * @returns L'entité légale ou null si non trouvée
    */
@@ -95,7 +95,7 @@ export class LegalEntityService {
 
   /**
    * Récupère une entité légale par son SIRET
-   * 
+   *
    * @param siret - Numéro SIRET (14 chiffres)
    * @returns L'entité légale ou null si non trouvée
    */
@@ -107,12 +107,17 @@ export class LegalEntityService {
 
   /**
    * Recherche des entités légales selon des critères
-   * 
+   *
    * @param criteria - Critères de recherche
    * @returns Liste des entités correspondantes
    */
   async search(criteria: SearchLegalEntityInput): Promise<LegalEntity[]> {
-    const where: any = {};
+    const where: {
+      siren?: string;
+      siret?: string;
+      name?: { contains: string; mode: 'insensitive' };
+      status?: EntityStatus;
+    } = {};
 
     if (criteria.siren) {
       where.siren = criteria.siren;
@@ -144,7 +149,7 @@ export class LegalEntityService {
 
   /**
    * Liste toutes les entités légales avec pagination
-   * 
+   *
    * @param skip - Nombre d'entités à sauter
    * @param take - Nombre d'entités à retourner
    * @returns Liste paginée des entités
@@ -161,12 +166,12 @@ export class LegalEntityService {
 
   /**
    * Met à jour une entité légale
-   * 
+   *
    * @param id - Identifiant UUID de l'entité
    * @param data - Données à mettre à jour
    * @returns L'entité mise à jour
    * @throws Error si l'entité n'existe pas ou si le SIREN/SIRET est déjà utilisé
-   * 
+   *
    * RGPD: Mise à jour automatique de updatedAt (Art. 5.1.d - exactitude)
    */
   async update(id: string, data: UpdateLegalEntityInput): Promise<LegalEntity> {
@@ -200,10 +205,10 @@ export class LegalEntityService {
 
   /**
    * Marque une entité comme cessée (soft delete)
-   * 
+   *
    * Conforme au RGPD: conservation des données pour obligations légales
    * (Art. 6.1.c - obligation légale, Art. 17.3.b - archivage d'intérêt public)
-   * 
+   *
    * @param id - Identifiant UUID de l'entité
    * @returns L'entité mise à jour
    */
@@ -213,11 +218,11 @@ export class LegalEntityService {
 
   /**
    * Supprime définitivement une entité légale
-   * 
+   *
    * ATTENTION: Cette opération est irréversible
    * À n'utiliser que pour le droit à l'effacement (RGPD Art. 17)
    * ou en cas de données erronées
-   * 
+   *
    * @param id - Identifiant UUID de l'entité
    * @returns L'entité supprimée
    */
@@ -229,7 +234,7 @@ export class LegalEntityService {
 
   /**
    * Compte le nombre total d'entités légales
-   * 
+   *
    * @param status - Filtrer par statut (optionnel)
    * @returns Nombre d'entités
    */
@@ -241,7 +246,7 @@ export class LegalEntityService {
 
   /**
    * Récupère les statistiques des entités légales
-   * 
+   *
    * @returns Statistiques (total, actives, cessées)
    */
   async getStatistics(): Promise<{

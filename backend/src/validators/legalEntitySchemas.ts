@@ -1,6 +1,6 @@
 /**
  * Schémas de validation Zod pour les entités légales
- * 
+ *
  * Conformité RGPD:
  * - Minimisation des données (Art. 5.1.c)
  * - Exactitude des données (Art. 5.1.d)
@@ -8,10 +8,10 @@
  */
 
 import { z } from 'zod';
-import { 
-  validateSiren, 
-  validateSiret, 
-  validateSirenSiretConsistency 
+import {
+  validateSiren,
+  validateSiret,
+  validateSirenSiretConsistency,
 } from './sirenSiretValidator.js';
 
 /**
@@ -51,7 +51,7 @@ export const entityStatusSchema = z.enum(['ACTIVE', 'CEASED'], {
 
 /**
  * Schéma complet de création d'une entité légale
- * 
+ *
  * Validation stricte:
  * - SIREN: 9 chiffres + algorithme de Luhn
  * - SIRET: 14 chiffres + algorithme de Luhn
@@ -66,21 +66,18 @@ export const createLegalEntitySchema = z
     name: z
       .string()
       .trim()
-      .min(1, 'Le nom de l\'entreprise est obligatoire')
+      .min(1, "Le nom de l'entreprise est obligatoire")
       .max(255, 'Le nom ne peut pas dépasser 255 caractères'),
     status: entityStatusSchema.default('ACTIVE'),
   })
-  .refine(
-    (data) => validateSirenSiretConsistency(data.siren, data.siret),
-    {
-      message: 'Le SIRET doit commencer par le SIREN (incohérence détectée)',
-      path: ['siret'],
-    }
-  );
+  .refine((data) => validateSirenSiretConsistency(data.siren, data.siret), {
+    message: 'Le SIRET doit commencer par le SIREN (incohérence détectée)',
+    path: ['siret'],
+  });
 
 /**
  * Schéma de mise à jour d'une entité légale
- * 
+ *
  * Tous les champs sont optionnels, mais s'ils sont présents,
  * ils doivent respecter les mêmes règles de validation
  */
@@ -91,7 +88,7 @@ export const updateLegalEntitySchema = z
     name: z
       .string()
       .trim()
-      .min(1, 'Le nom de l\'entreprise ne peut pas être vide')
+      .min(1, "Le nom de l'entreprise ne peut pas être vide")
       .max(255, 'Le nom ne peut pas dépasser 255 caractères')
       .optional(),
     status: entityStatusSchema.optional(),

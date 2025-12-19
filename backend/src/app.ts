@@ -1,9 +1,9 @@
 /**
  * Application Express - Backend A KI PRI SA YÉ
- * 
+ *
  * Backend institutionnel pour la gestion des entreprises
  * Conformité RGPD et législation française
- * 
+ *
  * Stack:
  * - Node.js 20+
  * - TypeScript
@@ -50,22 +50,22 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Logging des requêtes en développement
 if (nodeEnv === 'development') {
-  app.use((req: Request, _res: Response, next: NextFunction) => {
-    console.info(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  app.use((_req: Request, _res: Response, next: NextFunction) => {
+    console.info(`[${new Date().toISOString()}] ${_req.method} ${_req.path}`);
     next();
   });
 }
 
 // Headers de sécurité
-app.use((req: Request, res: Response, next: NextFunction) => {
+app.use((_req: Request, res: Response, next: NextFunction) => {
   // Protection XSS
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('X-XSS-Protection', '1; mode=block');
-  
+
   // RGPD - Pas de tracking
   res.setHeader('Permissions-Policy', 'interest-cohort=()');
-  
+
   next();
 });
 
@@ -74,11 +74,11 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // ========================================
 
 // Health check
-app.get('/health', async (req: Request, res: Response) => {
+app.get('/health', async (_req: Request, res: Response) => {
   try {
     // Vérifier la connexion à la base de données
     await prisma.$queryRaw`SELECT 1`;
-    
+
     res.status(200).json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
@@ -97,7 +97,7 @@ app.get('/health', async (req: Request, res: Response) => {
 });
 
 // Route racine
-app.get('/', (req: Request, res: Response) => {
+app.get('/', (_req: Request, res: Response) => {
   res.json({
     name: 'A KI PRI SA YÉ - Backend API',
     version: '1.0.0',
@@ -120,7 +120,7 @@ app.get('/', (req: Request, res: Response) => {
 // ========================================
 
 // Placeholder pour les routes API futures
-app.use('/api/v1', (req: Request, res: Response) => {
+app.use('/api/v1', (_req: Request, res: Response) => {
   res.status(501).json({
     message: 'API endpoints en cours de développement',
     note: 'Les endpoints publics ne sont pas encore exposés',
@@ -142,9 +142,10 @@ app.use((req: Request, res: Response) => {
 });
 
 // Gestionnaire d'erreurs global
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+// eslint-disable-next-line no-unused-vars
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('[ERROR]', err);
-  
+
   res.status(500).json({
     error: 'Erreur interne du serveur',
     message: nodeEnv === 'development' ? err.message : 'Une erreur est survenue',
@@ -189,13 +190,13 @@ async function startServer() {
 // Gestion de l'arrêt gracieux
 async function shutdown() {
   console.info('\n🛑 Arrêt du serveur en cours...');
-  
+
   try {
     await prisma.$disconnect();
     console.info('✅ Déconnexion de la base de données réussie');
     process.exit(0);
   } catch (error) {
-    console.error('❌ Erreur lors de l\'arrêt:', error);
+    console.error("❌ Erreur lors de l'arrêt:", error);
     process.exit(1);
   }
 }

@@ -191,8 +191,8 @@ describe('Zod Schema Validation', () => {
     });
   });
 
-  describe('Messages d\'erreur', () => {
-    test('devrait fournir des messages d\'erreur clairs pour SIREN', () => {
+  describe("Messages d'erreur", () => {
+    test("devrait fournir des messages d'erreur clairs pour SIREN", () => {
       try {
         sirenSchema.parse('12345678');
         fail('Should have thrown');
@@ -203,7 +203,7 @@ describe('Zod Schema Validation', () => {
       }
     });
 
-    test('devrait fournir des messages d\'erreur clairs pour SIRET', () => {
+    test("devrait fournir des messages d'erreur clairs pour SIRET", () => {
       try {
         siretSchema.parse('1234567890123');
         fail('Should have thrown');
@@ -214,7 +214,7 @@ describe('Zod Schema Validation', () => {
       }
     });
 
-    test('devrait fournir un message d\'erreur pour incohérence SIREN/SIRET', () => {
+    test("devrait fournir un message d'erreur pour incohérence SIREN/SIRET", () => {
       try {
         createLegalEntitySchema.parse({
           siren: '123456782',
