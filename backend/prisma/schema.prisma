@@ -1483,3 +1483,213 @@ enum DataActionResult {
   TIMEOUT    // Timeout
   UNAUTHORIZED // Non autorisé
 }
+
+// ============================================================
+// SPRINT 13: OBSERVATOIRE PERMANENT DE LA VIE CHÈRE
+// ============================================================
+
+/// Rapport de l'Observatoire permanent
+/// Analyse long terme de la vie chère
+/// Immutable après publication (no deletion allowed)
+/// 
+/// Références légales:
+/// - Neutralité absolue (pas de recommandations commerciales)
+/// - Méthodologie transparente
+/// - Données réelles uniquement
+model ObservatoryReport {
+  /// Identifiant unique
+  id String @id @default(uuid())
+  
+  /// Titre du rapport
+  title String @db.VarChar(500)
+  
+  /// Périmètre du rapport
+  scope ReportScope
+  
+  /// Territoire concerné (si scope TERRITORIAL)
+  territory Territory?
+  
+  /// Catégorie de produits (si scope SECTORIEL)
+  category String? @db.VarChar(255)
+  
+  /// Début de la période analysée
+  periodStart DateTime @map("period_start")
+  
+  /// Fin de la période analysée
+  periodEnd DateTime @map("period_end")
+  
+  /// Méthodologie utilisée
+  /// Description claire et transparente
+  methodology String @db.Text
+  
+  /// Principales conclusions
+  keyFindings String @map("key_findings") @db.Text
+  
+  /// Limites de l'analyse
+  /// Transparence obligatoire
+  limitations String @db.Text
+  
+  /// Auteur du rapport
+  /// Pour traçabilité institutionnelle
+  author String @db.VarChar(255)
+  
+  /// Date de génération du rapport
+  generatedAt DateTime @default(now()) @map("generated_at")
+  
+  /// Date de publication officielle
+  /// Null si DRAFT
+  publishedAt DateTime? @map("published_at")
+  
+  /// Statut du rapport
+  status ReportStatus @default(DRAFT)
+  
+  /// Relations
+  indicators StructuralIndicator[]
+  insights   ExplanatoryInsight[]
+  
+  @@index([scope])
+  @@index([territory])
+  @@index([periodStart])
+  @@index([periodEnd])
+  @@index([status])
+  @@index([publishedAt])
+  @@map("observatory_reports")
+}
+
+/// Indicateur structurel de la vie chère
+/// Calculé à partir de données historiques uniquement
+/// 
+/// Indicateurs disponibles:
+/// - DISPERSION_PRIX: Coefficient de variation des prix
+/// - VOLATILITE: Écart-type des variations
+/// - ECART_METROPOLE: Différence avec prix métropole
+/// - TENSION_MARCHE: Ratio offre/demande estimé
+/// - PERSISTENCE_HAUSSE: Durée des hausses continues
+model StructuralIndicator {
+  /// Identifiant unique
+  id String @id @default(uuid())
+  
+  /// Rapport associé (optionnel)
+  reportId String? @map("report_id")
+  report   ObservatoryReport? @relation(fields: [reportId], references: [id], onDelete: SetNull)
+  
+  /// Type d'indicateur
+  indicatorType IndicatorType @map("indicator_type")
+  
+  /// Territoire concerné
+  territory Territory
+  
+  /// Catégorie de produits
+  /// Null = tous produits
+  category String? @db.VarChar(255)
+  
+  /// Valeur de l'indicateur
+  /// Interprétation dépend du type
+  value Decimal @db.Decimal(10, 4)
+  
+  /// Niveau de confiance (0-1)
+  /// Basé sur quantité de données
+  confidenceLevel Decimal @map("confidence_level") @db.Decimal(3, 2)
+  
+  /// Période de référence
+  /// Format: "YYYY-MM" ou "YYYY-Q1", etc.
+  period String @db.VarChar(50)
+  
+  /// Date de calcul de l'indicateur
+  calculatedAt DateTime @default(now()) @map("calculated_at")
+  
+  /// Relations
+  insights ExplanatoryInsight[]
+  
+  @@index([indicatorType])
+  @@index([territory])
+  @@index([category])
+  @@index([period])
+  @@index([calculatedAt])
+  @@map("structural_indicators")
+}
+
+/// Analyse IA explicative (NON prédictive)
+/// L'IA explique le passé, elle ne prédit rien
+/// Toutes les analyses sont revues par un humain
+/// 
+/// Références légales:
+/// - RGPD Art. 22: Pas de décision automatisée
+/// - Transparence algorithmique obligatoire
+/// - Sources visibles
+model ExplanatoryInsight {
+  /// Identifiant unique
+  id String @id @default(uuid())
+  
+  /// Rapport associé (optionnel)
+  reportId String? @map("report_id")
+  report   ObservatoryReport? @relation(fields: [reportId], references: [id], onDelete: SetNull)
+  
+  /// Indicateur associé (optionnel)
+  indicatorId String? @map("indicator_id")
+  indicator   StructuralIndicator? @relation(fields: [indicatorId], references: [id], onDelete: SetNull)
+  
+  /// Explication textuelle claire
+  /// Langage accessible au grand public
+  explanation String @db.Text
+  
+  /// Sources utilisées pour l'analyse
+  /// JSON array: [{"name": "INSEE", "date": "2025-01"}]
+  sources String @db.Text
+  
+  /// Score de confiance de l'analyse (0-1)
+  /// Basé sur cohérence des données
+  confidenceScore Decimal @map("confidence_score") @db.Decimal(3, 2)
+  
+  /// Version du modèle IA utilisé
+  /// Pour traçabilité et reproductibilité
+  modelVersion String @map("model_version") @db.VarChar(50)
+  
+  /// Date de génération de l'analyse
+  generatedAt DateTime @default(now()) @map("generated_at")
+  
+  /// Revue par un humain (obligatoire avant publication)
+  reviewedByHuman Boolean @default(false) @map("reviewed_by_human")
+  
+  /// Nom du reviewer (si reviewedByHuman = true)
+  reviewedBy String? @map("reviewed_by") @db.VarChar(255)
+  
+  /// Date de la revue humaine
+  reviewedAt DateTime? @map("reviewed_at")
+  
+  /// Commentaires du reviewer
+  reviewComments String? @map("review_comments") @db.Text
+  
+  @@index([reportId])
+  @@index([indicatorId])
+  @@index([reviewedByHuman])
+  @@index([generatedAt])
+  @@map("explanatory_insights")
+}
+
+// ============================================================
+// ENUMS SPRINT 13
+// ============================================================
+
+/// Périmètre d'un rapport d'observatoire
+enum ReportScope {
+  NATIONAL     // Analyse nationale globale
+  TERRITORIAL  // Analyse d'un territoire spécifique
+  SECTORIEL    // Analyse d'un secteur/catégorie
+}
+
+/// Type d'indicateur structurel
+enum IndicatorType {
+  DISPERSION_PRIX    // Coefficient de variation des prix
+  VOLATILITE         // Écart-type des variations de prix
+  ECART_METROPOLE    // Différence avec prix métropole
+  TENSION_MARCHE     // Ratio offre/demande estimé
+  PERSISTENCE_HAUSSE // Durée moyenne des hausses continues
+}
+
+/// Statut d'un rapport d'observatoire
+enum ReportStatus {
+  DRAFT      // Brouillon (en cours de rédaction)
+  PUBLISHED  // Publié officiellement (immutable)
+  ARCHIVED   // Archivé (historique)
+}
