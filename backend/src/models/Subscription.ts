@@ -1,9 +1,10 @@
 /**
  * Subscription Model
+ * NO FREEMIUM - All plans are paid
  */
 
-export type Plan = 'FREE' | 'CITIZEN_PREMIUM' | 'PRO' | 'BUSINESS' | 'ENTERPRISE' | 'INSTITUTION';
-export type SubscriptionStatus = 'active' | 'canceled' | 'expired';
+export type Plan = 'CITIZEN' | 'PRO' | 'BUSINESS' | 'ENTERPRISE' | 'INSTITUTION';
+export type SubscriptionStatus = 'trial' | 'active' | 'canceled' | 'expired' | 'suspended';
 export type BillingCycle = 'monthly' | 'yearly';
 
 export interface Subscription {
@@ -14,7 +15,10 @@ export interface Subscription {
   billingCycle: BillingCycle;
   startedAt: Date;
   endsAt?: Date;
+  trialEndsAt?: Date; // Trial period (7 days, limited features)
   paymentProviderId?: string;
+  lastPaymentDate?: Date;
+  nextPaymentDate?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -32,14 +36,21 @@ const subscriptions: Map<string, Subscription> = new Map();
 export class SubscriptionModel {
   static async create(data: CreateSubscriptionDTO): Promise<Subscription> {
     const id = `sub_${Date.now()}`;
+    const now = new Date();
+    
+    // All new subscriptions start with 7-day trial
+    const trialEndsAt = new Date(now);
+    trialEndsAt.setDate(trialEndsAt.getDate() + 7);
+    
     const subscription: Subscription = {
       id,
       ...data,
-      status: 'active',
-      startedAt: new Date(),
+      status: 'trial',
+      startedAt: now,
+      trialEndsAt,
       endsAt: this.calculateEndDate(data.billingCycle),
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: now,
+      updatedAt: now,
     };
     
     subscriptions.set(id, subscription);

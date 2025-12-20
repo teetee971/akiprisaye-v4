@@ -12,6 +12,7 @@ export default function Layout() {
     { path: '/scan', label: 'Scanner' },
     { path: '/carte', label: 'Carte' },
     { path: '/liste-courses', label: 'Liste de courses' },
+    { path: '/evaluation-cosmetique', label: 'Cosmétiques' },
     { path: '/actualites', label: 'Actualités' },
     { path: '/pricing', label: 'Tarifs' },
     { path: '/contact', label: 'Contact' },
