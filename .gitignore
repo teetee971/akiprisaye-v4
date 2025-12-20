@@ -95,3 +95,10 @@ diagnostic*.ps1
 fix_*.ps1
 deploy.ps1
 # build.sh excluded at root, but extension/build.sh is allowed
+
+# Backend specific
+backend/.env
+backend/dist/
+backend/node_modules/
+backend/coverage/
+backend/prisma/migrations/*.sql
