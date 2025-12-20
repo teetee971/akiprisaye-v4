@@ -1,27 +1,158 @@
-# A KI PRI SA YÉ – Application Citoyenne Anti-Vie Chère
+# 🧾 A KI PRI SA YÉ
 
-[![PWA Ready](https://img.shields.io/badge/PWA-Ready-brightgreen.svg)](https://akiprisaye.web.app)
-[![Build Status](https://img.shields.io/badge/build-passing-success.svg)]()
-[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)]()
-[![Last Deployed](https://img.shields.io/badge/deployed-now-blue.svg)]()
+**Plateforme intelligente de comparaison des prix, transparence économique et protection du consommateur – France & territoires ultramarins**
 
-Application citoyenne pour lutter contre la vie chère dans les DROM-COM (Départements et Régions d'Outre-Mer et Collectivités d'Outre-Mer).
+## 🌍 Présentation
 
-## 🚀 Démarrage Rapide
+**A KI PRI SA YÉ** est une plateforme web professionnelle dédiée à la lutte contre la vie chère, à la transparence des prix, et à la protection des consommateurs, couvrant l'ensemble des territoires français, y compris :
 
-### Installation
+- **DOM** (Guadeloupe, Martinique, Guyane, La Réunion, Mayotte)
+- **ROM / COM** (Saint-Martin, Saint-Barthélemy, Polynésie française, Nouvelle-Calédonie, Wallis-et-Futuna, Saint-Pierre-et-Miquelon, Terres australes, etc.)
+
+Le projet repose exclusivement sur des données réelles, vérifiables et sourcées, avec une architecture moderne, scalable et sécurisée.
+
+---
+
+## 🎯 Objectifs principaux
+
+1. **Comparer les prix réels** des produits par territoire
+2. **Offrir une lecture claire et sourcée** des informations économiques
+3. **Donner aux citoyens** des outils concrets pour mieux consommer
+4. **Permettre aux enseignes, institutions et groupes** d'accéder à des services professionnels payants
+5. **Créer une référence nationale ultramarine** sur les prix et la consommation
+
+---
+
+## 🧠 Fonctionnalités clés (actuelles & prévues)
+
+### 🧾 Produits & Prix
+
+- Comparateur de prix multi-enseignes
+- Historique des prix par produit et par territoire
+- Sources visibles (enseignes, dates, zones)
+- Prédiction des prix explicable (basée sur données historiques réelles)
+
+### 📷 Scanner intelligent
+
+- Scan code-barres (EAN, codes magasins)
+- OCR tickets de caisse
+- Reconnaissance produit par photo
+- Informations produit :
+  - Fabricant
+  - Origine
+  - Composition
+  - Nutri-Score
+  - Traçabilité complète
+
+### 🗺️ Carte interactive
+
+- Carte France + DOM / ROM / COM complète
+- Géolocalisation utilisateur
+- Affichage des magasins par zone
+- Calcul distance / prix / meilleur choix
+
+### 🚨 Alertes consommateurs
+
+- Alertes officielles (DGCCRF, RappelConso)
+- Fiches détaillées par produit
+- Historique des alertes
+- Rapports citoyens
+
+### 💬 Communication
+
+- Messagerie interne sécurisée
+- Citoyens ↔ Enseignes ↔ Institutions
+
+---
+
+## 🏪 Modules professionnels (payants – sans freemium)
+
+### 🏬 Enseignes & investisseurs
+
+- Inscription payante des enseignes
+- Gestion des magasins et prix en temps réel
+- Marketplace professionnelle
+- Visibilité territoriale ciblée
+- Analytics & reporting
+
+### 🏛️ Institutions & collectivités
+
+- Tableaux de bord économiques
+- Exports de données
+- Rapports territoriaux
+- Accès API contrôlé
+
+### 🤖 Devis IA
+
+- Génération de devis automatisés selon besoins
+- Paiement direct intégré
+- Offres personnalisées B2B / B2G
+
+---
+
+## 🧱 Architecture technique
+
+### Frontend
+
+- **React + Vite** - Framework moderne et performant
+- **Tailwind CSS** - Design system professionnel
+- **Design chic "Liquid Glass"** - Interface utilisateur premium
+- **PWA** - Offline, mobile-first
+
+### Backend (prévu / en cours)
+
+- API modulaire sécurisée
+- Gestion données produits, prix, alertes, entreprises
+- Prédiction IA explicable
+
+### Données entreprises
+
+**Accès par :**
+- SIRET
+- SIREN
+- TVA
+- ID interne
+
+**Informations disponibles :**
+- Statut d'activité (ACTIVE / CEASED)
+- Adresse complète
+- Coordonnées GPS
+- Date de création
+
+---
+
+## 🚀 Déploiement & CI/CD
+
+**Hébergement :** Cloudflare Pages  
+**CI/CD :** GitHub Actions  
+
+### Build automatique
 
 ```bash
-npm install
+npm ci
+npm run build
+# Déploiement dist/
 ```
+
+**Node.js 20 LTS**  
+Zéro 404, assets cohérents (`/assets`)  
+Rollback possible
+
+**URL officielle :**  
+👉 [https://akiprisaye-web.pages.dev](https://akiprisaye-web.pages.dev)
+
+---
+
+## 🚀 Démarrage Rapide
 
 ### Développement
 
 ```bash
+npm install
 npm run dev
 ```
 
-Ouvrez [http://localhost:3000](http://localhost:3000) dans votre navigateur.
+Ouvrez [http://localhost:5173](http://localhost:5173) dans votre navigateur.
 
 ### Production
 
@@ -30,18 +161,74 @@ npm run build
 npm run preview
 ```
 
-### Déploiement
+### Scripts Disponibles
 
-```bash
-# Firebase
-firebase deploy
+- `npm run dev` - Serveur de développement Vite
+- `npm run build` - Build de production
+- `npm run preview` - Aperçu du build
+- `npm run check-assets` - Vérification d'intégrité des assets
+- `npm run lint` - Linter ESLint
+- `npm run format` - Formatter avec Prettier
+- `npm test` - Tests automatisés
 
-# Cloudflare Pages
-npm run build
-# puis déployez le dossier dist/
-```
+---
 
-## ✨ Nouvelles Fonctionnalités (v1.1.0)
+## 🔐 Sécurité & conformité
+
+- **CSP maîtrisée** (scripts, workers, blob autorisés si nécessaires)
+- **Données sourcées et traçables**
+- **Pas de données fictives**
+- **Transparence utilisateur**
+- **Tests de sécurité automatisés**
+
+---
+
+## 💰 Modèle économique (sans freemium)
+
+- Abonnements professionnels
+- Paiement à l'usage (API, rapports, prédictions)
+- Marketplace enseignes
+- Devis IA payants
+- Licences collectivités / groupes
+
+---
+
+## 📌 État du projet
+
+✅ CI/CD opérationnel  
+✅ Architecture validée  
+🔄 Modules en cours d'intégration via Issues GitHub  
+🤖 Développement piloté par prompts Copilot
+
+---
+
+## 🛠️ Contribution & développement
+
+Développement guidé par :
+
+- Issues structurées
+- Prompts Copilot détaillés
+- Pipeline automatisé
+
+👉 Voir les [Issues](https://github.com/teetee971/akiprisaye-web/issues) pour la roadmap complète.
+
+---
+
+## 📄 Licence
+
+**Projet propriétaire – tous droits réservés.**  
+Utilisation, reproduction ou exploitation commerciale interdites sans autorisation.
+
+---
+
+## 📣 Contact & vision
+
+**A KI PRI SA YÉ** n'est pas un simple comparateur :  
+c'est un **outil citoyen, économique et stratégique**, pensé pour **durer et avoir un impact réel**.
+
+---
+
+## ✨ Fonctionnalités Principales
 
 ### 🧴 Module d'Évaluation Cosmétique
 
@@ -72,8 +259,6 @@ Module centralisé de gestion des données d'entreprises avec qualité instituti
 - **Système d'alerte** : Détection des entreprises au statut "CESSÉ" pour protection des consommateurs
 - **API complète** : 92 tests automatisés ✅
 
-📘 Voir [COMPANY_REGISTRY.md](./COMPANY_REGISTRY.md) pour la documentation complète.
-
 ### 🌍 Sélecteur de Territoires DROM-COM
 
 Nouveau composant `TerritorySelector` avec support complet des 12 territoires :
@@ -91,69 +276,26 @@ Nouveau composant `TerritorySelector` avec support complet des 12 territoires :
 - 🇳🇨 Nouvelle-Calédonie
 - 🇹🇫 Terres australes et antarctiques françaises
 
-### 📰 Widget Actualités
-
-Nouveau composant `NewsWidget` avec :
-- Fil d'actualités dynamique
-- Filtres par territoire et catégorie
-- Connexion API avec fallback mock
-- Page dédiée `/actualites`
-
-### 🗺️ Carte Interactive
-
-Page `/carte` améliorée avec :
-- Liste des magasins par territoire
-- Structure prête pour intégration Leaflet
-- Géolocalisation (à venir)
-- Comparaison de prix par localisation
-
-### 🔍 Comparateur Amélioré
-
-Le comparateur de prix intègre maintenant :
-- Connexion à l'API `/api/prices`
-- Fallback avec données mock
-- Interface responsive optimisée
-- Indicateur du meilleur prix
-- Badges promotions
-
-### 📄 Mentions Légales
-
-Nouvelle page `/mentions-legales` conforme RGPD avec :
-- Informations éditeur
-- Politique de confidentialité
-- Gestion des cookies
-- Droits utilisateurs
-
 ### 📱 PWA Améliorée
 
-Manifest PWA enrichi avec :
+**Manifest PWA enrichi avec :**
 - ✅ Shortcuts pour accès rapide (Comparateur, Scanner, Actualités, Carte)
 - ✅ Share Target API
 - ✅ Catégories et screenshots
 - ✅ Icons 192px et 512px optimisés
 - ✅ Mode offline complet
 
-Service Worker v4 avec :
+**Service Worker avec :**
 - ✅ Cache stratégique (Cache First pour statique, Network First pour API)
 - ✅ Synchronisation en arrière-plan
 - ✅ Support offline pour pages principales
 - ✅ Gestion dynamique du cache
 
-### 🎨 Responsive Design
+### 🔧 Backend API
 
-Nouveau fichier `responsive.css` avec :
-- ✅ Safe areas pour Samsung S24+, iPhone notch
-- ✅ Touch targets minimum 44px (WCAG 2.1 AA)
-- ✅ Grilles responsives mobile-first
-- ✅ Typographie fluide (clamp)
-- ✅ Support prefers-reduced-motion
-- ✅ Mode sombre/clair automatique
+Structure backend disponible dans `/backend` :
 
-### 🔧 Backend API (Structure AdonisJS)
-
-Nouvelle structure backend dans `/backend` :
-
-#### Routes API disponibles :
+**Routes API :**
 
 **Prices API**
 - `GET /api/prices` - Récupérer les prix par EAN et territoire
@@ -170,38 +312,22 @@ Nouvelle structure backend dans `/backend` :
 - `GET /api/contact` - Lister les messages (admin)
 - `PATCH /api/contact/:id` - Mettre à jour le statut (admin)
 
-**Placeholders (à venir)**
-- `GET /api/ai/tips` - Conseils IA personnalisés
-- `GET /api/history` - Historique utilisateur
-- `POST /api/scan` - Upload et OCR de tickets
+---
 
-#### CRON Jobs
+## 🎨 Design & UX
 
-- `price-refresh.ts` - Mise à jour quotidienne des prix (2h00)
+### Responsive Design
 
-Voir `backend/README.md` pour la documentation complète de l'API.
+- ✅ Safe areas pour Samsung S24+, iPhone notch
+- ✅ Touch targets minimum 44px (WCAG 2.1 AA)
+- ✅ Grilles responsives mobile-first
+- ✅ Typographie fluide (clamp)
+- ✅ Support prefers-reduced-motion
+- ✅ Mode sombre/clair automatique
 
-## 🎯 Fonctionnalités Existantes
+---
 
-### Système de Prix Automatique
-
-Ce projet inclut maintenant un système complet de récupération et vérification automatique des prix :
-
-- **Comparateur de prix** (`comparateur.html`) : Recherchez et comparez les prix par code EAN
-- **Upload de tickets** (`upload-ticket.html`) : Téléchargez des tickets de caisse pour extraction OCR automatique
-- **API de prix** (`/api/prices`) : Endpoint REST pour récupérer les prix par EAN et localisation
-- **Base de données Firestore** : Collections pour produits, magasins, prix et tickets
-
-Consultez `Docs/REAL_PRICE_PIPELINE.md` pour la documentation complète.
-
-### Scripts Disponibles
-
-- `npm run dev` - Serveur de développement
-- `npm run build` - Build de production
-- `npm run preview` - Aperçu du build
-- `npm run check-assets` - Vérification d'intégrité des assets
-
-### Règles de Sécurité Firestore
+## 🔒 Règles de Sécurité Firestore
 
 Pour sécuriser votre base de données Firestore, appliquez les règles suivantes via la Console Firebase :
 
@@ -238,13 +364,4 @@ service cloud.firestore {
 ```
 
 **Note importante :** Les règles ci-dessus protègent l'écriture directe dans Firestore. En production, utilisez Firebase Cloud Functions ou Admin SDK pour gérer les écritures de prix et la modération des tickets.
-
-### Tests Automatiques
-
-Des tests de smoke sont exécutés automatiquement toutes les heures pour vérifier :
-- Accessibilité de la page d'accueil
-- Accessibilité du comparateur
-- Fonctionnement de l'API
-
-Voir `.github/workflows/smoke.yml` pour plus de détails.
 
