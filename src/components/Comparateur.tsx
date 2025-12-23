@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   collection,
   getDocs,
@@ -15,8 +15,6 @@ type Price = {
   source: string;
   date: Timestamp;
 };
-
-feat(Comparateur): connect to Firestore products/prices and display results
 
 type Product = {
   id: string;
@@ -40,6 +38,7 @@ export default function Comparateur() {
     setPrices([]);
 
     try {
+      // Recherche du produit
       const productQuery = query(
         collection(db, "products"),
         where("ean", "==", ean)
@@ -54,6 +53,7 @@ export default function Comparateur() {
 
       setProducts(foundProducts);
 
+      // Recherche des prix si produit trouvé
       if (foundProducts.length > 0) {
         const priceQuery = query(
           collection(db, "prices"),
@@ -91,11 +91,7 @@ export default function Comparateur() {
 
       <button
         onClick={searchProduct}
-        style={{
-          width: "100%",
-          padding: "0.75rem",
-          marginBottom: "1rem",
-        }}
+        style={{ width: "100%", padding: "0.75rem", marginBottom: "1rem" }}
       >
         Rechercher
       </button>
