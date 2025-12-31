@@ -4,21 +4,20 @@ import react from 'eslint-plugin-react'
 
 export default [
   // =========================
-  // GLOBAL IGNORES
+  // GLOBAL IGNORE
   // =========================
   {
     ignores: [
-      'node_modules/**',
-      'dist/**',
-      'build/**',
-      '.firebase/**',
-      'coverage/**',
-      '.cache/**',
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/build/**',
+      '**/.firebase/**',
+      '**/coverage/**',
     ],
   },
 
   // =========================
-  // BASE (RECOMMENDED)
+  // BASE RULES
   // =========================
   {
     rules: {
@@ -26,13 +25,16 @@ export default [
     },
   },
 
-  // =========================
-  // FRONTEND (VITE / REACT / BROWSER)
-  // - inclut src + public + fichiers racine front (scanner.js, product-search.js, etc.)
-  // - fixe: localStorage, URLSearchParams, Blob, Event, alert, location, requestAnimationFrame...
-  // =========================
+  // =====================================================
+  // FRONTEND — VITE / REACT / PUBLIC / ROOT JS
+  // =====================================================
   {
-    files: ['src/**/*.{js,jsx}', 'public/**/*.js', '*.{js,jsx}'],
+    files: [
+      'src/**/*.{js,jsx}',
+      'public/**/*.js',
+      '*.js',
+      '*.jsx',
+    ],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
@@ -40,40 +42,32 @@ export default [
         ...globals.browser,
         ...globals.es2021,
 
-        // Ajouts explicites (certaines configs ESLint les perdent selon contexte)
+        // Browser explicites
         localStorage: 'readonly',
-        URLSearchParams: 'readonly',
-        AbortController: 'readonly',
-        Blob: 'readonly',
-        Event: 'readonly',
-        MutationObserver: 'readonly',
-        requestAnimationFrame: 'readonly',
-        cancelAnimationFrame: 'readonly',
         alert: 'readonly',
         location: 'readonly',
+        Event: 'readonly',
+        Blob: 'readonly',
+        URLSearchParams: 'readonly',
+        AbortController: 'readonly',
+        requestAnimationFrame: 'readonly',
+        cancelAnimationFrame: 'readonly',
       },
     },
     plugins: { react },
     rules: {
-      // React 17+/Vite
       'react/react-in-jsx-scope': 'off',
-
-      // Console: on autorise warn/error, le reste warning
       'no-console': ['warn', { allow: ['warn', 'error'] }],
     },
   },
 
-  // =========================
-  // SERVICE WORKERS / PWA
-  // - fixe: self, caches, Request, Response, fetch
-  // =========================
+  // =====================================================
+  // SERVICE WORKERS / PWA (public, root, frontend)
+  // =====================================================
   {
     files: [
       '**/service-worker.js',
       '**/sw.js',
-      'public/sw.js',
-      'public/service-worker.js',
-      'frontend/public/service-worker.js',
     ],
     languageOptions: {
       globals: {
@@ -86,17 +80,15 @@ export default [
       },
     },
     rules: {
-      // souvent utile en SW
       'no-console': ['warn', { allow: ['warn', 'error'] }],
     },
   },
 
-  // =========================
+  // =====================================================
   // CHROME EXTENSION
-  // - fixe: chrome + APIs DOM souvent utilisées en content scripts
-  // =========================
+  // =====================================================
   {
-    files: ['extension/**/*.js'],
+    files: ['extension/**/*.{js,mjs}'],
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -108,12 +100,59 @@ export default [
     },
   },
 
-  // =========================
-  // GOOGLE MAPS SCRIPTS (si présents)
-  // - fixe: google
-  // =========================
+  // =====================================================
+  // FIREBASE / CLOUD FUNCTIONS (EDGE STYLE)
+  // =====================================================
   {
-    files: ['scripts/**/*map*.{js,mjs}', 'scripts/**/*google*.{js,mjs}'],
+    files: ['functions/**/*.{js,mjs}'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        Request: 'readonly',
+        Response: 'readonly',
+        fetch: 'readonly',
+        console: 'readonly',
+        process: 'readonly',
+        require: 'readonly',
+        exports: 'readonly',
+        module: 'readonly',
+        __dirname: 'readonly',
+      },
+    },
+    rules: {
+      'no-console': 'off',
+    },
+  },
+
+  // =====================================================
+  // NODE SCRIPTS / TERMUX / CLI
+  // =====================================================
+  {
+    files: ['scripts/**/*.{js,mjs}', '*.mjs'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        console: 'readonly',
+        process: 'readonly',
+        require: 'readonly',
+        module: 'readonly',
+        exports: 'readonly',
+        __dirname: 'readonly',
+        fetch: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+      },
+    },
+    rules: {
+      'no-console': 'off',
+    },
+  },
+
+  // =====================================================
+  // GOOGLE MAPS
+  // =====================================================
+  {
+    files: ['scripts/**/*map*.js', 'scripts/**/*google*.js'],
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -123,38 +162,17 @@ export default [
     },
   },
 
-  // =========================
-  // NODE / SCRIPTS / FIREBASE / CLOUDFLARE FUNCTIONS
-  // - fixe: require/module/exports/process/__dirname/console/setTimeout/fetch
-  // =========================
+  // =====================================================
+  // VITE CONFIG (Node ESM)
+  // =====================================================
   {
-    files: [
-      'scripts/**/*.{js,mjs}',
-      'functions/**/*.{js,mjs}',
-      '*.config.js',
-      '*.mjs',
-      'vite.config.js',
-    ],
+    files: ['vite.config.js'],
     languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
       globals: {
         ...globals.node,
-        process: 'readonly',
-        require: 'readonly',
-        module: 'readonly',
-        exports: 'readonly',
         __dirname: 'readonly',
-        __filename: 'readonly',
-        console: 'readonly',
-        setTimeout: 'readonly',
-        clearTimeout: 'readonly',
-        fetch: 'readonly',
+        process: 'readonly',
       },
-    },
-    rules: {
-      // en scripts Node, on autorise console
-      'no-console': 'off',
     },
   },
 ]
