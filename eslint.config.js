@@ -13,128 +13,93 @@ export default [
       'dist/**',
       'build/**',
       '.firebase/**',
-      'coverage/**'
-    ]
+      'coverage/**',
+    ],
   },
 
   // =========================
-  // REACT / BROWSER (Vite)
+  // FRONTEND (VITE / REACT / BROWSER)
   // =========================
   {
-    files: ['src/**/*.{js,jsx}', 'src/**/*.jsx'],
-    plugins: { react },
+    files: ['src/**/*.{js,jsx}', 'public/**/*.js'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
       globals: {
         ...globals.browser,
-        localStorage: 'readonly',
-        alert: 'readonly',
-        Blob: 'readonly',
-        Event: 'readonly'
-      }
+        ...globals.es2021,
+      },
     },
+    plugins: { react },
     rules: {
       ...js.configs.recommended.rules,
       'react/react-in-jsx-scope': 'off',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
-      'no-unused-vars': ['warn', {
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_'
-      }]
-    }
+    },
   },
 
   // =========================
-  // SERVICE WORKERS (PWA)
+  // SERVICE WORKERS / PWA
   // =========================
   {
-    files: ['**/service-worker.js', '**/sw.js'],
+    files: [
+      '**/service-worker.js',
+      '**/sw.js',
+      'public/sw.js',
+      'frontend/public/service-worker.js',
+    ],
     languageOptions: {
       globals: {
         self: 'readonly',
         caches: 'readonly',
+        fetch: 'readonly',
         Request: 'readonly',
         Response: 'readonly',
-        fetch: 'readonly'
-      }
-    }
+      },
+    },
   },
 
   // =========================
   // CHROME EXTENSION
   // =========================
   {
-    files: ['extension/**/*.{js,jsx}'],
+    files: ['extension/**/*.js'],
     languageOptions: {
       globals: {
         chrome: 'readonly',
         MutationObserver: 'readonly',
         URLSearchParams: 'readonly',
-        AbortController: 'readonly'
-      }
-    }
+        AbortController: 'readonly',
+      },
+    },
   },
 
   // =========================
-  // NODE ESM (SCRIPTS .mjs)
+  // NODE / SCRIPTS / FIREBASE
   // =========================
   {
-    files: ['scripts/**/*.mjs', '*.mjs'],
+    files: [
+      'scripts/**/*.{js,mjs}',
+      'functions/**/*.js',
+      '*.config.js',
+      '*.mjs',
+    ],
     languageOptions: {
-      sourceType: 'module',
       globals: {
         ...globals.node,
-        fetch: 'readonly',
-        setTimeout: 'readonly',
-        console: 'readonly'
-      }
-    }
-  },
-
-  // =========================
-  // NODE COMMONJS (SCRIPTS / FUNCTIONS)
-  // =========================
-  {
-    files: ['scripts/**/*.js', 'functions/**/*.js'],
-    languageOptions: {
-      sourceType: 'commonjs',
-      globals: {
+        process: 'readonly',
         require: 'readonly',
         module: 'readonly',
         exports: 'readonly',
-        process: 'readonly',
         __dirname: 'readonly',
-        console: 'readonly'
-      }
-    }
+        console: 'readonly',
+        setTimeout: 'readonly',
+        fetch: 'readonly',
+      },
+    },
+    rules: {
+      'no-console': 'off',
+    },
   },
-
-  // =========================
-  // CLOUDflare WORKERS
-  // =========================
-  {
-    files: ['functions/**/*.{js,mjs}'],
-    languageOptions: {
-      globals: {
-        Request: 'readonly',
-        Response: 'readonly',
-        fetch: 'readonly'
-      }
-    }
-  },
-
-  // =========================
-  // VITE CONFIG
-  // =========================
-  {
-    files: ['vite.config.js'],
-    languageOptions: {
-      globals: {
-        process: 'readonly',
-        __dirname: 'readonly'
-      }
-    }
-  }
 
 ]
