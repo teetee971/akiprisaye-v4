@@ -1,20 +1,24 @@
+
 import js from '@eslint/js';
 import react from 'eslint-plugin-react';
 
 /**
- * ESLint flat config
- * Compatible Termux / Node / Browser / React / Cloudflare
+ * ESLint Flat Config
+ * Compatible :
+ * - Browser / React (JSX)
+ * - Node / Vite (ESM)
+ * - Termux / Linux
  */
 
 export default [
-  // =========================
+  // =====================================================
   // Base ESLint recommended
-  // =========================
+  // =====================================================
   js.configs.recommended,
 
-  // =========================
+  // =====================================================
   // Global ignores
-  // =========================
+  // =====================================================
   {
     ignores: [
       'node_modules/**',
@@ -31,9 +35,9 @@ export default [
     ],
   },
 
-  // =========================
-  // Main browser / React code
-  // =========================
+  // =====================================================
+  // Main Browser / React code
+  // =====================================================
   {
     files: ['**/*.js', '**/*.jsx'],
     languageOptions: {
@@ -45,25 +49,58 @@ export default [
         },
       },
       globals: {
+        // Browser globals
         window: 'readonly',
         document: 'readonly',
         navigator: 'readonly',
-        console: 'readonly',
         fetch: 'readonly',
         URL: 'readonly',
+        Event: 'readonly',
+        localStorage: 'readonly',
+
+        // Timers
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
         setInterval: 'readonly',
         clearInterval: 'readonly',
+
+        // Console (controlled by rule)
+        console: 'readonly',
       },
     },
     plugins: {
       react,
     },
     rules: {
+      // React 17+ JSX transform
+      'react/react-in-jsx-scope': 'off',
+
+      // Controlled console usage
       'no-console': ['warn', { allow: ['warn', 'error'] }],
-      'no-debugger': 'warn',
+
+      // Unused vars: warnings only, ignore "_" prefixed args
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+
+      // Debugger warning only
+      'no-debugger': 'warn',
+    },
+    settings: {
+      react: {
+        version: 'detect',
+      },
+    },
+  },
+
+  // =====================================================
+  // Node / Vite config (vite.config.js)
+  // =====================================================
+  {
+    files: ['vite.config.js'],
+    languageOptions: {
+      globals: {
+        __dirname: 'readonly',
+        process: 'readonly',
+      },
     },
   },
 ];
