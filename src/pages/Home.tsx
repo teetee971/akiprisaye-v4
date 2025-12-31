@@ -3,6 +3,23 @@ import { GlassCard } from "../components/ui/glass-card";
 export default function Home() {
   return (
     <div className="space-y-6">
+
+      {/* 🔴 TEST VISUEL FORCE – À SUPPRIMER APRÈS VALIDATION */}
+      <div
+        style={{
+          background: "red",
+          color: "white",
+          padding: "16px",
+          textAlign: "center",
+          fontSize: "18px",
+          fontWeight: "bold",
+          borderRadius: "8px",
+        }}
+      >
+        VERSION TEST HOME – 31/12/2025
+      </div>
+
+      {/* Carte principale */}
       <GlassCard>
         <h1 className="text-2xl font-semibold">
           Comparateur de prix citoyen – DOM-ROM-COM
@@ -12,6 +29,7 @@ export default function Home() {
         </p>
       </GlassCard>
 
+      {/* Carte fonctionnalités */}
       <GlassCard>
         <ul className="grid grid-cols-2 gap-4 text-sm">
           <li>📍 Tous territoires ultramarins</li>
@@ -20,6 +38,7 @@ export default function Home() {
           <li>⚖️ Service civique, sans publicité</li>
         </ul>
       </GlassCard>
+
     </div>
   );
 }
