@@ -26,6 +26,10 @@ export default function Pricing() {
           Données publiques, audit et transparence
         </p>
       </GlassCard>
+
+      <p className="text-xs text-gray-400 mt-2 text-center">
+        Paiement non activé — inscription sur demande.
+      </p>
     </div>
   );
 }
