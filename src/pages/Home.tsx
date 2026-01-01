@@ -19,7 +19,7 @@ export default function Home() {
         }}
       >
         🟢 <strong>Version Client Officielle v1.0</strong><br />
-        Plateforme publique stable – données vérifiées<br />
+        Plateforme publique stable – données vérifiées – transparence garantie<br />
         <a
           href="https://github.com/teetee971/akiprisaye-web/releases/tag/v1.0"
           target="_blank"
