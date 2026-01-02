@@ -24,6 +24,7 @@ import type {
   SourceReference,
   ConfidenceMetrics,
   DensityLevel,
+  CategoryComparison,
 } from '../types/productInsight';
 import type { TerritoryCode } from '../types/extensions';
 
@@ -547,7 +548,7 @@ async function detectTerritorialVariations(
 async function getCategoryComparison(
   ean: string,
   nutrition: NutritionPer100g
-): Promise<any> {
+): Promise<CategoryComparison | undefined> {
   // In production, would query category averages
   // For now, return undefined
   return undefined;
@@ -726,5 +727,7 @@ export {
   classifySugarDensity,
   classifySaltDensity,
   classifyCaloricDensity,
+  classifyFatDensity,
+  classifySaturatedFatDensity,
   analyzeFormulation,
 };
