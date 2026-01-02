@@ -32,12 +32,13 @@ export default function Home() {
           afin de garantir la transparence des usages et l'intégrité des données observées.
         </p>
         <div className="flex gap-3 flex-wrap">
-          <a 
-            href="/mon-compte" 
+          <button
+            type="button"
+            onClick={() => alert("L'inscription au service sera prochainement disponible.")}
             className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition-colors"
           >
             Créer un compte gratuit
-          </a>
+          </button>
           <a 
             href="/mon-compte" 
             className="inline-block px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors"
