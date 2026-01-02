@@ -1,0 +1,82 @@
+[
+  {
+    "ean": "3290370050126",
+    "name": "Eau minérale 1.5L",
+    "price": "1.20 €",
+    "store": "Super U Martinique",
+    "category": "Boissons",
+    "lastUpdate": "2026-01-02"
+  },
+  {
+    "ean": "3017620422003",
+    "name": "Nutella 400g",
+    "price": "4.50 €",
+    "store": "Carrefour Guadeloupe",
+    "category": "Épicerie",
+    "lastUpdate": "2026-01-02"
+  },
+  {
+    "ean": "3274080005003",
+    "name": "Evian 1.5L",
+    "price": "1.35 €",
+    "store": "Leader Price Réunion",
+    "category": "Boissons",
+    "lastUpdate": "2026-01-02"
+  },
+  {
+    "ean": "8076800195057",
+    "name": "Barilla Penne 500g",
+    "price": "1.89 €",
+    "store": "Géant Casino Cayenne",
+    "category": "Épicerie",
+    "lastUpdate": "2026-01-02"
+  },
+  {
+    "ean": "3166290010024",
+    "name": "Président Beurre 250g",
+    "price": "3.20 €",
+    "store": "Hyper U Mayotte",
+    "category": "Produits laitiers",
+    "lastUpdate": "2026-01-02"
+  },
+  {
+    "ean": "3095757382001",
+    "name": "Coca-Cola 1.5L",
+    "price": "2.50 €",
+    "store": "Carrefour Martinique",
+    "category": "Boissons",
+    "lastUpdate": "2026-01-02"
+  },
+  {
+    "ean": "3270160894383",
+    "name": "Kiri 280g",
+    "price": "3.80 €",
+    "store": "Super U Réunion",
+    "category": "Produits laitiers",
+    "lastUpdate": "2026-01-02"
+  },
+  {
+    "ean": "3038350555557",
+    "name": "Lu Petit Écolier 150g",
+    "price": "2.30 €",
+    "store": "Leader Price Guadeloupe",
+    "category": "Biscuits",
+    "lastUpdate": "2026-01-02"
+  },
+  {
+    "ean": "3228857000166",
+    "name": "Orangina 1.5L",
+    "price": "2.20 €",
+    "store": "Carrefour Guyane",
+    "category": "Boissons",
+    "lastUpdate": "2026-01-02"
+  },
+  {
+    "ean": "3564700063507",
+    "name": "Cristaline 6x1.5L",
+    "price": "2.90 €",
+    "store": "Leclerc Martinique",
+    "category": "Boissons",
+    "lastUpdate": "2026-01-02"
+  }
+]
