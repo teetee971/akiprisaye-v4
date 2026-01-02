@@ -15,7 +15,7 @@ export default function ScanOCR() {
 
     try {
       const { data: { text } } = await Tesseract.recognize(file, 'fra', {
-        logger: m => console.log(m),
+        logger: import.meta.env.DEV ? m => console.log(m) : () => {},
       });
 
       setResult('🧾 Résultat OCR :\n' + text);
