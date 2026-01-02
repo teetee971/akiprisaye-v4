@@ -297,7 +297,6 @@ async function getIngredientInsight(
         notes: found.regulatoryNotes,
       },
       knownEffects: found.knownEffects,
-      technicalNotes: found.technicalNotes,
     };
   }
   
@@ -326,9 +325,9 @@ async function analyzeAdditives(
   
   // Find E-numbers (E### pattern)
   const eNumberPattern = /E\s?(\d{3,4}[a-z]?)/gi;
-  const matches = ingredientsText.matchAll(eNumberPattern);
+  const matchArray = [...ingredientsText.matchAll(eNumberPattern)];
   
-  for (const match of matches) {
+  for (const match of matchArray) {
     const code = match[0].replace(/\s/g, '').toUpperCase();
     const additiveInfo = getAdditiveInfo(code);
     
