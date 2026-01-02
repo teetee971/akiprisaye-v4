@@ -5,7 +5,6 @@
  */
 
 import { detectProductPage, extractProductInfo, hasUserConsent } from '../shared/productDetector.js';
-import { CONFIG } from '../shared/config.js';
 
 let overlayInjected = false;
 let currentProductInfo = null;

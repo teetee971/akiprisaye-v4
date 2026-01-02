@@ -148,7 +148,7 @@ export async function onRequestPost(context) {
  * GET /api/contact
  * List contact messages (admin only)
  */
-export async function onRequestGet(context) {
+export async function onRequestGet(_context) {
   try {
     // TODO: In production, verify admin authentication
     
@@ -178,7 +178,7 @@ export async function onRequestGet(context) {
  * PATCH /api/contact/:id
  * Update contact message status (admin only)
  */
-export async function onRequestPatch(context) {
+export async function onRequestPatch(_context) {
   try {
     // TODO: In production, verify admin authentication
     

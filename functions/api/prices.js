@@ -69,7 +69,7 @@ function calculateDistance(lat1, lng1, lat2, lng2) {
  */
 export async function onRequestGet(context) {
   try {
-    const { request, env } = context;
+    const { request } = context;
     const url = new URL(request.url);
     const params = url.searchParams;
     
@@ -87,10 +87,10 @@ export async function onRequestGet(context) {
       });
     }
     
-    // Optional location parameters
-    const lat = params.get('lat') ? parseFloat(params.get('lat')) : null;
-    const lng = params.get('lng') ? parseFloat(params.get('lng')) : null;
-    const radius = clampRadius(params.get('radius') || 50);
+    // Optional location parameters (not currently used but validated)
+    const _lat = params.get('lat') ? parseFloat(params.get('lat')) : null;
+    const _lng = params.get('lng') ? parseFloat(params.get('lng')) : null;
+    const _radius = clampRadius(params.get('radius') || 50);
     
     // TODO: PRODUCTION IMPLEMENTATION REQUIRED
     // This is a stub response for MVP development and testing.
