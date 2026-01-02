@@ -6,8 +6,8 @@
 
 export type AccessLevel =
   | 'PUBLIC'
-  | 'EXTENDED'
-  | 'ANALYSIS'
+  | 'CITIZEN'
+  | 'PROFESSIONAL'
   | 'INSTITUTIONAL';
 
 export const ACCESS_LEVEL_PRICES = {
@@ -16,54 +16,49 @@ export const ACCESS_LEVEL_PRICES = {
     yearly: 0,
     description: 'Accès citoyen de base — Consultation libre des données publiques observées'
   },
-  EXTENDED: { 
-    monthly: 2.50, 
-    yearly: 25,
-    description: 'Contribution volontaire au maintien du service'
+  CITIZEN: { 
+    monthly: 3.99, 
+    yearly: 39,
+    description: 'Accès individuel — Contribution de soutien au fonctionnement du service'
   },
-  ANALYSIS: { 
-    monthly: 12, 
-    yearly: 120,
-    description: 'Accès aux outils d\'analyse pour l\'observation territoriale'
+  PROFESSIONAL: { 
+    monthly: 19, 
+    yearly: 190,
+    description: 'Droits étendus — Analyses territoriales avancées'
   },
   INSTITUTIONAL: { 
     monthly: null, 
     yearly: null,
-    description: 'Convention annuelle — Accès contractuel aux données publiques consolidées'
+    description: 'Licence institutionnelle — Accès contractuel sur convention'
   },
 } as const;
 
 export const FEATURES = {
   // Accès Public (Gratuit pour tous)
-  PRICE_COMPARISON: ['PUBLIC', 'EXTENDED', 'ANALYSIS', 'INSTITUTIONAL'],
-  TERRITORY_VIEW: ['PUBLIC', 'EXTENDED', 'ANALYSIS', 'INSTITUTIONAL'],
-  PRICE_SOURCES_VISIBLE: ['PUBLIC', 'EXTENDED', 'ANALYSIS', 'INSTITUTIONAL'],
-  BASIC_HISTORY: ['PUBLIC', 'EXTENDED', 'ANALYSIS', 'INSTITUTIONAL'],
-  READ_ONLY_ACCESS: ['PUBLIC', 'EXTENDED', 'ANALYSIS', 'INSTITUTIONAL'],
-  NO_ADS: ['PUBLIC', 'EXTENDED', 'ANALYSIS', 'INSTITUTIONAL'],
+  PRICE_COMPARISON: ['PUBLIC', 'CITIZEN', 'PROFESSIONAL', 'INSTITUTIONAL'],
+  TERRITORY_VIEW: ['PUBLIC', 'CITIZEN', 'PROFESSIONAL', 'INSTITUTIONAL'],
+  PRICE_SOURCES_VISIBLE: ['PUBLIC', 'CITIZEN', 'PROFESSIONAL', 'INSTITUTIONAL'],
+  BASIC_HISTORY: ['PUBLIC', 'CITIZEN', 'PROFESSIONAL', 'INSTITUTIONAL'],
+  READ_ONLY_ACCESS: ['PUBLIC', 'CITIZEN', 'PROFESSIONAL', 'INSTITUTIONAL'],
+  NO_ADS: ['PUBLIC', 'CITIZEN', 'PROFESSIONAL', 'INSTITUTIONAL'],
   
-  // Accès Étendu Citoyen
-  LOCAL_ALERTS: ['EXTENDED', 'ANALYSIS', 'INSTITUTIONAL'],
-  EXTENDED_HISTORY: ['EXTENDED', 'ANALYSIS', 'INSTITUTIONAL'],
-  PRODUCT_TRACKING: ['EXTENDED', 'ANALYSIS', 'INSTITUTIONAL'],
-  TEMPORAL_COMPARISON: ['EXTENDED', 'ANALYSIS', 'INSTITUTIONAL'],
+  // Accès Citoyen
+  LOCAL_ALERTS: ['CITIZEN', 'PROFESSIONAL', 'INSTITUTIONAL'],
+  EXTENDED_HISTORY: ['CITIZEN', 'PROFESSIONAL', 'INSTITUTIONAL'],
+  PRODUCT_TRACKING: ['CITIZEN', 'PROFESSIONAL', 'INSTITUTIONAL'],
+  PUBLIC_DATA_ACCESS: ['CITIZEN', 'PROFESSIONAL', 'INSTITUTIONAL'],
   
-  // Accès Analyse Territoriale
-  MULTI_TERRITORY: ['ANALYSIS', 'INSTITUTIONAL'],
-  LONG_TIME_SERIES: ['ANALYSIS', 'INSTITUTIONAL'],
-  DOMAIN_AGGREGATION: ['ANALYSIS', 'INSTITUTIONAL'],
-  CSV_EXPORT_LIMITED: ['ANALYSIS', 'INSTITUTIONAL'],
-  METHODOLOGY_ACCESS: ['ANALYSIS', 'INSTITUTIONAL'],
+  // Accès Professionnel
+  MULTI_TERRITORY: ['PROFESSIONAL', 'INSTITUTIONAL'],
+  LONG_TIME_SERIES: ['PROFESSIONAL', 'INSTITUTIONAL'],
+  CSV_EXPORT: ['PROFESSIONAL', 'INSTITUTIONAL'],
+  MULTI_TERRITORY_COMPARISON: ['PROFESSIONAL', 'INSTITUTIONAL'],
   
   // Licence Institutionnelle
-  ALL_DOMAINS: ['INSTITUTIONAL'],
-  ADVANCED_EXPORT: ['INSTITUTIONAL'],
-  CONSOLIDATED_SERIES: ['INSTITUTIONAL'],
-  GLOBAL_INDICES: ['INSTITUTIONAL'],
-  TECHNICAL_DOCUMENTATION: ['INSTITUTIONAL'],
+  PUBLIC_AUDITED_DATA: ['INSTITUTIONAL'],
+  NORMALIZED_EXPORTS: ['INSTITUTIONAL'],
   PUBLIC_API: ['INSTITUTIONAL'],
-  AUDITABILITY: ['INSTITUTIONAL'],
-  TRACEABILITY: ['INSTITUTIONAL'],
+  OFFICIAL_METHODOLOGY: ['INSTITUTIONAL'],
 } as const;
 
 export type Feature = keyof typeof FEATURES;
@@ -98,28 +93,23 @@ export const getFeatureDescription = (feature: Feature): string => {
     READ_ONLY_ACCESS: 'Lecture seule',
     NO_ADS: 'Sans publicité',
     
-    // Accès Étendu
-    LOCAL_ALERTS: 'Alertes locales de variation de prix',
-    EXTENDED_HISTORY: 'Historique étendu (12 mois)',
-    PRODUCT_TRACKING: 'Suivi de produits / territoires',
-    TEMPORAL_COMPARISON: 'Comparaisons temporelles simples',
+    // Accès Citoyen
+    LOCAL_ALERTS: 'Alertes locales personnalisées',
+    EXTENDED_HISTORY: 'Historique des prix',
+    PRODUCT_TRACKING: 'Consultation des comparateurs',
+    PUBLIC_DATA_ACCESS: 'Accès aux données publiques',
     
-    // Accès Analyse
+    // Accès Professionnel
     MULTI_TERRITORY: 'Comparaisons multi-territoires',
-    LONG_TIME_SERIES: 'Séries temporelles longues',
-    DOMAIN_AGGREGATION: 'Agrégation par domaine (alimentation, énergie, mobilité…)',
-    CSV_EXPORT_LIMITED: 'Exports CSV limités',
-    METHODOLOGY_ACCESS: 'Méthodologie détaillée',
+    LONG_TIME_SERIES: 'Séries historiques complètes',
+    CSV_EXPORT: 'Exports CSV / JSON',
+    MULTI_TERRITORY_COMPARISON: 'Analyses territoriales avancées',
     
     // Licence Institutionnelle
-    ALL_DOMAINS: 'Tous les domaines agrégés',
-    ADVANCED_EXPORT: 'Export open-data avancé (CSV / JSON)',
-    CONSOLIDATED_SERIES: 'Séries consolidées multi-services',
-    GLOBAL_INDICES: 'Accès indices globaux',
-    TECHNICAL_DOCUMENTATION: 'Documentation technique',
-    PUBLIC_API: 'API publique',
-    AUDITABILITY: 'Auditabilité complète',
-    TRACEABILITY: 'Transparence méthodologique',
+    PUBLIC_AUDITED_DATA: 'Données publiques auditées',
+    NORMALIZED_EXPORTS: 'Exports normalisés (INSEE / Eurostat)',
+    PUBLIC_API: 'Accès API open-data',
+    OFFICIAL_METHODOLOGY: 'Documentation méthodologique officielle',
   };
   
   return descriptions[feature];

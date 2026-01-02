@@ -111,33 +111,28 @@ export default function CivicModules() {
               Niveaux d'accès au service
             </h2>
             <p className="text-sm text-gray-400 mb-4">
-              Observatoire public indépendant — L'accès aux données essentielles est libre
+              Observatoire citoyen des prix et du coût de la vie — DOM · ROM · COM
             </p>
-            <div className="grid md:grid-cols-4 gap-4">
-              <div className="bg-slate-800/30 rounded-lg p-4 border border-green-600/50">
-                <h3 className="font-semibold text-green-300 mb-2">Accès Public</h3>
-                <p className="text-2xl font-bold text-gray-100 mb-2">Gratuit</p>
-                <p className="text-xs text-gray-400">Consultation libre</p>
-              </div>
+            <div className="grid md:grid-cols-3 gap-4">
               <div className="bg-slate-800/30 rounded-lg p-4 border border-blue-600/50">
-                <h3 className="font-semibold text-blue-300 mb-2">Accès Étendu</h3>
-                <p className="text-2xl font-bold text-gray-100 mb-2">2,50 €<span className="text-sm">/mois</span></p>
-                <p className="text-xs text-gray-400">Contribution volontaire</p>
+                <h3 className="font-semibold text-blue-300 mb-2">🧑 Citoyen</h3>
+                <p className="text-2xl font-bold text-gray-100 mb-2">3,99 €<span className="text-sm">/mois</span></p>
+                <p className="text-xs text-gray-400">Accès individuel</p>
               </div>
               <div className="bg-slate-800/30 rounded-lg p-4 border border-purple-600/50">
-                <h3 className="font-semibold text-purple-300 mb-2">Accès Analyse</h3>
-                <p className="text-2xl font-bold text-gray-100 mb-2">12 €<span className="text-sm">/mois</span></p>
-                <p className="text-xs text-gray-400">Outils d'observation</p>
+                <h3 className="font-semibold text-purple-300 mb-2">🧑‍💼 Professionnel</h3>
+                <p className="text-2xl font-bold text-gray-100 mb-2">19 €<span className="text-sm">/mois</span></p>
+                <p className="text-xs text-gray-400">Droits étendus</p>
               </div>
               <div className="bg-slate-800/30 rounded-lg p-4 border border-slate-700/30">
-                <h3 className="font-semibold text-gray-200 mb-2">Licence Instit.</h3>
-                <p className="text-lg font-bold text-gray-100 mb-2">Convention<span className="text-sm block">annuelle</span></p>
-                <p className="text-xs text-gray-400">Secteur public</p>
+                <h3 className="font-semibold text-gray-200 mb-2">🏛️ Institution</h3>
+                <p className="text-lg font-bold text-gray-100 mb-2">Licence<span className="text-sm block">annuelle</span></p>
+                <p className="text-xs text-gray-400">Sur convention</p>
               </div>
             </div>
             <div className="mt-4 p-3 bg-blue-900/20 border border-blue-700/30 rounded-lg">
               <p className="text-xs text-blue-200 text-center">
-                Données observées • Transparence garantie • Sans publicité
+                Paiement non activé — accès sur convention ou demande officielle
               </p>
             </div>
           </section>
