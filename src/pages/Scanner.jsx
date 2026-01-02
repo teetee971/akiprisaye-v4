@@ -12,7 +12,9 @@ export default function Scanner() {
   const [error, setError] = useState(null);
 
   const handleScan = async (code) => {
-    console.log('Scanned code:', code);
+    if (import.meta.env.DEV) {
+      console.warn('Scanned code:', code);
+    }
     setScanResult(code);
     setShowScanner(false);
     setLoading(true);

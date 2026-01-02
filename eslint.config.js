@@ -13,6 +13,7 @@ export default [
       '**/build/**',
       '**/.firebase/**',
       '**/coverage/**',
+      '**/Assets/**',
     ],
   },
 
@@ -38,6 +39,11 @@ export default [
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true
+        }
+      },
       globals: {
         ...globals.browser,
         ...globals.es2021,
@@ -55,8 +61,14 @@ export default [
       },
     },
     plugins: { react },
+    settings: {
+      react: {
+        version: 'detect'
+      }
+    },
     rules: {
       'react/react-in-jsx-scope': 'off',
+      'react/prop-types': 'off',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
     },
   },
