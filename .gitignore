@@ -74,6 +74,7 @@ desktop.ini
 *.apk
 unins*.dat
 unins*.exe
+Assets/
 
 # Archive files
 *.zip
