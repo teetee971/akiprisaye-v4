@@ -27,8 +27,8 @@ export default function MentionsLegales() {
               <li>✅ Conformité RGPD complète</li>
               <li>✅ OCR & IA conformes (pas de traitement biométrique)</li>
               <li>✅ Scan produit légitime</li>
-              <li>❌ Aucune donnée sensible traitée</li>
-              <li>❌ Risque CNIL très faible</li>
+              <li>✅ Aucune donnée sensible traitée</li>
+              <li>✅ Risque CNIL très faible</li>
               <li>✅ Prêt pour audit externe</li>
             </ul>
           </section>

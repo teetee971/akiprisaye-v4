@@ -291,8 +291,10 @@ export function isConfidenceAcceptable(confidence: number): boolean {
  * @returns Formatted text with warning
  */
 export function formatOCRResultForDisplay(result: OCRResult): string {
-  const warning = '⚠️ Détection automatique — peut contenir des erreurs\n' +
-    '📋 Votre image n\'est pas conservée et reste confidentielle\n\n';
+  const warning = `⚠️ Détection automatique — peut contenir des erreurs
+📋 Votre image n'est pas conservée et reste confidentielle
+
+`;
   
   if (!result.success || !result.rawText) {
     return warning + 'Aucun texte détecté';
@@ -308,9 +310,9 @@ export function formatOCRResultForDisplay(result: OCRResult): string {
  * @returns Compliance text
  */
 export function getOCRGDPRDisclaimer(): string {
-  return 'En utilisant cette fonctionnalité, vous acceptez que :\n' +
-    '• L\'image soit traitée localement sur votre appareil\n' +
-    '• Aucune donnée biométrique ne soit collectée\n' +
-    '• L\'image ne soit pas conservée après extraction du texte\n' +
-    '• Aucune interprétation santé/nutrition automatique ne soit effectuée';
+  return `En utilisant cette fonctionnalité, vous acceptez que :
+• L'image soit traitée localement sur votre appareil
+• Aucune donnée biométrique ne soit collectée
+• L'image ne soit pas conservée après extraction du texte
+• Aucune interprétation santé/nutrition automatique ne soit effectuée`;
 }
