@@ -103,3 +103,6 @@ backend/dist/
 backend/node_modules/
 backend/coverage/
 backend/prisma/migrations/*.sql
+
+# Open Data Exports
+exports/

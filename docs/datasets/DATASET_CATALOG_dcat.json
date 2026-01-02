@@ -1,0 +1,125 @@
+{
+  "@context": {
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dct": "http://purl.org/dc/terms/",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "vcard": "http://www.w3.org/2006/vcard/ns#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@type": "dcat:Catalog",
+  "dct:title": "Observatoire du Coût de la Vie - Catalogue Open Data",
+  "dct:description": "Catalogue des jeux de données ouverts de l'observatoire du coût de la vie couvrant la France métropolitaine et les territoires d'outre-mer",
+  "dct:publisher": {
+    "@type": "foaf:Organization",
+    "foaf:name": "Observatoire du Coût de la Vie - A KI PRI SA YÉ",
+    "foaf:homepage": "https://akiprisaye.fr"
+  },
+  "dct:issued": "2026-01-02",
+  "dct:modified": "2026-01-02",
+  "dct:language": "fr",
+  "dcat:themeTaxonomy": "http://publications.europa.eu/resource/authority/data-theme",
+  "dcat:dataset": [
+    {
+      "@type": "dcat:Dataset",
+      "@id": "https://akiprisaye.fr/datasets/cost-of-living-martinique",
+      "dct:identifier": "cost-of-living-martinique",
+      "dct:title": "Indice du Coût de la Vie - Martinique",
+      "dct:description": "Indices mensuels du coût de la vie en Martinique, incluant alimentation, logement, transport et énergie",
+      "dct:issued": "2024-01-01",
+      "dct:modified": "2026-01-02",
+      "dct:license": "https://opendatacommons.org/licenses/odbl/1.0/",
+      "dct:publisher": {
+        "@type": "foaf:Organization",
+        "foaf:name": "Observatoire du Coût de la Vie"
+      },
+      "dcat:contactPoint": {
+        "@type": "vcard:Organization",
+        "vcard:fn": "Open Data Team",
+        "vcard:hasEmail": "mailto:opendata@akiprisaye.fr"
+      },
+      "dcat:keyword": ["prix", "coût de la vie", "Martinique", "DOM", "inflation"],
+      "dcat:theme": "http://publications.europa.eu/resource/authority/data-theme/ECON",
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dct:identifier": "http://publications.europa.eu/resource/authority/country/MTQ"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": "2024-01-01",
+        "dcat:endDate": "2026-01-02"
+      },
+      "dct:accrualPeriodicity": "http://publications.europa.eu/resource/authority/frequency/MONTHLY",
+      "dcat:distribution": [
+        {
+          "@type": "dcat:Distribution",
+          "dct:title": "Données CSV",
+          "dct:format": "text/csv",
+          "dcat:mediaType": "text/csv",
+          "dcat:accessURL": "https://github.com/teetee971/akiprisaye-web/releases/latest/download/cost-of-living-martinique.csv",
+          "dcat:byteSize": 500,
+          "dct:license": "https://opendatacommons.org/licenses/odbl/1.0/"
+        },
+        {
+          "@type": "dcat:Distribution",
+          "dct:title": "Données JSON",
+          "dct:format": "application/json",
+          "dcat:mediaType": "application/json",
+          "dcat:accessURL": "https://github.com/teetee971/akiprisaye-web/releases/latest/download/cost-of-living-martinique.json",
+          "dcat:byteSize": 1000,
+          "dct:license": "https://opendatacommons.org/licenses/odbl/1.0/"
+        }
+      ]
+    },
+    {
+      "@type": "dcat:Dataset",
+      "@id": "https://akiprisaye.fr/datasets/cost-of-living-guadeloupe",
+      "dct:identifier": "cost-of-living-guadeloupe",
+      "dct:title": "Indice du Coût de la Vie - Guadeloupe",
+      "dct:description": "Indices mensuels du coût de la vie en Guadeloupe, incluant alimentation, logement, transport et énergie",
+      "dct:issued": "2024-01-01",
+      "dct:modified": "2026-01-02",
+      "dct:license": "https://opendatacommons.org/licenses/odbl/1.0/",
+      "dct:publisher": {
+        "@type": "foaf:Organization",
+        "foaf:name": "Observatoire du Coût de la Vie"
+      },
+      "dcat:contactPoint": {
+        "@type": "vcard:Organization",
+        "vcard:fn": "Open Data Team",
+        "vcard:hasEmail": "mailto:opendata@akiprisaye.fr"
+      },
+      "dcat:keyword": ["prix", "coût de la vie", "Guadeloupe", "DOM", "inflation"],
+      "dcat:theme": "http://publications.europa.eu/resource/authority/data-theme/ECON",
+      "dct:spatial": {
+        "@type": "dct:Location",
+        "dct:identifier": "http://publications.europa.eu/resource/authority/country/GLP"
+      },
+      "dct:temporal": {
+        "@type": "dct:PeriodOfTime",
+        "dcat:startDate": "2024-01-01",
+        "dcat:endDate": "2026-01-02"
+      },
+      "dct:accrualPeriodicity": "http://publications.europa.eu/resource/authority/frequency/MONTHLY",
+      "dcat:distribution": [
+        {
+          "@type": "dcat:Distribution",
+          "dct:title": "Données CSV",
+          "dct:format": "text/csv",
+          "dcat:mediaType": "text/csv",
+          "dcat:accessURL": "https://github.com/teetee971/akiprisaye-web/releases/latest/download/cost-of-living-guadeloupe.csv",
+          "dcat:byteSize": 500,
+          "dct:license": "https://opendatacommons.org/licenses/odbl/1.0/"
+        },
+        {
+          "@type": "dcat:Distribution",
+          "dct:title": "Données JSON",
+          "dct:format": "application/json",
+          "dcat:mediaType": "application/json",
+          "dcat:accessURL": "https://github.com/teetee971/akiprisaye-web/releases/latest/download/cost-of-living-guadeloupe.json",
+          "dcat:byteSize": 1000,
+          "dct:license": "https://opendatacommons.org/licenses/odbl/1.0/"
+        }
+      ]
+    }
+  ]
+}
