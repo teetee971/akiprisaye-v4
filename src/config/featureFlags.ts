@@ -120,14 +120,10 @@ export function getAllFeatureFlags(): FeatureFlags {
  */
 export function devOverrideFlag(flagName: keyof FeatureFlags, value: boolean): void {
   if (!import.meta.env.DEV) {
-    if (import.meta.env.DEV) {
-      console.warn('devOverrideFlag: Cannot override flags in production');
-    }
+    console.warn('devOverrideFlag: Cannot override flags in production');
     return;
   }
   
   featureFlags[flagName] = value;
-  if (import.meta.env.DEV) {
-    console.log(`Feature flag ${flagName} overridden to ${value}`);
-  }
+  console.log(`Feature flag ${flagName} overridden to ${value}`);
 }

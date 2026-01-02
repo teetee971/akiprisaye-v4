@@ -1,6 +1,6 @@
 # 🚀 Release v2.1.0 - A KI PRI SA YÉ
 
-**Date de publication**: 2 janvier 2026  
+**Date de publication**: Janvier 2026  
 **Version**: 2.1.0  
 **Statut**: Production Ready ✅
 
