@@ -41,13 +41,14 @@ export interface IngredientChange {
   detectedAt: string; // ISO 8601
   
   /** Source references for this observation */
-  sources: SourceReference[];
+  sources: EvolutionSourceReference[];
 }
 
 /**
- * Source reference for an observation
+ * Evolution source reference for data traceability
+ * Renamed to avoid conflict with productInsight.ts SourceReference
  */
-export interface SourceReference {
+export interface EvolutionSourceReference {
   /** Source type */
   type: 'label_scan' | 'ticket_scan' | 'public_db' | 'user_report';
   
@@ -90,7 +91,7 @@ export interface FormulationSnapshot {
   ingredients: string[];
   
   /** Source references */
-  sources: SourceReference[];
+  sources: EvolutionSourceReference[];
   
   /** Data quality indicator (0-1) */
   quality: number;

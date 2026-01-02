@@ -279,7 +279,18 @@ export async function getIngredientEvolution(
     // Get unique territories
     const territories = [...new Set(timeline.map(t => t.territory))];
     
-    // Get product info from most recent snapshot (use sorted array)
+    // Get product info from most recent snapshot (use sorted array with safety check)
+    if (sortedFiltered.length === 0) {
+      return {
+        success: false,
+        error: 'No data available after filtering',
+        metadata: {
+          processingTime: Date.now() - startTime,
+          dataVersion: '1.7.0',
+          sourcesAnalyzed: 0,
+        },
+      };
+    }
     const mostRecent = sortedFiltered[sortedFiltered.length - 1];
     
     return {
@@ -517,7 +528,10 @@ export async function getChangeDetectionStats(
       stats.totalFormulations += filtered.length;
       
       // Build timeline and count changes
-      const timeline = buildTimeline(filtered, { ean });
+      const timeline = buildTimeline(filtered, { 
+        ean,
+        territory,
+      });
       const changesByType = calculateChangeStats(timeline);
       const totalChanges = Object.values(changesByType).reduce((sum, count) => sum + count, 0);
       
