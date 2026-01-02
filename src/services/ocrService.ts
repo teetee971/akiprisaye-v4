@@ -4,7 +4,17 @@
  * 
  * Uses Tesseract.js for text extraction from product images
  * Focuses on ingredients, allergens, and legal mentions
- * NO health interpretation, NO nutritional analysis
+ * 
+ * ⚠️ CONFORMITÉ RGPD & AI ACT UE ⚠️
+ * - NO health interpretation
+ * - NO nutritional analysis
+ * - NO biometric processing
+ * - NO facial recognition
+ * - Images processed locally (client-side)
+ * - Images NOT stored or transmitted to servers
+ * - Images deleted immediately after text extraction
+ * 
+ * Base légale : Consentement explicite (RGPD Art. 6.1.a)
  */
 
 import Tesseract from 'tesseract.js';
@@ -43,6 +53,13 @@ export interface PreprocessOptions {
 
 /**
  * Perform OCR on an image file or URL
+ * 
+ * RGPD COMPLIANCE:
+ * - Image processing is done locally in the browser (client-side)
+ * - No image data is transmitted to external servers
+ * - Images are NOT stored beyond the time needed for text extraction
+ * - No biometric processing or facial recognition is performed
+ * - No automated health or nutritional decisions are made
  * 
  * @param imageSource - File, Blob, or URL string
  * @param options - Preprocessing options
@@ -268,16 +285,32 @@ export function isConfidenceAcceptable(confidence: number): boolean {
 /**
  * Format OCR result for display
  * Adds warning message about automatic detection
+ * Reminds users of GDPR compliance
  * 
  * @param result - OCR result
  * @returns Formatted text with warning
  */
 export function formatOCRResultForDisplay(result: OCRResult): string {
-  const warning = '⚠️ Détection automatique — peut contenir des erreurs\n\n';
+  const warning = '⚠️ Détection automatique — peut contenir des erreurs\n' +
+    '📋 Votre image n\'est pas conservée et reste confidentielle\n\n';
   
   if (!result.success || !result.rawText) {
     return warning + 'Aucun texte détecté';
   }
   
   return warning + result.rawText;
+}
+
+/**
+ * Get GDPR compliance disclaimer for OCR
+ * To be displayed before user initiates OCR
+ * 
+ * @returns Compliance text
+ */
+export function getOCRGDPRDisclaimer(): string {
+  return 'En utilisant cette fonctionnalité, vous acceptez que :\n' +
+    '• L\'image soit traitée localement sur votre appareil\n' +
+    '• Aucune donnée biométrique ne soit collectée\n' +
+    '• L\'image ne soit pas conservée après extraction du texte\n' +
+    '• Aucune interprétation santé/nutrition automatique ne soit effectuée';
 }
