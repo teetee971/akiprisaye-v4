@@ -68,9 +68,9 @@ export const FAQ_DATA: FAQItem[] = [
   {
     id: 'faq-008',
     category: 'abonnements',
-    question: 'Quelle est la différence entre Citoyen+ et Pro ?',
-    answer: 'Citoyen+ (2,99€/mois) donne accès aux alertes, à l\'historique étendu et aux exports basiques. Pro (9,99€/mois) ajoute les agrégations avancées, les comparaisons multi-territoires et les exports CSV/JSON complets.',
-    tags: ['citoyen', 'pro', 'différences']
+    question: 'Quelle est la différence entre Citoyen et Professionnel ?',
+    answer: 'Citoyen (3,99€/mois) donne accès au scan EAN illimité, OCR ingrédients, fiche produit enrichie, alertes prix locales et historique personnel. Professionnel (19€/mois) ajoute les comparaisons temporelles multi-marques, historique long (12-36 mois), exports CSV/JSON et agrégations territoriales.',
+    tags: ['citoyen', 'professionnel', 'différences']
   },
   {
     id: 'faq-009',
