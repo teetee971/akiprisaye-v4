@@ -10,7 +10,8 @@
         "lint:fix": "eslint . --ext .js,.jsx --fix",
         "format": "prettier --write \"**/*.{js,jsx,json,md,css,html}\"",
         "test": "vitest run",
-        "test:watch": "vitest"
+        "test:watch": "vitest",
+        "export:open-data": "node scripts/exportOpenData.js"
     },
     "dependencies": {
         "@openfoodfacts/openfoodfacts-nodejs": "^2.0.0-alpha.19",

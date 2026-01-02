@@ -1,0 +1,49 @@
+cff-version: 1.2.0
+message: "If you use this dataset, please cite it as below."
+type: dataset
+title: "Observatoire du Coût de la Vie - Données Ouvertes"
+version: 5.1.0
+date-released: 2026-01-02
+authors:
+  - name: "Observatoire du Coût de la Vie"
+    alias: "A KI PRI SA YÉ"
+    website: "https://akiprisaye.fr"
+contact:
+  - email: "opendata@akiprisaye.fr"
+    name: "Open Data Team"
+url: "https://akiprisaye.fr"
+repository-code: "https://github.com/teetee971/akiprisaye-web"
+license: ODbL-1.0
+license-url: "https://opendatacommons.org/licenses/odbl/1.0/"
+keywords:
+  - cost of living
+  - prices
+  - overseas territories
+  - open data
+  - DOM
+  - France
+  - economics
+  - consumer prices
+abstract: >
+  Open dataset from the Cost of Living Observatory covering
+  France and overseas territories (Guadeloupe, Martinique, 
+  Guyane, Réunion, Mayotte). Contains observed prices, 
+  cost indices, and territorial comparisons with transparent
+  methodology and full traceability.
+references:
+  - type: article
+    title: "Méthodologie IEVR v5.1.0"
+    authors:
+      - name: "Observatoire du Coût de la Vie"
+    year: 2026
+    url: "https://akiprisaye.fr/docs/methodologie-ievr"
+  - type: article
+    title: "Charte de Transparence"
+    authors:
+      - name: "Observatoire du Coût de la Vie"
+    year: 2026
+    url: "https://akiprisaye.fr/docs/charte-transparence"
+identifiers:
+  - type: url
+    value: "https://github.com/teetee971/akiprisaye-web"
+    description: "Source code repository"
