@@ -4,7 +4,7 @@ test('computePrediction returns Baisse probable on clear downward trend', () => 
   const obs = [
     { date: '2026-01-01T00:00:00Z', price: 10 },
     { date: '2026-01-08T00:00:00Z', price: 9.5 },
-    { date: '2026-0115T00:00:00Z', price: 9.0 },
+    { date: '2026-01-15T00:00:00Z', price: 9.0 },
     { date: '2026-01-22T00:00:00Z', price: 8.5 },
     { date: '2026-01-29T00:00:00Z', price: 8.0 },
   ];
