@@ -1,6 +1,6 @@
 {
     "name": "aki-chat-ia-local",
-    "version": "1.0.0",
+    "version": "2.1.0",
     "scripts": {
         "dev": "vite",
         "build": "vite build",

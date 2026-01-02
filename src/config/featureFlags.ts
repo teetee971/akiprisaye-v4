@@ -34,6 +34,27 @@ export interface FeatureFlags {
   
   /** Institutional API access (v2.0+) */
   FEATURE_INSTITUTIONAL_API: boolean;
+  
+  /** Price comparison v1.4.0 */
+  FEATURE_PRICE_COMPARISON: boolean;
+  
+  /** Product insight analysis v1.5.0 */
+  FEATURE_PRODUCT_INSIGHT: boolean;
+  
+  /** Product dossier v1.6.0 */
+  FEATURE_PRODUCT_DOSSIER: boolean;
+  
+  /** Ingredient evolution tracking v1.7.0 */
+  FEATURE_INGREDIENT_EVOLUTION: boolean;
+  
+  /** Open data export v1.8.0 */
+  FEATURE_OPEN_DATA_EXPORT: boolean;
+  
+  /** Product history v1.9.0-v1.10.0 */
+  FEATURE_PRODUCT_HISTORY: boolean;
+  
+  /** Cost of living / IEVR v2.1.0 */
+  FEATURE_COST_OF_LIVING: boolean;
 }
 
 /**
@@ -50,6 +71,13 @@ export const featureFlags: FeatureFlags = {
   FEATURE_MULTI_TERRITORY_COMPARE: false,
   FEATURE_AI_INSIGHTS: false,
   FEATURE_INSTITUTIONAL_API: false,
+  FEATURE_PRICE_COMPARISON: false,
+  FEATURE_PRODUCT_INSIGHT: false,
+  FEATURE_PRODUCT_DOSSIER: false,
+  FEATURE_INGREDIENT_EVOLUTION: false,
+  FEATURE_OPEN_DATA_EXPORT: false,
+  FEATURE_PRODUCT_HISTORY: false,
+  FEATURE_COST_OF_LIVING: false,
 };
 
 /**
@@ -92,14 +120,10 @@ export function getAllFeatureFlags(): FeatureFlags {
  */
 export function devOverrideFlag(flagName: keyof FeatureFlags, value: boolean): void {
   if (!import.meta.env.DEV) {
-    if (import.meta.env.DEV) {
-      console.warn('devOverrideFlag: Cannot override flags in production');
-    }
+    console.warn('devOverrideFlag: Cannot override flags in production');
     return;
   }
   
   featureFlags[flagName] = value;
-  if (import.meta.env.DEV) {
-    console.log(`Feature flag ${flagName} overridden to ${value}`);
-  }
+  console.log(`Feature flag ${flagName} overridden to ${value}`);
 }
