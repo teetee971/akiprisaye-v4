@@ -30,9 +30,6 @@ export default function Layout() {
               alt="A KI PRI SA YÉ Logo"
               className="h-8 w-auto"
             />
-            <span className="font-semibold text-slate-100 text-base md:text-lg tracking-wide">
-              A KI PRI SA YÉ
-            </span>
           </Link>
 
           {/* Menu desktop */}

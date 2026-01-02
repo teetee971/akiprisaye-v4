@@ -75,7 +75,9 @@ export default function ContactCollectivites() {
     }
     
     // Simulate form submission
-    console.log('Form submitted:', formData);
+    if (import.meta.env.DEV) {
+      console.log('Form submitted:', formData);
+    }
     setSubmitted(true);
     
     // In production, this would send to backend

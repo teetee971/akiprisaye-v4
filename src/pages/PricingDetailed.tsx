@@ -1,252 +1,126 @@
-// src/pages/Pricing.tsx
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
 import { GlassContainer } from '@/components/ui/GlassContainer';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { CivicButton } from '@/components/ui/CivicButton';
 import { DataBadge } from '@/components/ui/DataBadge';
-import { LimitNote } from '@/components/ui/LimitNote';
-import { UltraSimpleToggle } from '@/components/ui/UltraSimpleToggle';
+import GratificationDisplay from '@/components/GratificationDisplay';
 
-const plans = [
+const accessLevels = [
   {
-    id: 'FREE',
-    title: 'Citoyen – Gratuit',
+    id: 'PUBLIC',
+    title: '📖 Gratuit',
     price: '0 €',
-    priceMonthly: 0,
-    priceYearly: 0,
-    description: 'Accès essentiel pour tous',
+    subtitle: 'Accès public',
     features: [
-      'Liste de courses générique',
-      'Carte des magasins',
-      'Distances simples',
-      'Sources publiques visibles',
-      'Mode hors ligne basique',
+      'Comparaisons basiques',
+      'Lecture seule',
+      'Données observées',
+      'Sans publicité',
     ],
-    limits: [
-      '1 territoire',
-      'Historique 30 jours',
-      'Pas d\'export',
-    ],
+    note: 'Accès de base pour tous les citoyens.',
   },
   {
-    id: 'CITIZEN_PREMIUM',
-    title: 'Citoyen Premium',
-    price: '3,99 € / mois',
-    priceMonthly: 3.99,
-    priceYearly: 39,
-    description: 'Pour optimiser ses dépenses quotidiennes',
-    popular: true,
+    id: 'CITIZEN',
+    title: '🧑 Citoyen+',
+    price: '2,99 € / mois',
+    subtitle: 'Contribution volontaire',
     features: [
-      'Tout Gratuit +',
-      'Optimisation multi-trajets',
-      'Profils de foyers (INSEE)',
-      'Export PDF',
-      'Historique illimité',
-      'Mode hors ligne renforcé',
+      'Historique étendu',
+      'Alertes locales',
+      'Exports basiques',
+      'Suivi de produits',
     ],
-    limits: [
-      '3 territoires maximum',
-      'Pas d\'API',
-    ],
+    note: 'Soutien au fonctionnement du service.',
   },
   {
-    id: 'PRO',
-    title: 'Professionnel',
-    price: '19 € / mois',
-    priceMonthly: 19,
-    priceYearly: 190,
-    description: 'Veille économique locale',
+    id: 'PROFESSIONAL',
+    title: '🧑‍💼 Pro',
+    price: '9,99 € / mois',
+    subtitle: 'Agrégations avancées',
     features: [
-      'Tout Premium +',
       'Multi-territoires',
-      'Tendances (hausse / baisse)',
-      'Export CSV',
-      'Support prioritaire',
+      'Séries historiques longues',
+      'Exports CSV / JSON',
+      'Analyses territoriales',
     ],
-    limits: [
-      'API lecture seule',
-      'Historique 2 ans',
-    ],
-    domDiscount: true,
+    note: 'Pour associations, journalistes, chercheurs.',
   },
   {
-    id: 'BUSINESS',
-    title: 'Business',
-    price: '99 € / mois',
-    priceMonthly: 99,
-    priceYearly: 990,
-    description: 'Analyse territoriale structurée',
-    features: [
-      'Tout Pro +',
-      'Tableaux de bord',
-      'Rapports automatisés',
-      'Accès API lecture (agrégée)',
-      'Comptes multiples',
-    ],
-    limits: [
-      'Historique 5 ans',
-      'Pas de données concurrentielles',
-    ],
-    domDiscount: true,
-  },
-  {
-    id: 'ENTERPRISE',
-    title: 'Enterprise',
+    id: 'INSTITUTIONAL',
+    title: '🏛️ Institution',
     price: 'Sur devis',
-    priceRange: '2 500 € - 25 000 € / an',
-    description: 'Analyse macro-territoriale',
+    subtitle: 'Licence annuelle',
     features: [
-      'Tout Business +',
-      'Multi-DOM / COM',
-      'Historique complet',
-      'Analyses prédictives',
-      'Accompagnement dédié',
-      'API étendue',
+      'API open-data',
+      'Exports normalisés INSEE/Eurostat',
+      'Documentation complète',
+      'Support méthodologique',
     ],
-    limits: [
-      'Secteur privé uniquement',
-      'Pas de données sensibles',
-    ],
-  },
-  {
-    id: 'INSTITUTION',
-    title: 'Institution',
-    price: 'Licence publique',
-    priceRange: '500 € - 50 000 € / an',
-    description: 'Outil public numérique',
-    features: [
-      'Tout Enterprise +',
-      'Rapports publics institutionnels',
-      'Transparence totale',
-      'Audit complet',
-      'Support institutionnel',
-      'Traçabilité complète',
-    ],
-    limits: [
-      'Données 100% publiques',
-      'Collectivités et organismes publics',
-    ],
+    note: 'Paiement non activé — accès sur convention ou demande officielle.',
   },
 ];
 
-export default function Pricing() {
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
-  const [isDOMTerritory, setIsDOMTerritory] = useState(false);
-
-  const getDisplayPrice = (plan: typeof plans[0]) => {
-    if (plan.id === 'FREE') return '0 €';
-    if (plan.id === 'ENTERPRISE' || plan.id === 'INSTITUTION') return plan.priceRange;
-    
-    const isYearly = billingCycle === 'yearly';
-    const basePrice = isYearly ? plan.priceYearly : plan.priceMonthly;
-    const price = isDOMTerritory && plan.domDiscount ? basePrice * 0.7 : basePrice;
-    
-    return `${price.toFixed(2)} € / ${isYearly ? 'an' : 'mois'}`;
-  };
-
+export default function PricingDetailed() {
   return (
     <div className="min-h-screen bg-slate-950 p-4 md:p-8">
       <GlassContainer className="max-w-7xl mx-auto p-8">
-        {/* Hero */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Un outil citoyen. Des usages professionnels.
+        {/* Hero - Positionnement */}
+        <div className="mb-12 p-8 bg-blue-900/20 border border-blue-500/30 rounded-xl text-center">
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-6">
+            Niveaux d'accès au service
           </h1>
-
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
-            Les données sont publiques. Vous payez pour l'analyse, la clarté
-            et le gain de temps.
-          </p>
-
-          {/* Billing Toggle */}
-          <div className="flex items-center justify-center gap-4 mb-6">
-            <span className={billingCycle === 'monthly' ? 'text-white' : 'text-gray-400'}>
-              Mensuel
-            </span>
-            <UltraSimpleToggle
-              checked={billingCycle === 'yearly'}
-              onChange={(checked) => setBillingCycle(checked ? 'yearly' : 'monthly')}
-            />
-            <span className={billingCycle === 'yearly' ? 'text-white' : 'text-gray-400'}>
-              Annuel
-              <span className="ml-2 text-green-400 text-sm">(~17% d'économie)</span>
-            </span>
+          <div className="space-y-4 text-gray-200 text-lg max-w-3xl mx-auto">
+            <p>
+              <strong className="text-blue-300">A KI PRI SA YÉ</strong> — Observatoire citoyen des prix et du coût de la vie
+            </p>
+            <p className="text-xl font-semibold text-green-300">
+              DOM · ROM · COM
+            </p>
           </div>
-
-          {/* DOM Toggle */}
-          <div className="flex items-center justify-center mb-8">
-            <UltraSimpleToggle
-              checked={isDOMTerritory}
-              onChange={setIsDOMTerritory}
-              label="Territoire DOM-ROM-COM (-30% sur Pro/Business)"
-            />
-          </div>
-
-          <p className="text-sm text-gray-400 mb-4">
-            Vous pouvez annuler à tout moment. •{' '}
-            <Link to="/methodologie" className="text-blue-400 hover:underline">
-              Comparer les plans en détail
-            </Link>
-          </p>
         </div>
 
-        {/* Pricing Cards */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-12">
-          {plans.map((plan) => (
-            <GlassCard
-              key={plan.id}
-              className={`flex flex-col ${
-                plan.popular
-                  ? 'border-2 border-blue-500 shadow-xl shadow-blue-500/20'
-                  : ''
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-blue-600 rounded-full text-sm font-bold">
-                  POPULAIRE
+        {/* Access Levels Cards */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-12">
+          {accessLevels.map((level) => (
+            <GlassCard key={level.id} className="flex flex-col">
+              <div className="flex-1 space-y-4">
+                {/* Header */}
+                <div>
+                  <h2 className="text-xl font-bold text-white mb-1">{level.title}</h2>
+                  <p className="text-sm text-gray-400 italic">{level.subtitle}</p>
                 </div>
-              )}
 
-              <div className="flex-1">
-                <h2 className="text-2xl font-bold text-white mb-2">{plan.title}</h2>
-                <p className="text-3xl font-bold text-blue-400 mb-2">
-                  {getDisplayPrice(plan)}
-                </p>
-                <p className="text-sm text-gray-400 mb-6">{plan.description}</p>
+                {/* Price */}
+                <div>
+                  <p className="text-2xl font-bold text-blue-400">{level.price}</p>
+                </div>
 
                 {/* Features */}
-                <div className="mb-6">
-                  <h3 className="text-sm font-semibold text-gray-300 mb-3">Inclus :</h3>
-                  <ul className="space-y-2">
-                    {plan.features.map((feature, idx) => (
-                      <li key={idx} className="text-sm text-gray-300">
-                        • {feature}
+                <div>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                    Inclus
+                  </h3>
+                  <ul className="space-y-1.5">
+                    {level.features.map((feature, idx) => (
+                      <li key={idx} className="text-sm text-gray-300 flex items-start">
+                        <span className="text-green-400 mr-2 flex-shrink-0">✓</span>
+                        <span className="opacity-90">{feature}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                {/* Limits */}
-                <div className="mb-6">
-                  <h3 className="text-sm font-semibold text-gray-300 mb-3">Limites :</h3>
-                  <ul className="space-y-2">
-                    {plan.limits.map((limit, idx) => (
-                      <li key={idx} className="text-sm text-gray-400">
-                        • {limit}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                {/* Note */}
+                {level.note && (
+                  <div className="p-3 bg-blue-900/20 border border-blue-600/30 rounded-lg">
+                    <p className="text-xs text-blue-200">{level.note}</p>
+                  </div>
+                )}
 
                 {/* Data Badge */}
-                <div className="mb-6">
-                  <DataBadge source="INSEE · OPMR · data.gouv.fr" />
+                <div className="pt-2">
+                  <DataBadge source="INSEE • OPMR • DGCCRF • data.gouv.fr" />
                 </div>
-
-                <LimitNote>
-                  Les données restent publiques et non modifiées.
-                </LimitNote>
               </div>
 
               {/* CTA */}
@@ -255,85 +129,74 @@ export default function Pricing() {
                   variant="primary"
                   className="w-full"
                   onClick={() => {
-                    if (plan.id === 'FREE') {
-                      window.location.href = '/';
-                    } else if (plan.id === 'ENTERPRISE') {
-                      window.location.href = '/contact?subject=devis-enterprise';
+                    if (level.id === 'INSTITUTIONAL') {
+                      window.location.href = '/contact?subject=licence-institutionnelle';
                     } else {
-                      window.location.href = `/subscribe?plan=${plan.id}&cycle=${billingCycle}&dom=${isDOMTerritory}`;
+                      window.location.href = `/subscribe?level=${level.id}`;
                     }
                   }}
                 >
-                  {plan.id === 'ENTERPRISE'
-                    ? 'Nous contacter'
-                    : plan.id === 'FREE'
-                    ? 'Commencer gratuitement'
-                    : 'Choisir ce plan'}
+                  {level.id === 'INSTITUTIONAL' ? 'Demander une convention' : 'Choisir cet accès'}
                 </CivicButton>
               </div>
             </GlassCard>
           ))}
         </div>
 
-        {/* Transparency Section */}
-        <GlassCard className="mb-12 bg-blue-900/10 border-blue-500/30">
-          <h2 className="text-2xl font-bold text-white mb-4">Transparence totale</h2>
-          <div className="space-y-3 text-gray-300">
-            <p>
-              <strong>Vous ne payez pas la donnée</strong>, vous payez le service :
-            </p>
-            <ul className="list-disc list-inside space-y-2 ml-4">
-              <li>Agrégation et mise à jour des sources publiques</li>
-              <li>Calculs d'optimisation de trajets</li>
-              <li>Infrastructure et hébergement sécurisé</li>
-              <li>Support technique et maintenance</li>
-            </ul>
-            <p className="text-sm text-gray-400 mt-4">
-              Aucune marque. Aucun sponsor. Aucune donnée vendue. Résiliation en 1 clic.
-            </p>
-          </div>
-        </GlassCard>
+        {/* Gratification System - Visual with Counters */}
+        <div className="mb-12">
+          <GratificationDisplay 
+            accessLevel="CITIZEN"
+            showStats={true}
+          />
+        </div>
 
-        {/* FAQ */}
+        {/* FAQ - Limited to 5 */}
         <div>
-          <h2 className="text-3xl font-bold text-white mb-8 text-center">FAQ</h2>
+          <h2 className="text-3xl font-bold text-white mb-8 text-center">FAQ Abonnements</h2>
           <div className="grid gap-6 md:grid-cols-2">
             <GlassCard>
               <h3 className="font-bold text-lg text-white mb-2">
-                Pourquoi payer si les données sont publiques ?
+                Pourquoi une inscription est-elle obligatoire ?
               </h3>
               <p className="text-gray-300 text-sm">
-                Les données brutes sont gratuites, mais leur agrégation, leur mise en forme
-                accessible et leur maintenance ont un coût réel.
+                Pour assurer la traçabilité des usages, la fiabilité statistique et la protection des données publiques.
               </p>
             </GlassCard>
 
             <GlassCard>
               <h3 className="font-bold text-lg text-white mb-2">
-                Les citoyens sont-ils exclus ?
+                Mes données personnelles sont-elles exploitées ?
               </h3>
               <p className="text-gray-300 text-sm">
-                Non. L'essentiel reste gratuit : liste de courses, carte des magasins,
-                géolocalisation et scanner basique.
+                Non. Aucune donnée n'est revendue, utilisée à des fins publicitaires ou commerciales.
               </p>
             </GlassCard>
 
             <GlassCard>
               <h3 className="font-bold text-lg text-white mb-2">
-                Comment annuler mon abonnement ?
+                Puis-je accéder gratuitement aux données ?
               </h3>
               <p className="text-gray-300 text-sm">
-                En 1 clic depuis votre compte. Aucune justification requise. Aucune relance.
+                Oui. L'inscription est gratuite et permet l'accès aux données publiques.
               </p>
             </GlassCard>
 
             <GlassCard>
               <h3 className="font-bold text-lg text-white mb-2">
-                Mes données personnelles sont-elles stockées ?
+                Pourquoi certains accès sont payants ?
               </h3>
               <p className="text-gray-300 text-sm">
-                Non. Tout est en local (localStorage/IndexedDB). Seuls email et plan
-                sont enregistrés pour la facturation.
+                Les contributions financent l'infrastructure, la maintenance et l'ouverture des données à long terme.
+              </p>
+            </GlassCard>
+
+            <GlassCard className="md:col-span-2">
+              <h3 className="font-bold text-lg text-white mb-2">
+                Les institutions ont-elles accès à des données différentes ?
+              </h3>
+              <p className="text-gray-300 text-sm">
+                Non. Les données sont identiques. Les licences donnent accès à des formats, outils et exports supplémentaires, jamais à des données exclusives.
               </p>
             </GlassCard>
           </div>

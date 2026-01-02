@@ -23,6 +23,7 @@ const Methodologie = lazy(() => import('./pages/Methodologie'));
 const MentionsLegales = lazy(() => import('./pages/MentionsLegales'));
 const MonCompte = lazy(() => import('./pages/MonCompte'));
 const Pricing = lazy(() => import('./pages/Pricing'));
+const PricingDetailed = lazy(() => import('./pages/PricingDetailed'));
 const Subscribe = lazy(() => import('./pages/Subscribe'));
 const LicenceInstitution = lazy(() => import('./pages/LicenceInstitution'));
 const ContactCollectivites = lazy(() => import('./pages/ContactCollectivites'));
@@ -49,6 +50,10 @@ const HomeSimple = lazy(() => import('./pages/Home.tsx'));
 const CompareSimple = lazy(() => import('./pages/Compare.tsx'));
 const NewsSimple = lazy(() => import('./pages/News.tsx'));
 const PricingSimple = lazy(() => import('./pages/Pricing.tsx'));
+
+// PR #1 - Assistant + FAQ étendue (v1.6.0)
+const Faq = lazy(() => import('./pages/Faq'));
+const AssistantChat = lazy(() => import('./components/AssistantChat'));
 
 // Loading component
 function LoadingFallback() {
@@ -101,6 +106,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='mentions-legales' element={<MentionsLegales />} />
                   <Route path='mon-compte' element={<MonCompte />} />
                   <Route path='pricing' element={<Pricing />} />
+                  <Route path='pricing-detailed' element={<PricingDetailed />} />
                   <Route path='subscribe' element={<Subscribe />} />
                   <Route path='licence-institution' element={<LicenceInstitution />} />
                   <Route path='contact-collectivites' element={<ContactCollectivites />} />
@@ -126,9 +132,15 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='comparer' element={<CompareSimple />} />
                   <Route path='tarifs' element={<PricingSimple />} />
                   
+                  {/* PR #1 - Assistant + FAQ étendue (v1.6.0) */}
+                  <Route path='faq' element={<Faq />} />
+                  
                   <Route path='*' element={<NotFound />} />
                 </Route>
               </Routes>
+              
+              {/* Assistant Chat - Floating button available on all pages */}
+              {import.meta.env.VITE_FEATURE_ASSISTANT !== 'false' && <AssistantChat />}
             </Suspense>
           </BrowserRouter>
         </AuthProvider>

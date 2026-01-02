@@ -74,6 +74,7 @@ desktop.ini
 *.apk
 unins*.dat
 unins*.exe
+Assets/
 
 # Archive files
 *.zip
@@ -102,3 +103,6 @@ backend/dist/
 backend/node_modules/
 backend/coverage/
 backend/prisma/migrations/*.sql
+
+# Open Data Exports
+exports/

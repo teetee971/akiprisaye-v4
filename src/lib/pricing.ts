@@ -1,126 +1,83 @@
 /**
- * Feature Access Control System
- * NO FREEMIUM - All plans are paid
- * Defines which features are available for each plan tier
+ * Access Levels System
+ * Service civique numérique - Observatoire public indépendant
+ * L'accès aux données essentielles est libre
  */
 
-export type Plan =
+export type AccessLevel =
+  | 'PUBLIC'
   | 'CITIZEN'
-  | 'PRO'
-  | 'BUSINESS'
-  | 'ENTERPRISE'
-  | 'INSTITUTION';
+  | 'PROFESSIONAL'
+  | 'INSTITUTIONAL';
 
-export const PLAN_PRICES = {
+export const ACCESS_LEVEL_PRICES = {
+  PUBLIC: { 
+    monthly: 0, 
+    yearly: 0,
+    description: 'Accès gratuit — Comparaisons basiques, lecture seule'
+  },
   CITIZEN: { 
-    monthly: 4.99, 
-    yearly: 49,
-    description: 'Pour les citoyens - Accès complet aux outils de comparaison et d\'optimisation'
+    monthly: 2.99, 
+    yearly: 29,
+    description: 'Citoyen+ — Historique, alertes, exports basiques'
   },
-  PRO: { 
-    monthly: 19, 
-    yearly: 190,
-    description: 'Pour les enseignes & professionnels - Gestion des points de vente'
+  PROFESSIONAL: { 
+    monthly: 9.99, 
+    yearly: 99,
+    description: 'Pro — Agrégations avancées, multi-territoires'
   },
-  BUSINESS: { 
-    monthly: 99, 
-    yearly: 990,
-    description: 'Pour les professionnels - Analytics avancés et marketplace'
-  },
-  ENTERPRISE: { 
+  INSTITUTIONAL: { 
     monthly: null, 
-    yearly: 2500,
-    description: 'Sur devis - Secteur privé, données agrégées et API'
-  },
-  INSTITUTION: { 
-    monthly: null, 
-    yearly: 500,
-    description: 'Sur devis - Secteur public, tableaux de bord institutionnels'
+    yearly: null,
+    description: 'Institution — API, open-data, rapports (sur devis)'
   },
 } as const;
 
 export const FEATURES = {
-  // Core Features (All paid plans)
-  PRICE_COMPARISON: ['CITIZEN', 'PRO', 'BUSINESS', 'ENTERPRISE', 'INSTITUTION'],
-  SHOPPING_LIST: ['CITIZEN', 'PRO', 'BUSINESS', 'ENTERPRISE', 'INSTITUTION'],
-  MAP_BASIC: ['CITIZEN', 'PRO', 'BUSINESS', 'ENTERPRISE', 'INSTITUTION'],
-  GEOLOCATION: ['CITIZEN', 'PRO', 'BUSINESS', 'ENTERPRISE', 'INSTITUTION'],
-  SCANNER_BASIC: ['CITIZEN', 'PRO', 'BUSINESS', 'ENTERPRISE', 'INSTITUTION'],
-  PRICE_ALERTS: ['CITIZEN', 'PRO', 'BUSINESS', 'ENTERPRISE', 'INSTITUTION'],
-  TREND_PREDICTIONS: ['CITIZEN', 'PRO', 'BUSINESS', 'ENTERPRISE', 'INSTITUTION'],
+  // Accès Public (Gratuit pour tous)
+  PRICE_COMPARISON: ['PUBLIC', 'CITIZEN', 'PROFESSIONAL', 'INSTITUTIONAL'],
+  TERRITORY_VIEW: ['PUBLIC', 'CITIZEN', 'PROFESSIONAL', 'INSTITUTIONAL'],
+  PRICE_SOURCES_VISIBLE: ['PUBLIC', 'CITIZEN', 'PROFESSIONAL', 'INSTITUTIONAL'],
+  BASIC_HISTORY: ['PUBLIC', 'CITIZEN', 'PROFESSIONAL', 'INSTITUTIONAL'],
+  READ_ONLY_ACCESS: ['PUBLIC', 'CITIZEN', 'PROFESSIONAL', 'INSTITUTIONAL'],
+  NO_ADS: ['PUBLIC', 'CITIZEN', 'PROFESSIONAL', 'INSTITUTIONAL'],
   
-  // Citizen Features
-  MULTI_TRIP_OPTIMIZATION: ['CITIZEN', 'PRO', 'BUSINESS', 'ENTERPRISE', 'INSTITUTION'],
-  TERRITORY_COMPARE: ['CITIZEN', 'PRO', 'BUSINESS', 'ENTERPRISE', 'INSTITUTION'],
-  EXPORT_PDF: ['CITIZEN', 'PRO', 'BUSINESS', 'ENTERPRISE', 'INSTITUTION'],
-  ALERTS_ADVANCED: ['CITIZEN', 'PRO', 'BUSINESS', 'ENTERPRISE', 'INSTITUTION'],
-  OFFLINE_MODE: ['CITIZEN', 'PRO', 'BUSINESS', 'ENTERPRISE', 'INSTITUTION'],
+  // Accès Citoyen
+  LOCAL_ALERTS: ['CITIZEN', 'PROFESSIONAL', 'INSTITUTIONAL'],
+  EXTENDED_HISTORY: ['CITIZEN', 'PROFESSIONAL', 'INSTITUTIONAL'],
+  PRODUCT_TRACKING: ['CITIZEN', 'PROFESSIONAL', 'INSTITUTIONAL'],
+  PUBLIC_DATA_ACCESS: ['CITIZEN', 'PROFESSIONAL', 'INSTITUTIONAL'],
   
-  // Professional Features
-  STORE_MANAGEMENT: ['PRO', 'BUSINESS', 'ENTERPRISE'],
-  REALTIME_PRICE_UPDATE: ['PRO', 'BUSINESS', 'ENTERPRISE'],
-  GEO_VISIBILITY: ['PRO', 'BUSINESS', 'ENTERPRISE'],
-  CONSULTATION_STATS: ['PRO', 'BUSINESS', 'ENTERPRISE'],
-  MARKETPLACE_ACCESS: ['BUSINESS', 'ENTERPRISE'],
-  EXPORT_CSV: ['PRO', 'BUSINESS', 'ENTERPRISE', 'INSTITUTION'],
+  // Accès Professionnel
+  MULTI_TERRITORY: ['PROFESSIONAL', 'INSTITUTIONAL'],
+  LONG_TIME_SERIES: ['PROFESSIONAL', 'INSTITUTIONAL'],
+  CSV_EXPORT: ['PROFESSIONAL', 'INSTITUTIONAL'],
+  MULTI_TERRITORY_COMPARISON: ['PROFESSIONAL', 'INSTITUTIONAL'],
   
-  // Business & Enterprise Features
-  ANALYTICS_ADVANCED: ['BUSINESS', 'ENTERPRISE', 'INSTITUTION'],
-  DASHBOARDS: ['BUSINESS', 'ENTERPRISE', 'INSTITUTION'],
-  MULTI_STORE_MANAGEMENT: ['BUSINESS', 'ENTERPRISE'],
-  
-  // Enterprise & Institution Features
-  API_READ_ONLY: ['ENTERPRISE', 'INSTITUTION'],
-  TERRITORIAL_DATA: ['ENTERPRISE', 'INSTITUTION'],
-  LONG_HISTORY: ['ENTERPRISE', 'INSTITUTION'],
-  COMPARATIVE_ANALYSIS: ['ENTERPRISE', 'INSTITUTION'],
-  
-  // Institution Only
-  REPORTS_PUBLIC: ['INSTITUTION'],
-  INSTITUTIONAL_DASHBOARDS: ['INSTITUTION'],
-  REGULATED_EXPORT: ['INSTITUTION'],
-  AI_QUOTES: ['ENTERPRISE', 'INSTITUTION'],
+  // Licence Institutionnelle
+  PUBLIC_AUDITED_DATA: ['INSTITUTIONAL'],
+  NORMALIZED_EXPORTS: ['INSTITUTIONAL'],
+  PUBLIC_API: ['INSTITUTIONAL'],
+  OFFICIAL_METHODOLOGY: ['INSTITUTIONAL'],
 } as const;
 
 export type Feature = keyof typeof FEATURES;
 
 /**
- * Check if a plan has access to a specific feature
+ * Check if an access level has a specific feature
  */
-export const canUse = (plan: Plan, feature: Feature): boolean => {
-  return FEATURES[feature].includes(plan);
+export const canUse = (level: AccessLevel, feature: Feature): boolean => {
+  return FEATURES[feature].includes(level);
 };
 
 /**
- * Get DOM-ROM-COM territory-based pricing
- * Pricing varies by territory to reflect local economics
+ * Get pricing for an access level
  */
-export const getTerritoryPrice = (
-  plan: Plan, 
-  billingCycle: 'monthly' | 'yearly',
-  territory?: string
+export const getAccessPrice = (
+  level: AccessLevel, 
+  billingCycle: 'monthly' | 'yearly'
 ): number | null => {
-  const basePrice = PLAN_PRICES[plan][billingCycle];
-  if (basePrice === null || basePrice === 0) return basePrice;
-  
-  // Territory-specific pricing adjustments
-  const territoryMultipliers: Record<string, number> = {
-    'GP': 0.85, // Guadeloupe
-    'MQ': 0.85, // Martinique
-    'GF': 0.80, // Guyane
-    'RE': 0.90, // Réunion
-    'YT': 0.75, // Mayotte
-    'PM': 1.0,  // Saint-Pierre-et-Miquelon
-    'BL': 1.0,  // Saint-Barthélemy
-    'MF': 1.0,  // Saint-Martin
-    'WF': 0.80, // Wallis-et-Futuna
-    'PF': 0.90, // Polynésie française
-    'NC': 0.90, // Nouvelle-Calédonie
-    'TF': 1.0,  // Terres australes
-  };
-  
-  const multiplier = territory ? (territoryMultipliers[territory] || 1.0) : 1.0;
-  return Math.round(basePrice * multiplier * 100) / 100;
+  return ACCESS_LEVEL_PRICES[level][billingCycle];
 };
 
 /**
@@ -128,44 +85,31 @@ export const getTerritoryPrice = (
  */
 export const getFeatureDescription = (feature: Feature): string => {
   const descriptions: Record<Feature, string> = {
-    // Core
-    PRICE_COMPARISON: 'Comparaison de prix multi-enseignes',
-    SHOPPING_LIST: 'Liste de courses intelligente',
-    MAP_BASIC: 'Carte interactive des magasins',
-    GEOLOCATION: 'Géolocalisation opt-in',
-    SCANNER_BASIC: 'Scanner de tickets de caisse',
-    PRICE_ALERTS: 'Alertes de variation de prix',
-    TREND_PREDICTIONS: 'Prévisions de tendances (non spéculatives)',
+    // Accès Public
+    PRICE_COMPARISON: 'Comparateur citoyen DOM · ROM · COM',
+    TERRITORY_VIEW: 'Consultation par territoire',
+    PRICE_SOURCES_VISIBLE: 'Prix observés, datés et sourcés',
+    BASIC_HISTORY: 'Historique simple',
+    READ_ONLY_ACCESS: 'Lecture seule',
+    NO_ADS: 'Sans publicité',
     
-    // Citizen
-    MULTI_TRIP_OPTIMIZATION: 'Optimisation par distance/coût/territoire',
-    TERRITORY_COMPARE: 'Comparaison inter-territoires',
-    EXPORT_PDF: 'Export PDF citoyen',
-    ALERTS_ADVANCED: 'Alertes avancées personnalisées',
-    OFFLINE_MODE: 'Mode hors ligne renforcé',
+    // Accès Citoyen
+    LOCAL_ALERTS: 'Alertes locales personnalisées',
+    EXTENDED_HISTORY: 'Historique des prix',
+    PRODUCT_TRACKING: 'Consultation des comparateurs',
+    PUBLIC_DATA_ACCESS: 'Accès aux données publiques',
     
-    // Professional
-    STORE_MANAGEMENT: 'Gestion des points de vente',
-    REALTIME_PRICE_UPDATE: 'Mise à jour des prix en temps réel',
-    GEO_VISIBILITY: 'Visibilité géolocalisée',
-    CONSULTATION_STATS: 'Statistiques de consultation',
-    MARKETPLACE_ACCESS: 'Intégration marketplace',
-    EXPORT_CSV: 'Export CSV pour analyses',
+    // Accès Professionnel
+    MULTI_TERRITORY: 'Comparaisons multi-territoires',
+    LONG_TIME_SERIES: 'Séries historiques complètes',
+    CSV_EXPORT: 'Exports CSV / JSON',
+    MULTI_TERRITORY_COMPARISON: 'Analyses territoriales avancées',
     
-    // Business
-    ANALYTICS_ADVANCED: 'Analytics avancés',
-    DASHBOARDS: 'Tableaux de bord personnalisés',
-    MULTI_STORE_MANAGEMENT: 'Gestion multi-points de vente',
-    
-    // Enterprise/Institution
-    API_READ_ONLY: 'Accès API sécurisé (lecture)',
-    TERRITORIAL_DATA: 'Données agrégées territoriales',
-    LONG_HISTORY: 'Historique longue durée',
-    COMPARATIVE_ANALYSIS: 'Analyses comparatives inter-zones',
-    REPORTS_PUBLIC: 'Rapports publics institutionnels',
-    INSTITUTIONAL_DASHBOARDS: 'Tableaux de bord institutionnels',
-    REGULATED_EXPORT: 'Export de données réglementé',
-    AI_QUOTES: 'Devis générés par IA',
+    // Licence Institutionnelle
+    PUBLIC_AUDITED_DATA: 'Données publiques auditées',
+    NORMALIZED_EXPORTS: 'Exports normalisés (INSEE / Eurostat)',
+    PUBLIC_API: 'Accès API open-data',
+    OFFICIAL_METHODOLOGY: 'Documentation méthodologique officielle',
   };
   
   return descriptions[feature];
@@ -173,8 +117,8 @@ export const getFeatureDescription = (feature: Feature): string => {
 
 export default {
   canUse,
-  getTerritoryPrice,
+  getAccessPrice,
   getFeatureDescription,
-  PLAN_PRICES,
+  ACCESS_LEVEL_PRICES,
   FEATURES,
 };
