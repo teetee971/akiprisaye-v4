@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react'
 import { GlassCard } from '../components/ui/glass-card'
 import PriceComparisonTable from '../components/PriceComparisonTable'
 import PriceDataWarning from '../components/PriceDataWarning'
+import ExportDataButton from '../components/ExportDataButton'
 import {
   getProductList,
   getObservationsByEAN,
@@ -200,9 +201,16 @@ export default function ComparaisonEnseignes() {
       )}
 
       {/* Tableau de comparaison */}
-      <GlassCard title="Observations de prix">
-        <PriceComparisonTable observations={observations} groupedByStore={groupedStores} />
-      </GlassCard>
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold text-white">Observations de prix</h2>
+          <ExportDataButton observations={observations} />
+        </div>
+        
+        <GlassCard>
+          <PriceComparisonTable observations={observations} groupedByStore={groupedStores} />
+        </GlassCard>
+      </div>
     </main>
   )
 }
