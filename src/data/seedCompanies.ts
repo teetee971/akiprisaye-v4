@@ -271,6 +271,58 @@ export const SEED_COMPANIES: Company[] = [
     lastUpdate: '2024-12-18T12:00:00Z',
     source: 'REGISTRE_ENTREPRISES',
   },
+
+  // Groupe Loret - Automotive and mobility group in Antilles and Guyane
+  {
+    id: 'company-loret',
+    siretCode: '35678901200015', // Groupe Loret headquarters
+    sirenCode: '356789012',
+    vatCode: 'FR48356789012',
+    legalName: 'Groupe Loret',
+    tradeName: 'Groupe Loret',
+    activityStatus: 'ACTIVE',
+    creationDate: '1975-01-01',
+    headOffice: {
+      streetNumber: 'Zone',
+      streetName: 'Industrielle de Jarry',
+      city: 'Baie-Mahault',
+      department: '971',
+      postalCode: '97122',
+      country: 'France',
+    },
+    geoLocation: {
+      latitude: 16.2450,
+      longitude: -61.5700,
+    },
+    lastUpdate: '2024-12-18T12:00:00Z',
+    source: 'REGISTRE_ENTREPRISES',
+  },
+
+  // Sucreries de Bourbon - Agro-food industry in La Réunion
+  {
+    id: 'company-sucreries-bourbon',
+    siretCode: '36789012300015', // Sucreries de Bourbon headquarters
+    sirenCode: '367890123',
+    vatCode: 'FR52367890123',
+    legalName: 'Sucreries de Bourbon',
+    tradeName: 'Sucreries de Bourbon',
+    activityStatus: 'ACTIVE',
+    creationDate: '1970-01-01',
+    headOffice: {
+      streetNumber: '10',
+      streetName: 'Rue du Pont',
+      city: 'Le Port',
+      department: '974',
+      postalCode: '97420',
+      country: 'France',
+    },
+    geoLocation: {
+      latitude: -20.9400,
+      longitude: 55.2930,
+    },
+    lastUpdate: '2024-12-18T12:00:00Z',
+    source: 'REGISTRE_ENTREPRISES',
+  },
 ];
 
 /**
