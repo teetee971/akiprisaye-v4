@@ -167,6 +167,32 @@ export const SEED_COMPANIES: Company[] = [
     lastUpdate: '2024-12-18T12:00:00Z',
     source: 'REGISTRE_ENTREPRISES',
   },
+
+  // Groupe Bernard Hayot (GBH) - Major retail group in French Antilles
+  {
+    id: 'company-gbh',
+    siretCode: '31322226000015', // GBH headquarters
+    sirenCode: '313222260',
+    vatCode: 'FR60313222260',
+    legalName: 'Groupe Bernard Hayot',
+    tradeName: 'GBH',
+    activityStatus: 'ACTIVE',
+    creationDate: '1960-01-01',
+    headOffice: {
+      streetNumber: 'Zone',
+      streetName: 'Industrielle de Jarry',
+      city: 'Baie-Mahault',
+      department: '971',
+      postalCode: '97122',
+      country: 'France',
+    },
+    geoLocation: {
+      latitude: 16.2469,
+      longitude: -61.5717,
+    },
+    lastUpdate: '2026-01-03T13:00:00Z',
+    source: 'REGISTRE_ENTREPRISES',
+  },
 ];
 
 /**
