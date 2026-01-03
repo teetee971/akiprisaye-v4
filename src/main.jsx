@@ -14,6 +14,8 @@ import NotFound from './pages/NotFound';
 // Lazy load other pages for better performance
 const ChatIALocal = lazy(() => import('./components/ChatIALocal'));
 const ScanOCR = lazy(() => import('./pages/ScanOCR'));
+const ScanEAN = lazy(() => import('./pages/ScanEAN'));
+const ComparaisonEnseignes = lazy(() => import('./pages/ComparaisonEnseignes'));
 const Comparateur = lazy(() => import('./pages/Comparateur'));
 const Carte = lazy(() => import('./pages/Carte'));
 const Actualites = lazy(() => import('./pages/Actualites'));
@@ -97,6 +99,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route index element={<Home />} />
                   <Route path='chat' element={<ChatIALocal />} />
                   <Route path='scan' element={<ScanOCR />} />
+                  <Route path='scan-ean' element={<ScanEAN />} />
+                  <Route path='comparaison-enseignes' element={<ComparaisonEnseignes />} />
                   <Route path='comparateur' element={<Comparateur />} />
                   <Route path='carte' element={<Carte />} />
                   <Route path='actualites' element={<NewsSimple />} />
