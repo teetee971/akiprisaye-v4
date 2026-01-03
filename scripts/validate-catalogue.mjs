@@ -7,7 +7,10 @@ import fs from 'fs/promises'
 import path from 'path'
 const inPath = path.resolve('public/data/catalogue.json')
 
-function isISODate(s){ return !Number.isNaN(Date.parse(s)); }
+function isISODate(s){ 
+  // Strict ISO date validation
+  return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/.test(s) && !Number.isNaN(Date.parse(s)); 
+}
 
 async function run(){
   const raw = await fs.readFile(inPath,'utf8');

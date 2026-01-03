@@ -25,7 +25,7 @@ export function stringifyCsv(rows: Record<string, any>[], delimiter = ',') {
     const line = headers.map((h) => {
       const cell = r[h] == null ? '' : String(r[h])
       // simple escaping
-      if (cell.includes(delimiter) || cell.includes('"') || cell.includes('\n')) {
+      if (cell.includes(delimiter) || cell.includes('"') || cell.includes('\n') || cell.includes('\r')) {
         return `"${cell.replace(/"/g, '""')}"`
       }
       return cell
