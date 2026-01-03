@@ -72,8 +72,11 @@ export default function Scanner() {
     const behavior = settings.notFoundBehavior;
     
     if (behavior === 'manual_search') {
-      // Redirect to search page with the scanned code
-      window.location.href = `/recherche?q=${scanResult}`;
+      // TODO: Use React Router's navigate function when available
+      // For now, using window.location as a fallback
+      const searchUrl = `/recherche?q=${encodeURIComponent(scanResult || '')}`;
+      console.log('[SCAN] Redirecting to search:', searchUrl);
+      window.location.href = searchUrl;
     } else if (behavior === 'local_save') {
       // Save to local storage for review
       const savedScans = JSON.parse(localStorage.getItem('unrecognizedScans') || '[]');

@@ -32,7 +32,7 @@ export default function ScanOCR() {
     setLoading(true);
     setError(null);
     setOcrResult(null);
-    setScanState('preprocessing');
+    setScanState('processing');
 
     // OPTIMIZATION 3: Async non-blocking OCR
     // Use setTimeout to allow UI to update immediately
@@ -224,12 +224,6 @@ export default function ScanOCR() {
           {loading && (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500 mb-4"></div>
-              {scanState === 'preprocessing' && (
-                <>
-                  <p className="text-white text-lg font-semibold">Préparation de l'image...</p>
-                  <p className="text-gray-400 text-sm mt-2">Optimisation pour analyse rapide</p>
-                </>
-              )}
               {scanState === 'processing' && (
                 <>
                   <p className="text-white text-lg font-semibold">Lecture en cours...</p>
