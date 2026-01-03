@@ -10,6 +10,7 @@ import ExportDataButton from '../components/ExportDataButton'
 import DataReliabilityBadge from '../components/DataReliabilityBadge'
 import LocalHistoryPanel from '../components/LocalHistoryPanel'
 import PriceVariationAlert from '../components/PriceVariationAlert'
+import SignalementCitoyenModal from '../components/SignalementCitoyenModal'
 import { useLocalHistory } from '../hooks/useLocalHistory'
 import {
   getProductList,
@@ -28,11 +29,13 @@ import type { PriceObservation } from '../types/priceObservation'
 export default function ComparaisonEnseignes() {
   // Feature flag check
   const isFeatureEnabled = import.meta.env.VITE_FEATURE_COMPARAISON_ENSEIGNES === 'true'
+  const isCitizenReportEnabled = import.meta.env.VITE_FEATURE_CITIZEN_REPORT === 'true'
 
   const [selectedEAN, setSelectedEAN] = useState<string>('')
   const [selectedTerritory, setSelectedTerritory] = useState<string>('all')
   const [observations, setObservations] = useState<PriceObservation[]>([])
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false)
 
   const products = getProductList()
   const territories = getUniqueTerritories()
@@ -245,13 +248,38 @@ export default function ComparaisonEnseignes() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-white">Observations de prix</h2>
-          <ExportDataButton observations={observations} />
+          <div className="flex gap-3">
+            {isCitizenReportEnabled && (
+              <button
+                onClick={() => setIsReportModalOpen(true)}
+                className="px-4 py-2 text-sm font-medium text-white/80 hover:text-white bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] rounded-lg transition-colors"
+                aria-label="Signaler une observation"
+              >
+                Signaler une observation
+              </button>
+            )}
+            <ExportDataButton observations={observations} />
+          </div>
         </div>
         
         <GlassCard>
           <PriceComparisonTable observations={observations} groupedByStore={groupedStores} />
         </GlassCard>
       </div>
+
+      {/* Citizen Report Modal (PR-11) */}
+      <SignalementCitoyenModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        productContext={
+          selectedEAN && products.find((p) => p.ean === selectedEAN)
+            ? {
+                name: products.find((p) => p.ean === selectedEAN)!.name,
+                ean: selectedEAN,
+              }
+            : undefined
+        }
+      />
     </main>
   )
 }
