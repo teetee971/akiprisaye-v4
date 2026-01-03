@@ -11,6 +11,7 @@ import DataReliabilityBadge from '../components/DataReliabilityBadge'
 import LocalHistoryPanel from '../components/LocalHistoryPanel'
 import PriceVariationAlert from '../components/PriceVariationAlert'
 import SignalementCitoyenModal from '../components/SignalementCitoyenModal'
+import TerritoryAdvancedFilter, { type TerritoryFilters } from '../components/TerritoryAdvancedFilter'
 import { useLocalHistory } from '../hooks/useLocalHistory'
 import {
   getProductList,
@@ -33,6 +34,11 @@ export default function ComparaisonEnseignes() {
 
   const [selectedEAN, setSelectedEAN] = useState<string>('')
   const [selectedTerritory, setSelectedTerritory] = useState<string>('all')
+  const [territoryFilters, setTerritoryFilters] = useState<TerritoryFilters>({
+    territory: 'all',
+    zone: 'all',
+    category: 'all',
+  })
   const [observations, setObservations] = useState<PriceObservation[]>([])
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
   const [isReportModalOpen, setIsReportModalOpen] = useState(false)
@@ -58,10 +64,19 @@ export default function ComparaisonEnseignes() {
 
     let obs = getObservationsByEAN(selectedEAN)
 
+    // Apply advanced territory filter if enabled (PR-12)
+    const effectiveTerritory = territoryFilters.territory !== 'all' 
+      ? territoryFilters.territory 
+      : selectedTerritory
+
     // Filtrer par territoire si sélectionné
-    if (selectedTerritory !== 'all') {
-      obs = obs.filter((o) => o.territory === selectedTerritory)
+    if (effectiveTerritory !== 'all') {
+      obs = obs.filter((o) => o.territory === effectiveTerritory)
     }
+
+    // TODO: Apply zone and category filters when metadata available
+    // if (territoryFilters.zone !== 'all') { ... }
+    // if (territoryFilters.category !== 'all') { ... }
 
     setObservations(obs)
 
@@ -69,13 +84,13 @@ export default function ComparaisonEnseignes() {
     const product = products.find((p) => p.ean === selectedEAN)
     if (product) {
       addToHistory({
-        id: `comparison-${selectedEAN}-${selectedTerritory}`,
+        id: `comparison-${selectedEAN}-${effectiveTerritory}`,
         label: product.name,
         type: 'comparison',
-        territory: selectedTerritory !== 'all' ? selectedTerritory : undefined,
+        territory: effectiveTerritory !== 'all' ? effectiveTerritory : undefined,
       })
     }
-  }, [selectedEAN, selectedTerritory, products, addToHistory])
+  }, [selectedEAN, selectedTerritory, territoryFilters, products, addToHistory])
 
   // Sélectionner le premier produit par défaut
   useEffect(() => {
@@ -167,6 +182,13 @@ export default function ComparaisonEnseignes() {
           </select>
         </GlassCard>
       </div>
+
+      {/* Advanced Territory Filters (PR-12) */}
+      <TerritoryAdvancedFilter
+        filters={territoryFilters}
+        onChange={setTerritoryFilters}
+        className="mb-6"
+      />
 
       {/* Local History Panel (PR-09) */}
       <LocalHistoryPanel />
