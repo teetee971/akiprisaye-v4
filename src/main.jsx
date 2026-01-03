@@ -24,7 +24,7 @@ const APropos = lazy(() => import('./pages/APropos'));
 const Methodologie = lazy(() => import('./pages/Methodologie'));
 const MentionsLegales = lazy(() => import('./pages/MentionsLegales'));
 const MonCompte = lazy(() => import('./pages/MonCompte'));
-const Pricing = lazy(() => import('./pages/Pricing'));
+const Pricing = lazy(() => import('./pages/Pricing.tsx'));
 const PricingDetailed = lazy(() => import('./pages/PricingDetailed'));
 const Subscribe = lazy(() => import('./pages/Subscribe'));
 const LicenceInstitution = lazy(() => import('./pages/LicenceInstitution'));
@@ -52,7 +52,6 @@ const Observatoire = lazy(() => import('./pages/Observatoire'));
 const HomeSimple = lazy(() => import('./pages/Home.tsx'));
 const CompareSimple = lazy(() => import('./pages/Compare.tsx'));
 const NewsSimple = lazy(() => import('./pages/News.tsx'));
-const PricingSimple = lazy(() => import('./pages/Pricing.tsx'));
 
 // PR #1 - Assistant + FAQ étendue (v1.6.0)
 const Faq = lazy(() => import('./pages/Faq'));
@@ -136,7 +135,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   
                   {/* New simplified pages for automatic generation */}
                   <Route path='comparer' element={<CompareSimple />} />
-                  <Route path='tarifs' element={<PricingSimple />} />
+                  <Route path='tarifs' element={<Pricing />} />
                   
                   {/* PR #1 - Assistant + FAQ étendue (v1.6.0) */}
                   <Route path='faq' element={<Faq />} />

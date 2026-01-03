@@ -4,33 +4,48 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Carte des magasins - A KI PRI SA YÉ</title>
+  <meta http-equiv="refresh" content="0; url=/#/carte">
   <style>
-    #map { height: 90vh; width: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-center;
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+    .redirect-message {
+      max-width: 500px;
+    }
+    .spinner {
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 4px solid white;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
-  <h2>🗺️ Carte interactive des magasins</h2>
-  <div id="map" aria-label="Carte interactive des magasins avec marqueurs pour chaque enseigne"></div>
-
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <div class="redirect-message">
+    <h1>🗺️ Carte Interactive</h1>
+    <div class="spinner"></div>
+    <p>Redirection vers la version moderne...</p>
+    <p><a href="/#/carte" style="color: white; text-decoration: underline;">Cliquez ici si la redirection ne fonctionne pas</a></p>
+  </div>
   <script>
-    var map = L.map('map').setView([16.265, -61.551], 10); // Guadeloupe par défaut
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap'
-    }).addTo(map);
-
-    const magasins = [
-      { name: "Carrefour Destreland", lat: 16.2676, lon: -61.5252 },
-      { name: "E.Leclerc Abymes", lat: 16.2731, lon: -61.5062 },
-      { name: "Leader Price Baie-Mahault", lat: 16.2679, lon: -61.5863 }
-    ];
-
-    magasins.forEach(m => {
-      L.marker([m.lat, m.lon]).addTo(map)
-        .bindPopup("<b>" + m.name + "</b>");
-    });
+    // Redirect immediately
+    window.location.href = '/#/carte';
   </script>
 </body>
 </html>
