@@ -6,6 +6,7 @@ export default function ScanOCR() {
   const [image, setImage] = useState(null);
   const [ocrResult, setOcrResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [scanState, setScanState] = useState('idle'); // 'idle', 'preprocessing', 'ocr_processing', 'complete'
   const [error, setError] = useState(null);
 
   const handleUpload = async (e) => {
@@ -16,27 +17,43 @@ export default function ScanOCR() {
     setLoading(true);
     setError(null);
     setOcrResult(null);
+    setScanState('preprocessing');
 
-    try {
-      const result = await extractTextFromImage(file);
-      
-      if (result.success) {
-        setOcrResult(result);
-      } else {
-        setError(result.error || 'Erreur lors de l\'extraction du texte');
+    // OPTIMIZATION 3: Async non-blocking OCR
+    // Use setTimeout to allow UI to update immediately
+    setTimeout(async () => {
+      try {
+        setScanState('ocr_processing');
+        
+        const result = await extractTextFromImage(file);
+        
+        if (result.success) {
+          setOcrResult(result);
+          setScanState('complete');
+        } else {
+          // Handle timeout or error gracefully
+          if (result.timeoutTriggered) {
+            setError('Le traitement a pris trop de temps. Le produit pourrait ne pas être référencé dans notre base.');
+          } else {
+            setError(result.error || 'Erreur lors de l\'extraction du texte');
+          }
+          setScanState('idle');
+        }
+      } catch (err) {
+        console.error('OCR error:', err);
+        setError('Une erreur s\'est produite lors de l\'analyse de l\'image');
+        setScanState('idle');
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error('OCR error:', err);
-      setError('Une erreur s\'est produite lors de l\'analyse de l\'image');
-    } finally {
-      setLoading(false);
-    }
+    }, 0);
   };
 
   const handleRetry = () => {
     setImage(null);
     setOcrResult(null);
     setError(null);
+    setScanState('idle');
   };
 
   return (
@@ -91,8 +108,22 @@ export default function ScanOCR() {
           {loading && (
             <div className="text-center py-12">
               <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500 mb-4"></div>
-              <p className="text-white text-lg font-semibold">Analyse en cours...</p>
-              <p className="text-gray-400 text-sm mt-2">Extraction du texte de l'image</p>
+              {scanState === 'preprocessing' && (
+                <>
+                  <p className="text-white text-lg font-semibold">Préparation de l'image...</p>
+                  <p className="text-gray-400 text-sm mt-2">Optimisation pour analyse rapide</p>
+                </>
+              )}
+              {scanState === 'ocr_processing' && (
+                <>
+                  <p className="text-white text-lg font-semibold">Lecture en cours...</p>
+                  <p className="text-gray-400 text-sm mt-2">Extraction du texte de l'image</p>
+                  {/* Progress bar - indeterminate */}
+                  <div className="w-64 h-2 bg-gray-700 rounded-full mx-auto mt-4 overflow-hidden">
+                    <div className="h-full bg-blue-500 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+                  </div>
+                </>
+              )}
             </div>
           )}
 

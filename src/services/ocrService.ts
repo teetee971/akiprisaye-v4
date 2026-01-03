@@ -18,6 +18,13 @@
  */
 
 import Tesseract from 'tesseract.js';
+import { resizeImageForOCR, hashImageFile, getCachedOCRResult, cacheOCRResult } from '../utils/imageUtils';
+
+/**
+ * OCR timeout in milliseconds
+ * After this time, OCR will be cancelled and fallback to "product not found" flow
+ */
+export const OCR_TIMEOUT_MS = 4000;
 
 /**
  * OCR Result structure
@@ -29,6 +36,8 @@ export interface OCRResult {
   sections?: DetectedSections;
   error?: string;
   processingTime: number;
+  fromCache?: boolean;
+  timeoutTriggered?: boolean;
 }
 
 /**
@@ -54,6 +63,12 @@ export interface PreprocessOptions {
 /**
  * Perform OCR on an image file or URL
  * 
+ * PERFORMANCE OPTIMIZATIONS:
+ * - Image preprocessing (resize/compress) before OCR
+ * - Session cache to prevent duplicate processing
+ * - Timeout control (4s) with graceful fallback
+ * - Async non-blocking execution
+ * 
  * RGPD COMPLIANCE:
  * - Image processing is done locally in the browser (client-side)
  * - No image data is transmitted to external servers
@@ -72,53 +87,145 @@ export async function extractTextFromImage(
   const startTime = Date.now();
   
   try {
-    // Default preprocessing options
-    const {
-      enhanceContrast = true,
-      autoCrop = false,
-      autoRotate = true,
-      grayscale = true
-    } = options;
-
-    // Perform OCR with Tesseract.js
-    const result = await Tesseract.recognize(
-      imageSource,
-      'fra', // French language
-      {
-        logger: (m) => {
-          if (m.status === 'recognizing text') {
-            console.log(`OCR Progress: ${Math.round(m.progress * 100)}%`);
-          }
-        },
+    // Check cache first (only for File/Blob)
+    if (imageSource instanceof File || imageSource instanceof Blob) {
+      const imageHash = hashImageFile(imageSource);
+      const cached = getCachedOCRResult(imageHash);
+      
+      if (cached) {
+        return {
+          ...cached,
+          fromCache: true,
+          processingTime: Date.now() - startTime
+        };
       }
-    );
+    }
 
-    const processingTime = Date.now() - startTime;
-    const rawText = result.data.text.trim();
-    const confidence = result.data.confidence;
-
-    // Try to detect sections
-    const sections = detectSections(rawText);
-
-    return {
-      success: true,
-      rawText,
-      confidence,
-      sections,
-      processingTime
-    };
+    // OPTIMIZATION 1: Resize and compress image before OCR
+    const resizeStartTime = Date.now();
+    let processedImage: Blob | string = imageSource;
+    
+    if (imageSource instanceof File || imageSource instanceof Blob) {
+      processedImage = await resizeImageForOCR(imageSource);
+    }
+    
+    const resizeMs = Date.now() - resizeStartTime;
+    
+    // OPTIMIZATION 3: OCR with timeout control
+    const ocrStartTime = Date.now();
+    
+    const ocrPromise = performOCR(processedImage, options);
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error('OCR_TIMEOUT')), OCR_TIMEOUT_MS);
+    });
+    
+    try {
+      const result = await Promise.race([ocrPromise, timeoutPromise]);
+      const ocrMs = Date.now() - ocrStartTime;
+      const totalMs = Date.now() - startTime;
+      
+      // OPTIMIZATION 6: Performance logging
+      const imageSizeKB = processedImage instanceof Blob ? 
+        Math.round(processedImage.size / 1024) : 'N/A';
+      
+      console.info('[SCAN_PERF] OCR completed:', {
+        imageSizeKB,
+        resizeMs,
+        ocrMs,
+        totalMs,
+        timeoutTriggered: false,
+        confidence: result.confidence
+      });
+      
+      // Cache the result
+      if (imageSource instanceof File || imageSource instanceof Blob) {
+        const imageHash = hashImageFile(imageSource);
+        cacheOCRResult(imageHash, result);
+      }
+      
+      return result;
+    } catch (timeoutError) {
+      // OPTIMIZATION 4: Graceful timeout handling
+      if (timeoutError instanceof Error && timeoutError.message === 'OCR_TIMEOUT') {
+        const totalMs = Date.now() - startTime;
+        
+        console.warn('[SCAN_PERF] OCR timeout triggered:', {
+          totalMs,
+          timeoutMs: OCR_TIMEOUT_MS
+        });
+        
+        return {
+          success: false,
+          rawText: '',
+          confidence: 0,
+          error: 'Délai d\'analyse dépassé',
+          processingTime: totalMs,
+          timeoutTriggered: true
+        };
+      }
+      
+      throw timeoutError;
+    }
   } catch (error) {
     const processingTime = Date.now() - startTime;
-    console.error('OCR Error:', error);
+    console.error('[SCAN_PERF] OCR Error:', error);
     
     return {
       success: false,
       rawText: '',
       confidence: 0,
       error: error instanceof Error ? error.message : 'Erreur OCR inconnue',
-      processingTime
+      processingTime,
+      timeoutTriggered: false
     };
   }
+}
+
+/**
+ * Internal function to perform OCR with Tesseract
+ * Separated for timeout control
+ */
+async function performOCR(
+  imageSource: Blob | string,
+  options: PreprocessOptions = {}
+): Promise<OCRResult> {
+  const startTime = Date.now();
+  
+  // Default preprocessing options
+  const {
+    enhanceContrast = true,
+    autoCrop = false,
+    autoRotate = true,
+    grayscale = true
+  } = options;
+
+  // Perform OCR with Tesseract.js
+  const result = await Tesseract.recognize(
+    imageSource,
+    'fra', // French language
+    {
+      logger: (m) => {
+        if (m.status === 'recognizing text') {
+          console.log(`OCR Progress: ${Math.round(m.progress * 100)}%`);
+        }
+      },
+    }
+  );
+
+  const processingTime = Date.now() - startTime;
+  const rawText = result.data.text.trim();
+  const confidence = result.data.confidence;
+
+  // Try to detect sections
+  const sections = detectSections(rawText);
+
+  return {
+    success: true,
+    rawText,
+    confidence,
+    sections,
+    processingTime
+  };
 }
 
 /**

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import '../styles/layout.css';
 import { Menu, X } from 'lucide-react';
+import TiPanierButton from './TiPanierButton';
 
 export default function Layout() {
   const [open, setOpen] = React.useState(false);
@@ -31,6 +32,11 @@ export default function Layout() {
               className="h-8 w-auto"
             />
           </Link>
+
+          {/* Ti‑panier (desktop placement) */}
+          <div className="hidden md:flex items-center">
+            <TiPanierButton float={false} />
+          </div>
 
           {/* Menu desktop */}
           <nav className="hidden md:flex space-x-6">
@@ -80,6 +86,9 @@ export default function Layout() {
       <main className="flex-1 pt-20 pb-12 px-4 md:px-8">
         <Outlet />
       </main>
+
+      {/* Floating ti‑panier button (mobile/global) */}
+      <TiPanierButton />
 
       {/* FOOTER */}
       <footer className="border-t border-slate-800 bg-slate-900/90 text-center py-6 text-sm text-slate-400">

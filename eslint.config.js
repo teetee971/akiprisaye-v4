@@ -14,6 +14,9 @@ export default [
       '**/.firebase/**',
       '**/coverage/**',
       '**/Assets/**',
+      '**/SentinelQuantumVanguardAIPro/**',
+      '**/chat_ia_local/**',
+      '**/frontend/public/**',
     ],
   },
 
@@ -23,6 +26,7 @@ export default [
   {
     rules: {
       ...js.configs.recommended.rules,
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     },
   },
 
@@ -93,6 +97,19 @@ export default [
     },
     rules: {
       'no-console': ['warn', { allow: ['warn', 'error'] }],
+    },
+  },
+
+  // =====================================================
+  // COOKIE CONSENT - Legacy Module Pattern
+  // =====================================================
+  {
+    files: ['cookie-consent.js'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        module: 'writable',
+      },
     },
   },
 

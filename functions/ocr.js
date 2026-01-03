@@ -41,7 +41,7 @@ function validateImage(file) {
  * @param {ArrayBuffer} imageBuffer - Image data
  * @returns {Promise<string>} Extracted text
  */
-async function extractTextFromImage(imageBuffer) {
+async function extractTextFromImage(_imageBuffer) {
   // TODO: PRODUCTION IMPLEMENTATION
   // 
   // Option 1: Google Vision API (Recommended for server-side)
