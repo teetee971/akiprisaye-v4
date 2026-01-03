@@ -16,7 +16,7 @@ function getRelativeTimeText(dateStr: string): string {
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
 
   if (diffMinutes < 1) {
-    return 'à l'instant'
+    return "à l'instant"
   } else if (diffMinutes < 60) {
     return `il y a ${diffMinutes} min`
   } else if (diffHours < 24) {
