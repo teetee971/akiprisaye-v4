@@ -11,7 +11,6 @@ interface BarcodeScannerProps {
 export default function BarcodeScanner({ onScan, onClose, options = {} }: BarcodeScannerProps) {
   // Scan state management
   const [scanState, setScanState] = useState<ScanState>('idle');
-  const [stateTransitions, setStateTransitions] = useState<ScanStateTransition[]>([]);
   
   // Legacy states (kept for backward compatibility)
   const [isScanning, setIsScanning] = useState(false);
@@ -29,21 +28,13 @@ export default function BarcodeScanner({ onScan, onClose, options = {} }: Barcod
   // Configuration with defaults
   const {
     timeout = 15000,
-    notFoundBehavior = 'manual_search',
     enableDebugLogging = false,
   } = options;
 
   // State transition handler with logging
   const transitionState = (to: ScanState, reason?: string) => {
     const from = scanState;
-    const transition: ScanStateTransition = {
-      from,
-      to,
-      timestamp: new Date(),
-      reason,
-    };
     
-    setStateTransitions((prev) => [...prev, transition]);
     setScanState(to);
     
     if (enableDebugLogging) {
@@ -105,10 +96,12 @@ export default function BarcodeScanner({ onScan, onClose, options = {} }: Barcod
               }
               resolve();
             };
-            videoRef.current.onerror = (e) => {
-              console.error('[SCAN] ❌ Video error:', e);
+            videoRef.current.onerror = () => {
+              console.error('[SCAN] ❌ Video error');
               reject(new Error('Erreur de chargement vidéo'));
             };
+          } else {
+            reject(new Error('Video ref not available'));
           }
         });
         
