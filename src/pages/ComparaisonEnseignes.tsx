@@ -1,4 +1,7 @@
 // src/pages/ComparaisonEnseignes.tsx
+// PR-02: Inter-Store Comparison in Factual Observation Mode
+// Phase 2 - Strictly factual data, no predictions or recommendations
+
 import React, { useEffect, useState } from 'react'
 import { GlassCard } from '../components/ui/glass-card'
 import PriceComparisonTable from '../components/PriceComparisonTable'
@@ -18,6 +21,9 @@ import { initAutoUpdate, getLastUpdateDate } from '../services/priceUpdateSchedu
 import type { PriceObservation } from '../types/priceObservation'
 
 export default function ComparaisonEnseignes() {
+  // Feature flag check
+  const isFeatureEnabled = import.meta.env.VITE_FEATURE_COMPARAISON_ENSEIGNES === 'true'
+
   const [selectedEAN, setSelectedEAN] = useState<string>('')
   const [selectedTerritory, setSelectedTerritory] = useState<string>('all')
   const [observations, setObservations] = useState<PriceObservation[]>([])
@@ -28,9 +34,11 @@ export default function ComparaisonEnseignes() {
 
   // Initialiser la mise à jour automatique au montage
   useEffect(() => {
-    initAutoUpdate()
-    setLastUpdate(getLastUpdateDate())
-  }, [])
+    if (isFeatureEnabled) {
+      initAutoUpdate()
+      setLastUpdate(getLastUpdateDate())
+    }
+  }, [isFeatureEnabled])
 
   // Charger les observations quand un produit est sélectionné
   useEffect(() => {
@@ -61,17 +69,39 @@ export default function ComparaisonEnseignes() {
   const oldData = hasOldData(observations)
   const storeCount = countUniqueStores(observations)
 
+  // Feature disabled state
+  if (!isFeatureEnabled) {
+    return (
+      <main className="container mx-auto px-4 py-8 max-w-7xl" role="main">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-4">Comparaison inter-enseignes</h1>
+        </div>
+        <GlassCard>
+          <div className="text-center py-8">
+            <div className="text-5xl mb-4">🔒</div>
+            <h2 className="text-xl font-semibold text-white mb-4">
+              Module de comparaison inter-enseignes désactivé dans cette phase.
+            </h2>
+            <p className="text-white/70">
+              Ce module est en cours de déploiement progressif.
+            </p>
+          </div>
+        </GlassCard>
+      </main>
+    )
+  }
+
   return (
     <main className="container mx-auto px-4 py-8 max-w-7xl" role="main">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-4">Comparaison inter-enseignes</h1>
 
-        {/* Avertissement obligatoire */}
+        {/* Avertissement institutionnel obligatoire (PR-02) */}
         <div className="p-4 bg-blue-500/20 border border-blue-500/50 rounded-lg text-sm text-blue-200 mb-6">
           <strong>ℹ️ Information importante</strong>
           <p className="mt-2">
-            Cette comparaison présente des prix observés à des dates différentes, selon les données publiques
-            disponibles. Elle ne constitue ni une recommandation d'achat, ni un classement commercial.
+            Comparaison strictement factuelle entre enseignes, basée sur des observations déclarées ou ouvertes.
+            Aucun classement, aucune recommandation, aucune analyse prédictive n'est réalisée.
           </p>
         </div>
 
