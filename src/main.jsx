@@ -24,6 +24,7 @@ const APropos = lazy(() => import('./pages/APropos'));
 const Methodologie = lazy(() => import('./pages/Methodologie'));
 const MentionsLegales = lazy(() => import('./pages/MentionsLegales'));
 const MonCompte = lazy(() => import('./pages/MonCompte'));
+const Inscription = lazy(() => import('./pages/Inscription'));
 const Pricing = lazy(() => import('./pages/Pricing.tsx'));
 const PricingDetailed = lazy(() => import('./pages/PricingDetailed'));
 const Subscribe = lazy(() => import('./pages/Subscribe'));
@@ -109,6 +110,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='methodologie' element={<Methodologie />} />
                   <Route path='mentions-legales' element={<MentionsLegales />} />
                   <Route path='mon-compte' element={<MonCompte />} />
+                  <Route path='inscription' element={<Inscription />} />
                   <Route path='pricing' element={<Pricing />} />
                   <Route path='pricing-detailed' element={<PricingDetailed />} />
                   <Route path='subscribe' element={<Subscribe />} />
