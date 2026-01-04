@@ -70,7 +70,7 @@ export default function AssistantChat() {
       {/* Floating Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-all z-50 ${
+        className={`assistant-chat-button fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-all z-50 ${
           isOpen
             ? 'bg-red-600 hover:bg-red-500'
             : 'bg-blue-600 hover:bg-blue-500 animate-pulse'

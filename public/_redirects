@@ -1,1 +1,17 @@
-/*    /index.html   200
+# Cloudflare Pages SPA Fallback Rules
+# Explicit asset rules BEFORE fallback to prevent infinite loop
+
+# Static assets - serve as-is
+/assets/*  /assets/:splat  200
+/favicon*  /favicon:splat  200
+/logo*     /logo:splat     200
+/icons/*   /icons/:splat   200
+/images/*  /images/:splat  200
+
+# Static files
+/robots.txt    /robots.txt    200
+/sitemap.xml   /sitemap.xml   200
+/manifest.webmanifest  /manifest.webmanifest  200
+
+# SPA fallback - MUST be last
+/*  /index.html  200

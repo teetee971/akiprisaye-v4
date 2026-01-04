@@ -10,14 +10,14 @@ const accessLevels = [
     id: 'PUBLIC',
     title: '📖 Gratuit',
     price: '0 €',
-    subtitle: 'Accès public (inscription requise)',
+    subtitle: 'Accès libre aux comparaisons',
     features: [
       'Scan EAN illimité',
       'Comparaisons basiques',
       'Lecture seule',
       'Sans publicité',
     ],
-    note: 'Inscription obligatoire pour traçabilité et sérieux.',
+    note: 'Inscription optionnelle pour alertes, panier et historique.',
   },
   {
     id: 'CITIZEN',
@@ -101,7 +101,7 @@ export default function PricingDetailed() {
               ❌ Pas de vente de données
             </span>
             <span className="px-4 py-2 bg-green-900/30 border border-green-500/30 rounded-lg text-green-200 text-sm">
-              ✅ Inscription obligatoire
+              ✅ Accès libre aux comparaisons
             </span>
             <span className="px-4 py-2 bg-green-900/30 border border-green-500/30 rounded-lg text-green-200 text-sm">
               ✅ Transparence totale
@@ -187,10 +187,10 @@ export default function PricingDetailed() {
           <div className="grid gap-6 md:grid-cols-2">
             <GlassCard>
               <h3 className="font-bold text-lg text-white mb-2">
-                Pourquoi une inscription est-elle obligatoire ?
+                Quand l'inscription est-elle nécessaire ?
               </h3>
               <p className="text-gray-300 text-sm">
-                Pour assurer la traçabilité des usages, la fiabilité statistique et la protection des données publiques.
+                L'inscription est nécessaire pour les alertes prix, le panier et l'historique. Les comparaisons et recherches restent accessibles librement.
               </p>
             </GlassCard>
 

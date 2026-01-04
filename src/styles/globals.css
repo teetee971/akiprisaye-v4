@@ -152,3 +152,35 @@
     opacity: 0.2;
   }
 }
+
+/* Mobile layout fixes - prevent chat/cart overlap */
+/* Support for safe-area-inset on modern mobile devices */
+:root {
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --fab-gap: 12px;
+  --fab-size: 56px;
+}
+
+@media (max-width: 768px) {
+  /* Assistant Chat Button - positioned above cart with safe-area support */
+  button.assistant-chat-button {
+    bottom: calc(16px + var(--safe-bottom) + var(--fab-size) + var(--fab-gap));
+    right: 16px;
+    z-index: 900;
+  }
+  
+  /* Ti-panier (cart) button - stays at bottom with safe-area support */
+  button.ti-panier-floating {
+    bottom: calc(16px + var(--safe-bottom));
+    right: 16px;
+    z-index: 1000;
+  }
+  
+  /* Reduce spacing on very small screens */
+  @media (max-width: 420px) {
+    button.assistant-chat-button,
+    button.ti-panier-floating {
+      right: 14px;
+    }
+  }
+}

@@ -19,7 +19,7 @@ const pricingPlans = [
     cta: 'Commencer gratuitement',
     ctaLink: '/mon-compte',
     popular: false,
-    note: 'Inscription obligatoire pour garantir la qualité du service',
+    note: 'Accès libre aux comparaisons, inscription pour fonctionnalités avancées',
     color: 'from-slate-600 to-slate-700',
     badge: null,
   },

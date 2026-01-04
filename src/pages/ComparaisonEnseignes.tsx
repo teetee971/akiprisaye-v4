@@ -4,6 +4,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { GlassCard } from '../components/ui/glass-card'
+import { EmptyState } from '../components/ui/DataStateIndicator'
 import PriceComparisonTable from '../components/PriceComparisonTable'
 import PriceDataWarning from '../components/PriceDataWarning'
 import ExportDataButton from '../components/ExportDataButton'
@@ -280,13 +281,20 @@ export default function ComparaisonEnseignes() {
                 Signaler une observation
               </button>
             )}
-            <ExportDataButton observations={observations} />
+            {observations.length > 0 && <ExportDataButton observations={observations} />}
           </div>
         </div>
         
-        <GlassCard>
-          <PriceComparisonTable observations={observations} groupedByStore={groupedStores} />
-        </GlassCard>
+        {observations.length === 0 ? (
+          <EmptyState 
+            title="Aucune donnée disponible"
+            message="Ce produit n'est pas encore référencé pour ce territoire. Les données sont en cours de consolidation."
+          />
+        ) : (
+          <GlassCard>
+            <PriceComparisonTable observations={observations} groupedByStore={groupedStores} />
+          </GlassCard>
+        )}
       </div>
 
       {/* Citizen Report Modal (PR-11) */}
