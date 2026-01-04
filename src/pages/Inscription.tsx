@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { doc, setDoc } from "firebase/firestore";
 import { db, firebaseError } from "@/lib/firebase";
 
+const DEFAULT_USER_PLAN = "freemium";
+
 export default function Inscription() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,7 +39,7 @@ export default function Inscription() {
       if (db) {
         await setDoc(doc(db, "users", userCredential.user.uid), {
           email,
-          plan: "freemium",
+          plan: DEFAULT_USER_PLAN,
           createdAt: new Date(),
         }, { merge: true });
       }
@@ -126,9 +128,13 @@ export default function Inscription() {
         <div className="mt-6 text-center">
           <p className="text-gray-400 text-sm">
             Déjà un compte ?{" "}
-            <a href="/mon-compte" className="text-blue-400 hover:text-blue-300 hover:underline font-medium">
+            <button
+              type="button"
+              onClick={() => navigate("/mon-compte")}
+              className="text-blue-400 hover:text-blue-300 hover:underline font-medium cursor-pointer bg-transparent border-0 p-0"
+            >
               Se connecter
-            </a>
+            </button>
           </p>
         </div>
 
