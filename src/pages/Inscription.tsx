@@ -13,6 +13,7 @@ export default function Inscription() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,7 +45,13 @@ export default function Inscription() {
         }, { merge: true });
       }
       
-      navigate("/mon-compte");
+      // Show success message before redirecting
+      setSuccess(true);
+      
+      // Redirect after a short delay to show success message
+      setTimeout(() => {
+        navigate("/mon-compte");
+      }, 1500);
     } catch (err: any) {
       setError(getErrorMessage(err));
     } finally {
@@ -74,6 +81,15 @@ export default function Inscription() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4">
       <div className="bg-slate-900 rounded-2xl p-6 shadow-lg w-full max-w-md">
         <h1 className="text-2xl font-semibold mb-6 text-white text-center">Créer un compte</h1>
+
+        {success && (
+          <div className="mb-4 p-3 bg-green-900/30 border border-green-700 rounded-lg text-green-200 text-sm text-center">
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-xl">✅</span>
+              <span>Compte créé avec succès !</span>
+            </div>
+          </div>
+        )}
 
         {error && (
           <div className="mb-4 p-3 bg-red-900/30 border border-red-700 rounded-lg text-red-200 text-sm">
@@ -121,7 +137,7 @@ export default function Inscription() {
             className="w-full p-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed text-white"
             disabled={loading}
           >
-            {loading ? "Création..." : "Créer mon compte"}
+            {loading ? "Création en cours…" : "Créer mon compte"}
           </button>
         </form>
 

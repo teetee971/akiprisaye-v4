@@ -23,7 +23,7 @@ export default function TiPanierButton({ float = true }: { float?: boolean }) {
         onClick={() => setOpen(true)}
         className={
           float
-            ? "ti-panier-floating fixed right-4 bottom-6 z-50 md:relative md:bottom-auto md:right-auto flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+            ? "flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
             : "inline-flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
         }
       >

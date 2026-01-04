@@ -57,7 +57,6 @@ const NewsSimple = lazy(() => import('./pages/News.tsx'));
 
 // PR #1 - Assistant + FAQ étendue (v1.6.0)
 const Faq = lazy(() => import('./pages/Faq'));
-const AssistantChat = lazy(() => import('./components/AssistantChat'));
 
 // Comparateur Citoyen - Observatoire data
 const ComparateurCitoyen = lazy(() => import('./pages/ComparateurCitoyen'));
@@ -151,9 +150,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='*' element={<NotFound />} />
                 </Route>
               </Routes>
-              
-              {/* Assistant Chat - Floating button available on all pages */}
-              {import.meta.env.VITE_FEATURE_ASSISTANT !== 'false' && <AssistantChat />}
             </Suspense>
           </BrowserRouter>
         </AuthProvider>
