@@ -26,13 +26,14 @@ export default function Home() {
         </p>
       </GlassCard>
 
-      {/* Inscription obligatoire */}
+      {/* Accès libre avec fonctionnalités avancées protégées */}
       <GlassCard className="bg-blue-900/10 border-blue-500/30">
-        <h2 className="text-xl font-semibold mb-3 text-blue-300">🔐 Accès au service</h2>
-        <h3 className="text-lg font-semibold mb-2">Inscription obligatoire</h3>
+        <h2 className="text-xl font-semibold mb-3 text-blue-300">🔓 Accès libre au service</h2>
         <p className="text-gray-300 text-sm mb-4 leading-relaxed">
-          L'inscription gratuite est requise pour consulter les données publiques,
-          afin de garantir la transparence des usages et l'intégrité des données observées.
+          Les comparaisons de prix, la recherche de produits et la consultation des territoires sont <strong>accessibles librement</strong>.
+        </p>
+        <p className="text-gray-300 text-sm mb-4 leading-relaxed">
+          L'inscription est requise pour activer les <strong>alertes prix</strong>, le <strong>panier</strong> et l'<strong>historique</strong>.
         </p>
         <div className="flex gap-3 flex-wrap">
           <button
