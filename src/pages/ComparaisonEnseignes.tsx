@@ -280,13 +280,28 @@ export default function ComparaisonEnseignes() {
                 Signaler une observation
               </button>
             )}
-            <ExportDataButton observations={observations} />
+            {observations.length > 0 && <ExportDataButton observations={observations} />}
           </div>
         </div>
         
-        <GlassCard>
-          <PriceComparisonTable observations={observations} groupedByStore={groupedStores} />
-        </GlassCard>
+        {observations.length === 0 ? (
+          <GlassCard className="bg-gray-900/10 border-gray-500/30">
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">📊</div>
+              <h3 className="text-xl font-semibold text-white mb-3">
+                Aucune donnée disponible
+              </h3>
+              <p className="text-gray-300 text-sm max-w-md mx-auto">
+                Ce produit n'est pas encore référencé pour ce territoire. 
+                Les données sont en cours de consolidation.
+              </p>
+            </div>
+          </GlassCard>
+        ) : (
+          <GlassCard>
+            <PriceComparisonTable observations={observations} groupedByStore={groupedStores} />
+          </GlassCard>
+        )}
       </div>
 
       {/* Citizen Report Modal (PR-11) */}
