@@ -59,6 +59,9 @@ const NewsSimple = lazy(() => import('./pages/News.tsx'));
 const Faq = lazy(() => import('./pages/Faq'));
 const AssistantChat = lazy(() => import('./components/AssistantChat'));
 
+// Comparateur Citoyen - Observatoire data
+const ComparateurCitoyen = lazy(() => import('./pages/ComparateurCitoyen'));
+
 // Loading component
 function LoadingFallback() {
   return (
@@ -136,6 +139,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='evaluation-cosmetique' element={<EvaluationCosmetique />} />
                   <Route path='observatoire' element={<Observatoire />} />
                   <Route path='observatoire/methodologie' element={<ObservatoryMethodology />} />
+                  <Route path='comparateur-citoyen' element={<ComparateurCitoyen />} />
                   
                   {/* New simplified pages for automatic generation */}
                   <Route path='comparer' element={<CompareSimple />} />
