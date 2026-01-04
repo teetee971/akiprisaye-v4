@@ -48,7 +48,7 @@ export function calculateAveragePrices(
     // Apply quality filter
     if (config.qualite_minimale !== undefined) {
       filtered = filtered.filter((obs) => 
-        obs.qualite.score !== undefined && obs.qualite.score >= config.qualite_minimale!
+        obs.qualite.score !== undefined && obs.qualite.score >= (config.qualite_minimale ?? 0)
       );
     }
     
@@ -221,6 +221,8 @@ export function calculateDomHexagoneGaps(
 /**
  * Calculate Cost of Living Index (IVC) - base 100
  */
+const DEFAULT_CATEGORY_WEIGHT = 1; // Equal weighting for all categories
+
 export function calculateIVC(
   observations: CanonicalPriceObservation[],
   territoire: TerritoireName,
@@ -279,7 +281,7 @@ export function calculateIVC(
         const hexagonePrice = hexagoneAvg.data.reduce((s, d) => s + d.prix_moyen, 0) / hexagoneAvg.data.length;
         
         const indice = (territoryPrice / hexagonePrice) * 100;
-        const contribution = 1 / categories.length; // Equal weighting for simplicity
+        const contribution = DEFAULT_CATEGORY_WEIGHT / categories.length; // Equal weighting
         
         categoryIndices.push({
           categorie,

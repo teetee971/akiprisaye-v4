@@ -19,11 +19,13 @@ import type {
 /**
  * Validate EAN format (GTIN-8, GTIN-12, GTIN-13)
  */
+const EAN_PATTERN = /^\d{8}$|^\d{12}$|^\d{13}$/;
+
 function validateEAN(ean: string): boolean {
   if (!ean) return true; // EAN is optional
   
   // Must be 8, 12, or 13 digits
-  if (!/^\d{8}$|^\d{12}$|^\d{13}$/.test(ean)) {
+  if (!EAN_PATTERN.test(ean)) {
     return false;
   }
   
