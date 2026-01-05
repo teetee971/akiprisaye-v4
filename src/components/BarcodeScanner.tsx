@@ -262,34 +262,169 @@ export default function BarcodeScanner({ onScan, onClose, options = {} }: Barcod
     }
   };
 
+  /**
+   * Separate image pipeline with native barcode detection + OCR fallback
+   * This is completely independent from the camera pipeline
+   */
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setError(null);
     setIsScanning(true);
+    setUserMessage({ 
+      type: 'info', 
+      title: 'Traitement en cours', 
+      message: 'Analyse de l\'image...' 
+    });
     transitionState('processing', 'Processing uploaded image');
 
+    let ean: string | null = null;
+
     try {
-      if (readerRef.current) {
-        const imageUrl = URL.createObjectURL(file);
-        const result = await readerRef.current.decodeFromImageUrl(imageUrl);
-        const code = result.getText();
-        URL.revokeObjectURL(imageUrl);
-        setIsScanning(false);
-        
+      // Step 1: Load image properly
+      const img = new Image();
+      const imageUrl = URL.createObjectURL(file);
+      img.src = imageUrl;
+      
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error('Failed to load image'));
+      });
+      
+      await img.decode();
+      
+      if (enableDebugLogging) {
+        console.log('[SCAN] 📷 Image loaded successfully');
+      }
+
+      // Step 2: Try native barcode detection first (if available)
+      if ('BarcodeDetector' in window) {
+        try {
+          if (enableDebugLogging) {
+            console.log('[SCAN] 🔍 Attempting native BarcodeDetector...');
+          }
+          
+          const detector = new (window as any).BarcodeDetector({ 
+            formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] 
+          });
+          const codes = await detector.detect(img);
+          
+          if (codes.length > 0) {
+            ean = codes[0].rawValue;
+            if (enableDebugLogging) {
+              console.log('[SCAN] ✅ Barcode detected with BarcodeDetector:', ean);
+            }
+          }
+        } catch (err) {
+          if (enableDebugLogging) {
+            console.log('[SCAN] BarcodeDetector failed, will try other methods:', err);
+          }
+        }
+      }
+
+      // Step 2b: Try ZXing library if native BarcodeDetector not available or failed
+      if (!ean && readerRef.current) {
+        try {
+          if (enableDebugLogging) {
+            console.log('[SCAN] 🔍 Attempting ZXing barcode detection...');
+          }
+          const result = await readerRef.current.decodeFromImageUrl(imageUrl);
+          ean = result.getText();
+          if (enableDebugLogging) {
+            console.log('[SCAN] ✅ Barcode detected with ZXing:', ean);
+          }
+        } catch (err) {
+          if (enableDebugLogging) {
+            console.log('[SCAN] ZXing detection failed, will try OCR:', err);
+          }
+        }
+      }
+
+      // Step 3: OCR Fallback (INDISPENSABLE)
+      if (!ean) {
         if (enableDebugLogging) {
-          console.log('[SCAN] ✅ Barcode detected from image:', code);
+          console.log('[SCAN] 📝 Starting OCR fallback with Tesseract.js...');
         }
         
-        transitionState('processing', `Barcode from image: ${code}`);
-        onScan(code);
+        setUserMessage({ 
+          type: 'info', 
+          title: 'Détection OCR en cours', 
+          message: 'Recherche du code dans l\'image...' 
+        });
+
+        try {
+          // Dynamic import for code splitting - only load OCR when needed
+          const Tesseract = await import('tesseract.js');
+          const { data } = await Tesseract.recognize(img, 'eng', {
+            tessedit_char_whitelist: '0123456789'
+          });
+
+          if (enableDebugLogging) {
+            console.log('[SCAN] OCR raw text:', data.text);
+          }
+
+          // Look for EAN-13 (13 digits) or EAN-8 (8 digits)
+          const match = data.text.match(/\b\d{13}\b|\b\d{8}\b/);
+          if (match) {
+            ean = match[0];
+            if (enableDebugLogging) {
+              console.log('[SCAN] ✅ EAN detected via OCR:', ean);
+            }
+          }
+        } catch (ocrErr) {
+          console.error('[SCAN] OCR error:', ocrErr);
+        }
+      }
+
+      // Cleanup
+      URL.revokeObjectURL(imageUrl);
+      setIsScanning(false);
+
+      // Step 4: Handle result
+      if (ean) {
+        // SUCCESS CASE
+        setUserMessage({ 
+          type: 'info', 
+          title: 'Code détecté', 
+          message: `✅ Code détecté automatiquement à partir de l'image: ${ean}` 
+        });
+        
+        if (enableDebugLogging) {
+          console.log('[SCAN] ✅ Final EAN to process:', ean);
+        }
+        
+        transitionState('processing', `Barcode from image: ${ean}`);
+        
+        // Clear message after a short delay so user can see it
+        setTimeout(() => setUserMessage(null), 2000);
+        
+        try {
+          onScan(ean);
+        } catch (err) {
+          console.error('[SCAN] Error in onScan callback:', err);
+          setError('Erreur lors du traitement du code détecté');
+        }
+      } else {
+        // FAILURE CASE - Honest message
+        setError('❌ Aucun code détecté automatiquement');
+        setUserMessage({ 
+          type: 'warning', 
+          title: 'Code non détecté', 
+          message: '❌ Aucun code détecté automatiquement. 👉 Vous pouvez saisir le code manuellement ci-dessous.' 
+        });
+        transitionState('error', 'No barcode found in image');
       }
     } catch (err: any) {
-      console.error('[SCAN] Image decode error:', err);
-      setError('❌ Code-barres non détecté dans l\'image. Essayez la saisie manuelle.');
+      console.error('[SCAN] Image processing error:', err);
+      setError('❌ Erreur lors du traitement de l\'image');
+      setUserMessage({ 
+        type: 'error', 
+        title: 'Erreur', 
+        message: 'Une erreur est survenue lors du traitement de l\'image. Essayez la saisie manuelle.' 
+      });
       setIsScanning(false);
-      transitionState('error', 'Failed to decode image');
+      transitionState('error', 'Image processing failed');
     }
   };
 

@@ -50,6 +50,17 @@ const LOCAL_CATALOG: PublicProduct[] = [
     ],
     lastUpdate: '2025-11-26T10:00:00Z',
   },
+  {
+    ean: '3155250003701',
+    name: 'Produit Test Image OCR',
+    category: 'Test',
+    territories: ['GP', 'MQ', 'RE'],
+    observedPrices: [
+      { territory: 'GP', store: 'Test Store', price: 3.99, date: '2025-01-05T10:00:00Z' },
+      { territory: 'MQ', store: 'Test Store 2', price: 4.20, date: '2025-01-05T10:00:00Z' },
+    ],
+    lastUpdate: '2025-01-05T10:00:00Z',
+  },
 ]
 
 /**

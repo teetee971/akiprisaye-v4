@@ -1,5 +1,5 @@
 // src/pages/ScanEAN.tsx
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { useEANScanner } from '../hooks/useEANScanner'
 import { useEANResolver } from '../hooks/useEANResolver'
 import { useScanHistory } from '../hooks/useScanHistory'
@@ -14,10 +14,35 @@ export default function ScanEAN() {
   const [manualEAN, setManualEAN] = useState('')
   const [manualError, setManualError] = useState<string | null>(null)
   const [showHistory, setShowHistory] = useState(false)
+  const [imageUploadStatus, setImageUploadStatus] = useState<string | null>(null)
+  const [isProcessingImage, setIsProcessingImage] = useState(false)
 
   const scanner = useEANScanner()
   const resolver = useEANResolver()
   const { history, addToHistory, removeFromHistory, clearHistory } = useScanHistory()
+
+  /**
+   * Unified EAN handler - Single source of truth
+   * Handles EAN from: camera, image upload, manual input
+   * Note: Validation errors should be handled by the caller before calling this function
+   */
+  const handleEAN = useCallback(async (ean: string) => {
+    // Validate EAN (already validated by caller for manual input)
+    if (!validateEAN(ean)) {
+      return
+    }
+
+    // Resolve EAN - fetch product and prices
+    await resolver.resolveEAN(ean)
+    
+    // Add to history if product found
+    if (resolver.product) {
+      addToHistory({
+        ean,
+        productName: resolver.product.name,
+      })
+    }
+  }, [resolver, addToHistory])
 
   // Handle manual EAN search
   const handleManualSearch = async () => {
@@ -28,31 +53,106 @@ export default function ScanEAN() {
       return
     }
 
+    // Validate before calling handleEAN
     if (!validateEAN(manualEAN.trim())) {
       setManualError('Code EAN invalide (vérifiez la longueur et le checksum)')
       return
     }
 
-    await resolver.resolveEAN(manualEAN.trim())
-    
-    if (resolver.product) {
-      addToHistory({
-        ean: manualEAN.trim(),
-        productName: resolver.product.name,
-      })
-    }
+    await handleEAN(manualEAN.trim())
   }
 
-  // Handle camera detection (placeholder - would need real barcode library)
+  // Handle camera detection
   const handleCameraDetection = async (ean: string) => {
     scanner.setDetectedEAN(ean)
-    await resolver.resolveEAN(ean)
-    
-    if (resolver.product) {
-      addToHistory({
-        ean,
-        productName: resolver.product.name,
+    await handleEAN(ean)
+  }
+
+  /**
+   * Separate image pipeline - independent from camera
+   * Includes OCR fallback with Tesseract.js
+   */
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setImageUploadStatus('🔍 Analyse de l\'image en cours...')
+    setIsProcessingImage(true)
+
+    let ean: string | null = null
+
+    try {
+      // Step 1: Load image properly
+      const img = new Image()
+      const imageUrl = URL.createObjectURL(file)
+      img.src = imageUrl
+
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve()
+        img.onerror = () => reject(new Error('Failed to load image'))
       })
+
+      await img.decode()
+
+      // Step 2: Try native BarcodeDetector (if available)
+      if ('BarcodeDetector' in window) {
+        try {
+          const detector = new (window as any).BarcodeDetector({
+            formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e']
+          })
+          const codes = await detector.detect(img)
+
+          if (codes.length > 0) {
+            ean = codes[0].rawValue
+            console.log('✅ Barcode detected with BarcodeDetector:', ean)
+          }
+        } catch (err) {
+          console.log('BarcodeDetector failed, trying other methods')
+        }
+      }
+
+      // Step 3: OCR Fallback with Tesseract.js (INDISPENSABLE)
+      if (!ean) {
+        setImageUploadStatus('📝 Détection OCR en cours...')
+        
+        const Tesseract = await import('tesseract.js')
+        const { data } = await Tesseract.recognize(img, 'eng', {
+          tessedit_char_whitelist: '0123456789'
+        })
+
+        console.log('OCR raw text:', data.text)
+
+        // Look for EAN-13 (13 digits) or EAN-8 (8 digits)
+        const match = data.text.match(/\b\d{13}\b|\b\d{8}\b/)
+        if (match) {
+          ean = match[0]
+          console.log('✅ EAN detected via OCR:', ean)
+        }
+      }
+
+      // Cleanup
+      URL.revokeObjectURL(imageUrl)
+
+      // Step 4: Handle result
+      if (ean) {
+        // SUCCESS CASE
+        setImageUploadStatus(`✅ Code détecté automatiquement: ${ean}`)
+        setTimeout(() => setImageUploadStatus(null), 3000)
+        
+        try {
+          await handleEAN(ean)
+        } finally {
+          setIsProcessingImage(false)
+        }
+      } else {
+        // FAILURE CASE - Honest message
+        setImageUploadStatus('❌ Aucun code détecté automatiquement. 👉 Vous pouvez saisir le code manuellement.')
+        setIsProcessingImage(false)
+      }
+    } catch (err) {
+      console.error('Image processing error:', err)
+      setImageUploadStatus('❌ Erreur lors du traitement de l\'image')
+      setIsProcessingImage(false)
     }
   }
 
@@ -71,7 +171,7 @@ export default function ScanEAN() {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6 mb-8">
+      <div className="grid md:grid-cols-3 gap-6 mb-8">
         {/* Scan par caméra */}
         <GlassCard title="📷 Scanner avec la caméra">
           <ScanCamera
@@ -81,6 +181,46 @@ export default function ScanEAN() {
             onStartScan={scanner.startScanning}
             onStopScan={scanner.stopScanning}
           />
+        </GlassCard>
+
+        {/* Import image */}
+        <GlassCard title="🖼️ Importer une image">
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm text-white/70 mb-4">
+                Importez une photo d'un code-barres pour le scanner automatiquement avec OCR.
+              </p>
+              <label className="block w-full">
+                <div className="px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium text-center cursor-pointer transition-colors">
+                  {isProcessingImage ? '⏳ Traitement...' : '📤 Choisir une image'}
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={isProcessingImage}
+                  className="hidden"
+                  aria-label="Importer une image de code-barres"
+                />
+              </label>
+            </div>
+
+            {imageUploadStatus && (
+              <div className={`p-3 rounded-lg text-sm ${
+                imageUploadStatus.includes('✅') 
+                  ? 'bg-green-500/20 border border-green-500/50 text-green-300'
+                  : imageUploadStatus.includes('❌')
+                  ? 'bg-yellow-500/20 border border-yellow-500/50 text-yellow-300'
+                  : 'bg-blue-500/20 border border-blue-500/50 text-blue-300'
+              }`}>
+                {imageUploadStatus}
+              </div>
+            )}
+
+            <div className="text-xs text-white/60">
+              💡 Si le code n'est pas détecté, utilisez la saisie manuelle
+            </div>
+          </div>
         </GlassCard>
 
         {/* Saisie manuelle */}
