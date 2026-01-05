@@ -12,9 +12,10 @@
  * - ✅ Clear "Suggestion" messaging
  * - ✅ Visible confidence scores
  * - ✅ Mobile-first design
+ * - ✅ Keyboard navigation support
  */
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface Props {
   suggestions: { label: string; score: number }[];
@@ -23,20 +24,67 @@ interface Props {
 }
 
 export function ProductTextReviewModal({ suggestions, onConfirm, onCancel }: Props) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const firstButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Focus management and keyboard navigation
+  useEffect(() => {
+    // Focus first interactive element on mount
+    firstButtonRef.current?.focus();
+
+    // Handle Escape key
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onCancel();
+      }
+    };
+
+    // Trap focus within modal
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab' || !modalRef.current) return;
+
+      const focusableElements = modalRef.current.querySelectorAll(
+        'button:not([disabled])'
+      );
+      const firstElement = focusableElements[0] as HTMLElement;
+      const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement?.focus();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement?.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    document.addEventListener('keydown', handleTab);
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('keydown', handleTab);
+    };
+  }, [onCancel]);
+
   return (
     <div 
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
       role="dialog"
       aria-labelledby="modal-title"
+      aria-describedby="modal-description"
       aria-modal="true"
     >
-      <div className="w-full max-w-md bg-gradient-to-br from-purple-900/90 to-blue-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 overflow-hidden">
+      <div 
+        ref={modalRef}
+        className="w-full max-w-md bg-gradient-to-br from-purple-900/90 to-blue-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 overflow-hidden"
+      >
         {/* Header */}
         <div className="px-6 py-4 border-b border-white/10">
           <h3 id="modal-title" className="text-xl font-bold text-white">
             🔍 Confirmer le produit détecté
           </h3>
-          <p className="text-sm text-white/70 mt-1">
+          <p id="modal-description" className="text-sm text-white/70 mt-1">
             ⚠️ Suggestion automatique — Veuillez vérifier avant de continuer
           </p>
         </div>
@@ -56,8 +104,9 @@ export function ProductTextReviewModal({ suggestions, onConfirm, onCancel }: Pro
               {suggestions.map((s, index) => (
                 <button
                   key={`${s.label}-${index}`}
+                  ref={index === 0 ? firstButtonRef : null}
                   onClick={() => onConfirm(s.label)}
-                  className="w-full px-4 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-left transition-all duration-200 group"
+                  className="w-full px-4 py-3 bg-white/10 hover:bg-white/20 focus:bg-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-white/20 rounded-lg text-left transition-all duration-200 group"
                   aria-label={`Confirmer ${s.label} avec ${Math.round(s.score * 100)}% de confiance`}
                 >
                   <div className="flex items-center justify-between">
@@ -86,7 +135,7 @@ export function ProductTextReviewModal({ suggestions, onConfirm, onCancel }: Pro
         <div className="px-6 py-4 border-t border-white/10 bg-black/20">
           <button
             onClick={onCancel}
-            className="w-full px-4 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-white font-medium transition-colors duration-200"
+            className="w-full px-4 py-3 bg-white/10 hover:bg-white/20 focus:bg-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-white/20 rounded-lg text-white font-medium transition-colors duration-200"
             aria-label="Annuler la sélection"
           >
             ❌ Annuler

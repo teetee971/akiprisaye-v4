@@ -53,8 +53,9 @@ export function extractProductHints(text: string): ProductHints {
   const priceMatch = text.match(/(\d+(?:[.,]\d+)?)\s?€/);
   const price = priceMatch ? priceMatch[0] : undefined;
   
-  const volumeMatch = text.match(/\b(\d+(?:[.,]\d+)?\s?(L|CL|ML|G|KG))\b/i);
-  const volume = volumeMatch ? volumeMatch[1].toUpperCase() : undefined;
+  // Improved volume regex: handles lowercase, spaces between number and unit
+  const volumeMatch = text.match(/(\d+(?:[.,]\d+)?)\s?(L|CL|ML|G|KG|l|cl|ml|g|kg)\b/);
+  const volume = volumeMatch ? volumeMatch[0].toUpperCase() : undefined;
   
   // Now normalize the text
   const normalized = normalizeText(text);

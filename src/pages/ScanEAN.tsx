@@ -24,6 +24,9 @@ export default function ScanEAN() {
   const scanner = useEANScanner()
   const resolver = useEANResolver()
   const { history, addToHistory, removeFromHistory, clearHistory } = useScanHistory()
+  
+  // Cache product catalog to avoid repeated calls
+  const productCatalog = React.useMemo(() => getAllProducts().map(p => ({ label: p.name, ean: p.ean })), [])
 
   /**
    * Unified EAN handler - Single source of truth
@@ -116,6 +119,7 @@ export default function ScanEAN() {
       }
 
       // Step 3: OCR Fallback with Tesseract.js (INDISPENSABLE)
+      let ocrText = '';
       if (!ean) {
         setImageUploadStatus('📝 Détection OCR en cours...')
         
@@ -124,10 +128,11 @@ export default function ScanEAN() {
           tessedit_char_whitelist: '0123456789'
         })
 
-        console.log('OCR raw text:', data.text)
+        ocrText = data.text;
+        console.log('OCR raw text:', ocrText)
 
         // Look for EAN-13 (13 digits) or EAN-8 (8 digits)
-        const match = data.text.match(/\b\d{13}\b|\b\d{8}\b/)
+        const match = ocrText.match(/\b\d{13}\b|\b\d{8}\b/)
         if (match) {
           ean = match[0]
           console.log('✅ EAN detected via OCR:', ean)
@@ -154,12 +159,9 @@ export default function ScanEAN() {
         
         try {
           // Extract product hints from OCR text
-          const hints = extractProductHints(data.text)
+          const hints = extractProductHints(ocrText)
           
-          // Get all products from catalog
-          const productCatalog = getAllProducts().map(p => ({ label: p.name }))
-          
-          // Fuzzy search for suggestions
+          // Fuzzy search for suggestions using cached catalog
           const suggestions = fuzzySearchProducts(hints.keywords, productCatalog)
           
           if (suggestions.length > 0) {
@@ -192,9 +194,8 @@ export default function ScanEAN() {
     setShowTextProductModal(false)
     setImageUploadStatus(`✅ Recherche de "${productLabel}"...`)
     
-    // Find the product by name in catalog
-    const products = getAllProducts()
-    const product = products.find(p => p.name === productLabel)
+    // Find the product by name in cached catalog
+    const product = productCatalog.find(p => p.label === productLabel)
     
     if (product && product.ean) {
       // Launch comparator with the confirmed product's EAN
