@@ -3,11 +3,13 @@ import React, { useState, useCallback } from 'react'
 import { useEANScanner } from '../hooks/useEANScanner'
 import { useEANResolver } from '../hooks/useEANResolver'
 import { useScanHistory } from '../hooks/useScanHistory'
-import { validateEAN } from '../services/eanPublicCatalog'
+import { validateEAN, getAllProducts } from '../services/eanPublicCatalog'
+import { extractProductHints, fuzzySearchProducts } from '../services/textProductRecognition'
 import ScanCamera from '../components/ScanCamera'
 import ScanResultCard from '../components/ScanResultCard'
 import ScanErrorState from '../components/ScanErrorState'
 import AddToTiPanierButton from '../components/AddToTiPanierButton'
+import { ProductTextReviewModal } from '../components/ProductTextReviewModal'
 import { GlassCard } from '../components/ui/glass-card'
 
 export default function ScanEAN() {
@@ -16,6 +18,8 @@ export default function ScanEAN() {
   const [showHistory, setShowHistory] = useState(false)
   const [imageUploadStatus, setImageUploadStatus] = useState<string | null>(null)
   const [isProcessingImage, setIsProcessingImage] = useState(false)
+  const [textProductSuggestions, setTextProductSuggestions] = useState<Array<{ label: string; score: number }>>([])
+  const [showTextProductModal, setShowTextProductModal] = useState(false)
 
   const scanner = useEANScanner()
   const resolver = useEANResolver()
@@ -135,7 +139,7 @@ export default function ScanEAN() {
 
       // Step 4: Handle result
       if (ean) {
-        // SUCCESS CASE
+        // SUCCESS CASE - EAN found
         setImageUploadStatus(`✅ Code détecté automatiquement: ${ean}`)
         setTimeout(() => setImageUploadStatus(null), 3000)
         
@@ -145,8 +149,32 @@ export default function ScanEAN() {
           setIsProcessingImage(false)
         }
       } else {
-        // FAILURE CASE - Honest message
-        setImageUploadStatus('❌ Aucun code détecté automatiquement. 👉 Vous pouvez saisir le code manuellement.')
+        // FAILURE CASE - No EAN found, try text-based product recognition (PR D)
+        setImageUploadStatus('🔍 Code EAN non trouvé, recherche par texte...')
+        
+        try {
+          // Extract product hints from OCR text
+          const hints = extractProductHints(data.text)
+          
+          // Get all products from catalog
+          const productCatalog = getAllProducts().map(p => ({ label: p.name }))
+          
+          // Fuzzy search for suggestions
+          const suggestions = fuzzySearchProducts(hints.keywords, productCatalog)
+          
+          if (suggestions.length > 0) {
+            // Show modal for user validation
+            setTextProductSuggestions(suggestions)
+            setShowTextProductModal(true)
+            setImageUploadStatus('✅ Produits suggérés - Veuillez confirmer')
+          } else {
+            setImageUploadStatus('❌ Aucun code détecté automatiquement. 👉 Vous pouvez saisir le code manuellement.')
+          }
+        } catch (textError) {
+          console.error('Text product recognition error:', textError)
+          setImageUploadStatus('❌ Aucun code détecté automatiquement. 👉 Vous pouvez saisir le code manuellement.')
+        }
+        
         setIsProcessingImage(false)
       }
     } catch (err) {
@@ -154,6 +182,38 @@ export default function ScanEAN() {
       setImageUploadStatus('❌ Erreur lors du traitement de l\'image')
       setIsProcessingImage(false)
     }
+  }
+
+  /**
+   * Handle text product confirmation from modal
+   * User has validated a suggested product
+   */
+  const handleTextProductConfirm = async (productLabel: string) => {
+    setShowTextProductModal(false)
+    setImageUploadStatus(`✅ Recherche de "${productLabel}"...`)
+    
+    // Find the product by name in catalog
+    const products = getAllProducts()
+    const product = products.find(p => p.name === productLabel)
+    
+    if (product && product.ean) {
+      // Launch comparator with the confirmed product's EAN
+      await handleEAN(product.ean)
+      setImageUploadStatus(null)
+    } else {
+      setImageUploadStatus('❌ Produit non trouvé dans le catalogue')
+      setTimeout(() => setImageUploadStatus(null), 3000)
+    }
+  }
+
+  /**
+   * Handle text product modal cancellation
+   */
+  const handleTextProductCancel = () => {
+    setShowTextProductModal(false)
+    setTextProductSuggestions([])
+    setImageUploadStatus('❌ Recherche annulée - Utilisez la saisie manuelle')
+    setTimeout(() => setImageUploadStatus(null), 3000)
   }
 
   return (
@@ -340,6 +400,15 @@ export default function ScanEAN() {
             </GlassCard>
           )}
         </div>
+      )}
+
+      {/* Text Product Review Modal (PR D) */}
+      {showTextProductModal && (
+        <ProductTextReviewModal
+          suggestions={textProductSuggestions}
+          onConfirm={handleTextProductConfirm}
+          onCancel={handleTextProductCancel}
+        />
       )}
     </main>
   )

@@ -74,6 +74,37 @@ Merci de cocher chaque point avant soumission.
 
 ---
 
+## 🔍 PR D — Reconnaissance produit sans EAN
+
+### Périmètre & sécurité
+- [ ] Aucune modification CI / workflow
+- [ ] Aucun appel réseau externe
+- [ ] Fonctionnalité 100 % navigateur (offline)
+- [ ] Feature isolée (PR D uniquement)
+
+### OCR & extraction
+- [ ] OCR Tesseract.js offline fonctionnel
+- [ ] Timeout OCR géré proprement
+- [ ] Normalisation texte sécurisée
+- [ ] Aucune exécution automatique sans validation humaine
+
+### Recherche & comparaison
+- [ ] Recherche floue locale (Fuse.js)
+- [ ] Suggestions ≠ vérité (score visible)
+- [ ] Comparateur déclenché uniquement après confirmation
+
+### UX & accessibilité
+- [ ] Écran de validation obligatoire
+- [ ] Boutons : Confirmer / Corriger / Annuler
+- [ ] Mobile-first
+- [ ] Aucun écran bloquant
+
+### Tests
+- [ ] Tests unitaires Node-safe uniquement
+- [ ] Aucun test caméra / OCR réel en CI
+
+---
+
 ## 🔒 RÈGLE DE MERGE
 
 ❌ **Aucun merge autorisé si une seule case n'est pas cochée.**
