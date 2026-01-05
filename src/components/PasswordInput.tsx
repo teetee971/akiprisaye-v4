@@ -55,38 +55,40 @@ function getPasswordStrength(password: string): 'weak' | 'medium' | 'strong' {
 }
 
 /**
+ * Character set for password generation
+ */
+const CHARSET =
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=';
+
+/**
+ * Secure shuffle using crypto.getRandomValues
+ * Fisher-Yates shuffle with cryptographically secure randomness
+ */
+function secureShuffle(array: string[]): string[] {
+  const result = [...array];
+  const randomValues = new Uint32Array(result.length);
+  crypto.getRandomValues(randomValues);
+
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = randomValues[i] % (i + 1);
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+
+  return result;
+}
+
+/**
  * Generate secure password using crypto.getRandomValues
  * 16 characters: uppercase, lowercase, numbers, symbols
  */
-function generateSecurePassword(): string {
-  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
-  const numbers = '0123456789';
-  const symbols = '!@#$%^&*-_=+';
-  
-  const allChars = uppercase + lowercase + numbers + symbols;
-  
-  // Ensure at least one of each type
-  const array = new Uint8Array(16);
-  crypto.getRandomValues(array);
-  
-  let password = '';
-  password += uppercase[array[0] % uppercase.length];
-  password += lowercase[array[1] % lowercase.length];
-  password += numbers[array[2] % numbers.length];
-  password += symbols[array[3] % symbols.length];
-  
-  // Fill remaining characters randomly
-  for (let i = 4; i < 16; i++) {
-    password += allChars[array[i] % allChars.length];
-  }
-  
-  // Shuffle the password
-  return password.split('').sort(() => {
-    const arr = new Uint8Array(1);
-    crypto.getRandomValues(arr);
-    return arr[0] - 128;
-  }).join('');
+function generateSecurePassword(length = 16): string {
+  const chars = Array.from({ length }, () => {
+    const random = new Uint32Array(1);
+    crypto.getRandomValues(random);
+    return CHARSET[random[0] % CHARSET.length];
+  });
+
+  return secureShuffle(chars).join('');
 }
 
 export function PasswordInput({

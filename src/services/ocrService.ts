@@ -21,6 +21,35 @@ import Tesseract from 'tesseract.js';
 import { resizeImageForOCR, hashImageFile, getCachedOCRResult, cacheOCRResult } from '../utils/imageUtils';
 
 /**
+ * Simple OCR function for text extraction
+ * Removes digit-only whitelist to enable full text recognition
+ * 
+ * @param imageUrl - URL or path to image
+ * @returns Extracted text
+ */
+export async function runOCR(imageUrl: string): Promise<string> {
+  const worker = await Tesseract.createWorker();
+
+  try {
+    await worker.loadLanguage('fra');
+    await worker.initialize('fra');
+
+    // ✅ OCR textuel réel (pas de whitelist chiffres uniquement)
+    await worker.setParameters({
+      preserve_interword_spaces: '1',
+    });
+
+    const {
+      data: { text },
+    } = await worker.recognize(imageUrl);
+
+    return text;
+  } finally {
+    await worker.terminate();
+  }
+}
+
+/**
  * OCR timeout in milliseconds
  * After this time, OCR will be cancelled and fallback to "product not found" flow
  */

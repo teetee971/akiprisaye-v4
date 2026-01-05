@@ -86,12 +86,12 @@ export default function ScanEAN() {
     setImageUploadStatus('🔍 Analyse de l\'image en cours...')
     setIsProcessingImage(true)
 
+    const imageUrl = URL.createObjectURL(file)
     let ean: string | null = null
 
     try {
       // Step 1: Load image properly
       const img = new Image()
-      const imageUrl = URL.createObjectURL(file)
       img.src = imageUrl
 
       await new Promise<void>((resolve, reject) => {
@@ -124,8 +124,10 @@ export default function ScanEAN() {
         setImageUploadStatus('📝 Détection OCR en cours...')
         
         const Tesseract = await import('tesseract.js')
-        const { data } = await Tesseract.recognize(img, 'eng', {
-          tessedit_char_whitelist: '0123456789'
+        
+        // ✅ OCR textuel réel (pas de whitelist chiffres uniquement)
+        const { data } = await Tesseract.recognize(img, 'fra', {
+          preserve_interword_spaces: '1'
         })
 
         ocrText = data.text;
@@ -138,9 +140,6 @@ export default function ScanEAN() {
           console.log('✅ EAN detected via OCR:', ean)
         }
       }
-
-      // Cleanup
-      URL.revokeObjectURL(imageUrl)
 
       // Step 4: Handle result
       if (ean) {
@@ -183,6 +182,9 @@ export default function ScanEAN() {
       console.error('Image processing error:', err)
       setImageUploadStatus('❌ Erreur lors du traitement de l\'image')
       setIsProcessingImage(false)
+    } finally {
+      // ✅ Nettoyage mémoire garanti
+      URL.revokeObjectURL(imageUrl)
     }
   }
 
