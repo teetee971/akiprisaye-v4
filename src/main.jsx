@@ -25,6 +25,8 @@ const Methodologie = lazy(() => import('./pages/Methodologie'));
 const MentionsLegales = lazy(() => import('./pages/MentionsLegales'));
 const MonCompte = lazy(() => import('./pages/MonCompte'));
 const Inscription = lazy(() => import('./pages/Inscription'));
+const Login = lazy(() => import('./pages/Login'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const Pricing = lazy(() => import('./pages/Pricing.tsx'));
 const PricingDetailed = lazy(() => import('./pages/PricingDetailed'));
 const Subscribe = lazy(() => import('./pages/Subscribe'));
@@ -114,6 +116,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='mentions-legales' element={<MentionsLegales />} />
                   <Route path='mon-compte' element={<MonCompte />} />
                   <Route path='inscription' element={<Inscription />} />
+                  <Route path='login' element={<Login />} />
+                  <Route path='reset-password' element={<ResetPassword />} />
                   <Route path='pricing' element={<Pricing />} />
                   <Route path='pricing-detailed' element={<PricingDetailed />} />
                   <Route path='subscribe' element={<Subscribe />} />
