@@ -1,5 +1,7 @@
 # 🧾 A KI PRI SA YÉ
 
+![Camera CI Safe](https://img.shields.io/badge/Camera-CI%20Safe-success)
+
 **Plateforme intelligente de comparaison des prix, transparence économique et protection du consommateur – France & territoires ultramarins**
 
 ## 🌍 Présentation
@@ -180,6 +182,27 @@ npm run preview
 - **Pas de données fictives**
 - **Transparence utilisateur**
 - **Tests de sécurité automatisés**
+
+---
+
+## 📷 Camera access & CI compatibility
+
+This project uses **defensive browser guards** to ensure camera features do not break CI or Node.js environments.
+
+### Key principles
+
+- `navigator` access is always guarded
+- `navigator.permissions` is optional and never assumed
+- When camera access is denied, blocked, or unsupported:
+  👉 the UI automatically falls back to image upload
+
+### Why this matters
+
+- **Prevents CI failures** (`navigator is undefined`)
+- **Ensures UX continuity** on all browsers (Chrome, Safari, Firefox, Android)
+- **Guarantees no UX dead-end** for users
+
+This behavior is covered by dedicated tests.
 
 ---
 
