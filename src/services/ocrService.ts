@@ -3,6 +3,12 @@
  * 
  * Uses Tesseract.js for text extraction from product images
  * 
+ * DESIGN DECISION (PR G - Tech Debt Zero):
+ * This service provides a minimal, clean API without caching or preprocessing.
+ * Previous optimizations (image resizing, caching) were removed to simplify
+ * the codebase and eliminate technical debt. If performance becomes an issue,
+ * these optimizations can be re-added as a separate enhancement layer.
+ * 
  * ⚠️ CONFORMITÉ RGPD & AI ACT UE ⚠️
  * - NO health interpretation
  * - NO nutritional analysis

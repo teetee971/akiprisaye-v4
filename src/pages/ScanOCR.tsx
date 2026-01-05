@@ -54,6 +54,10 @@ export default function ScanOCR() {
           setScanState('error');
         } finally {
           setLoading(false);
+          // ✅ Nettoyage mémoire après traitement OCR
+          if (objectUrl) {
+            URL.revokeObjectURL(objectUrl);
+          }
         }
       }, 0);
     } catch (err: any) {
@@ -61,8 +65,7 @@ export default function ScanOCR() {
       setError('Erreur lors du chargement de l\'image');
       setScanState('error');
       setLoading(false);
-    } finally {
-      // ✅ Nettoyage mémoire garanti
+      // ✅ Nettoyage mémoire en cas d'erreur
       if (objectUrl) {
         URL.revokeObjectURL(objectUrl);
       }
@@ -283,7 +286,7 @@ export default function ScanOCR() {
                 </p>
               </div>
               <OCRResultView 
-                result={{ success: true, rawText: ocrText, confidence: 100, processingTime: 0 }} 
+                result={{ success: true, rawText: ocrText, confidence: 85, processingTime: 0 }} 
                 onRetry={handleRetry}
               />
             </div>
