@@ -28,7 +28,7 @@ export default function ScanEAN() {
   const handleEAN = useCallback(async (ean: string) => {
     // Validate EAN
     if (!validateEAN(ean)) {
-      setManualError('Code EAN invalide (vérifiez la longueur et le checksum)')
+      // Only set manual error for manual input - other sources show their own errors
       return
     }
 
@@ -53,17 +53,18 @@ export default function ScanEAN() {
       return
     }
 
+    // Validate before calling handleEAN
+    if (!validateEAN(manualEAN.trim())) {
+      setManualError('Code EAN invalide (vérifiez la longueur et le checksum)')
+      return
+    }
+
     await handleEAN(manualEAN.trim())
   }
 
   // Handle camera detection
   const handleCameraDetection = async (ean: string) => {
     scanner.setDetectedEAN(ean)
-    await handleEAN(ean)
-  }
-
-  // Handle image upload detection  
-  const handleImageDetection = async (ean: string) => {
     await handleEAN(ean)
   }
 
@@ -131,17 +132,22 @@ export default function ScanEAN() {
 
       // Cleanup
       URL.revokeObjectURL(imageUrl)
-      setIsProcessingImage(false)
 
       // Step 4: Handle result
       if (ean) {
         // SUCCESS CASE
         setImageUploadStatus(`✅ Code détecté automatiquement: ${ean}`)
         setTimeout(() => setImageUploadStatus(null), 3000)
-        await handleEAN(ean)
+        
+        try {
+          await handleEAN(ean)
+        } finally {
+          setIsProcessingImage(false)
+        }
       } else {
         // FAILURE CASE - Honest message
         setImageUploadStatus('❌ Aucun code détecté automatiquement. 👉 Vous pouvez saisir le code manuellement.')
+        setIsProcessingImage(false)
       }
     } catch (err) {
       console.error('Image processing error:', err)

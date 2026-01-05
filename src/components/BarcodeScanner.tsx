@@ -398,7 +398,12 @@ export default function BarcodeScanner({ onScan, onClose, options = {} }: Barcod
         // Clear message after a short delay so user can see it
         setTimeout(() => setUserMessage(null), 2000);
         
-        onScan(ean);
+        try {
+          onScan(ean);
+        } catch (err) {
+          console.error('[SCAN] Error in onScan callback:', err);
+          setError('Erreur lors du traitement du code détecté');
+        }
       } else {
         // FAILURE CASE - Honest message
         setError('❌ Aucun code détecté automatiquement');
