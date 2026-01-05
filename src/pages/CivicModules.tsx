@@ -80,6 +80,36 @@ export default function CivicModules() {
             </a>
           </section>
 
+          {/* Citizen Participation */}
+          <section className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-6">
+            <h2 className="text-xl font-semibold text-gray-100 mb-4">
+              🤝 Participation citoyenne
+            </h2>
+            <p className="text-gray-400 text-sm mb-4">
+              Contribuez activement à la transparence des prix dans votre territoire.
+            </p>
+            <div className="grid md:grid-cols-2 gap-4">
+              <a
+                href="/contribuer-prix"
+                className="block p-4 bg-blue-900/30 border border-blue-700 rounded-lg hover:bg-blue-900/40 transition-colors"
+              >
+                <h3 className="font-medium text-blue-200 mb-2">💰 Contribuer aux prix</h3>
+                <p className="text-sm text-gray-300">
+                  Partagez les prix que vous observez pour enrichir la base de données.
+                </p>
+              </a>
+              <a
+                href="/signaler-abus"
+                className="block p-4 bg-red-900/30 border border-red-700 rounded-lg hover:bg-red-900/40 transition-colors"
+              >
+                <h3 className="font-medium text-red-200 mb-2">🚨 Signaler un abus</h3>
+                <p className="text-sm text-gray-300">
+                  Signalez les pratiques commerciales douteuses ou prix anormaux.
+                </p>
+              </a>
+            </div>
+          </section>
+
           {/* AI Price Prediction Module */}
           <section>
             <h2 className="text-xl font-semibold text-gray-100 mb-4">
