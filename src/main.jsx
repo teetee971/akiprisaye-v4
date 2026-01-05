@@ -27,6 +27,7 @@ const MonCompte = lazy(() => import('./pages/MonCompte'));
 const Inscription = lazy(() => import('./pages/Inscription'));
 const Login = lazy(() => import('./pages/Login'));
 const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const ComprendrePrix = lazy(() => import('./pages/ComprendrePrix'));
 const Pricing = lazy(() => import('./pages/Pricing.tsx'));
 const PricingDetailed = lazy(() => import('./pages/PricingDetailed'));
 const Subscribe = lazy(() => import('./pages/Subscribe'));
@@ -118,6 +119,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='inscription' element={<Inscription />} />
                   <Route path='login' element={<Login />} />
                   <Route path='reset-password' element={<ResetPassword />} />
+                  <Route path='comprendre-prix' element={<ComprendrePrix />} />
                   <Route path='pricing' element={<Pricing />} />
                   <Route path='pricing-detailed' element={<PricingDetailed />} />
                   <Route path='subscribe' element={<Subscribe />} />

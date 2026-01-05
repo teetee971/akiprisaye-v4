@@ -76,7 +76,7 @@ export default function Header() {
               }`}
               onClick={closeMobileMenu}
             >
-              <span>Accueil</span>
+              <span>🏠 Accueil</span>
             </Link>
           </li>
           <li>
@@ -87,7 +87,18 @@ export default function Header() {
               }`}
               onClick={closeMobileMenu}
             >
-              <span>Comparateur</span>
+              <span>🛒 Comparer</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/comprendre-prix"
+              className={`flex items-center gap-3 px-6 py-3 text-white hover:bg-blue-700/20 transition-colors border-l-4 ${
+                isActiveRoute('/comprendre-prix') ? 'border-blue-400 bg-blue-700/10' : 'border-transparent hover:border-blue-400'
+              }`}
+              onClick={closeMobileMenu}
+            >
+              <span>💡 Comprendre</span>
             </Link>
           </li>
           <li>
@@ -98,7 +109,7 @@ export default function Header() {
               }`}
               onClick={closeMobileMenu}
             >
-              <span>Scanner</span>
+              <span>📷 Scanner</span>
             </Link>
           </li>
           <li>
@@ -109,7 +120,18 @@ export default function Header() {
               }`}
               onClick={closeMobileMenu}
             >
-              <span>Carte</span>
+              <span>🗺️ Carte</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/civic-modules"
+              className={`flex items-center gap-3 px-6 py-3 text-white hover:bg-blue-700/20 transition-colors border-l-4 ${
+                isActiveRoute('/civic-modules') ? 'border-blue-400 bg-blue-700/10' : 'border-transparent hover:border-blue-400'
+              }`}
+              onClick={closeMobileMenu}
+            >
+              <span>🤝 Participer</span>
             </Link>
           </li>
           <li>
@@ -120,7 +142,7 @@ export default function Header() {
               }`}
               onClick={closeMobileMenu}
             >
-              <span>Alertes</span>
+              <span>🚨 Alertes</span>
             </Link>
           </li>
           <li>
@@ -131,18 +153,7 @@ export default function Header() {
               }`}
               onClick={closeMobileMenu}
             >
-              <span>Actualités</span>
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/pricing"
-              className={`flex items-center gap-3 px-6 py-3 text-white hover:bg-blue-700/20 transition-colors border-l-4 ${
-                isActiveRoute('/pricing') ? 'border-blue-400 bg-blue-700/10' : 'border-transparent hover:border-blue-400'
-              }`}
-              onClick={closeMobileMenu}
-            >
-              <span>Tarifs</span>
+              <span>📰 Actualités</span>
             </Link>
           </li>
           <li>
@@ -153,7 +164,7 @@ export default function Header() {
               }`}
               onClick={closeMobileMenu}
             >
-              <span>Mon Compte</span>
+              <span>👤 Mon Compte</span>
             </Link>
           </li>
           
@@ -213,23 +224,23 @@ export default function Header() {
                   isActiveRoute('/comparateur') ? 'bg-[color:var(--glass-bg)] text-white font-semibold' : ''
                 }`}
               >
-                Comparateur
+                Comparer
               </Link>
               <Link
-                to="/scan"
+                to="/comprendre-prix"
                 className={`text-white/90 hover:text-white hover:bg-[color:var(--glass-bg)] px-3 py-2 rounded-lg transition-all ${
-                  isActiveRoute('/scan') ? 'bg-[color:var(--glass-bg)] text-white font-semibold' : ''
+                  isActiveRoute('/comprendre-prix') ? 'bg-[color:var(--glass-bg)] text-white font-semibold' : ''
                 }`}
               >
-                Scanner
+                Comprendre
               </Link>
               <Link
-                to="/carte"
+                to="/civic-modules"
                 className={`text-white/90 hover:text-white hover:bg-[color:var(--glass-bg)] px-3 py-2 rounded-lg transition-all ${
-                  isActiveRoute('/carte') ? 'bg-[color:var(--glass-bg)] text-white font-semibold' : ''
+                  isActiveRoute('/civic-modules') ? 'bg-[color:var(--glass-bg)] text-white font-semibold' : ''
                 }`}
               >
-                Carte
+                Participer
               </Link>
               <Link
                 to="/alertes"
@@ -238,14 +249,6 @@ export default function Header() {
                 }`}
               >
                 Alertes
-              </Link>
-              <Link
-                to="/actualites"
-                className={`text-white/90 hover:text-white hover:bg-[color:var(--glass-bg)] px-3 py-2 rounded-lg transition-all ${
-                  isActiveRoute('/actualites') ? 'bg-[color:var(--glass-bg)] text-white font-semibold' : ''
-                }`}
-              >
-                Actualités
               </Link>
               <Link
                 to="/mon-compte"
