@@ -127,7 +127,8 @@ export default function ScanEAN() {
       if (!ean) {
         setImageUploadStatus('📝 Détection OCR en cours...')
         
-        ocrText = await runOCR(objectUrl);
+        const ocrResult = await runOCR(objectUrl);
+        ocrText = ocrResult.rawText;
         console.log('OCR raw text:', ocrText)
 
         // Look for EAN-13 (13 digits) or EAN-8 (8 digits)

@@ -32,11 +32,21 @@ import Tesseract from 'tesseract.js';
 /**
  * OCR Result structure (for compatibility with existing components)
  */
+export interface OCRSections {
+  ingredients?: string;
+  allergens?: string;
+  legalMentions?: string;
+  dangerPictograms?: string[];
+}
+
 export interface OCRResult {
   success: boolean;
   rawText: string;
   confidence: number;
   processingTime: number;
+  timeoutTriggered?: boolean;
+  fromCache?: boolean;
+  sections?: OCRSections;
 }
 
 /**
@@ -54,10 +64,15 @@ function isOffline(): boolean {
  * - Works offline (local WASM processing)
  * 
  * @param imageUrl - URL or path to image
+ * @param language - ISO language code (defaults to 'fra')
  * @returns Extracted text
  */
-export async function runOCR(imageUrl: string): Promise<string> {
+export async function runOCR(
+  imageUrl: string,
+  language = 'fra',
+): Promise<OCRResult> {
   const offline = isOffline();
+  const startedAt = performance.now();
   
   // Log mode for debugging
   if (import.meta.env.DEV) {
@@ -69,18 +84,24 @@ export async function runOCR(imageUrl: string): Promise<string> {
   try {
     // Tesseract.js runs entirely in the browser via WASM
     // No server calls - works offline by default
-    await worker.loadLanguage('fra');
-    await worker.initialize('fra');
+    await worker.loadLanguage(language);
+    await worker.initialize(language);
 
     await worker.setParameters({
       preserve_interword_spaces: '1',
     });
 
     const {
-      data: { text },
+      data: { text, confidence },
     } = await worker.recognize(imageUrl);
 
-    return text;
+    return {
+      success: true,
+      rawText: text,
+      confidence: confidence ?? 0,
+      processingTime: performance.now() - startedAt,
+      sections: undefined,
+    };
   } catch (error) {
     console.error('OCR processing failed:', error);
     
@@ -107,4 +128,3 @@ export async function isOCRAvailable(): Promise<boolean> {
     return false;
   }
 }
-

@@ -132,13 +132,17 @@ if ('serviceWorker' in navigator) {
 window.addEventListener('error', (event) => {
   console.error('Global error caught:', event.error);
   // Prevent default behavior that might cause black screen
-  event.preventDefault();
+  if (import.meta.env.PROD) {
+    event.preventDefault();
+  }
 });
 
 window.addEventListener('unhandledrejection', (event) => {
   console.error('Unhandled promise rejection:', event.reason);
   // Prevent default behavior
-  event.preventDefault();
+  if (import.meta.env.PROD) {
+    event.preventDefault();
+  }
 });
 
 ReactDOM.createRoot(document.getElementById('root')).render(
