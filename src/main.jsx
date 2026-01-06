@@ -56,12 +56,12 @@ const CivicModules = lazyWithRetry(() => import('./pages/CivicModules'));
 const EvaluationCosmetique = lazyWithRetry(() => import('./pages/EvaluationCosmetique'));
 const Observatoire = lazyWithRetry(() => import('./pages/Observatoire'));
 const ObservatoryMethodology = lazyWithRetry(() => import('./pages/ObservatoryMethodology'));
+const MonEspace = lazyWithRetry(() => import('./pages/MonEspace'));
 const Perimetre = lazyWithRetry(() => import('./pages/Perimetre'));
 const Versions = lazyWithRetry(() => import('./pages/Versions'));
 const Gouvernance = lazyWithRetry(() => import('./pages/Gouvernance'));
 
 // New simplified pages for automatic generation
-const HomeSimple = lazyWithRetry(() => import('./pages/Home.tsx'));
 const CompareSimple = lazyWithRetry(() => import('./pages/Compare.tsx'));
 const NewsSimple = lazyWithRetry(() => import('./pages/News.tsx'));
 
@@ -187,6 +187,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='licence-institution' element={<LicenceInstitution />} />
                   <Route path='contact-collectivites' element={<ContactCollectivites />} />
                   <Route path='contact' element={<Contact />} />
+                  <Route path='mon-espace' element={<MonEspace />} />
                   <Route path='ia-conseiller' element={<IaConseiller />} />
                   <Route path='ti-panie' element={<TiPanie />} />
                   <Route path='admin/dashboard' element={<AdminDashboard />} />

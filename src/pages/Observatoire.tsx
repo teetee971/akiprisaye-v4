@@ -86,6 +86,22 @@ export default function Observatoire() {
     return new Intl.DateTimeFormat('fr-FR', { year: 'numeric', month: 'long' }).format(date);
   }, [data]);
 
+  useEffect(() => {
+    if (!data) return;
+    try {
+      const payload = {
+        lastPage: '/observatoire',
+        lastTerritory: data.territoire,
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem('akiprisaye:user:history', JSON.stringify(payload));
+    } catch (e) {
+      if (import.meta.env.DEV) {
+        console.warn('Impossible de sauvegarder l’historique local', e);
+      }
+    }
+  }, [data]);
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">

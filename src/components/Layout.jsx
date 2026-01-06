@@ -20,6 +20,7 @@ export default function Layout() {
     { path: '/evaluation-cosmetique', label: 'Cosmétiques' },
     { path: '/actualites', label: 'Actualités' },
     { path: '/pricing', label: 'Tarifs' },
+    { path: '/mon-espace', label: 'Mon espace' },
     { path: '/contact', label: 'Contact' },
   ];
 
