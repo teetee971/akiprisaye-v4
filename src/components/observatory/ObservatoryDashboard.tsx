@@ -5,7 +5,7 @@
  * Affiche les indicateurs prioritaires de manière transparente
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './ObservatoryDashboard.css';
 import type {
   IndicatorSnapshot,
@@ -24,35 +24,66 @@ export const ObservatoryDashboard: React.FC<ObservatoryDashboardProps> = ({ terr
   const [error, setError] = useState<string | null>(null);
   const [selectedTerritory, setSelectedTerritory] = useState<TerritoireName | undefined>(territoire);
 
-  useEffect(() => {
-    loadSnapshot();
-  }, [selectedTerritory]);
+  const normalizeSnapshot = useCallback((loaded: IndicatorSnapshot): IndicatorSnapshot => {
+    return {
+      ...loaded,
+      indicateurs: {
+        prix_moyens: loaded.indicateurs?.prix_moyens ?? [],
+        ecarts_dom_hexagone: loaded.indicateurs?.ecarts_dom_hexagone ?? [],
+        indices_vie_chere: loaded.indicateurs?.indices_vie_chere ?? [],
+        evolutions_temporelles: loaded.indicateurs?.evolutions_temporelles ?? [],
+        dispersions_enseignes: loaded.indicateurs?.dispersions_enseignes ?? [],
+      },
+      metadata: {
+        nombre_observations_total: loaded.metadata?.nombre_observations_total ?? 0,
+        periode_couverte: loaded.metadata?.periode_couverte ?? { debut: '', fin: '' },
+        sources: loaded.metadata?.sources ?? [],
+        qualite_moyenne: loaded.metadata?.qualite_moyenne ?? 0,
+      }
+    };
+  }, []);
 
-  const loadSnapshot = () => {
+  const loadSnapshot = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const loaded = loadSnapshotLocally('observatory_snapshot');
+      let loaded = loadSnapshotLocally('observatory_snapshot');
       
+      // Fallback to bundled snapshot if local storage is empty or broken
       if (!loaded) {
+        const res = await fetch('/data/observatory_snapshot.json', { cache: 'no-store' });
+        if (!res.ok) {
+          throw new Error(`Impossible de charger les données (${res.status})`);
+        }
+        loaded = await res.json() as IndicatorSnapshot;
+      }
+      
+      const safeSnapshot = normalizeSnapshot(loaded);
+      
+      if (!safeSnapshot) {
         setError('Aucune donnée disponible. Veuillez générer un snapshot.');
         setLoading(false);
         return;
       }
 
-      if (isSnapshotStale(loaded, 24)) {
+      if (isSnapshotStale(safeSnapshot, 24)) {
         setError('Les données sont obsolètes (plus de 24h). Un rafraîchissement est recommandé.');
       }
 
-      setSnapshot(loaded);
+      setSnapshot(safeSnapshot);
     } catch (err) {
-      setError('Erreur lors du chargement des données');
-      console.error(err);
+      const message = err instanceof Error ? err.message : 'Erreur lors du chargement des données';
+      setError(message);
+      console.error('Observatoire load error:', err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [normalizeSnapshot]);
+
+  useEffect(() => {
+    loadSnapshot();
+  }, [selectedTerritory, loadSnapshot]);
 
   if (loading) {
     return (
@@ -78,10 +109,25 @@ export const ObservatoryDashboard: React.FC<ObservatoryDashboardProps> = ({ terr
   }
 
   if (!snapshot) {
-    return null;
+    return (
+      <div className="observatory-dashboard error">
+        <div className="error-message">
+          <h3>⚠️ Données indisponibles</h3>
+          <p>Le module Observatoire n'a pas pu charger les données.</p>
+          {error && <p className="mt-2">{error}</p>}
+          <button onClick={loadSnapshot}>Réessayer</button>
+        </div>
+      </div>
+    );
   }
 
   const { indicateurs, metadata } = snapshot;
+  const hasData =
+    indicateurs.prix_moyens.length > 0 ||
+    indicateurs.ecarts_dom_hexagone.length > 0 ||
+    indicateurs.indices_vie_chere.length > 0 ||
+    indicateurs.evolutions_temporelles.length > 0 ||
+    indicateurs.dispersions_enseignes.length > 0;
 
   return (
     <div className="observatory-dashboard">
@@ -301,6 +347,12 @@ export const ObservatoryDashboard: React.FC<ObservatoryDashboardProps> = ({ terr
             ))}
           </div>
         </section>
+      )}
+
+      {!hasData && (
+        <div className="warning-banner" style={{ marginTop: '2rem' }}>
+          <span>ℹ️</span> Données en mode dégradé. Les listes ci-dessous peuvent être limitées.
+        </div>
       )}
 
       {/* Footer with Transparency */}

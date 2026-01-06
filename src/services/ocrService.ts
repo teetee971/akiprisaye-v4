@@ -29,14 +29,30 @@
 
 import Tesseract from 'tesseract.js';
 
+export const GENERIC_OCR_ERROR = 'Une erreur s\'est produite lors de l\'analyse de l\'image';
+
 /**
  * OCR Result structure (for compatibility with existing components)
+ * - timeoutTriggered: indicates when an execution guard stopped processing
+ * - fromCache: set if a cached result was reused instead of reprocessing
+ * - sections: optional parsed buckets when post-processing is applied
  */
+export interface OCRSections {
+  ingredients?: string;
+  allergens?: string;
+  legalMentions?: string;
+  dangerPictograms?: string[];
+}
+
 export interface OCRResult {
   success: boolean;
   rawText: string;
   confidence: number;
   processingTime: number;
+  timeoutTriggered?: boolean;
+  fromCache?: boolean;
+  sections?: OCRSections;
+  error?: string;
 }
 
 /**
@@ -44,6 +60,18 @@ export interface OCRResult {
  */
 function isOffline(): boolean {
   return !navigator.onLine;
+}
+
+function normalizeConfidence(confidence: unknown): number {
+  if (typeof confidence === 'number') {
+    return confidence;
+  }
+
+  if (import.meta.env.DEV) {
+    console.warn('OCR confidence missing, defaulting to 0');
+  }
+
+  return 0;
 }
 
 /**
@@ -54,10 +82,15 @@ function isOffline(): boolean {
  * - Works offline (local WASM processing)
  * 
  * @param imageUrl - URL or path to image
+ * @param language - ISO language code (defaults to 'fra')
  * @returns Extracted text
  */
-export async function runOCR(imageUrl: string): Promise<string> {
+export async function runOCR(
+  imageUrl: string,
+  language = 'fra',
+): Promise<OCRResult> {
   const offline = isOffline();
+  const startedAt = performance.now();
   
   // Log mode for debugging
   if (import.meta.env.DEV) {
@@ -69,27 +102,39 @@ export async function runOCR(imageUrl: string): Promise<string> {
   try {
     // Tesseract.js runs entirely in the browser via WASM
     // No server calls - works offline by default
-    await worker.loadLanguage('fra');
-    await worker.initialize('fra');
+    await worker.loadLanguage(language);
+    await worker.initialize(language);
 
     await worker.setParameters({
       preserve_interword_spaces: '1',
     });
 
     const {
-      data: { text },
+      data: { text, confidence },
     } = await worker.recognize(imageUrl);
 
-    return text;
+    const normalizedConfidence = normalizeConfidence(confidence);
+
+    return {
+      success: true,
+      rawText: text,
+      confidence: normalizedConfidence,
+      processingTime: performance.now() - startedAt,
+    };
   } catch (error) {
     console.error('OCR processing failed:', error);
     
-    // Provide helpful error message
-    if (offline) {
-      throw new Error('Erreur OCR hors ligne. Vérifiez que l\'image est valide.');
-    } else {
-      throw new Error('Erreur OCR. Veuillez réessayer ou vérifier votre connexion.');
-    }
+    const message = offline
+      ? 'Erreur OCR hors ligne. Vérifiez que l\'image est valide.'
+      : `Erreur OCR (langue ${language}). Veuillez réessayer ou recharger la page.`;
+
+    return {
+      success: false,
+      rawText: '',
+      confidence: 0,
+      processingTime: performance.now() - startedAt,
+      error: message,
+    };
   } finally {
     await worker.terminate();
   }
@@ -107,4 +152,3 @@ export async function isOCRAvailable(): Promise<boolean> {
     return false;
   }
 }
-

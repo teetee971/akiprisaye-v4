@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { runOCR } from '../services/ocrService';
+import { runOCR, GENERIC_OCR_ERROR, type OCRResult } from '../services/ocrService';
 import OCRResultView from '../components/OCRResultView';
 import type { ScanState, OcrOptions } from '../types/scan';
 
 export default function ScanOCR() {
   const [image, setImage] = useState<string | null>(null);
-  const [ocrText, setOcrText] = useState<string | null>(null);
+  const [ocrResult, setOcrResult] = useState<OCRResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [scanState, setScanState] = useState<ScanState>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -35,27 +35,32 @@ export default function ScanOCR() {
       setImage(objectUrl);
       setLoading(true);
       setError(null);
-      setOcrText(null);
-      setScanState('processing');
+       setOcrResult(null);
+       setScanState('processing');
 
-      // OPTIMIZATION 3: Async non-blocking OCR
-      // Use setTimeout to allow UI to update immediately
-      setTimeout(async () => {
-        try {
-          setScanState('processing');
-          
-          const text = await runOCR(objectUrl!);
-          
-          setOcrText(text);
-          setScanState('success');
-        } catch (err: any) {
-          console.error('OCR error:', err);
-          setError('Une erreur s\'est produite lors de l\'analyse de l\'image');
-          setScanState('error');
-        } finally {
-          setLoading(false);
-          // ✅ Nettoyage mémoire après traitement OCR
-          if (objectUrl) {
+       // OPTIMIZATION 3: Async non-blocking OCR
+       // Use setTimeout to allow UI to update immediately
+       setTimeout(async () => {
+         try {
+           setScanState('processing');
+           
+           const result = await runOCR(objectUrl!, settings.language);
+           
+           setOcrResult(result);
+           if (!result.success) {
+             setError(result.error ?? GENERIC_OCR_ERROR);
+             setScanState('error');
+           } else {
+             setScanState('success');
+           }
+         } catch (err: any) {
+           console.error('OCR error:', err);
+           setError(err?.message ?? GENERIC_OCR_ERROR);
+           setScanState('error');
+         } finally {
+           setLoading(false);
+           // ✅ Nettoyage mémoire après traitement OCR
+           if (objectUrl) {
             URL.revokeObjectURL(objectUrl);
           }
         }
@@ -74,7 +79,7 @@ export default function ScanOCR() {
 
   const handleRetry = () => {
     setImage(null);
-    setOcrText(null);
+    setOcrResult(null);
     setError(null);
     setScanState('idle');
   };
@@ -278,7 +283,7 @@ export default function ScanOCR() {
           )}
 
           {/* Success State - Show Results */}
-          {ocrText && scanState === 'success' && (
+          {ocrResult && scanState === 'success' && (
             <div className="space-y-4">
               <div className="bg-green-900/20 border border-green-700 rounded-lg p-3 text-center">
                 <p className="text-green-200 text-sm">
@@ -286,14 +291,14 @@ export default function ScanOCR() {
                 </p>
               </div>
               <OCRResultView 
-                result={{ success: true, rawText: ocrText, confidence: 85, processingTime: 0 }} 
+                result={ocrResult} 
                 onRetry={handleRetry}
               />
             </div>
           )}
 
           {/* Image Preview */}
-          {image && !ocrText && (
+          {image && !ocrResult && (
             <div className="mt-6">
               <h3 className="text-white font-semibold mb-2">Aperçu de l'image</h3>
               <img 

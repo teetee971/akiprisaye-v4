@@ -4,7 +4,7 @@ import { useEANScanner } from '../hooks/useEANScanner'
 import { useEANResolver } from '../hooks/useEANResolver'
 import { useScanHistory } from '../hooks/useScanHistory'
 import { validateEAN, getAllProducts } from '../services/eanPublicCatalog'
-import { runOCR } from '../services/ocrService'
+import { runOCR, GENERIC_OCR_ERROR } from '../services/ocrService'
 import { extractProductHints, fuzzySearchProducts } from '../services/textProductRecognition'
 import ScanCamera from '../components/ScanCamera'
 import ScanResultCard from '../components/ScanResultCard'
@@ -127,7 +127,12 @@ export default function ScanEAN() {
       if (!ean) {
         setImageUploadStatus('📝 Détection OCR en cours...')
         
-        ocrText = await runOCR(objectUrl);
+        const ocrResult = await runOCR(objectUrl);
+        if (!ocrResult.success) {
+          const ocrError = ocrResult.error ?? GENERIC_OCR_ERROR;
+          throw new Error(ocrError);
+        }
+        ocrText = ocrResult.rawText;
         console.log('OCR raw text:', ocrText)
 
         // Look for EAN-13 (13 digits) or EAN-8 (8 digits)
