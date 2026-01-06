@@ -1,4 +1,6 @@
-export type Territory = 'GP' | 'MQ' | 'RE' | 'GF' | 'FR' | 'YT';
+export type TerritoryCode = 'GP' | 'MQ' | 'GF' | 'RE' | 'FR';
+
+export type Territory = TerritoryCode | 'YT';
 
 export interface PriceObservation {
   productId: string;
