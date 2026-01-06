@@ -56,6 +56,9 @@ const CivicModules = lazyWithRetry(() => import('./pages/CivicModules'));
 const EvaluationCosmetique = lazyWithRetry(() => import('./pages/EvaluationCosmetique'));
 const Observatoire = lazyWithRetry(() => import('./pages/Observatoire'));
 const ObservatoryMethodology = lazyWithRetry(() => import('./pages/ObservatoryMethodology'));
+const Perimetre = lazyWithRetry(() => import('./pages/Perimetre'));
+const Versions = lazyWithRetry(() => import('./pages/Versions'));
+const Gouvernance = lazyWithRetry(() => import('./pages/Gouvernance'));
 
 // New simplified pages for automatic generation
 const HomeSimple = lazyWithRetry(() => import('./pages/Home.tsx'));
@@ -166,6 +169,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='alertes' element={<Alertes />} />
                   <Route path='a-propos' element={<APropos />} />
                   <Route path='methodologie' element={<Methodologie />} />
+                  <Route path='perimetre' element={<Perimetre />} />
+                  <Route path='versions' element={<Versions />} />
+                  <Route path='gouvernance' element={<Gouvernance />} />
                   <Route path='mentions-legales' element={<MentionsLegales />} />
                   <Route path='mon-compte' element={<MonCompte />} />
                   <Route path='inscription' element={<Inscription />} />
