@@ -14,6 +14,8 @@ export default function Layout() {
     { path: '/comparateur', label: 'Comparateur' },
     { path: '/scan', label: 'Scanner' },
     { path: '/carte', label: 'Carte' },
+    { path: '/observatoire', label: 'Observatoire' },
+    { path: '/civic-modules', label: 'Modules' },
     { path: '/liste-courses', label: 'Liste de courses' },
     { path: '/evaluation-cosmetique', label: 'Cosmétiques' },
     { path: '/actualites', label: 'Actualités' },
