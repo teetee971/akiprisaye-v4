@@ -57,6 +57,7 @@ const CivicModules = lazyWithRetry(() => import('./pages/CivicModules'));
 const EvaluationCosmetique = lazyWithRetry(() => import('./pages/EvaluationCosmetique'));
 const Observatoire = lazyWithRetry(() => import('./pages/Observatoire'));
 const ObservatoireVivant = lazyWithRetry(() => import('./pages/ObservatoireVivant'));
+const ObservatoireTempsReel = lazyWithRetry(() => import('./pages/ObservatoireTempsReel'));
 const ObservatoryMethodology = lazyWithRetry(() => import('./pages/ObservatoryMethodology'));
 const MonEspace = lazyWithRetry(() => import('./pages/MonEspace'));
 const Perimetre = lazyWithRetry(() => import('./pages/Perimetre'));
@@ -212,6 +213,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='evaluation-cosmetique' element={<EvaluationCosmetique />} />
                   <Route path='observatoire' element={<Observatoire />} />
                   <Route path='observatoire-vivant' element={<ObservatoireVivant />} />
+                  <Route path='observatoire-temps-reel' element={<ObservatoireTempsReel />} />
                   <Route path='transparence' element={<Transparence />} />
                   <Route path='contribuer' element={<Contribuer />} />
                   <Route path='observatoire/methodologie' element={<ObservatoryMethodology />} />
