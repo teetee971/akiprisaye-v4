@@ -29,7 +29,7 @@ export default function ScanOCR() {
 
     void Promise.resolve().then(async () => {
       try {
-        const result = await runOCR(source, settings.language);
+        const result = await runOCR(source, settings.language, { timeout: settings.timeout });
         const trimmedText = (result.rawText || '').trim();
 
         if (!result.success || trimmedText.length === 0) {
@@ -44,7 +44,7 @@ export default function ScanOCR() {
           setScanState('success');
         }
       } catch (err: any) {
-        console.error('OCR error:', err);
+        console.error('OCR error:', err, err?.stack);
         setError(err?.message ?? GENERIC_OCR_ERROR);
         setScanState('error');
       } finally {
