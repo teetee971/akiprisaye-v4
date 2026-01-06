@@ -1,7 +1,7 @@
 {
   "hosting": {
     "public": ".",
-    "cleanUrls": true,
+    "cleanUrls": false,
     "trailingSlash": false,
     "ignore": [
       "**/.*",
@@ -67,6 +67,12 @@
             "value": "no-cache, no-store, must-revalidate"
           }
         ]
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
       }
     ]
   }
