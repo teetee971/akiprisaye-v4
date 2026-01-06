@@ -25,10 +25,16 @@ export class SimpleOpenDataController {
 
       const filters: {
         territory?: Territory;
+        productId?: string;
       } = {};
 
       if (territory && Object.values(Territory).includes(territory as Territory)) {
         filters.territory = territory as Territory;
+      }
+
+      // Filtrage effectif par productId
+      if (productId) {
+        filters.productId = productId as string;
       }
 
       // Récupérer les prix agrégés

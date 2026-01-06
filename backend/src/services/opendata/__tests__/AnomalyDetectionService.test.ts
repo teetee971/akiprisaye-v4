@@ -122,6 +122,67 @@ describe('AnomalyDetectionService', () => {
       expect(anomalies.length).toBe(0);
     });
 
+    it('ne devrait pas détecter d\'anomalie si écart temporel < 3 jours', async () => {
+      const mockProducts = [
+        {
+          id: 'prod-temporal',
+          name: 'Produit test temporel',
+          prices: [
+            {
+              price: 1.0,
+              effectiveDate: new Date('2026-01-01'),
+              store: { territory: Territory.DOM },
+            },
+            {
+              price: 1.5, // 50% variation
+              effectiveDate: new Date('2026-01-02'), // Seulement 1 jour
+              store: { territory: Territory.DOM },
+            },
+          ],
+        },
+      ];
+
+      const { PrismaClient } = require('@prisma/client');
+      const mockPrisma = new PrismaClient();
+      mockPrisma.product.findMany.mockResolvedValue(mockProducts);
+
+      const anomalies = await AnomalyDetectionService.detectTemporalAnomalies();
+
+      // Ne devrait pas détecter d'anomalie car écart < 3 jours
+      expect(anomalies.length).toBe(0);
+    });
+
+    it('devrait détecter une anomalie si écart temporel >= 3 jours', async () => {
+      const mockProducts = [
+        {
+          id: 'prod-temporal-ok',
+          name: 'Produit test temporel OK',
+          prices: [
+            {
+              price: 1.0,
+              effectiveDate: new Date('2026-01-01'),
+              store: { territory: Territory.DOM },
+            },
+            {
+              price: 1.5, // 50% variation
+              effectiveDate: new Date('2026-01-05'), // 4 jours
+              store: { territory: Territory.DOM },
+            },
+          ],
+        },
+      ];
+
+      const { PrismaClient } = require('@prisma/client');
+      const mockPrisma = new PrismaClient();
+      mockPrisma.product.findMany.mockResolvedValue(mockProducts);
+
+      const anomalies = await AnomalyDetectionService.detectTemporalAnomalies();
+
+      // Devrait détecter une anomalie car écart >= 3 jours
+      expect(anomalies.length).toBeGreaterThan(0);
+      expect(anomalies[0].type).toBe('TEMPORAL');
+    });
+
     it('devrait filtrer par territoire si spécifié', async () => {
       const { PrismaClient } = require('@prisma/client');
       const mockPrisma = new PrismaClient();
