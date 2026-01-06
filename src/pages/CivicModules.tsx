@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import QuickSummary from '../components/QuickSummary';
 import NewsWidgetCivic from '../components/NewsWidgetCivic';
 import AIPricePrediction from '../components/AIPricePrediction';
 import GPSShoppingList from '../components/GPSShoppingList';
 import GlobalDisclaimer from '../components/GlobalDisclaimer';
 
-// Compute current time once at module load
+// Compute current time once at module load for demo purposes
+// In production, this would come from API or be computed per-component instance
 const CURRENT_UPDATE_TIME = new Date();
 
 export default function CivicModules() {

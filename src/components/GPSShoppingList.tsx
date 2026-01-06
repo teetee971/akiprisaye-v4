@@ -1,8 +1,15 @@
 import { useState, useMemo } from 'react';
 import { MapPin, ShoppingCart, TrendingDown, Navigation } from 'lucide-react';
 
-// Default update time computed once at module load
+// Default update time computed once at module load for demo purposes
+// In production, this would be the actual last data update timestamp
 const DEFAULT_UPDATE_TIME = new Date();
+
+// Create time formatter once at module level for performance
+const timeFormatter = new Intl.DateTimeFormat('fr-FR', {
+  hour: '2-digit',
+  minute: '2-digit'
+});
 
 interface ShoppingItem {
   id: string;
@@ -30,6 +37,11 @@ export default function GPSShoppingList({ items, lastUpdate = DEFAULT_UPDATE_TIM
   const [loading, setLoading] = useState(false);
   const [storeOptions, setStoreOptions] = useState<StoreOption[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  // Memoize formatted time to avoid recreating on every render
+  const formattedTime = useMemo(() => {
+    return timeFormatter.format(lastUpdate);
+  }, [lastUpdate]);
 
   const requestLocation = () => {
     setLoading(true);
@@ -127,7 +139,7 @@ export default function GPSShoppingList({ items, lastUpdate = DEFAULT_UPDATE_TIM
           </li>
         </ul>
         <p className="text-[10px] text-blue-300/70 mt-2 italic">
-          Dernière mise à jour : {lastUpdate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+          Dernière mise à jour : {formattedTime}
         </p>
       </div>
 

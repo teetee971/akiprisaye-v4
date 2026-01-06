@@ -9,6 +9,15 @@ interface QuickSummaryProps {
   className?: string;
 }
 
+// Create DateTimeFormat instance once at module level for performance
+const dateFormatter = new Intl.DateTimeFormat('fr-FR', {
+  day: '2-digit',
+  month: 'long',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit'
+});
+
 export default function QuickSummary({
   averageBasket,
   territorialGap,
@@ -17,13 +26,7 @@ export default function QuickSummary({
   className
 }: QuickSummaryProps) {
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('fr-FR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
+    return dateFormatter.format(date);
   };
 
   // Memoize color and sign calculations to optimize re-renders
