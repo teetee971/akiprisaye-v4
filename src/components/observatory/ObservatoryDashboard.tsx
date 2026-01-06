@@ -396,9 +396,12 @@ function formatTendance(tendance: 'hausse' | 'baisse' | 'stable'): string {
   return labels[tendance];
 }
 
-function formatDateSafe(value: string): string {
-  const date = new Date(value);
-  if (!value || Number.isNaN(date.getTime())) {
+function formatDateSafe(value?: string): string {
+  if (!value) {
+    return 'à publier';
+  }
+  const date = new Date(String(value));
+  if (Number.isNaN(date.getTime())) {
     return 'à publier';
   }
   return date.toLocaleDateString('fr-FR');

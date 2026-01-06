@@ -73,7 +73,7 @@ export default function SmartShoppingList({ territoire = 'Guadeloupe' }) {
   const [savedRoutes, setSavedRoutes] = useState([]);
   const [hasAttemptedOptimization, setHasAttemptedOptimization] = useState(false);
 
-  const dataReady = !!db;
+  const dbAvailable = !!db;
   const geolocStatus = !gpsConsent
     ? 'awaiting'
     : gpsError
@@ -525,7 +525,7 @@ export default function SmartShoppingList({ territoire = 'Guadeloupe' }) {
         <p className="text-slate-300">
           Aide à l'achat CITOYEN basée sur des données RÉELLES et OBSERVÉES uniquement
         </p>
-        {!dataReady && (
+        {!dbAvailable && (
           <div className="mt-3 p-3 bg-amber-900/30 border border-amber-500/40 rounded-lg text-amber-100 text-sm">
             Fonctionnalité en cours de déploiement : les premiers relevés prix géolocalisés seront ajoutés prochainement.
           </div>

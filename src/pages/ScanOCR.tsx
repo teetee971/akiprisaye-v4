@@ -27,7 +27,7 @@ export default function ScanOCR() {
     setOcrResult(null);
     setScanState('processing');
 
-    setTimeout(async () => {
+    void Promise.resolve().then(async () => {
       try {
         const result = await runOCR(source, settings.language);
         const trimmedText = (result.rawText || '').trim();
@@ -51,7 +51,7 @@ export default function ScanOCR() {
         setLoading(false);
         if (cleanup) cleanup();
       }
-    }, 0);
+    });
   };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
