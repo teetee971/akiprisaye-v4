@@ -40,6 +40,15 @@ export default function Gouvernance() {
         </section>
 
         <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-3">
+          <h2 className="text-xl font-semibold text-white">Gouvernance des données</h2>
+          <ul className="list-disc list-inside text-slate-200 space-y-2">
+            <li>Qui décide : le collectif citoyen A KI PRI SA YÉ priorise les publications.</li>
+            <li>Qui valide : un binôme relecteur vérifie chaque fichier et sa source avant diffusion.</li>
+            <li>Qui corrige : toute personne peut signaler une erreur, les corrections sont tracées publiquement.</li>
+          </ul>
+        </section>
+
+        <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-3">
           <h2 className="text-xl font-semibold text-white">Responsabilité éditoriale</h2>
           <p className="text-slate-200">
             Les contenus publiés relèvent d&apos;une initiative citoyenne. Ils peuvent être cités par les médias,

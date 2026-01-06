@@ -60,6 +60,22 @@ const formatTick = (timestamp: string) => {
   }).format(d);
 };
 
+const formatObservationTimestamp = (value?: string | null) => {
+  if (!value) return '—';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '—';
+  const date = new Intl.DateTimeFormat('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(d);
+  const time = new Intl.DateTimeFormat('fr-FR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(d);
+  return `${date} – ${time}`;
+};
+
 export default function ObservatoireVivant() {
   const [territoire, setTerritoire] = useState(TERRITORIES[0]);
   const [produit, setProduit] = useState(PRODUCTS[0]);
@@ -128,6 +144,32 @@ export default function ObservatoireVivant() {
   const latestUpdate = useMemo(() => formatDate(meta?.updated_at), [meta?.updated_at]);
 
   const currency = meta?.currency ?? '€';
+  const latestTimestamp = useMemo(() => {
+    if (data.length === 0) {
+      return meta?.updated_at ?? null;
+    }
+    let latest: string | null = null;
+    for (const point of data) {
+      const parsed = new Date(point.timestamp);
+      if (Number.isNaN(parsed.getTime())) continue;
+      if (!latest || parsed.getTime() > new Date(latest).getTime()) {
+        latest = point.timestamp;
+      }
+    }
+    return latest ?? meta?.updated_at ?? null;
+  }, [data, meta?.updated_at]);
+
+  const sourceCategory = useMemo(() => {
+    const value = (meta?.source_type ?? '').toLowerCase();
+    if (value.includes('instit')) return 'institutionnelle';
+    if (value.includes('terrain')) return 'terrain';
+    if (value.includes('parten')) return 'partenaire';
+    return meta?.source_type ?? 'non renseignée';
+  }, [meta?.source_type]);
+
+  const isInstitutionalSource = sourceCategory === 'institutionnelle';
+  const lineStrokeDasharray = isInstitutionalSource ? undefined : '5 4';
+  const lineDot = isInstitutionalSource ? false : { r: 3, strokeWidth: 1, stroke: '#34d399', fill: '#34d399' };
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
@@ -150,6 +192,12 @@ export default function ObservatoireVivant() {
               <span className="text-lg">✅</span>
               <span className="text-sm font-semibold">
                 Données réelles • sources vérifiées • horodatées
+              </span>
+            </div>
+            <div className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-amber-500/15 text-amber-100 border border-amber-500/40">
+              <span className="text-lg">ℹ️</span>
+              <span className="text-sm font-semibold">
+                Données mises à jour automatiquement – certaines sources peuvent être différées.
               </span>
             </div>
           </div>
@@ -245,6 +293,12 @@ export default function ObservatoireVivant() {
         </section>
 
         <section className="bg-slate-900/80 border border-slate-800 rounded-2xl shadow-xl p-5 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-800 bg-slate-950/70 px-3 py-2 text-xs text-slate-200">
+            <span className="font-semibold">Granularité : heure / jour / semaine / mois</span>
+            <span className="text-slate-300">
+              Les données horaires reflètent les dernières observations disponibles.
+            </span>
+          </div>
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <div>
               <h2 className="text-xl font-semibold text-white">
@@ -276,41 +330,61 @@ export default function ObservatoireVivant() {
           )}
 
           {!loading && data.length > 0 && (
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data} margin={{ left: 10, right: 10, top: 10, bottom: 10 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-                  <XAxis
-                    dataKey="timestamp"
-                    tickFormatter={formatTick}
-                    stroke="#94a3b8"
-                    style={{ fontSize: '12px' }}
-                  />
-                  <YAxis
-                    stroke="#94a3b8"
-                    style={{ fontSize: '12px' }}
-                    tickFormatter={(value) => `${value.toFixed(2)}`}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#0f172a',
-                      border: '1px solid #1e293b',
-                      borderRadius: '12px',
-                      color: '#e2e8f0',
-                    }}
-                    formatter={(value: number) => [`${value.toFixed(2)} ${currency}`, 'Prix']}
-                    labelFormatter={(label) => formatDate(label)}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="prix"
-                    stroke="#60a5fa"
-                    strokeWidth={2}
-                    dot={{ r: 3, strokeWidth: 1, stroke: '#1d4ed8', fill: '#60a5fa' }}
-                    activeDot={{ r: 5 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+            <div className="space-y-3">
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={data} margin={{ left: 10, right: 10, top: 10, bottom: 10 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+                    <XAxis
+                      dataKey="timestamp"
+                      tickFormatter={formatTick}
+                      stroke="#94a3b8"
+                      style={{ fontSize: '12px' }}
+                    />
+                    <YAxis
+                      stroke="#94a3b8"
+                      style={{ fontSize: '12px' }}
+                      tickFormatter={(value) => `${value.toFixed(2)}`}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#0f172a',
+                        border: '1px solid #1e293b',
+                        borderRadius: '12px',
+                        color: '#e2e8f0',
+                      }}
+                      formatter={(value: number) => [`${value.toFixed(2)} ${currency}`, 'Prix']}
+                      labelFormatter={(label) => formatDate(label)}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="prix"
+                      stroke={isInstitutionalSource ? '#60a5fa' : '#34d399'}
+                      strokeWidth={2}
+                      strokeDasharray={lineStrokeDasharray}
+                      dot={lineDot}
+                      activeDot={{ r: 5 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex flex-wrap items-center gap-4 text-xs text-slate-200">
+                <div className="flex items-center gap-2">
+                  <span className="h-[2px] w-8 rounded-full bg-blue-400" aria-hidden="true" />
+                  <span>● Données institutionnelles</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-8 border-t border-dashed border-emerald-300 relative">
+                    <span className="absolute -top-1 left-1 h-2 w-2 rounded-full bg-emerald-300" aria-hidden="true" />
+                    <span className="absolute -bottom-1 right-1 h-2 w-2 rounded-full bg-emerald-300" aria-hidden="true" />
+                  </span>
+                  <span>○ Données observées (terrain / partenaires)</span>
+                </div>
+              </div>
+              <div className="rounded-xl border border-slate-800 bg-slate-950/70 px-4 py-3 text-xs text-slate-200">
+                <p>Dernière observation : {formatObservationTimestamp(latestTimestamp)}</p>
+                <p>Source : {sourceCategory}</p>
+              </div>
             </div>
           )}
         </section>
