@@ -129,7 +129,8 @@ export default function ScanEAN() {
         
         const ocrResult = await runOCR(objectUrl);
         if (!ocrResult.success) {
-          throw new Error(ocrResult.error ?? 'Échec de la lecture OCR');
+          const ocrError = ocrResult.error ?? 'Échec de la lecture OCR';
+          throw new Error(ocrError);
         }
         ocrText = ocrResult.rawText;
         console.log('OCR raw text:', ocrText)

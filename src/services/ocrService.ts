@@ -31,6 +31,9 @@ import Tesseract from 'tesseract.js';
 
 /**
  * OCR Result structure (for compatibility with existing components)
+ * - timeoutTriggered: indicates when an execution guard stopped processing
+ * - fromCache: set if a cached result was reused instead of reprocessing
+ * - sections: optional parsed buckets when post-processing is applied
  */
 export interface OCRSections {
   ingredients?: string;
@@ -96,10 +99,12 @@ export async function runOCR(
       data: { text, confidence },
     } = await worker.recognize(imageUrl);
 
+    const normalizedConfidence = typeof confidence === 'number' ? confidence : 0;
+
     return {
       success: true,
       rawText: text,
-      confidence: confidence ?? 0,
+      confidence: normalizedConfidence,
       processingTime: performance.now() - startedAt,
     };
   } catch (error) {
