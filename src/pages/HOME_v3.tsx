@@ -47,10 +47,10 @@ export default function HomeV3() {
             📸 Scanner un produit
           </Link>
           <Link 
-            to="/observatoire" 
+            to="/observatoire-temps-reel" 
             className="w-full sm:w-auto px-8 py-4 bg-slate-700 hover:bg-slate-600 rounded-xl text-lg font-semibold transition-all"
           >
-            📊 Consulter l'observatoire
+            📊 Observatoire Temps Réel
           </Link>
         </div>
         <div className="mt-4 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-full bg-slate-800/60 text-xs text-slate-200">
@@ -174,17 +174,17 @@ export default function HomeV3() {
         <div className="flex items-start gap-4">
           <div className="text-3xl">🏛️</div>
           <div className="flex-1">
-            <h3 className="text-lg font-bold mb-2 text-blue-300">Observatoire public officiel</h3>
+            <h3 className="text-lg font-bold mb-2 text-blue-300">Observatoire Temps Réel</h3>
             <p className="text-gray-300 mb-3">
-              Toutes les données sont publiées en open-data sous licence ODbL, exploitables par citoyens, 
+              Suivi en temps réel des prix · Détection d'anomalies · Open Data sous licence Etalab 2.0, exploitables par citoyens, 
               médias, chercheurs et institutions.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link 
-                to="/observatoire" 
+                to="/observatoire-temps-reel" 
                 className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium transition-colors"
               >
-                Accéder à l'observatoire
+                🔴 Observatoire Temps Réel
               </Link>
               <a 
                 href="/OBSERVATOIRE_PUBLIC_v1.md" 
