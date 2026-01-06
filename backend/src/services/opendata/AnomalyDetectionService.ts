@@ -34,7 +34,15 @@ export class AnomalyDetectionService {
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
     // Récupérer les produits avec leurs prix sur les 7 derniers jours
-    const where: any = {
+    const where: {
+      isActive: boolean;
+      prices: {
+        some: {
+          effectiveDate: { gte: Date };
+          store?: { territory: Territory; isActive: boolean };
+        };
+      };
+    } = {
       isActive: true,
       prices: {
         some: {
@@ -99,7 +107,10 @@ export class AnomalyDetectionService {
         if (!pricesByTerritory.has(t)) {
           pricesByTerritory.set(t, []);
         }
-        pricesByTerritory.get(t)!.push(Number(priceEntry.price));
+        const prices = pricesByTerritory.get(t);
+        if (prices) {
+          prices.push(Number(priceEntry.price));
+        }
       }
 
       // Vérifier les variations pour chaque territoire
@@ -186,7 +197,10 @@ export class AnomalyDetectionService {
         if (!pricesByTerritory.has(territory)) {
           pricesByTerritory.set(territory, []);
         }
-        pricesByTerritory.get(territory)!.push(Number(priceEntry.price));
+        const prices = pricesByTerritory.get(territory);
+        if (prices) {
+          prices.push(Number(priceEntry.price));
+        }
       }
 
       // Calculer moyenne par territoire

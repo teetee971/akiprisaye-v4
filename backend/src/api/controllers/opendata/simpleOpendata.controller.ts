@@ -23,7 +23,9 @@ export class SimpleOpenDataController {
     try {
       const { territory, productId } = req.query;
 
-      const filters: any = {};
+      const filters: {
+        territory?: Territory;
+      } = {};
 
       if (territory && Object.values(Territory).includes(territory as Territory)) {
         filters.territory = territory as Territory;
