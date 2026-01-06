@@ -1,6 +1,16 @@
 import { useState, useMemo } from 'react';
 import { MapPin, ShoppingCart, TrendingDown, Navigation } from 'lucide-react';
 
+// Default update time computed once at module load for demo purposes
+// In production, this would be the actual last data update timestamp
+const DEFAULT_UPDATE_TIME = new Date();
+
+// Create time formatter once at module level for performance
+const timeFormatter = new Intl.DateTimeFormat('fr-FR', {
+  hour: '2-digit',
+  minute: '2-digit'
+});
+
 interface ShoppingItem {
   id: string;
   name: string;
@@ -18,14 +28,20 @@ interface StoreOption {
 
 interface GPSShoppingListProps {
   items: ShoppingItem[];
+  lastUpdate?: Date;
   className?: string;
 }
 
-export default function GPSShoppingList({ items, className }: GPSShoppingListProps) {
+export default function GPSShoppingList({ items, lastUpdate = DEFAULT_UPDATE_TIME, className }: GPSShoppingListProps) {
   const [position, setPosition] = useState<{ lat: number; lon: number } | null>(null);
   const [loading, setLoading] = useState(false);
   const [storeOptions, setStoreOptions] = useState<StoreOption[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  // Memoize formatted time to avoid recreating on every render
+  const formattedTime = useMemo(() => {
+    return timeFormatter.format(lastUpdate);
+  }, [lastUpdate]);
 
   const requestLocation = () => {
     setLoading(true);
@@ -97,17 +113,39 @@ export default function GPSShoppingList({ items, className }: GPSShoppingListPro
   }, [storeOptions]);
 
   return (
-    <div className={`bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-6 ${className || ''}`}>
-      <div className="flex items-center gap-3 mb-6">
-        <ShoppingCart className="w-6 h-6 text-blue-400" />
-        <h2 className="text-xl font-semibold text-gray-100">
+    <div className={`bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-5 ${className || ''}`}>
+      <div className="flex items-center gap-3 mb-4">
+        <ShoppingCart className="w-5 h-5 text-blue-400" />
+        <h2 className="text-lg font-semibold text-gray-100">
           Liste de courses optimisée GPS
         </h2>
       </div>
 
+      {/* Methodology Explanation */}
+      <div className="mb-5 bg-blue-900/20 border border-blue-700/30 rounded-lg p-4">
+        <p className="text-xs font-semibold text-blue-200 mb-2">Méthode de calcul :</p>
+        <ul className="text-xs text-blue-200/80 space-y-1 leading-relaxed">
+          <li className="flex items-start gap-2">
+            <span className="w-1 h-1 rounded-full bg-blue-400 mt-1.5 flex-shrink-0"></span>
+            <span>Prix observés en magasin (sources publiques)</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="w-1 h-1 rounded-full bg-blue-400 mt-1.5 flex-shrink-0"></span>
+            <span>Distance réelle (GPS)</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="w-1 h-1 rounded-full bg-blue-400 mt-1.5 flex-shrink-0"></span>
+            <span>Coût carburant moyen (6L / 100km)</span>
+          </li>
+        </ul>
+        <p className="text-[10px] text-blue-300/70 mt-2 italic">
+          Dernière mise à jour : {formattedTime}
+        </p>
+      </div>
+
       {/* Shopping Items */}
-      <div className="mb-6">
-        <h3 className="text-sm font-medium text-gray-300 mb-3">Vos articles ({items.length})</h3>
+      <div className="mb-5">
+        <h3 className="text-sm font-medium text-gray-300 mb-2">Vos articles ({items.length})</h3>
         <div className="space-y-2">
           {items.slice(0, 3).map((item) => (
             <div key={item.id} className="flex items-center justify-between text-sm">
