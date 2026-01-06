@@ -326,3 +326,19 @@ export function formatAnomalyDisplay(anomaly: PriceAnomaly): {
     message: anomaly.description,
   };
 }
+
+/**
+ * Format date for anomaly display (standardized format)
+ */
+export function formatAnomalyDate(dateString: string): string {
+  try {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }).format(date);
+  } catch {
+    return dateString;
+  }
+}

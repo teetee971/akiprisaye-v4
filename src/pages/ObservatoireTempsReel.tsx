@@ -35,6 +35,7 @@ import {
 import {
   getAllAnomalies,
   formatAnomalyDisplay,
+  formatAnomalyDate,
   type PriceAnomaly,
   type PriceDataPoint,
 } from '../services/anomalyDetectionService';
@@ -78,8 +79,12 @@ export default function ObservatoireTempsReel() {
         setStatistics(stats);
         
         // Set pilot product as default if not selected
+        // Pilot product: Lait demi-écrémé 1L (EAN: 3560070123456)
         if (!selectedProduct && stats.length > 0) {
-          const pilotProduct = stats.find(s => s.productName.toLowerCase().includes('lait'));
+          const pilotProduct = stats.find(s => 
+            s.ean === '3560070123456' || 
+            s.productName.toLowerCase().includes('lait demi-écrémé')
+          );
           setSelectedProduct(pilotProduct?.productName || stats[0].productName);
         }
         
@@ -315,7 +320,7 @@ export default function ObservatoireTempsReel() {
                     <div className="flex-1">
                       <p className="text-slate-200">{display.message}</p>
                       <p className="text-xs text-slate-400 mt-1">
-                        Détecté le {new Date(anomaly.detectedAt).toLocaleDateString('fr-FR')}
+                        Détecté le {formatAnomalyDate(anomaly.detectedAt)}
                       </p>
                     </div>
                   </div>
