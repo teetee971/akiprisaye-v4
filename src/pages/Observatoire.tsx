@@ -112,6 +112,12 @@ export default function Observatoire() {
             Première publication officielle de prix réels. Donnée statique, mise à jour mensuellement, disponible
             sans compte pour tous les citoyens.
           </p>
+          <div className="inline-flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-sm text-slate-200 bg-slate-900/70 border border-slate-800 rounded-xl px-3 py-2">
+            <span className="font-semibold">Granularité : heure / jour / semaine / mois</span>
+            <span className="text-slate-300">
+              Les données horaires reflètent les dernières observations disponibles.
+            </span>
+          </div>
           <div className="flex flex-wrap gap-3">
             <Link
               to="/methodologie"

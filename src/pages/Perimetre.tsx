@@ -10,13 +10,19 @@ const territoiresNonCouverts = [
   'Métropole et autres territoires non listés',
 ];
 
+const prochainesEtapes = [
+  'Extension progressive après validation publique des premiers relevés.',
+  'Publication hebdomadaire d’un fichier CSV contrôlé, par territoire.',
+  'Intégration des partenaires terrain lorsque la qualité est vérifiée.',
+];
+
 export default function Perimetre() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
         <header className="space-y-2">
           <p className="text-sm text-blue-200 uppercase tracking-wide">Observatoire citoyen</p>
-          <h1 className="text-3xl sm:text-4xl font-bold text-white">Périmètre géographique</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-white">Périmètre &amp; limites</h1>
           <p className="text-slate-300 max-w-3xl">
             Cadre public et limité pour éviter toute sur-promesse : seules les zones décrites ci-dessous sont publiées
             aujourd&apos;hui. Les données sont statiques et sourcées, sans collecte automatisée.
@@ -62,6 +68,18 @@ export default function Perimetre() {
             <li>Périmètre volontairement limité pour éviter toute confusion sur la couverture réelle.</li>
             <li>Pas d&apos;API ni de collecte automatique : chaque jeu de données est contrôlé avant diffusion.</li>
             <li>Clarification systématique du territoire, de la date et de la source sur chaque publication.</li>
+          </ul>
+        </section>
+
+        <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-blue-400" aria-hidden="true" />
+            <h2 className="text-xl font-semibold text-white">Ce qui arrive plus tard</h2>
+          </div>
+          <ul className="list-disc list-inside text-slate-200 space-y-2">
+            {prochainesEtapes.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
           </ul>
         </section>
 

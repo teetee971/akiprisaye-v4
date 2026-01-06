@@ -57,6 +57,10 @@ export default function HomeV3() {
           <span className="text-blue-300">●</span>
           Données publiques • stockage local • aucun suivi utilisateur
         </div>
+        <div className="mt-2 inline-flex items-center justify-center gap-2 px-3 py-2 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-xs text-emerald-100">
+          <span className="text-sm">🏛️</span>
+          Observatoire citoyen indépendant – données ouvertes
+        </div>
       </GlassCard>
 
       {/* Public Counters - Transparency */}

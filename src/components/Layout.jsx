@@ -16,11 +16,13 @@ export default function Layout() {
     { path: '/carte', label: 'Carte' },
     { path: '/observatoire', label: 'Observatoire' },
     { path: '/observatoire-vivant', label: 'Observatoire vivant' },
+    { path: '/contribuer', label: 'Contribuer' },
     { path: '/civic-modules', label: 'Modules' },
     { path: '/liste-courses', label: 'Liste de courses' },
     { path: '/evaluation-cosmetique', label: 'Cosmétiques' },
     { path: '/actualites', label: 'Actualités' },
     { path: '/pricing', label: 'Tarifs' },
+    { path: '/presse', label: 'Presse' },
     { path: '/mon-espace', label: 'Mon espace' },
     { path: '/contact', label: 'Contact' },
   ];
@@ -28,10 +30,12 @@ export default function Layout() {
   const publicNavItems = [
     { path: '/observatoire', label: 'Observatoire' },
     { path: '/observatoire-vivant', label: 'Observatoire vivant' },
+    { path: '/contribuer', label: 'Contribuer' },
     { path: '/methodologie', label: 'Méthodologie' },
     { path: '/transparence', label: 'Transparence' },
     { path: '/donnees-publiques', label: 'Données publiques' },
     { path: '/mentions-legales', label: 'Mentions légales' },
+    { path: '/presse', label: 'Presse' },
   ];
 
   return (
