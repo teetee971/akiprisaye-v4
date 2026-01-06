@@ -4,6 +4,7 @@ import '../styles/layout.css';
 import { Menu, X } from 'lucide-react';
 import TiPanierButton from './TiPanierButton';
 import FloatingActions from './ui/FloatingActions';
+import { OfflineIndicator } from './OfflineIndicator';
 
 export default function Layout() {
   const [open, setOpen] = React.useState(false);
@@ -82,6 +83,9 @@ export default function Layout() {
           </div>
         )}
       </header>
+
+      {/* Offline/Network Indicator */}
+      <OfflineIndicator />
 
       {/* CONTENU */}
       <main className="flex-1 pt-20 pb-12 px-4 md:px-8">
