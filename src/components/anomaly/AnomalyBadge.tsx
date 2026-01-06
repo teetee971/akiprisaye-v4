@@ -147,7 +147,6 @@ export function AnomalyBadge({ anomaly, showTooltip = true }: AnomalyBadgeProps)
               position: 'absolute',
               top: '-6px',
               left: '50%',
-              transform: 'translateX(-50%)',
               width: '12px',
               height: '12px',
               background: '#1e293b',

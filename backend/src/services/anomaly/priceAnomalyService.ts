@@ -234,6 +234,11 @@ export class PriceAnomalyService {
         if (severity) {
           const changeType = absoluteChange > 0 ? 'hausse' : 'baisse';
           const days = Math.round(daysDiff);
+          const percentRounded = Math.abs(Math.round(percentageChange * 100));
+          const threshold = Math.round(
+            this.thresholds.temporal[severity.toLowerCase() as keyof typeof this.thresholds.temporal] as number * 100
+          );
+          const description = `Variation inhabituelle: ${changeType} de ${percentRounded}% en ${days} jour${days > 1 ? 's' : ''} (seuil: ${threshold}%)`;
           
           anomalies.push({
             productId: series.productId,
@@ -241,7 +246,7 @@ export class PriceAnomalyService {
             territory: current.territory,
             type: AnomalyType.TEMPORAL,
             severity,
-            description: `Variation inhabituelle: ${changeType} de ${Math.abs(Math.round(percentageChange * 100))}% en ${days} jour${days > 1 ? 's' : ''} (seuil: ${Math.round(this.thresholds.temporal[severity.toLowerCase() as keyof typeof this.thresholds.temporal] as number * 100)}%)`,
+            description,
             details: {
               currentPrice: current.price,
               referencePrice: previous.price,
@@ -302,6 +307,11 @@ export class PriceAnomalyService {
       
       if (severity) {
         const changeType = absoluteChange > 0 ? 'supérieur' : 'inférieur';
+        const percentRounded = Math.abs(Math.round(percentageChange * 100));
+        const threshold = Math.round(
+          this.thresholds.territorial[severity.toLowerCase() as keyof typeof this.thresholds.territorial] * 100
+        );
+        const description = `Écart territorial inhabituel: prix ${changeType} de ${percentRounded}% par rapport à la France hexagonale (seuil: ${threshold}%)`;
         
         anomalies.push({
           productId,
@@ -309,7 +319,7 @@ export class PriceAnomalyService {
           territory,
           type: AnomalyType.TERRITORIAL,
           severity,
-          description: `Écart territorial inhabituel: prix ${changeType} de ${Math.abs(Math.round(percentageChange * 100))}% par rapport à la France hexagonale (seuil: ${Math.round(this.thresholds.territorial[severity.toLowerCase() as keyof typeof this.thresholds.territorial] * 100)}%)`,
+          description,
           details: {
             currentPrice: price,
             referencePrice,
@@ -364,6 +374,9 @@ export class PriceAnomalyService {
       if (severity) {
         const deviation = price - mean;
         const deviationType = deviation > 0 ? 'au-dessus' : 'en-dessous';
+        const zScoreRounded = Math.round(zScore * 10) / 10;
+        const threshold = this.thresholds.outlier[severity.toLowerCase() as keyof typeof this.thresholds.outlier];
+        const description = `Valeur statistiquement atypique: prix ${deviationType} de ${zScoreRounded} écarts-types par rapport à la moyenne (seuil: ${threshold})`;
         
         anomalies.push({
           productId,
@@ -371,7 +384,7 @@ export class PriceAnomalyService {
           territory,
           type: AnomalyType.OUTLIER,
           severity,
-          description: `Valeur statistiquement atypique: prix ${deviationType} de ${Math.round(zScore * 10) / 10} écarts-types par rapport à la moyenne (seuil: ${this.thresholds.outlier[severity.toLowerCase() as keyof typeof this.thresholds.outlier]})`,
+          description,
           details: {
             currentPrice: price,
             referencePrice: mean,
