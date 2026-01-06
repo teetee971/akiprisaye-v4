@@ -205,6 +205,7 @@ export class OpenDataService {
   static async getAggregatedPrices(filters: {
     territory?: Territory;
     category?: string;
+    productId?: string;
     startDate?: Date;
     endDate?: Date;
     limit?: number;
@@ -216,6 +217,7 @@ export class OpenDataService {
     const {
       territory,
       category,
+      productId,
       startDate,
       endDate,
       limit = 100,
@@ -237,6 +239,11 @@ export class OpenDataService {
 
     if (category) {
       where.product.category = category;
+    }
+
+    // Filtrage par productId si fourni
+    if (productId) {
+      where.product.id = productId;
     }
 
     if (startDate) {

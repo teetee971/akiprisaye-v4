@@ -101,6 +101,72 @@ describe('SimpleOpenDataController', () => {
       });
     });
 
+    it('devrait filtrer par productId', async () => {
+      mockRequest.query = { productId: 'prod-123' };
+
+      const mockPrices = {
+        prices: [
+          {
+            productName: 'Riz blanc 1kg',
+            category: 'Épicerie',
+            territory: Territory.COM,
+            averagePrice: 2.5,
+            minPrice: 2.2,
+            maxPrice: 2.8,
+            sampleSize: 5,
+            lastUpdated: new Date('2026-01-05'),
+          },
+        ],
+        total: 1,
+      };
+
+      (OpenDataService.getAggregatedPrices as jest.Mock).mockResolvedValue(
+        mockPrices,
+      );
+
+      await SimpleOpenDataController.getPrices(
+        mockRequest as Request,
+        mockResponse as Response,
+      );
+
+      expect(OpenDataService.getAggregatedPrices).toHaveBeenCalledWith({
+        productId: 'prod-123',
+      });
+    });
+
+    it('ne devrait retourner que les produits correspondant au productId', async () => {
+      mockRequest.query = { productId: 'riz-1kg' };
+
+      const mockPrices = {
+        prices: [
+          {
+            productName: 'Riz blanc 1kg',
+            category: 'Épicerie',
+            territory: Territory.COM,
+            averagePrice: 2.5,
+            minPrice: 2.2,
+            maxPrice: 2.8,
+            sampleSize: 5,
+            lastUpdated: new Date('2026-01-05'),
+          },
+        ],
+        total: 1,
+      };
+
+      (OpenDataService.getAggregatedPrices as jest.Mock).mockResolvedValue(
+        mockPrices,
+      );
+
+      await SimpleOpenDataController.getPrices(
+        mockRequest as Request,
+        mockResponse as Response,
+      );
+
+      const response = jsonMock.mock.calls[0][0];
+      expect(response.count).toBe(1);
+      expect(response.data[0].productLabel).toBe('Riz blanc 1kg');
+    });
+
     it('devrait inclure les champs obligatoires sans données sensibles', async () => {
       const mockPrices = {
         prices: [
