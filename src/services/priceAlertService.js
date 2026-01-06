@@ -115,7 +115,7 @@ export function detectShrinkflation(
   preferences = DEFAULT_ALERT_PREFERENCES,
 ) {
   if (!preferences.shrinkflationEnabled) return null;
-  if (!previousQuantity || !currentQuantity) return null;
+  if (previousQuantity == null || currentQuantity == null) return null;
   if (currentQuantity >= previousQuantity) return null;
 
   const previousUnitPrice = previousPrice / previousQuantity;
