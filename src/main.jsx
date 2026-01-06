@@ -73,6 +73,7 @@ const Faq = lazyWithRetry(() => import('./pages/Faq'));
 
 // Comparateur Citoyen - Observatoire data
 const ComparateurCitoyen = lazyWithRetry(() => import('./pages/ComparateurCitoyen'));
+const ComparateurTerritoires = lazyWithRetry(() => import('./pages/ComparateurTerritoires'));
 
 // Loading component
 function LoadingFallback() {
@@ -215,6 +216,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='contribuer' element={<Contribuer />} />
                   <Route path='observatoire/methodologie' element={<ObservatoryMethodology />} />
                   <Route path='comparateur-citoyen' element={<ComparateurCitoyen />} />
+                  <Route path='comparateur-territoires' element={<ComparateurTerritoires />} />
                   
                   {/* New simplified pages for automatic generation */}
                   <Route path='comparer' element={<CompareSimple />} />
