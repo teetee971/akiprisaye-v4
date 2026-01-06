@@ -155,7 +155,7 @@ export default function CivicModules() {
             <p className="text-sm text-gray-400 mb-3 leading-relaxed">
               Comparaison intelligente incluant distance, prix et coût de déplacement.
             </p>
-            <GPSShoppingList items={mockShoppingItems} />
+            <GPSShoppingList items={mockShoppingItems} lastUpdate={summaryData.lastUpdate} />
           </section>
 
           {/* Pricing Information */}

@@ -18,10 +18,11 @@ interface StoreOption {
 
 interface GPSShoppingListProps {
   items: ShoppingItem[];
+  lastUpdate?: Date;
   className?: string;
 }
 
-export default function GPSShoppingList({ items, className }: GPSShoppingListProps) {
+export default function GPSShoppingList({ items, lastUpdate = new Date(), className }: GPSShoppingListProps) {
   const [position, setPosition] = useState<{ lat: number; lon: number } | null>(null);
   const [loading, setLoading] = useState(false);
   const [storeOptions, setStoreOptions] = useState<StoreOption[]>([]);
@@ -123,7 +124,7 @@ export default function GPSShoppingList({ items, className }: GPSShoppingListPro
           </li>
         </ul>
         <p className="text-[10px] text-blue-300/70 mt-2 italic">
-          Dernière mise à jour : {new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+          Dernière mise à jour : {lastUpdate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
         </p>
       </div>
 

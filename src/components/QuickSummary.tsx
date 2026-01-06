@@ -25,7 +25,13 @@ export default function QuickSummary({
     }).format(date);
   };
 
-  const gapColor = territorialGap > 0 ? 'text-rose-400' : territorialGap < 0 ? 'text-emerald-400' : 'text-gray-400';
+  const getGapColor = () => {
+    if (territorialGap > 0) return 'text-rose-400';
+    if (territorialGap < 0) return 'text-emerald-400';
+    return 'text-gray-400';
+  };
+
+  const gapColor = getGapColor();
   const gapSign = territorialGap > 0 ? '+' : '';
 
   return (
