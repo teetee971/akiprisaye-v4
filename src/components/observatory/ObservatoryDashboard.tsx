@@ -149,8 +149,8 @@ export const ObservatoryDashboard: React.FC<ObservatoryDashboardProps> = ({ terr
         <div className="metadata-card">
           <h3>Période couverte</h3>
           <p>
-            Du {formatDateSafe(metadata.periode_couverte.debut)} au{' '}
-            {formatDateSafe(metadata.periode_couverte.fin)}
+            Du {formatDateSafe(metadata?.periode_couverte?.debut)} au{' '}
+            {formatDateSafe(metadata?.periode_couverte?.fin)}
           </p>
         </div>
         <div className="metadata-card">

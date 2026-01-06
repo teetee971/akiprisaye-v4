@@ -33,7 +33,10 @@ export default function ScanOCR() {
         const trimmedText = (result.rawText || '').trim();
 
         if (!result.success || trimmedText.length === 0) {
-          setError(result.success ? "Aucun texte détecté. Essayez l'image d'exemple fournie." : result.error ?? GENERIC_OCR_ERROR);
+          const message = result.success
+            ? "Aucun texte détecté. Essayez l'image d'exemple fournie."
+            : result.error ?? GENERIC_OCR_ERROR;
+          setError(message);
           setScanState('error');
           setOcrResult(null);
         } else {

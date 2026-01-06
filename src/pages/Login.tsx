@@ -32,8 +32,9 @@ export default function Login() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      const next = searchParams.get("next");
-      navigate(next || "/mon-compte");
+      const nextParam = searchParams.get("next");
+      const safeNext = nextParam && nextParam.startsWith("/") ? nextParam : null;
+      navigate(safeNext || "/mon-compte");
     } catch (err: any) {
       setError(getErrorMessage(err));
     } finally {

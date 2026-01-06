@@ -33,7 +33,9 @@ export default function Inscription() {
   const [searchParams] = useSearchParams();
 
   const requestedPlan = searchParams.get("plan") || DEFAULT_USER_PLAN;
-  const selectedPlan = PLAN_LABELS[requestedPlan] ? requestedPlan : DEFAULT_USER_PLAN;
+  const selectedPlan = Object.prototype.hasOwnProperty.call(PLAN_LABELS, requestedPlan)
+    ? requestedPlan
+    : DEFAULT_USER_PLAN;
   const selectedPlanInfo = PLAN_LABELS[selectedPlan];
 
   const handleSubmit = async (e: React.FormEvent) => {
