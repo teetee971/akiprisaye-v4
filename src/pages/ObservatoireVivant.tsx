@@ -12,6 +12,7 @@ import {
 import { PriceChart } from '../components/PriceChart';
 import { filterByRange } from '../utils/priceRange';
 import type { PriceObservation } from '../types/priceObservation';
+import { getRealtimePrices, type RealtimePriceState } from '../services/realtimePricesService';
 
 type Period = 'hour' | 'day' | 'week' | 'month';
 
@@ -48,6 +49,30 @@ const PERIOD_OPTIONS: Array<{ value: Period; label: string; subtitle: string }> 
   { value: 'week', label: 'Semaine', subtitle: 'Vue consolidée' },
   { value: 'month', label: 'Mois', subtitle: 'Tendance longue' },
 ];
+
+const STATUS_STYLES: Record<
+  RealtimePriceState,
+  { icon: string; label: string; classes: string; accent: string }
+> = {
+  live: {
+    icon: '🟢',
+    label: 'Données temps réel',
+    classes: 'bg-emerald-500/15 text-emerald-200 border-emerald-500/40',
+    accent: 'text-emerald-100',
+  },
+  cached: {
+    icon: '🟠',
+    label: 'Données en cache',
+    classes: 'bg-amber-500/15 text-amber-100 border-amber-500/40',
+    accent: 'text-amber-100',
+  },
+  offline: {
+    icon: '🔴',
+    label: 'Données locales (fallback)',
+    classes: 'bg-rose-500/15 text-rose-100 border-rose-500/40',
+    accent: 'text-rose-100',
+  },
+};
 
 const formatDate = (value?: string | null) => {
   if (!value) return '—';
@@ -95,6 +120,15 @@ export default function ObservatoireVivant() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [openData, setOpenData] = useState<PriceObservation[]>([]);
+  const [realtimeState, setRealtimeState] = useState<{
+    state: RealtimePriceState;
+    updatedAt: string | null;
+    source: string;
+  }>({
+    state: 'offline',
+    updatedAt: null,
+    source: 'fallback-local',
+  });
 
   useEffect(() => {
     const controller = new AbortController();
@@ -154,6 +188,28 @@ export default function ObservatoireVivant() {
 
   useEffect(() => {
     let cancelled = false;
+    getRealtimePrices({ timeoutMs: 4500 })
+      .then((result) => {
+        if (cancelled) return;
+        setRealtimeState({
+          state: result.state,
+          updatedAt: result.updatedAt,
+          source: result.source,
+        });
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setRealtimeState((prev) => ({ ...prev, state: 'offline' }));
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
     fetch('/data/prices.json')
       .then((res) => (res.ok ? res.json() : null))
       .then((json: PriceObservation[] | null) => {
@@ -173,6 +229,10 @@ export default function ObservatoireVivant() {
   }, []);
 
   const latestUpdate = useMemo(() => formatDate(meta?.updated_at), [meta?.updated_at]);
+  const realtimeUpdated = useMemo(
+    () => formatDate(realtimeState.updatedAt ?? undefined),
+    [realtimeState.updatedAt]
+  );
 
   const currency = meta?.currency ?? '€';
   const latestTimestamp = useMemo(() => {
@@ -238,11 +298,16 @@ export default function ObservatoireVivant() {
                 mises en cache KV, historiquées dans D1, sans impact sur les pages existantes.
               </p>
             </div>
-            <div className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-emerald-500/15 text-emerald-200 border border-emerald-500/40">
-              <span className="text-lg">✅</span>
-              <span className="text-sm font-semibold">
-                Données réelles • sources vérifiées • horodatées
-              </span>
+            <div
+              className={`inline-flex items-center gap-2 px-3 py-2 rounded-full border ${STATUS_STYLES[realtimeState.state].classes}`}
+            >
+              <span className="text-lg">{STATUS_STYLES[realtimeState.state].icon}</span>
+              <div className="flex flex-col">
+                <span className="text-sm font-semibold">{STATUS_STYLES[realtimeState.state].label}</span>
+                <span className={`text-xs ${STATUS_STYLES[realtimeState.state].accent}`}>
+                  Dernière mise à jour : {realtimeUpdated}
+                </span>
+              </div>
             </div>
             <div className="inline-flex items-center gap-2 px-3 py-2 rounded-full bg-amber-500/15 text-amber-100 border border-amber-500/40">
               <span className="text-lg">ℹ️</span>
