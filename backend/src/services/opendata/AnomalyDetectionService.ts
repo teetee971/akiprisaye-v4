@@ -99,8 +99,8 @@ export class AnomalyDetectionService {
     for (const product of products) {
       if (product.prices.length < 2) continue;
 
-      // Grouper par territoire
-      const pricesByTerritory = new Map<Territory, number[]>();
+      // Grouper par territoire avec dates (les prix sont déjà triés par effectiveDate asc)
+      const pricesByTerritory = new Map<Territory, Array<{ price: number; date: Date }>>();
       
       for (const priceEntry of product.prices) {
         const t = priceEntry.store.territory;
@@ -109,20 +109,30 @@ export class AnomalyDetectionService {
         }
         const prices = pricesByTerritory.get(t);
         if (prices) {
-          prices.push(Number(priceEntry.price));
+          prices.push({
+            price: Number(priceEntry.price),
+            date: priceEntry.effectiveDate,
+          });
         }
       }
 
       // Vérifier les variations pour chaque territoire
-      for (const [territoryKey, prices] of pricesByTerritory.entries()) {
-        if (prices.length < 2) continue;
+      for (const [territoryKey, priceData] of pricesByTerritory.entries()) {
+        if (priceData.length < 2) continue;
 
-        const oldestPrice = prices[0];
-        const newestPrice = prices[prices.length - 1];
+        const oldestEntry = priceData[0];
+        const newestEntry = priceData[priceData.length - 1];
         
-        if (oldestPrice === 0) continue;
+        if (oldestEntry.price === 0) continue;
 
-        const variation = ((newestPrice - oldestPrice) / oldestPrice) * 100;
+        // Garde-fou temporel: vérifier l'écart de dates
+        const timeDiffMs = newestEntry.date.getTime() - oldestEntry.date.getTime();
+        const timeDiffDays = timeDiffMs / (1000 * 60 * 60 * 24);
+
+        // Ne détecter une anomalie que si l'écart temporel est >= 3 jours
+        if (timeDiffDays < 3) continue;
+
+        const variation = ((newestEntry.price - oldestEntry.price) / oldestEntry.price) * 100;
         const absVariation = Math.abs(variation);
 
         // Détecter anomalie si variation > 10%
@@ -226,8 +236,8 @@ export class AnomalyDetectionService {
       if (gap > 30) {
         const severity: 'LOW' | 'MEDIUM' | 'HIGH' = gap > 60 ? 'HIGH' : gap > 45 ? 'MEDIUM' : 'LOW';
 
-        // Trouver le territoire avec le prix max
-        let maxTerritory: Territory = Territory.DOM;
+        // Trouver le territoire avec le prix max (neutralité: pas de défaut)
+        let maxTerritory: Territory | undefined;
         for (const [territory, avgPrice] of avgByTerritory.entries()) {
           if (avgPrice === maxPrice) {
             maxTerritory = territory;
@@ -235,15 +245,18 @@ export class AnomalyDetectionService {
           }
         }
 
-        anomalies.push({
-          productId: product.id,
-          productLabel: product.name,
-          territory: maxTerritory,
-          type: 'SPATIAL',
-          severity,
-          description: `Écart de ${Math.round(gap)} % entre territoires`,
-          detectedAt: new Date().toISOString().split('T')[0],
-        });
+        // Ne créer l'anomalie que si un territoire est trouvé
+        if (maxTerritory) {
+          anomalies.push({
+            productId: product.id,
+            productLabel: product.name,
+            territory: maxTerritory,
+            type: 'SPATIAL',
+            severity,
+            description: `Écart de ${Math.round(gap)} % entre territoires`,
+            detectedAt: new Date().toISOString().split('T')[0],
+          });
+        }
       }
     }
 
