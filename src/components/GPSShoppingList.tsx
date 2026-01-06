@@ -1,6 +1,9 @@
 import { useState, useMemo } from 'react';
 import { MapPin, ShoppingCart, TrendingDown, Navigation } from 'lucide-react';
 
+// Default update time computed once at module load
+const DEFAULT_UPDATE_TIME = new Date();
+
 interface ShoppingItem {
   id: string;
   name: string;
@@ -22,7 +25,7 @@ interface GPSShoppingListProps {
   className?: string;
 }
 
-export default function GPSShoppingList({ items, lastUpdate = new Date(), className }: GPSShoppingListProps) {
+export default function GPSShoppingList({ items, lastUpdate = DEFAULT_UPDATE_TIME, className }: GPSShoppingListProps) {
   const [position, setPosition] = useState<{ lat: number; lon: number } | null>(null);
   const [loading, setLoading] = useState(false);
   const [storeOptions, setStoreOptions] = useState<StoreOption[]>([]);

@@ -5,6 +5,9 @@ import AIPricePrediction from '../components/AIPricePrediction';
 import GPSShoppingList from '../components/GPSShoppingList';
 import GlobalDisclaimer from '../components/GlobalDisclaimer';
 
+// Compute current time once at module load
+const CURRENT_UPDATE_TIME = new Date();
+
 export default function CivicModules() {
   // Mock data for demonstrations
   const mockShoppingItems = [
@@ -33,7 +36,7 @@ export default function CivicModules() {
     averageBasket: 87.95,
     territorialGap: 18,
     productsUnderSurveillance: 2847,
-    lastUpdate: new Date()
+    lastUpdate: CURRENT_UPDATE_TIME
   };
 
   return (
