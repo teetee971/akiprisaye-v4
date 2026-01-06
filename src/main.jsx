@@ -56,11 +56,13 @@ const CivicModules = lazyWithRetry(() => import('./pages/CivicModules'));
 const EvaluationCosmetique = lazyWithRetry(() => import('./pages/EvaluationCosmetique'));
 const Observatoire = lazyWithRetry(() => import('./pages/Observatoire'));
 const ObservatoryMethodology = lazyWithRetry(() => import('./pages/ObservatoryMethodology'));
+const MonEspace = lazyWithRetry(() => import('./pages/MonEspace'));
+const Perimetre = lazyWithRetry(() => import('./pages/Perimetre'));
+const Versions = lazyWithRetry(() => import('./pages/Versions'));
+const Gouvernance = lazyWithRetry(() => import('./pages/Gouvernance'));
 
-// New simplified pages for automatic generation
-const HomeSimple = lazyWithRetry(() => import('./pages/Home.tsx'));
-const CompareSimple = lazyWithRetry(() => import('./pages/Compare.tsx'));
-const NewsSimple = lazyWithRetry(() => import('./pages/News.tsx'));
+const CompareSimple = lazyWithRetry(() => import('./pages/Compare'));
+const NewsSimple = lazyWithRetry(() => import('./pages/News'));
 
 // PR #1 - Assistant + FAQ étendue (v1.6.0)
 const Faq = lazyWithRetry(() => import('./pages/Faq'));
@@ -166,6 +168,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='alertes' element={<Alertes />} />
                   <Route path='a-propos' element={<APropos />} />
                   <Route path='methodologie' element={<Methodologie />} />
+                  <Route path='perimetre' element={<Perimetre />} />
+                  <Route path='versions' element={<Versions />} />
+                  <Route path='gouvernance' element={<Gouvernance />} />
                   <Route path='mentions-legales' element={<MentionsLegales />} />
                   <Route path='mon-compte' element={<MonCompte />} />
                   <Route path='inscription' element={<Inscription />} />
@@ -181,6 +186,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='licence-institution' element={<LicenceInstitution />} />
                   <Route path='contact-collectivites' element={<ContactCollectivites />} />
                   <Route path='contact' element={<Contact />} />
+                  <Route path='mon-espace' element={<MonEspace />} />
                   <Route path='ia-conseiller' element={<IaConseiller />} />
                   <Route path='ti-panie' element={<TiPanie />} />
                   <Route path='admin/dashboard' element={<AdminDashboard />} />

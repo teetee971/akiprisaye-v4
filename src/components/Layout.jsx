@@ -15,14 +15,21 @@ export default function Layout() {
     { path: '/scan', label: 'Scanner' },
     { path: '/carte', label: 'Carte' },
     { path: '/observatoire', label: 'Observatoire' },
-    { path: '/methodologie', label: 'Méthodologie' },
-    { path: '/transparence', label: 'Transparence' },
     { path: '/civic-modules', label: 'Modules' },
     { path: '/liste-courses', label: 'Liste de courses' },
     { path: '/evaluation-cosmetique', label: 'Cosmétiques' },
     { path: '/actualites', label: 'Actualités' },
     { path: '/pricing', label: 'Tarifs' },
+    { path: '/mon-espace', label: 'Mon espace' },
     { path: '/contact', label: 'Contact' },
+  ];
+
+  const publicNavItems = [
+    { path: '/methodologie', label: 'Méthodologie' },
+    { path: '/transparence', label: 'Transparence' },
+    { path: '/perimetre', label: 'Périmètre' },
+    { path: '/versions', label: 'Versions' },
+    { path: '/gouvernance', label: 'Gouvernance' },
   ];
 
   return (
@@ -45,7 +52,7 @@ export default function Layout() {
           </div>
 
           {/* Menu desktop */}
-          <nav className="hidden md:flex space-x-6">
+          <nav className="hidden md:flex items-center space-x-6">
             {navItems.map((item) => (
               <NavLink
                 key={item.path}
@@ -59,6 +66,24 @@ export default function Layout() {
                 {item.label}
               </NavLink>
             ))}
+            <div className="flex items-center space-x-3 border-l border-slate-800 pl-4">
+              <span className="text-xs uppercase tracking-wide text-slate-400">
+                Données publiques
+              </span>
+              {publicNavItems.map((item) => (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  className={({ isActive }) =>
+                    isActive
+                      ? 'text-blue-400 font-semibold'
+                      : 'text-slate-300 hover:text-blue-400'
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </div>
           </nav>
 
           {/* Menu mobile */}
@@ -75,6 +100,19 @@ export default function Layout() {
         {open && (
           <div className="md:hidden bg-slate-900/95 backdrop-blur-xl border-t border-slate-700">
             {navItems.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className="block px-6 py-3 text-slate-200 hover:bg-slate-800"
+                onClick={() => setOpen(false)}
+              >
+                {item.label}
+              </NavLink>
+            ))}
+            <div className="px-6 pt-4 pb-2 text-xs uppercase tracking-wide text-slate-400">
+              Données publiques
+            </div>
+            {publicNavItems.map((item) => (
               <NavLink
                 key={item.path}
                 to={item.path}
