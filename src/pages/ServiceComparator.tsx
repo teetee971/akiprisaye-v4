@@ -255,12 +255,18 @@ const ServiceComparator: React.FC = () => {
     </div>
   );
 
+  const getOfferTypeLabel = (offerType: string) => {
+    if (offerType === 'base') return 'Base';
+    if (offerType === 'heures_creuses') return 'Heures Creuses';
+    return 'Tempo';
+  };
+
   const renderElectricityResult = (elec: any) => (
     <div key={elec.id} className="bg-white rounded-lg shadow-md p-6 mb-4 hover:shadow-lg transition-shadow">
       <div className="flex justify-between items-start mb-4">
         <div className="flex-1">
           <h3 className="text-lg font-bold text-gray-900">
-            Tarif {elec.offerType === 'base' ? 'Base' : elec.offerType === 'heures_creuses' ? 'Heures Creuses' : 'Tempo'} - {elec.power} kVA
+            Tarif {getOfferTypeLabel(elec.offerType)} - {elec.power} kVA
           </h3>
           <p className="text-sm text-gray-600 mt-1">Abonnement: {elec.price.subscription}€/mois</p>
           <p className="text-sm text-gray-600">Prix kWh: {elec.price.perKwh}€</p>
@@ -321,6 +327,24 @@ const ServiceComparator: React.FC = () => {
     }
   };
 
+  const getButtonClasses = (catId: string, isActive: boolean) => {
+    if (!isActive) {
+      return 'border-gray-200 hover:border-gray-300 text-gray-600';
+    }
+    
+    // Predefined color classes to ensure Tailwind includes them
+    const colorClasses: Record<string, string> = {
+      flights: 'border-blue-500 bg-blue-50 text-blue-700',
+      boats: 'border-cyan-500 bg-cyan-50 text-cyan-700',
+      internet: 'border-purple-500 bg-purple-50 text-purple-700',
+      mobile: 'border-green-500 bg-green-50 text-green-700',
+      water: 'border-blue-500 bg-blue-50 text-blue-700',
+      electricity: 'border-yellow-500 bg-yellow-50 text-yellow-700',
+    };
+    
+    return colorClasses[catId] || 'border-gray-500 bg-gray-50 text-gray-700';
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8">
       <div className="max-w-7xl mx-auto px-4">
@@ -368,11 +392,7 @@ const ServiceComparator: React.FC = () => {
                 <button
                   key={cat.id}
                   onClick={() => setServiceType(cat.id as ServiceType)}
-                  className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all ${
-                    isActive
-                      ? `border-${cat.color}-500 bg-${cat.color}-50 text-${cat.color}-700`
-                      : 'border-gray-200 hover:border-gray-300 text-gray-600'
-                  }`}
+                  className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all ${getButtonClasses(cat.id, isActive)}`}
                 >
                   <Icon className="h-6 w-6 mb-2" />
                   <span className="text-sm font-medium text-center">{cat.name}</span>

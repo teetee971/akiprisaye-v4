@@ -159,12 +159,12 @@ export async function searchInternet(params: {
     results = results.filter((i) => providerIds.includes(i.provider));
   }
 
-  if (params.minSpeed) {
-    results = results.filter((i) => i.speed.download >= params.minSpeed);
+  if (params.minSpeed !== undefined) {
+    results = results.filter((i) => i.speed.download >= params.minSpeed!);
   }
 
-  if (params.maxPrice) {
-    results = results.filter((i) => i.price.monthly <= params.maxPrice);
+  if (params.maxPrice !== undefined) {
+    results = results.filter((i) => i.price.monthly <= params.maxPrice!);
   }
 
   return results.sort((a, b) => a.price.monthly - b.price.monthly);
@@ -195,12 +195,12 @@ export async function searchMobile(params: {
     results = results.filter((m) => providerIds.includes(m.provider));
   }
 
-  if (params.minData) {
-    results = results.filter((m) => m.data >= params.minData);
+  if (params.minData !== undefined) {
+    results = results.filter((m) => m.data >= params.minData!);
   }
 
-  if (params.maxPrice) {
-    results = results.filter((m) => m.price.monthly <= params.maxPrice);
+  if (params.maxPrice !== undefined) {
+    results = results.filter((m) => m.price.monthly <= params.maxPrice!);
   }
 
   return results.sort((a, b) => a.price.monthly - b.price.monthly);
