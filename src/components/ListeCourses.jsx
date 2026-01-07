@@ -486,6 +486,7 @@ export default function ListeCourses({ territoire = '971' }) {
           {gpsActive && optimalRoute && showOptimalRoute && (
             <OptimalRouteDisplay 
               route={optimalRoute}
+              userPosition={position ? { lat: position.latitude, lon: position.longitude } : undefined}
               onClose={() => setShowOptimalRoute(false)}
             />
           )}

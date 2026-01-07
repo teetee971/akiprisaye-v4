@@ -1,18 +1,26 @@
 /**
  * Optimal Route Display Component
- * Shows the optimized multi-store shopping route
+ * Shows the optimized multi-store shopping route with map visualization
+ * and before/after comparison
  */
 
-import React from 'react';
-import { MapPin, TrendingDown, Clock, Leaf, Fuel } from 'lucide-react';
+import React, { useState } from 'react';
+import { MapPin, TrendingDown, Clock, Leaf, Fuel, Map as MapIcon } from 'lucide-react';
 import type { OptimalRoute } from '../utils/routeOptimization';
+import type { GeoPosition } from '../utils/geoLocation';
+import RouteMapVisualization from './RouteMapVisualization';
+import RouteBeforeAfterComparison from './RouteBeforeAfterComparison';
 
 interface OptimalRouteDisplayProps {
   route: OptimalRoute;
+  userPosition?: GeoPosition;
   onClose?: () => void;
 }
 
-export default function OptimalRouteDisplay({ route, onClose }: OptimalRouteDisplayProps) {
+export default function OptimalRouteDisplay({ route, userPosition, onClose }: OptimalRouteDisplayProps) {
+  const [showMap, setShowMap] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
+
   if (!route || route.stores.length === 0) {
     return null;
   }
@@ -29,15 +37,35 @@ export default function OptimalRouteDisplay({ route, onClose }: OptimalRouteDisp
           <TrendingDown className="w-5 h-5 text-emerald-400" aria-hidden="true" />
           <h3 id="route-title" className="text-lg font-semibold text-emerald-300">🗺️ Itinéraire Optimisé</h3>
         </div>
-        {onClose && (
+        <div className="flex items-center gap-2">
+          {userPosition && (
+            <button
+              onClick={() => setShowMap(!showMap)}
+              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition-colors flex items-center gap-1"
+              aria-label={showMap ? "Masquer la carte" : "Voir sur la carte"}
+            >
+              <MapIcon className="w-4 h-4" />
+              {showMap ? 'Masquer' : 'Carte'}
+            </button>
+          )}
           <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-300 text-sm"
-            aria-label="Fermer l'itinéraire optimisé"
+            onClick={() => setShowComparison(!showComparison)}
+            className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition-colors flex items-center gap-1"
+            aria-label={showComparison ? "Masquer la comparaison" : "Voir avant/après"}
           >
-            ✕
+            <TrendingDown className="w-4 h-4" />
+            {showComparison ? 'Masquer' : 'Comparer'}
           </button>
-        )}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-300 text-sm px-2"
+              aria-label="Fermer l'itinéraire optimisé"
+            >
+              ✕
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Summary */}
@@ -138,10 +166,29 @@ export default function OptimalRouteDisplay({ route, onClose }: OptimalRouteDisp
         </div>
       </div>
 
+      {/* Map Visualization */}
+      {showMap && userPosition && (
+        <div className="mt-4">
+          <RouteMapVisualization 
+            route={route} 
+            userPosition={userPosition}
+          />
+        </div>
+      )}
+
+      {/* Before/After Comparison */}
+      {showComparison && (
+        <div className="mt-4">
+          <RouteBeforeAfterComparison route={route} />
+        </div>
+      )}
+
       {/* Tips */}
       <div className="mt-4 p-3 bg-blue-900/20 rounded-lg border border-blue-700/30" role="note">
         <div className="text-xs text-blue-200">
           💡 <strong>Conseil :</strong> Cet itinéraire minimise votre distance totale et vos émissions de CO₂.
+          {userPosition && !showMap && ' Cliquez sur "Carte" pour visualiser le parcours.'}
+          {!showComparison && ' Cliquez sur "Comparer" pour voir les économies réalisées.'}
         </div>
       </div>
     </div>
