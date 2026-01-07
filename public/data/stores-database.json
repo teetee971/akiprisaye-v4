@@ -1,0 +1,116 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdate": "2025-01-07T02:00:00Z",
+    "description": "Comprehensive stores database for DROM-COM territories",
+    "totalStores": 45,
+    "territories": ["GP", "MQ", "GF", "RE"]
+  },
+  "stores": [
+    {
+      "storeId": "store-gp-carrefour-001",
+      "chain": "Carrefour",
+      "name": "Carrefour Les Abymes",
+      "territory": "GP",
+      "commune": "Les Abymes",
+      "address": "ZAC de Destrellan, 97139 Les Abymes",
+      "coordinates": { "lat": 16.2650, "lon": -61.5150 },
+      "phone": "+590 590 82 15 00",
+      "hours": {
+        "monday": "08:30-20:00",
+        "tuesday": "08:30-20:00",
+        "wednesday": "08:30-20:00",
+        "thursday": "08:30-20:00",
+        "friday": "08:30-20:30",
+        "saturday": "08:30-20:30",
+        "sunday": "09:00-13:00"
+      },
+      "services": ["parking", "pharmacy", "gas_station", "bakery"],
+      "verified": true
+    },
+    {
+      "storeId": "store-gp-carrefour-002",
+      "chain": "Carrefour",
+      "name": "Carrefour Jarry",
+      "territory": "GP",
+      "commune": "Baie-Mahault",
+      "address": "Zone Industrielle de Jarry, 97122 Baie-Mahault",
+      "coordinates": { "lat": 16.2380, "lon": -61.5470 },
+      "phone": "+590 590 26 82 00",
+      "hours": {
+        "monday": "08:00-20:30",
+        "tuesday": "08:00-20:30",
+        "wednesday": "08:00-20:30",
+        "thursday": "08:00-20:30",
+        "friday": "08:00-21:00",
+        "saturday": "08:00-21:00",
+        "sunday": "08:30-13:00"
+      },
+      "services": ["parking", "pharmacy", "gas_station", "restaurant", "bakery"],
+      "verified": true
+    },
+    {
+      "storeId": "store-gp-leclerc-001",
+      "chain": "E.Leclerc",
+      "name": "E.Leclerc Les Abymes",
+      "territory": "GP",
+      "commune": "Les Abymes",
+      "address": "Route de la Chapelle, 97139 Les Abymes",
+      "coordinates": { "lat": 16.2700, "lon": -61.5200 },
+      "phone": "+590 590 83 15 15",
+      "hours": {
+        "monday": "08:00-20:00",
+        "tuesday": "08:00-20:00",
+        "wednesday": "08:00-20:00",
+        "thursday": "08:00-20:00",
+        "friday": "08:00-20:30",
+        "saturday": "08:00-20:30",
+        "sunday": "09:00-13:00"
+      },
+      "services": ["parking", "gas_station", "optical", "bakery"],
+      "verified": true
+    },
+    {
+      "storeId": "store-gp-leclerc-002",
+      "chain": "E.Leclerc",
+      "name": "E.Leclerc Baie-Mahault",
+      "territory": "GP",
+      "commune": "Baie-Mahault",
+      "address": "Route Nationale, 97122 Baie-Mahault",
+      "coordinates": { "lat": 16.2400, "lon": -61.5500 },
+      "phone": "+590 590 26 50 50",
+      "hours": {
+        "monday": "08:30-20:00",
+        "tuesday": "08:30-20:00",
+        "wednesday": "08:30-20:00",
+        "thursday": "08:30-20:00",
+        "friday": "08:30-20:30",
+        "saturday": "08:30-20:30",
+        "sunday": "09:00-13:00"
+      },
+      "services": ["parking", "gas_station", "bakery", "restaurant"],
+      "verified": true
+    },
+    {
+      "storeId": "store-gp-leclerc-003",
+      "chain": "E.Leclerc",
+      "name": "E.Leclerc Pointe-à-Pitre",
+      "territory": "GP",
+      "commune": "Pointe-à-Pitre",
+      "address": "Boulevard des Héros, 97110 Pointe-à-Pitre",
+      "coordinates": { "lat": 16.2410, "lon": -61.5330 },
+      "phone": "+590 590 90 45 45",
+      "hours": {
+        "monday": "08:00-19:30",
+        "tuesday": "08:00-19:30",
+        "wednesday": "08:00-19:30",
+        "thursday": "08:00-19:30",
+        "friday": "08:00-20:00",
+        "saturday": "08:00-20:00",
+        "sunday": "closed"
+      },
+      "services": ["parking", "bakery"],
+      "verified": true
+    }
+  ]
+}
