@@ -3,28 +3,7 @@
  * Liste officielle des territoires disponibles dans les observations
  */
 
-interface Observation {
-  territoire: string;
-  date: string;
-  [key: string]: any;
-}
-
-/**
- * Load observations from JSON file
- */
-async function loadObservations(): Promise<Observation[]> {
-  try {
-    const response = await fetch('https://akiprisaye.pages.dev/data/observations/index.json');
-    if (!response.ok) {
-      throw new Error('Failed to fetch observations');
-    }
-    const data = await response.json();
-    return Array.isArray(data) ? data : [];
-  } catch (error) {
-    console.error('Error loading observations:', error);
-    return [];
-  }
-}
+import { loadObservations, createOptionsResponse, API_CONFIG, type Observation } from './utils';
 
 /**
  * Extract unique territories from observations
@@ -69,7 +48,7 @@ export async function onRequestGet() {
     return new Response(
       JSON.stringify({
         meta: {
-          source: 'A KI PRI SA YÉ',
+          source: API_CONFIG.SOURCE_NAME,
           generated_at: new Date().toISOString(),
           count: territoires.length,
         },
@@ -92,7 +71,7 @@ export async function onRequestGet() {
     return new Response(
       JSON.stringify({
         meta: {
-          source: 'A KI PRI SA YÉ',
+          source: API_CONFIG.SOURCE_NAME,
           generated_at: new Date().toISOString(),
           count: 0,
           error: 'Internal server error',
@@ -116,13 +95,5 @@ export async function onRequestGet() {
  * CORS preflight request handler
  */
 export async function onRequestOptions() {
-  return new Response(null, {
-    status: 204,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Max-Age': '86400',
-    },
-  });
+  return createOptionsResponse();
 }
