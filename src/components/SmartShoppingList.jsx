@@ -24,6 +24,8 @@ import {
   getPriceDataFreshness,
 } from '../services/shoppingListService';
 import { db } from '../lib/firebase';
+import { solveShoppingRoute } from '../utils/routeOptimization';
+import { trackTrip } from '../utils/shoppingStats';
 
 // OPTIMIZATION MODES (user chooses)
 const OPTIMIZATION_MODES = {
@@ -141,6 +143,12 @@ export default function SmartShoppingList({ territoire = 'Guadeloupe' }) {
       ean: '',
     });
   };
+  
+  // Handle form submission
+  const handleAddItemSubmit = (e) => {
+    e.preventDefault();
+    addItemToList();
+  };
 
   // Remove item from list
   const removeItem = (id) => {
@@ -247,6 +255,37 @@ export default function SmartShoppingList({ territoire = 'Guadeloupe' }) {
         result = optimizeBalanced(matchedProducts, storesWithDistance);
     }
 
+    // Calculate optimal route if we have stores in the result
+    if (result.breakdown && result.breakdown.length > 0) {
+      const storesToVisit = result.breakdown.map(b => b.store).filter(Boolean);
+      
+      if (storesToVisit.length > 0) {
+        // Use route optimization to get the best order and calculate savings
+        const optimalRoute = solveShoppingRoute(
+          { lat: userLocation.lat, lon: userLocation.lng },
+          storesToVisit
+        );
+        
+        // Attach route information to result
+        result.optimalRoute = optimalRoute;
+        
+        // Track the trip in statistics
+        const storeNames = storesToVisit.map(s => s.name || s.enseigne || 'Magasin').filter(Boolean);
+        const productNames = matchedProducts
+          .filter(p => p.dataAvailable)
+          .map(p => p.product_name)
+          .filter(Boolean);
+        
+        trackTrip(
+          optimalRoute.totalDistance,
+          storeNames,
+          productNames,
+          optimalRoute.savings.fuel,
+          optimalRoute.savings.co2
+        );
+      }
+    }
+
     setOptimizationResults(result);
     setLoading(false);
   };
@@ -256,6 +295,9 @@ export default function SmartShoppingList({ territoire = 'Guadeloupe' }) {
     // Find cheapest price for each product across all stores
     const breakdown = {};
     let totalPrice = 0;
+    
+    // Pre-compute store map for O(1) lookups instead of O(n) find operations
+    const storeMap = new Map(stores.map(s => [s.id, s]));
 
     products.forEach(product => {
       if (!product.dataAvailable || !product.observedPrices || product.observedPrices.length === 0) {
@@ -268,7 +310,7 @@ export default function SmartShoppingList({ territoire = 'Guadeloupe' }) {
 
       const storeId = cheapestPrice.storeId;
       if (!breakdown[storeId]) {
-        const store = stores.find(s => s.id === storeId);
+        const store = storeMap.get(storeId);
         breakdown[storeId] = {
           store,
           items: [],
@@ -299,21 +341,25 @@ export default function SmartShoppingList({ territoire = 'Guadeloupe' }) {
     const sortedStores = [...stores].sort((a, b) => a.distance - b.distance);
     const breakdown = {};
     let totalPrice = 0;
+    
+    // Pre-compute store maps for O(1) lookups
+    const storeMap = new Map(stores.map(s => [s.id, s]));
+    const storeIdSet = new Set(sortedStores.map(s => s.id));
 
     products.forEach(product => {
       if (!product.dataAvailable || !product.observedPrices || product.observedPrices.length === 0) {
         return;
       }
 
-      // Find first store (closest) that has this product
+      // Find first store (closest) that has this product - optimized with Set lookup
       const availablePrice = product.observedPrices.find(p => 
-        sortedStores.some(s => s.id === p.storeId)
+        storeIdSet.has(p.storeId)
       );
 
       if (availablePrice) {
         const storeId = availablePrice.storeId;
         if (!breakdown[storeId]) {
-          const store = stores.find(s => s.id === storeId);
+          const store = storeMap.get(storeId);
           breakdown[storeId] = {
             store,
             items: [],
@@ -345,18 +391,24 @@ export default function SmartShoppingList({ territoire = 'Guadeloupe' }) {
     const breakdown = {};
     let totalPrice = 0;
     let totalDistance = 0;
+    
+    // Pre-compute store map for O(1) lookups
+    const storeMap = new Map(stores.map(s => [s.id, s]));
 
     products.forEach(product => {
       if (!product.dataAvailable || !product.observedPrices || product.observedPrices.length === 0) {
         return;
       }
 
+      // Pre-calculate max price for normalization (once per product)
+      const maxPrice = Math.max(...product.observedPrices.map(x => x.price));
+
       // Calculate score for each price option
       const scoredPrices = product.observedPrices.map(p => {
-        const store = stores.find(s => s.id === p.storeId);
+        const store = storeMap.get(p.storeId);
         if (!store) return null;
 
-        const priceNorm = 1 - (p.price / Math.max(...product.observedPrices.map(x => x.price)));
+        const priceNorm = 1 - (p.price / maxPrice);
         const distanceNorm = 1 - (store.distance / searchRadius);
         const consolidationBonus = breakdown[p.storeId] ? 0.3 : 0;
 
@@ -533,9 +585,9 @@ export default function SmartShoppingList({ territoire = 'Guadeloupe' }) {
       </div>
 
       {/* Mandatory Disclaimer */}
-      <div className="bg-amber-900/20 backdrop-blur-xl border border-amber-500/30 rounded-xl p-4">
+      <div className="bg-amber-900/20 backdrop-blur-xl border border-amber-500/30 rounded-xl p-4" role="alert" aria-live="polite">
         <div className="flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+          <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" aria-hidden="true" />
           <div className="text-sm text-amber-100">
             <p className="font-semibold mb-2">Avertissement important</p>
             <ul className="space-y-1 text-amber-200">
@@ -550,11 +602,11 @@ export default function SmartShoppingList({ territoire = 'Guadeloupe' }) {
       </div>
 
       {/* GPS Consent */}
-      <div className="bg-blue-900/20 backdrop-blur-xl border border-blue-500/30 rounded-xl p-4">
+      <div className="bg-blue-900/20 backdrop-blur-xl border border-blue-500/30 rounded-xl p-4" role="region" aria-labelledby="gps-consent-title">
         <div className="flex items-start gap-3">
-          <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+          <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" aria-hidden="true" />
           <div className="text-sm text-blue-100 flex-1">
-            <p className="font-semibold mb-2">Géolocalisation (OPT-IN UNIQUEMENT)</p>
+            <p id="gps-consent-title" className="font-semibold mb-2">Géolocalisation (OPT-IN UNIQUEMENT)</p>
             <ul className="list-disc list-inside space-y-1 text-blue-200 mb-3">
               <li>Votre position GPS est utilisée <strong>UNIQUEMENT avec votre consentement explicite</strong></li>
               <li>Données utilisées <strong>localement</strong> pour calculer les distances</li>
@@ -567,12 +619,13 @@ export default function SmartShoppingList({ territoire = 'Guadeloupe' }) {
                 checked={gpsConsent}
                 onChange={(e) => setGpsConsent(e.target.checked)}
                 className="w-4 h-4"
+                aria-label="Accepter l'utilisation de ma position GPS locale"
               />
               <span className="font-medium text-white">
                 J'accepte explicitement l'utilisation de ma position GPS locale
               </span>
             </label>
-            <p className="text-xs text-blue-200 mt-2">
+            <p className="text-xs text-blue-200 mt-2" aria-live="polite">
               Statut géolocalisation :{' '}
               {geolocStatus === 'awaiting' && 'en attente de votre accord'}
               {geolocStatus === 'pending' && 'demande envoyée au navigateur'}
@@ -610,7 +663,7 @@ export default function SmartShoppingList({ territoire = 'Guadeloupe' }) {
               </div>
             )}
             {gpsError && (
-              <div className="mt-2 text-red-300 text-sm">⚠️ {gpsError}</div>
+              <div className="mt-2 text-red-300 text-sm" role="alert" aria-live="assertive">⚠️ {gpsError}</div>
             )}
           </div>
         </div>
@@ -619,23 +672,25 @@ export default function SmartShoppingList({ territoire = 'Guadeloupe' }) {
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Left: Shopping List Editor */}
         <div className="space-y-4">
-          <div className="bg-slate-800/60 backdrop-blur-xl border border-slate-700/50 rounded-xl p-6 shadow-xl">
-            <h2 className="text-xl font-semibold text-white mb-4">Votre liste de courses</h2>
+          <div className="bg-slate-800/60 backdrop-blur-xl border border-slate-700/50 rounded-xl p-6 shadow-xl" role="region" aria-labelledby="shopping-list-title">
+            <h2 id="shopping-list-title" className="text-xl font-semibold text-white mb-4">Votre liste de courses</h2>
 
             {/* Add Item Form */}
-            <div className="space-y-3 mb-4 p-4 bg-slate-900/50 rounded-lg">
+            <form className="space-y-3 mb-4 p-4 bg-slate-900/50 rounded-lg" onSubmit={handleAddItemSubmit} aria-label="Formulaire d'ajout d'article">
               <input
                 type="text"
                 placeholder="Nom du produit *"
                 value={newItem.product_name}
                 onChange={(e) => setNewItem({ ...newItem, product_name: e.target.value })}
                 className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white placeholder-slate-400"
+                required
               />
               <div className="grid grid-cols-2 gap-2">
                 <select
                   value={newItem.category}
                   onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
                   className="bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
+                  required
                 >
                   <option value="">Catégorie *</option>
                   <option value="alimentaire">Alimentaire</option>
@@ -650,11 +705,13 @@ export default function SmartShoppingList({ territoire = 'Guadeloupe' }) {
                     value={newItem.quantity_needed}
                     onChange={(e) => setNewItem({ ...newItem, quantity_needed: Number(e.target.value) })}
                     className="w-20 bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
+                    aria-label="Quantité"
                   />
                   <select
                     value={newItem.unit}
                     onChange={(e) => setNewItem({ ...newItem, unit: e.target.value })}
                     className="flex-1 bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
+                    aria-label="Unité de mesure"
                   >
                     <option value="unité">unité</option>
                     <option value="kg">kg</option>
@@ -668,6 +725,7 @@ export default function SmartShoppingList({ territoire = 'Guadeloupe' }) {
                 value={newItem.brand}
                 onChange={(e) => setNewItem({ ...newItem, brand: e.target.value })}
                 className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white placeholder-slate-400"
+                aria-label="Marque du produit (optionnel)"
               />
               <input
                 type="text"
@@ -675,15 +733,17 @@ export default function SmartShoppingList({ territoire = 'Guadeloupe' }) {
                 value={newItem.ean}
                 onChange={(e) => setNewItem({ ...newItem, ean: e.target.value })}
                 className="w-full bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white placeholder-slate-400"
+                aria-label="Code EAN pour correspondance exacte"
               />
               <button
-                onClick={addItemToList}
+                type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center justify-center gap-2"
+                aria-label="Ajouter l'article à la liste de courses"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-4 h-4" aria-hidden="true" />
                 Ajouter à la liste
               </button>
-            </div>
+            </form>
 
             {/* Shopping List Items */}
             {shoppingList.length === 0 ? (
