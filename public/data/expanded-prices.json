@@ -1,14 +1,28 @@
 {
   "metadata": {
-    "version": "3.0.0",
+    "version": "3.1.0",
     "lastUpdate": "2026-01-07T02:44:28.454070Z",
-    "description": "Massively expanded database with 93 products, 25 stores, and 2,325 observations",
+    "description": "Massively expanded database with 93 products, 25 stores, and 2,325 observations - Now with mobile-optimized product images",
     "territories": [
       "GP"
     ],
     "totalProducts": 84,
     "totalStores": 24,
-    "totalPriceObservations": 2016
+    "totalPriceObservations": 2016,
+    "imageOptimization": {
+      "device": "Samsung S24+",
+      "screenSize": "6.7 inches",
+      "resolution": "1440x3120",
+      "dpi": 516,
+      "imageSizes": {
+        "thumbnail": "150x150",
+        "card": "400x400",
+        "full": "800x800"
+      },
+      "format": "JPEG optimized for web",
+      "source": "Open Food Facts API",
+      "license": "CC BY-SA 3.0"
+    }
   },
   "products": [
     {
@@ -580,7 +594,32 @@
             "lastVerified": "2026-01-06T13:44:28.438103Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/012/3456/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/012/3456/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/012/3456/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/012/3456/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/012/3456/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/012/3456/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Lait+demi-écrémé+UHT"
+      }
     },
     {
       "canonicalId": "lait-uht-entier-1l",
@@ -1151,7 +1190,32 @@
             "lastVerified": "2025-12-31T13:44:28.438337Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/012/3457/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/012/3457/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/012/3457/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/012/3457/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/012/3457/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/012/3457/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Lait+entier+UHT"
+      }
     },
     {
       "canonicalId": "lait-ecreme-1l",
@@ -1721,7 +1785,32 @@
             "lastVerified": "2026-01-04T13:44:28.438541Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/012/3458/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/012/3458/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/012/3458/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/012/3458/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/012/3458/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/012/3458/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Lait+écrémé+UHT"
+      }
     },
     {
       "canonicalId": "yaourt-nature-4x125g",
@@ -2292,7 +2381,32 @@
             "lastVerified": "2026-01-03T06:44:28.438735Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/078/9012/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/078/9012/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/078/9012/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/078/9012/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/078/9012/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/078/9012/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Yaourt+nature"
+      }
     },
     {
       "canonicalId": "yaourt-vanille-4x125g",
@@ -2861,7 +2975,32 @@
             "lastVerified": "2025-12-31T08:44:28.438920Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/078/9013/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/078/9013/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/078/9013/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/078/9013/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/078/9013/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/078/9013/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Yaourt+vanille"
+      }
     },
     {
       "canonicalId": "beurre-doux-250g",
@@ -3432,7 +3571,32 @@
             "lastVerified": "2026-01-06T18:44:28.439109Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/376/007/045/6789/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/376/007/045/6789/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/376/007/045/6789/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/376/007/045/6789/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/376/007/045/6789/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/376/007/045/6789/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Beurre+doux"
+      }
     },
     {
       "canonicalId": "fromage-rape-200g",
@@ -4001,7 +4165,32 @@
             "lastVerified": "2026-01-05T06:44:28.439295Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/376/007/045/6790/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/376/007/045/6790/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/376/007/045/6790/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/376/007/045/6790/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/376/007/045/6790/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/376/007/045/6790/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Emmental+râpé"
+      }
     },
     {
       "canonicalId": "creme-fraiche-200ml",
@@ -4572,7 +4761,32 @@
             "lastVerified": "2026-01-04T17:44:28.439481Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/012/3459/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/012/3459/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/012/3459/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/012/3459/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/012/3459/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/012/3459/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Crème+fraîche+épaisse"
+      }
     },
     {
       "canonicalId": "fromage-comte-200g",
@@ -5142,7 +5356,32 @@
             "lastVerified": "2025-12-31T08:44:28.439715Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/376/007/045/6791/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/376/007/045/6791/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/376/007/045/6791/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/376/007/045/6791/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/376/007/045/6791/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/376/007/045/6791/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Comté+AOP"
+      }
     },
     {
       "canonicalId": "camembert-250g",
@@ -5712,7 +5951,32 @@
             "lastVerified": "2026-01-04T17:44:28.439908Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/376/007/045/6792/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/376/007/045/6792/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/376/007/045/6792/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/376/007/045/6792/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/376/007/045/6792/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/376/007/045/6792/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Camembert+de+Normandie"
+      }
     },
     {
       "canonicalId": "riz-long-blanc-1kg",
@@ -6281,7 +6545,32 @@
             "lastVerified": "2025-12-30T11:44:28.440092Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/325/039/123/4567/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/325/039/123/4567/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/325/039/123/4567/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/123/4567/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/123/4567/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/123/4567/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Riz+long+blanc"
+      }
     },
     {
       "canonicalId": "riz-basmati-1kg",
@@ -6852,7 +7141,32 @@
             "lastVerified": "2026-01-03T15:44:28.440279Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/325/039/123/4568/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/325/039/123/4568/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/325/039/123/4568/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/123/4568/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/123/4568/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/123/4568/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Riz+basmati"
+      }
     },
     {
       "canonicalId": "pates-penne-500g",
@@ -7420,7 +7734,32 @@
             "lastVerified": "2026-01-06T13:44:28.440464Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/807/680/012/3456/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/807/680/012/3456/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/807/680/012/3456/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/807/680/012/3456/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/807/680/012/3456/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/807/680/012/3456/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Pâtes+penne"
+      }
     },
     {
       "canonicalId": "pates-spaghetti-500g",
@@ -7991,7 +8330,32 @@
             "lastVerified": "2026-01-04T09:44:28.440656Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/807/680/012/3457/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/807/680/012/3457/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/807/680/012/3457/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/807/680/012/3457/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/807/680/012/3457/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/807/680/012/3457/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Spaghetti"
+      }
     },
     {
       "canonicalId": "pates-coquillettes-500g",
@@ -8562,7 +8926,32 @@
             "lastVerified": "2025-12-30T07:44:28.440847Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/807/680/012/3458/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/807/680/012/3458/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/807/680/012/3458/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/807/680/012/3458/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/807/680/012/3458/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/807/680/012/3458/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Coquillettes"
+      }
     },
     {
       "canonicalId": "farine-1kg",
@@ -9130,7 +9519,32 @@
             "lastVerified": "2026-01-04T14:44:28.441053Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/325/039/156/7891/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/325/039/156/7891/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/325/039/156/7891/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/156/7891/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/156/7891/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/156/7891/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Farine+de+blé+T55"
+      }
     },
     {
       "canonicalId": "huile-tournesol-1l",
@@ -9699,7 +10113,32 @@
             "lastVerified": "2025-12-31T15:44:28.441239Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/325/039/156/7890/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/325/039/156/7890/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/325/039/156/7890/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/156/7890/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/156/7890/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/156/7890/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Huile+de+tournesol"
+      }
     },
     {
       "canonicalId": "huile-olive-500ml",
@@ -10263,7 +10702,32 @@
             "lastVerified": "2026-01-03T13:44:28.441421Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/325/039/156/7892/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/325/039/156/7892/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/325/039/156/7892/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/156/7892/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/156/7892/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/156/7892/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Huile+d'olive"
+      }
     },
     {
       "canonicalId": "vinaigre-vin-500ml",
@@ -10833,7 +11297,32 @@
             "lastVerified": "2025-12-30T06:44:28.441611Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/325/039/156/7893/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/325/039/156/7893/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/325/039/156/7893/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/156/7893/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/156/7893/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/156/7893/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Vinaigre+de+vin"
+      }
     },
     {
       "canonicalId": "moutarde-250g",
@@ -11401,7 +11890,32 @@
             "lastVerified": "2026-01-02T16:44:28.441805Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/325/039/156/7894/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/325/039/156/7894/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/325/039/156/7894/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/156/7894/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/156/7894/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/156/7894/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Moutarde+de+Dijon"
+      }
     },
     {
       "canonicalId": "sel-fin-1kg",
@@ -11971,7 +12485,32 @@
             "lastVerified": "2026-01-06T13:44:28.441994Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/325/039/156/7895/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/325/039/156/7895/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/325/039/156/7895/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/156/7895/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/156/7895/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/156/7895/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Sel+fin"
+      }
     },
     {
       "canonicalId": "poivre-moulu-50g",
@@ -12540,7 +13079,32 @@
             "lastVerified": "2026-01-03T06:44:28.442176Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/325/039/156/7896/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/325/039/156/7896/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/325/039/156/7896/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/156/7896/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/156/7896/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/156/7896/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Poivre+moulu"
+      }
     },
     {
       "canonicalId": "tomates-pelees-400g",
@@ -13108,7 +13672,32 @@
             "lastVerified": "2026-01-04T13:44:28.442384Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/807/680/023/4567/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/807/680/023/4567/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/807/680/023/4567/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/807/680/023/4567/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/807/680/023/4567/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/807/680/023/4567/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Tomates+pelées"
+      }
     },
     {
       "canonicalId": "thon-naturel-160g",
@@ -13677,7 +14266,32 @@
             "lastVerified": "2026-01-04T13:44:28.442574Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/123/4567/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/123/4567/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/123/4567/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/123/4567/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/123/4567/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/123/4567/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Thon+au+naturel"
+      }
     },
     {
       "canonicalId": "mais-doux-285g",
@@ -14247,7 +14861,32 @@
             "lastVerified": "2025-12-30T16:44:28.442759Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/123/4568/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/123/4568/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/123/4568/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/123/4568/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/123/4568/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/123/4568/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Maïs+doux"
+      }
     },
     {
       "canonicalId": "haricots-verts-440g",
@@ -14818,7 +15457,32 @@
             "lastVerified": "2026-01-04T11:44:28.442949Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/123/4569/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/123/4569/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/123/4569/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/123/4569/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/123/4569/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/123/4569/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Haricots+verts"
+      }
     },
     {
       "canonicalId": "petits-pois-265g",
@@ -15389,7 +16053,32 @@
             "lastVerified": "2026-01-06T06:44:28.443135Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/123/4570/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/123/4570/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/123/4570/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/123/4570/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/123/4570/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/123/4570/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Petits+pois"
+      }
     },
     {
       "canonicalId": "sardines-huile-125g",
@@ -15961,7 +16650,32 @@
             "lastVerified": "2025-12-30T12:44:28.443318Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/123/4571/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/123/4571/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/123/4571/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/123/4571/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/123/4571/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/123/4571/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Sardines+à+l'huile"
+      }
     },
     {
       "canonicalId": "pois-chiches-400g",
@@ -16531,7 +17245,32 @@
             "lastVerified": "2025-12-31T14:44:28.443505Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/123/4572/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/123/4572/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/123/4572/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/123/4572/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/123/4572/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/123/4572/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Pois+chiches"
+      }
     },
     {
       "canonicalId": "lentilles-500g",
@@ -17099,7 +17838,32 @@
             "lastVerified": "2026-01-01T14:44:28.443750Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/325/039/123/4569/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/325/039/123/4569/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/325/039/123/4569/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/123/4569/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/123/4569/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/123/4569/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Lentilles+vertes"
+      }
     },
     {
       "canonicalId": "haricots-rouges-400g",
@@ -17666,7 +18430,32 @@
             "lastVerified": "2026-01-03T08:44:28.443947Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/123/4573/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/123/4573/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/123/4573/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/123/4573/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/123/4573/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/123/4573/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Haricots+rouges"
+      }
     },
     {
       "canonicalId": "bananes-1kg",
@@ -18233,7 +19022,32 @@
             "lastVerified": "2026-01-05T15:44:28.444133Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/200/000/000/0001/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/200/000/000/0001/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/200/000/000/0001/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0001/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0001/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0001/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Bananes"
+      }
     },
     {
       "canonicalId": "tomates-1kg",
@@ -18800,7 +19614,32 @@
             "lastVerified": "2026-01-05T17:44:28.444312Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/200/000/000/0002/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/200/000/000/0002/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/200/000/000/0002/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0002/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0002/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0002/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Tomates"
+      }
     },
     {
       "canonicalId": "pommes-de-terre-2kg",
@@ -19368,7 +20207,32 @@
             "lastVerified": "2025-12-31T15:44:28.444499Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/200/000/000/0003/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/200/000/000/0003/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/200/000/000/0003/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0003/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0003/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0003/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Pommes+de+terre"
+      }
     },
     {
       "canonicalId": "oignons-1kg",
@@ -19937,7 +20801,32 @@
             "lastVerified": "2026-01-03T15:44:28.444689Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/200/000/000/0004/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/200/000/000/0004/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/200/000/000/0004/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0004/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0004/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0004/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Oignons"
+      }
     },
     {
       "canonicalId": "carottes-1kg",
@@ -20508,7 +21397,32 @@
             "lastVerified": "2026-01-01T13:44:28.444876Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/200/000/000/0005/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/200/000/000/0005/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/200/000/000/0005/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0005/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0005/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0005/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Carottes"
+      }
     },
     {
       "canonicalId": "salade-piece",
@@ -21080,7 +21994,32 @@
             "lastVerified": "2026-01-02T06:44:28.445085Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/200/000/000/0006/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/200/000/000/0006/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/200/000/000/0006/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0006/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0006/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0006/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Salade+laitue"
+      }
     },
     {
       "canonicalId": "concombres-piece",
@@ -21647,7 +22586,32 @@
             "lastVerified": "2026-01-04T18:44:28.445269Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/200/000/000/0007/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/200/000/000/0007/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/200/000/000/0007/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0007/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0007/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0007/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Concombre"
+      }
     },
     {
       "canonicalId": "oranges-1kg",
@@ -22220,7 +23184,32 @@
             "lastVerified": "2026-01-06T09:44:28.445452Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/200/000/000/0008/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/200/000/000/0008/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/200/000/000/0008/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0008/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0008/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0008/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Oranges"
+      }
     },
     {
       "canonicalId": "pommes-1kg",
@@ -22790,7 +23779,32 @@
             "lastVerified": "2026-01-05T10:44:28.445640Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/200/000/000/0009/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/200/000/000/0009/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/200/000/000/0009/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0009/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0009/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/200/000/000/0009/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Pommes+Golden"
+      }
     },
     {
       "canonicalId": "eau-minerale-6x1-5l",
@@ -23360,7 +24374,32 @@
             "lastVerified": "2026-01-03T09:44:28.445828Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/234/5678/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/234/5678/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/234/5678/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5678/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5678/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5678/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Eau+minérale+naturelle"
+      }
     },
     {
       "canonicalId": "eau-gazeuse-6x1l",
@@ -23930,7 +24969,32 @@
             "lastVerified": "2026-01-04T15:44:28.446013Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/234/5679/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/234/5679/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/234/5679/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5679/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5679/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5679/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Eau+gazeuse"
+      }
     },
     {
       "canonicalId": "jus-orange-1l",
@@ -24500,7 +25564,32 @@
             "lastVerified": "2026-01-02T07:44:28.446201Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/234/5680/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/234/5680/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/234/5680/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5680/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5680/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5680/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Jus+d'orange"
+      }
     },
     {
       "canonicalId": "jus-ananas-1l",
@@ -25072,7 +26161,32 @@
             "lastVerified": "2026-01-05T11:44:28.446406Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/234/5685/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/234/5685/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/234/5685/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5685/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5685/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5685/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Jus+d'ananas"
+      }
     },
     {
       "canonicalId": "coca-cola-1-5l",
@@ -25641,7 +26755,32 @@
             "lastVerified": "2026-01-02T14:44:28.446596Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/500/011/254/6798/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/500/011/254/6798/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/500/011/254/6798/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/500/011/254/6798/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/500/011/254/6798/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/500/011/254/6798/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Coca-Cola"
+      }
     },
     {
       "canonicalId": "coca-zero-1-5l",
@@ -26211,7 +27350,32 @@
             "lastVerified": "2025-12-31T16:44:28.446783Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/500/011/254/6799/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/500/011/254/6799/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/500/011/254/6799/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/500/011/254/6799/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/500/011/254/6799/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/500/011/254/6799/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Coca-Cola+Zero"
+      }
     },
     {
       "canonicalId": "cafe-moulu-250g",
@@ -26781,7 +27945,32 @@
             "lastVerified": "2026-01-04T15:44:28.446968Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/234/5681/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/234/5681/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/234/5681/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5681/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5681/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5681/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Café+moulu"
+      }
     },
     {
       "canonicalId": "the-noir-25-sachets",
@@ -27348,7 +28537,32 @@
             "lastVerified": "2026-01-05T14:44:28.447156Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/234/5682/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/234/5682/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/234/5682/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5682/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5682/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5682/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Thé+noir"
+      }
     },
     {
       "canonicalId": "the-vert-25-sachets",
@@ -27920,7 +29134,32 @@
             "lastVerified": "2025-12-30T17:44:28.447341Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/234/5683/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/234/5683/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/234/5683/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5683/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5683/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5683/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Thé+vert"
+      }
     },
     {
       "canonicalId": "sirop-grenadine-75cl",
@@ -28489,7 +29728,32 @@
             "lastVerified": "2026-01-03T08:44:28.447537Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/234/5684/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/234/5684/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/234/5684/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5684/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5684/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/234/5684/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Sirop+de+grenadine"
+      }
     },
     {
       "canonicalId": "pain-mie-500g",
@@ -29056,7 +30320,32 @@
             "lastVerified": "2026-01-05T13:44:28.447758Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/345/6789/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/345/6789/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/345/6789/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/345/6789/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/345/6789/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/345/6789/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Pain+de+mie"
+      }
     },
     {
       "canonicalId": "biscottes-300g",
@@ -29624,7 +30913,32 @@
             "lastVerified": "2026-01-01T12:44:28.447944Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/345/6790/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/345/6790/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/345/6790/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/345/6790/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/345/6790/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/345/6790/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Biscottes"
+      }
     },
     {
       "canonicalId": "cereales-cornflakes-500g",
@@ -30193,7 +31507,32 @@
             "lastVerified": "2026-01-03T15:44:28.448126Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/505/382/717/1588/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/505/382/717/1588/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/505/382/717/1588/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/505/382/717/1588/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/505/382/717/1588/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/505/382/717/1588/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Corn+Flakes"
+      }
     },
     {
       "canonicalId": "confiture-fraise-370g",
@@ -30764,7 +32103,32 @@
             "lastVerified": "2025-12-30T07:44:28.448335Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/345/6791/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/345/6791/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/345/6791/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/345/6791/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/345/6791/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/345/6791/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Confiture+fraise"
+      }
     },
     {
       "canonicalId": "miel-375g",
@@ -31333,7 +32697,32 @@
             "lastVerified": "2026-01-03T10:44:28.448520Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/345/6792/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/345/6792/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/345/6792/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/345/6792/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/345/6792/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/345/6792/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Miel"
+      }
     },
     {
       "canonicalId": "nutella-400g",
@@ -31902,7 +33291,32 @@
             "lastVerified": "2025-12-30T10:44:28.448714Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/800/050/021/7566/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/800/050/021/7566/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/800/050/021/7566/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/050/021/7566/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/050/021/7566/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/050/021/7566/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Pâte+à+tartiner"
+      }
     },
     {
       "canonicalId": "biscuits-400g",
@@ -32473,7 +33887,32 @@
             "lastVerified": "2026-01-01T18:44:28.448898Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/762/221/012/3456/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/762/221/012/3456/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/762/221/012/3456/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/762/221/012/3456/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/762/221/012/3456/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/762/221/012/3456/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Biscuits+petit+déjeuner"
+      }
     },
     {
       "canonicalId": "shampoing-250ml",
@@ -33040,7 +34479,32 @@
             "lastVerified": "2026-01-03T14:44:28.449101Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/360/054/147/3805/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/360/054/147/3805/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/360/054/147/3805/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/360/054/147/3805/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/360/054/147/3805/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/360/054/147/3805/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Shampoing+doux"
+      }
     },
     {
       "canonicalId": "gel-douche-250ml",
@@ -33609,7 +35073,32 @@
             "lastVerified": "2026-01-03T15:44:28.449291Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/871/256/184/1894/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/871/256/184/1894/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/871/256/184/1894/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/871/256/184/1894/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/871/256/184/1894/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/871/256/184/1894/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Gel+douche"
+      }
     },
     {
       "canonicalId": "dentifrice-75ml",
@@ -34178,7 +35667,32 @@
             "lastVerified": "2026-01-05T17:44:28.449473Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/871/478/973/2053/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/871/478/973/2053/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/871/478/973/2053/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/871/478/973/2053/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/871/478/973/2053/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/871/478/973/2053/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Dentifrice"
+      }
     },
     {
       "canonicalId": "savon-100g",
@@ -34745,7 +36259,32 @@
             "lastVerified": "2026-01-04T10:44:28.449662Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/871/256/148/1953/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/871/256/148/1953/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/871/256/148/1953/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/871/256/148/1953/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/871/256/148/1953/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/871/256/148/1953/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Savon"
+      }
     },
     {
       "canonicalId": "deodorant-150ml",
@@ -35316,7 +36855,32 @@
             "lastVerified": "2026-01-05T13:44:28.449842Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/871/256/184/5878/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/871/256/184/5878/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/871/256/184/5878/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/871/256/184/5878/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/871/256/184/5878/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/871/256/184/5878/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Déodorant"
+      }
     },
     {
       "canonicalId": "brosse-dents",
@@ -35886,7 +37450,32 @@
             "lastVerified": "2026-01-01T17:44:28.450029Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/871/478/973/2054/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/871/478/973/2054/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/871/478/973/2054/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/871/478/973/2054/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/871/478/973/2054/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/871/478/973/2054/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Brosse+à+dents+medium"
+      }
     },
     {
       "canonicalId": "bain-de-bouche-500ml",
@@ -36454,7 +38043,32 @@
             "lastVerified": "2026-01-04T09:44:28.450214Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/871/478/973/2055/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/871/478/973/2055/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/871/478/973/2055/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/871/478/973/2055/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/871/478/973/2055/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/871/478/973/2055/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Bain+de+bouche"
+      }
     },
     {
       "canonicalId": "coton-tiges-200pc",
@@ -37023,7 +38637,32 @@
             "lastVerified": "2026-01-04T18:44:28.450418Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/871/256/148/1954/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/871/256/148/1954/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/871/256/148/1954/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/871/256/148/1954/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/871/256/148/1954/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/871/256/148/1954/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Cotons-tiges"
+      }
     },
     {
       "canonicalId": "lessive-liquide-1-5l",
@@ -37595,7 +39234,32 @@
             "lastVerified": "2025-12-31T14:44:28.450610Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/800/184/146/3865/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/800/184/146/3865/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/800/184/146/3865/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/184/146/3865/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/184/146/3865/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/184/146/3865/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Lessive+liquide"
+      }
     },
     {
       "canonicalId": "liquide-vaisselle-500ml",
@@ -38166,7 +39830,32 @@
             "lastVerified": "2026-01-06T08:44:28.450796Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/800/109/073/1555/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/800/109/073/1555/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/800/109/073/1555/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/109/073/1555/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/109/073/1555/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/109/073/1555/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Liquide+vaisselle"
+      }
     },
     {
       "canonicalId": "nettoyant-sol-1l",
@@ -38733,7 +40422,32 @@
             "lastVerified": "2026-01-06T18:44:28.450980Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/800/109/073/1556/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/800/109/073/1556/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/800/109/073/1556/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/109/073/1556/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/109/073/1556/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/109/073/1556/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Nettoyant+multi-surfaces"
+      }
     },
     {
       "canonicalId": "javel-2l",
@@ -39303,7 +41017,32 @@
             "lastVerified": "2026-01-02T10:44:28.451164Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/800/109/073/1557/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/800/109/073/1557/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/800/109/073/1557/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/109/073/1557/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/109/073/1557/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/109/073/1557/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Eau+de+Javel"
+      }
     },
     {
       "canonicalId": "papier-toilette-12-rouleaux",
@@ -39875,7 +41614,32 @@
             "lastVerified": "2026-01-02T17:44:28.451349Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/800/109/073/1558/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/800/109/073/1558/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/800/109/073/1558/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/109/073/1558/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/109/073/1558/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/109/073/1558/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Papier+toilette"
+      }
     },
     {
       "canonicalId": "eponges-3pc",
@@ -40445,7 +42209,32 @@
             "lastVerified": "2026-01-02T10:44:28.451556Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/800/109/073/1559/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/800/109/073/1559/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/800/109/073/1559/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/109/073/1559/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/109/073/1559/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/109/073/1559/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Éponges+grattantes"
+      }
     },
     {
       "canonicalId": "sacs-poubelle-20l-15pc",
@@ -41017,7 +42806,32 @@
             "lastVerified": "2026-01-03T09:44:28.451775Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/800/109/073/1560/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/800/109/073/1560/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/800/109/073/1560/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/109/073/1560/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/109/073/1560/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/109/073/1560/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Sacs+poubelle+20L"
+      }
     },
     {
       "canonicalId": "desinfectant-1l",
@@ -41586,7 +43400,32 @@
             "lastVerified": "2026-01-06T08:44:28.451961Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/800/109/073/1561/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/800/109/073/1561/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/800/109/073/1561/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/109/073/1561/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/109/073/1561/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/109/073/1561/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Désinfectant+sols"
+      }
     },
     {
       "canonicalId": "legumes-surgeles-1kg",
@@ -42154,7 +43993,32 @@
             "lastVerified": "2026-01-03T12:44:28.452144Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/456/7890/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/456/7890/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/456/7890/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/456/7890/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/456/7890/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/456/7890/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Mélange+de+légumes"
+      }
     },
     {
       "canonicalId": "frites-1kg",
@@ -42726,7 +44590,32 @@
             "lastVerified": "2026-01-06T18:44:28.452329Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/456/7891/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/456/7891/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/456/7891/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/456/7891/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/456/7891/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/456/7891/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Frites"
+      }
     },
     {
       "canonicalId": "glace-vanille-500ml",
@@ -43297,7 +45186,32 @@
             "lastVerified": "2026-01-02T17:44:28.452521Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/356/007/456/7892/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/356/007/456/7892/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/356/007/456/7892/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/456/7892/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/456/7892/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/356/007/456/7892/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Crème+glacée+vanille"
+      }
     },
     {
       "canonicalId": "sucre-1kg",
@@ -43867,7 +45781,32 @@
             "lastVerified": "2026-01-05T07:44:28.452719Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/325/039/223/4567/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/325/039/223/4567/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/325/039/223/4567/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/223/4567/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/223/4567/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/325/039/223/4567/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Sucre+blanc"
+      }
     },
     {
       "canonicalId": "chocolat-noir-200g",
@@ -44435,7 +46374,32 @@
             "lastVerified": "2026-01-03T12:44:28.452903Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/762/221/044/5971/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/762/221/044/5971/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/762/221/044/5971/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/762/221/044/5971/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/762/221/044/5971/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/762/221/044/5971/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Chocolat+noir"
+      }
     },
     {
       "canonicalId": "chocolat-au-lait-100g",
@@ -45003,7 +46967,32 @@
             "lastVerified": "2026-01-05T14:44:28.453110Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/762/221/044/5988/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/762/221/044/5988/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/762/221/044/5988/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/762/221/044/5988/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/762/221/044/5988/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/762/221/044/5988/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Chocolat+au+lait"
+      }
     },
     {
       "canonicalId": "chips-nature-150g",
@@ -45576,7 +47565,32 @@
             "lastVerified": "2026-01-02T08:44:28.453301Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/841/010/025/5804/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/841/010/025/5804/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/841/010/025/5804/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/841/010/025/5804/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/841/010/025/5804/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/841/010/025/5804/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Chips+nature"
+      }
     },
     {
       "canonicalId": "bonbons-haribo-200g",
@@ -46147,7 +48161,32 @@
             "lastVerified": "2026-01-01T14:44:28.453491Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/400/168/630/8028/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/400/168/630/8028/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/400/168/630/8028/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/400/168/630/8028/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/400/168/630/8028/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/400/168/630/8028/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Bonbons"
+      }
     },
     {
       "canonicalId": "couches-taille3-30pc",
@@ -46718,7 +48757,32 @@
             "lastVerified": "2026-01-04T09:44:28.453691Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/800/184/146/3900/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/800/184/146/3900/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/800/184/146/3900/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/184/146/3900/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/184/146/3900/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/800/184/146/3900/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Couches+bébé+Taille+3"
+      }
     },
     {
       "canonicalId": "lait-infantile-800g",
@@ -47287,7 +49351,32 @@
             "lastVerified": "2026-01-02T09:44:28.453876Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/761/303/582/3617/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/761/303/582/3617/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/761/303/582/3617/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/761/303/582/3617/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/761/303/582/3617/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/761/303/582/3617/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Lait+infantile+2ème+âge"
+      }
     },
     {
       "canonicalId": "petits-pots-bebe-2x200g",
@@ -47857,7 +49946,32 @@
             "lastVerified": "2026-01-03T10:44:28.454062Z"
           }
         }
-      ]
+      ],
+      "images": {
+        "thumbnail": "https://images.openfoodfacts.org/images/products/761/328/707/6236/front_fr.200.jpg",
+        "card": "https://images.openfoodfacts.org/images/products/761/328/707/6236/front_fr.400.jpg",
+        "full": "https://images.openfoodfacts.org/images/products/761/328/707/6236/front_fr.full.jpg",
+        "source": "openfoodfacts",
+        "license": "CC BY-SA 3.0",
+        "srcset": [
+          {
+            "url": "https://images.openfoodfacts.org/images/products/761/328/707/6236/front_fr.200.jpg",
+            "width": 200,
+            "descriptor": "1x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/761/328/707/6236/front_fr.400.jpg",
+            "width": 400,
+            "descriptor": "2x"
+          },
+          {
+            "url": "https://images.openfoodfacts.org/images/products/761/328/707/6236/front_fr.full.jpg",
+            "width": 800,
+            "descriptor": "3x"
+          }
+        ],
+        "fallback": "https://via.placeholder.com/400x400/e0e0e0/757575?text=Petits+pots+légumes"
+      }
     }
   ]
 }

@@ -92,6 +92,23 @@ export interface PriceObservationEnhanced {
 }
 
 /**
+ * Product image information (mobile-optimized)
+ */
+export interface ProductImages {
+  thumbnail: string;                 // 200x200 for list view
+  card: string;                      // 400x400 for card view
+  full: string;                      // 800x800 for zoom/fullscreen
+  source: string;                    // Image source (e.g., 'openfoodfacts')
+  license: string;                   // License info (e.g., 'CC BY-SA 3.0')
+  srcset: Array<{
+    url: string;
+    width: number;
+    descriptor: string;              // '1x', '2x', '3x'
+  }>;
+  fallback: string;                  // Fallback placeholder URL
+}
+
+/**
  * Canonical product with normalization
  */
 export interface CanonicalProduct {
@@ -104,6 +121,7 @@ export interface CanonicalProduct {
   category: string;                  // Product category
   format: ProductFormat;             // Quantity and unit
   synonyms: string[];                // Search synonyms
+  images?: ProductImages;            // Mobile-optimized images (optional)
   prices: PriceObservationEnhanced[];
 }
 

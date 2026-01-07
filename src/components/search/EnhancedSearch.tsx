@@ -11,6 +11,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { searchProducts } from '../../services/enhancedPriceService';
+import ProductImage from '../product/ProductImage';
 import type { ProductSearchResult, EnhancedSearchFilters } from '../../types/enhancedPrice';
 
 interface EnhancedSearchProps {
@@ -274,6 +275,17 @@ export default function EnhancedSearch({
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
+                  {/* Product Image */}
+                  <div className="flex-shrink-0">
+                    <ProductImage
+                      images={product.images}
+                      productName={product.name}
+                      size="thumbnail"
+                      className="rounded"
+                      loading="lazy"
+                    />
+                  </div>
+                  
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <h4 className="font-medium text-gray-900 truncate">

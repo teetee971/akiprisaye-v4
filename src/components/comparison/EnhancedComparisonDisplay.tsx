@@ -3,6 +3,7 @@
  * 
  * Features:
  * - Price comparison with reliability badges
+ * - Product images (mobile-optimized)
  * - Sorted by price (cheapest first)
  * - Action buttons (compare, history, alert, report)
  * - Clear statistics and metadata
@@ -10,6 +11,7 @@
 
 import { useState } from 'react';
 import ReliabilityBadge from '../price/ReliabilityBadge';
+import ProductImage from '../product/ProductImage';
 import type { EnhancedPriceComparison } from '../../types/enhancedPrice';
 
 interface EnhancedComparisonDisplayProps {
@@ -64,17 +66,31 @@ export default function EnhancedComparisonDisplay({
       {/* Product Header */}
       <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-blue-100">
         <div className="flex items-start justify-between mb-4">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-1">
-              {comparison.product.name}
-            </h2>
-            <div className="flex items-center gap-2 text-gray-600">
-              <span className="font-medium">{comparison.product.brand}</span>
-              <span>•</span>
-              <span>{comparison.product.format.displayText}</span>
+          <div className="flex gap-4">
+            {/* Product Image */}
+            <div className="flex-shrink-0">
+              <ProductImage
+                images={comparison.product.images}
+                productName={comparison.product.name}
+                size="card"
+                className="rounded-lg w-32 h-32"
+                loading="eager"
+              />
             </div>
-            <div className="mt-1 text-sm text-gray-500">
-              EAN: {comparison.product.ean}
+            
+            {/* Product Info */}
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-1">
+                {comparison.product.name}
+              </h2>
+              <div className="flex items-center gap-2 text-gray-600">
+                <span className="font-medium">{comparison.product.brand}</span>
+                <span>•</span>
+                <span>{comparison.product.format.displayText}</span>
+              </div>
+              <div className="mt-1 text-sm text-gray-500">
+                EAN: {comparison.product.ean}
+              </div>
             </div>
           </div>
           
