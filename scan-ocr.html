@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -9,7 +8,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-  <script src="firebase-config.js"></script>
 </head>
 <body class="dark">
   <h1>🧠 Scan Ticket IA</h1>
@@ -19,6 +17,17 @@
   <div id="resultat"></div>
 
   <script>
+    // Centralized Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDf_m8BzMVHFWoFhVLyThuKwWTMhB7u5ZY",
+      authDomain: "a-ki-pri-sa-ye.firebaseapp.com",
+      projectId: "a-ki-pri-sa-ye",
+      storageBucket: "a-ki-pri-sa-ye.firebasestorage.app",
+      messagingSenderId: "187272078809",
+      appId: "1:187272078809:web:110a92e34493ef4506e5c8",
+      measurementId: "G-NFHCZTLPDM"
+    };
+
     const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
