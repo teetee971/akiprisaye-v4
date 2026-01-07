@@ -114,6 +114,12 @@ export interface ReceiptAnalysisResult {
 }
 
 /**
+ * Constants for receipt parsing
+ */
+const MAX_REASONABLE_PRICE = 10000; // Maximum price in euros for validation
+const MAX_REASONABLE_QUANTITY = 100; // Maximum quantity for validation
+
+/**
  * Motifs courants pour détecter les enseignes
  */
 const STORE_PATTERNS = [
@@ -175,13 +181,23 @@ function detectStoreName(ocrText: string): string | undefined {
 
 /**
  * Détecter la date du ticket (format DD/MM/YYYY ou DD-MM-YYYY)
+ * Valide les ranges de jour (01-31) et mois (01-12)
  */
 function detectReceiptDate(ocrText: string): string | undefined {
   // Chercher DD/MM/YYYY ou DD-MM-YYYY
   const dateMatch = ocrText.match(/(\d{2})[\/-](\d{2})[\/-](\d{4})/);
   if (dateMatch) {
+    const day = parseInt(dateMatch[1], 10);
+    const month = parseInt(dateMatch[2], 10);
+    const year = parseInt(dateMatch[3], 10);
+    
+    // Valider ranges
+    if (day < 1 || day > 31 || month < 1 || month > 12) {
+      return undefined;
+    }
+    
     // Convertir en format ISO YYYY-MM-DD
-    return `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
+    return `${year}-${dateMatch[2]}-${dateMatch[1]}`;
   }
   
   return undefined;
@@ -216,11 +232,13 @@ function parseReceiptLine(line: string): {
   }
   
   // Extraire prix (format: 12.34€ ou 12.34 EUR ou 12,34€)
-  const priceMatch = trimmed.match(/(\d+[.,]\d{2})\s*€?(?:EUR)?/);
+  // Require at least one currency indicator
+  const priceMatch = trimmed.match(/(\d+[.,]\d{2})\s*(?:€|EUR)/);
   const price = priceMatch ? parseFloat(priceMatch[1].replace(',', '.')) : undefined;
   
-  // Extraire quantité (format: 2x, 3X, ou début de ligne "2 ")
-  const qtyMatch = trimmed.match(/(?:^|\s)(\d+)[xX]\s/) || trimmed.match(/^(\d+)\s+[A-Z]/);
+  // Extraire quantité (format: 2x, 3X au milieu, ou début de ligne "2 " suivi de lettres majuscules consécutives)
+  const qtyMatch = trimmed.match(/(?:^|\s)(\d+)[xX]\s/) || 
+                   (trimmed.match(/^(\d+)\s+[A-Z]{2,}/) ? trimmed.match(/^(\d+)\s+[A-Z]{2,}/) : null);
   const quantity = qtyMatch ? parseInt(qtyMatch[1], 10) : undefined;
   
   // Extraire label (retirer prix et quantité)
@@ -235,8 +253,8 @@ function parseReceiptLine(line: string): {
   // Calculer confiance
   let confidence = 0;
   if (label.length >= 3) confidence += 30;
-  if (price !== undefined && price > 0 && price < 10000) confidence += 50;
-  if (quantity !== undefined && quantity > 0 && quantity < 100) confidence += 20;
+  if (price !== undefined && price > 0 && price < MAX_REASONABLE_PRICE) confidence += 50;
+  if (quantity !== undefined && quantity > 0 && quantity < MAX_REASONABLE_QUANTITY) confidence += 20;
   
   return {
     label,

@@ -16,6 +16,11 @@ import React, { useState, useRef } from 'react';
 import { Camera, Upload, X, AlertCircle, CheckCircle, Info } from 'lucide-react';
 import { scanReceipt, type ReceiptAnalysisResult, type ReceiptLine } from '../services/receiptScanService';
 
+/**
+ * Constants
+ */
+const MAX_DISPLAYED_UNRECOGNIZED_LINES = 5;
+
 interface ReceiptScannerProps {
   /**
    * Callback when receipt analysis is complete
@@ -62,6 +67,9 @@ export default function ReceiptScanner({ onAnalysisComplete, onClose }: ReceiptS
     
     // Lancer analyse OCR
     await processReceipt(imageUrl);
+    
+    // Nettoyer le blob URL après traitement pour éviter les fuites mémoire
+    URL.revokeObjectURL(imageUrl);
   };
 
   const processReceipt = async (imageUrl: string) => {
@@ -265,7 +273,13 @@ export default function ReceiptScanner({ onAnalysisComplete, onClose }: ReceiptS
               <div>
                 <p className="text-sm text-gray-400 mb-1">Date</p>
                 <p className="text-white font-semibold">
-                  {analysisResult.date ? new Date(analysisResult.date).toLocaleDateString('fr-FR') : 'Non détectée'}
+                  {analysisResult.date ? (() => {
+                    try {
+                      return new Date(analysisResult.date).toLocaleDateString('fr-FR');
+                    } catch {
+                      return analysisResult.date; // Fallback to raw date string if parsing fails
+                    }
+                  })() : 'Non détectée'}
                 </p>
               </div>
               <div>
@@ -348,14 +362,14 @@ export default function ReceiptScanner({ onAnalysisComplete, onClose }: ReceiptS
                     Ces lignes n'ont pas pu être identifiées automatiquement.
                   </p>
                   <div className="space-y-1">
-                    {analysisResult.unrecognizedLines.slice(0, 5).map((line, idx) => (
+                    {analysisResult.unrecognizedLines.slice(0, MAX_DISPLAYED_UNRECOGNIZED_LINES).map((line, idx) => (
                       <p key={idx} className="text-xs text-gray-500 font-mono">
                         {line}
                       </p>
                     ))}
-                    {analysisResult.unrecognizedLines.length > 5 && (
+                    {analysisResult.unrecognizedLines.length > MAX_DISPLAYED_UNRECOGNIZED_LINES && (
                       <p className="text-xs text-gray-500">
-                        ... et {analysisResult.unrecognizedLines.length - 5} autres
+                        ... et {analysisResult.unrecognizedLines.length - MAX_DISPLAYED_UNRECOGNIZED_LINES} autres
                       </p>
                     )}
                   </div>
