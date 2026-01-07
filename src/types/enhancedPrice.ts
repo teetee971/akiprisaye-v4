@@ -11,6 +11,20 @@
 import type { TerritoryCode } from './extensions';
 
 /**
+ * All supported territories (DROM-COM)
+ */
+export type AllTerritoryCode = 
+  | TerritoryCode 
+  | 'YT'  // Mayotte
+  | 'PM'  // Saint-Pierre-et-Miquelon
+  | 'BL'  // Saint-Barthélemy
+  | 'MF'  // Saint-Martin
+  | 'WF'  // Wallis-et-Futuna
+  | 'PF'  // Polynésie française
+  | 'NC'  // Nouvelle-Calédonie
+  | 'TF'; // Terres australes et antarctiques françaises
+
+/**
  * Source type for price data
  */
 export type PriceSourceType = 
@@ -67,7 +81,7 @@ export interface PriceReliability {
  */
 export interface PriceObservationEnhanced {
   priceId: string;
-  territory: TerritoryCode | 'YT' | 'PM' | 'BL' | 'MF' | 'WF' | 'PF' | 'NC' | 'TF';
+  territory: AllTerritoryCode;
   storeChain: string;
   storeName: string;
   storeId: string;

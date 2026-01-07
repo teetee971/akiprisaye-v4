@@ -138,9 +138,9 @@ export async function searchProducts(
     }
     
     // Filter by minimum reliability
-    if (filters.minReliability) {
+    if (filters.minReliability !== undefined) {
       products = products.filter(p =>
-        p.prices.some(price => price.reliability.score >= filters.minReliability!)
+        p.prices.some(price => price.reliability.score >= filters.minReliability)
       );
     }
     

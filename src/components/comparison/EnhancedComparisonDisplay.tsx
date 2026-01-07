@@ -46,11 +46,16 @@ export default function EnhancedComparisonDisplay({
     } else if (diffDays < 7) {
       return `Il y a ${diffDays} jours`;
     } else {
-      return date.toLocaleDateString('fr-FR', { 
+      const options: Intl.DateTimeFormatOptions = { 
         day: 'numeric', 
         month: 'short',
-        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
-      });
+      };
+      
+      if (date.getFullYear() !== now.getFullYear()) {
+        options.year = 'numeric';
+      }
+      
+      return date.toLocaleDateString('fr-FR', options);
     }
   };
   
