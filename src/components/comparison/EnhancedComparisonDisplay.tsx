@@ -9,9 +9,11 @@
  * - Clear statistics and metadata
  */
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import ReliabilityBadge from '../price/ReliabilityBadge';
 import ProductImage from '../product/ProductImage';
+import PriceTrendBadge from '../price/PriceTrendBadge';
+import { computePrediction } from '../../services/predictionService';
 import type { EnhancedPriceComparison } from '../../types/enhancedPrice';
 
 interface EnhancedComparisonDisplayProps {
@@ -30,6 +32,16 @@ export default function EnhancedComparisonDisplay({
   onReportAnomaly,
 }: EnhancedComparisonDisplayProps) {
   const [expandedPriceIndex, setExpandedPriceIndex] = useState<number | null>(null);
+  
+  // Compute price trend prediction
+  const pricePrediction = useMemo(() => {
+    const observations = comparison.prices.map(p => ({
+      date: p.observedAt,
+      price: p.price,
+      store: p.storeName,
+    }));
+    return computePrediction(observations);
+  }, [comparison.prices]);
   
   const togglePriceDetails = (index: number) => {
     setExpandedPriceIndex(expandedPriceIndex === index ? null : index);
@@ -94,12 +106,21 @@ export default function EnhancedComparisonDisplay({
             </div>
           </div>
           
-          {/* Average Reliability Badge */}
-          <div className="text-center">
-            <div className="text-xs text-gray-500 mb-1">Fiabilité moyenne</div>
-            <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 text-green-800 font-semibold">
-              <span>✓</span>
-              <span>{comparison.metadata.averageReliability}%</span>
+          {/* Badges Column */}
+          <div className="flex flex-col gap-3">
+            {/* Average Reliability Badge */}
+            <div className="text-center">
+              <div className="text-xs text-gray-500 mb-1">Fiabilité moyenne</div>
+              <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 text-green-800 font-semibold">
+                <span>✓</span>
+                <span>{comparison.metadata.averageReliability}%</span>
+              </div>
+            </div>
+            
+            {/* Price Trend Prediction */}
+            <div className="text-center">
+              <div className="text-xs text-gray-500 mb-1">Tendance de prix</div>
+              <PriceTrendBadge prediction={pricePrediction} compact />
             </div>
           </div>
         </div>
