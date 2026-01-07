@@ -1,5 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { MapPin, ShoppingCart, AlertCircle, Info, Navigation } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { MapPin, ShoppingCart, AlertCircle, Info, Navigation, TrendingUp, Award } from 'lucide-react';
+import { getUserPosition, calculateDistancesBatch, isGeolocationAvailable } from '../utils/geoLocation';
+import { solveShoppingRoute } from '../utils/routeOptimization';
+import { getSuggestedProducts } from '../utils/productSuggestions';
+import { loadStats, trackTrip, getBadges, clearStats } from '../utils/shoppingStats';
+import OptimalRouteDisplay from './OptimalRouteDisplay';
+import ProductSuggestionsDisplay from './ProductSuggestionsDisplay';
+import StatsDisplay from './StatsDisplay';
 
 // Catégories officielles basées sur rapports OPMR/DGCCRF
 const CATEGORIES_OFFICIELLES = {
@@ -59,6 +66,20 @@ export default function ListeCourses({ territoire = '971' }) {
   const [magasinsProches, setMagasinsProches] = useState([]);
   const [erreurGPS, setErreurGPS] = useState(null);
   const [consentementGPS, setConsentementGPS] = useState(false);
+  
+  // New features state
+  const [optimalRoute, setOptimalRoute] = useState(null);
+  const [showStats, setShowStats] = useState(false);
+  const [stats, setStats] = useState(null);
+  const [badges, setBadges] = useState([]);
+  const [showOptimalRoute, setShowOptimalRoute] = useState(false);
+
+  // Load stats on mount
+  useEffect(() => {
+    const loadedStats = loadStats();
+    setStats(loadedStats);
+    setBadges(getBadges(loadedStats));
+  }, []);
 
   // Charger les magasins du territoire
   useEffect(() => {
@@ -79,14 +100,14 @@ export default function ListeCourses({ territoire = '971' }) {
     chargerMagasins();
   }, [territoire]);
 
-  // Fonction GPS (locale uniquement)
-  const activerGPS = () => {
+  // Fonction GPS (locale uniquement) - optimisée avec callbacks
+  const activerGPS = useCallback(async () => {
     if (!consentementGPS) {
       alert('Vous devez accepter l\'utilisation de votre localisation pour cette fonctionnalité.');
       return;
     }
 
-    if (!navigator.geolocation) {
+    if (!isGeolocationAvailable()) {
       setErreurGPS('La géolocalisation n\'est pas supportée par votre navigateur');
       return;
     }
@@ -94,65 +115,80 @@ export default function ListeCourses({ territoire = '971' }) {
     setGpsActive(true);
     setErreurGPS(null);
 
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
+    try {
+      const pos = await getUserPosition();
+      
+      if (pos) {
         // ⚠️ IMPORTANT: Position utilisée UNIQUEMENT localement
         // JAMAIS stockée, JAMAIS envoyée au serveur
         setPosition({
-          latitude: pos.coords.latitude,
-          longitude: pos.coords.longitude,
+          latitude: pos.lat,
+          longitude: pos.lon,
         });
-        calculerMagasinsProches(pos.coords);
-      },
-      (error) => {
+        calculerMagasinsProches(pos);
+      } else {
         setGpsActive(false);
-        setErreurGPS('Impossible d\'obtenir votre position: ' + error.message);
-      },
-      {
-        enableHighAccuracy: false,
-        timeout: 10000,
-        maximumAge: 300000, // 5 minutes
-      },
-    );
-  };
+        setErreurGPS('Impossible d\'obtenir votre position. Veuillez autoriser la géolocalisation.');
+      }
+    } catch (error) {
+      setGpsActive(false);
+      setErreurGPS('Impossible d\'obtenir votre position: ' + error.message);
+    }
+  }, [consentementGPS, magasins]);
 
-  // Calcul distance (formule Haversine)
-  const calculerDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371; // Rayon de la Terre en km
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-  };
-
-  // Calculer magasins proches avec score de pertinence
-  const calculerMagasinsProches = (coords) => {
+  // Calculer magasins proches avec vraies distances GPS
+  const calculerMagasinsProches = useCallback((userPos) => {
     if (!magasins || magasins.length === 0) return;
 
-    // Note: Dans la réalité, les coordonnées GPS des magasins viendraient de SIRENE
-    // Pour cette démo, on utilise des coordonnées approximatives
-    const magasinsAvecDistance = magasins
-      .filter(m => m.presence === 'confirmee')
-      .map(magasin => {
-        // Distance simulée (à remplacer par vraies coordonnées SIRENE)
-        const distanceKm = Math.random() * 10 + 0.5;
-        
-        return {
+    // Filter stores with confirmed presence and valid coordinates
+    const storesWithCoords = magasins
+      .filter(m => m.presence === 'confirmee' && m.coordonnees_gps?.latitude && m.coordonnees_gps?.longitude)
+      .map(m => ({
+        ...m,
+        lat: m.coordonnees_gps.latitude,
+        lon: m.coordonnees_gps.longitude,
+      }));
+
+    if (storesWithCoords.length === 0) {
+      // Fallback: use approximate distances for demo if no GPS data available
+      const magasinsAvecDistance = magasins
+        .filter(m => m.presence === 'confirmee')
+        .map(magasin => ({
           ...magasin,
-          distance: distanceKm.toFixed(1),
-        };
-      })
+          distance: (Math.random() * 10 + 0.5).toFixed(1),
+        }))
+        .sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+      
+      setMagasinsProches(magasinsAvecDistance);
+      return;
+    }
+
+    // Use efficient batch distance calculation
+    const storesWithDistances = calculateDistancesBatch(userPos, storesWithCoords);
+    
+    // Sort by distance
+    const sorted = storesWithDistances
+      .map(store => ({
+        ...store,
+        distance: store.distance.toFixed(1),
+      }))
       .sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
 
-    setMagasinsProches(magasinsAvecDistance);
-  };
+    setMagasinsProches(sorted);
+    
+    // Calculate optimal route if multiple stores
+    if (sorted.length >= 2) {
+      const route = solveShoppingRoute(userPos, sorted.slice(0, 5).map(s => ({
+        ...s,
+        distance: parseFloat(s.distance)
+      })));
+      setOptimalRoute(route);
+      setShowOptimalRoute(true);
+    }
+  }, [magasins]);
 
-  // Calculer score de pertinence (NON PRIX)
-  const calculerScorePertinence = (magasin, categoriesRequises) => {
+  // Calculer score de pertinence (NON PRIX) - memoized
+  const calculerScorePertinence = useCallback((magasin, categoriesRequises) => {
     let score = 0;
     const raisons = [];
 
@@ -187,31 +223,63 @@ export default function ListeCourses({ territoire = '971' }) {
     }
 
     return { score, raisons, niveau: score >= 6 ? 'Prioritaire' : score >= 4 ? 'Pertinent' : 'Moins pertinent' };
-  };
+  }, []);
 
   // Ajouter produit à la liste
-  const ajouterProduit = () => {
+  const ajouterProduit = useCallback(() => {
     if (!produitSelectionne) return;
     const produit = PRODUITS_GENERIQUES.find(p => p.nom === produitSelectionne);
     if (produit && !listeCourses.find(p => p.nom === produit.nom)) {
       setListeCourses([...listeCourses, produit]);
       setProduitSelectionne('');
     }
-  };
+  }, [produitSelectionne, listeCourses]);
+  
+  // Ajouter produit rapide (depuis suggestions)
+  const ajouterProduitRapide = useCallback((nomProduit) => {
+    const produit = PRODUITS_GENERIQUES.find(p => p.nom === nomProduit);
+    if (produit && !listeCourses.find(p => p.nom === produit.nom)) {
+      setListeCourses([...listeCourses, produit]);
+    }
+  }, [listeCourses]);
 
   // Retirer produit
-  const retirerProduit = (nom) => {
+  const retirerProduit = useCallback((nom) => {
     setListeCourses(listeCourses.filter(p => p.nom !== nom));
-  };
+  }, [listeCourses]);
+  
+  // Handle stats clear
+  const handleClearStats = useCallback(() => {
+    if (confirm('Êtes-vous sûr de vouloir effacer toutes vos statistiques ?')) {
+      clearStats();
+      const freshStats = loadStats();
+      setStats(freshStats);
+      setBadges(getBadges(freshStats));
+    }
+  }, []);
+  
+  // Get product suggestions
+  const productSuggestions = useMemo(() => {
+    const productNames = listeCourses.map(p => p.nom);
+    return getSuggestedProducts(productNames);
+  }, [listeCourses]);
 
-  // Obtenir catégories uniques de la liste
-  const categoriesRequises = [...new Set(listeCourses.map(p => p.categorie))];
+  // Obtenir catégories uniques de la liste (memoized)
+  const categoriesRequises = useMemo(() => 
+    [...new Set(listeCourses.map(p => p.categorie))],
+    [listeCourses]
+  );
 
-  // Générer recommandations
-  const recommandations = magasinsProches.map(magasin => ({
-    magasin,
-    pertinence: calculerScorePertinence(magasin, categoriesRequises),
-  })).sort((a, b) => b.pertinence.score - a.pertinence.score);
+  // Générer recommandations (memoized)
+  const recommandations = useMemo(() => 
+    magasinsProches
+      .map(magasin => ({
+        magasin,
+        pertinence: calculerScorePertinence(magasin, categoriesRequises),
+      }))
+      .sort((a, b) => b.pertinence.score - a.pertinence.score),
+    [magasinsProches, categoriesRequises, calculerScorePertinence]
+  );
 
   return (
     <div className="max-w-6xl mx-auto p-4 space-y-6">
@@ -240,23 +308,62 @@ export default function ListeCourses({ territoire = '971' }) {
         <p className="text-blue-200">
           Organisez vos courses selon les données officielles et la distance
         </p>
-      </div>
-
-      {/* Avertissement méthodologique */}
-      <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-4">
-        <div className="flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-yellow-100">
-            <p className="font-semibold mb-1">Ce module NE compare PAS les prix</p>
-            <p className="text-yellow-200">
-              Il propose une aide à la décision basée sur le <strong>type de magasin</strong>, 
-              la <strong>distance</strong> et les <strong>données officielles</strong> (OPMR, INSEE). 
-              Aucun prix exact n'est affiché car nous n'avons pas accès à ces données.
-            </p>
-          </div>
+        
+        {/* Tab Navigation */}
+        <div className="flex gap-2 mt-4">
+          <button
+            onClick={() => setShowStats(false)}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              !showStats 
+                ? 'bg-blue-600 text-white' 
+                : 'bg-blue-900/30 text-blue-300 hover:bg-blue-900/50'
+            }`}
+          >
+            <ShoppingCart className="w-4 h-4 inline mr-2" />
+            Ma Liste
+          </button>
+          <button
+            onClick={() => setShowStats(true)}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              showStats 
+                ? 'bg-purple-600 text-white' 
+                : 'bg-purple-900/30 text-purple-300 hover:bg-purple-900/50'
+            }`}
+          >
+            <Award className="w-4 h-4 inline mr-2" />
+            Statistiques
+          </button>
         </div>
       </div>
 
+      {/* Avertissement méthodologique */}
+      {!showStats && (
+        <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-yellow-100">
+              <p className="font-semibold mb-1">Ce module NE compare PAS les prix</p>
+              <p className="text-yellow-200">
+                Il propose une aide à la décision basée sur le <strong>type de magasin</strong>, 
+                la <strong>distance</strong> et les <strong>données officielles</strong> (OPMR, INSEE). 
+                Aucun prix exact n'est affiché car nous n'avons pas accès à ces données.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Stats View */}
+      {showStats && stats && (
+        <StatsDisplay 
+          stats={stats} 
+          badges={badges}
+          onClearStats={handleClearStats}
+        />
+      )}
+
+      {/* Shopping List View */}
+      {!showStats && (
       <div className="grid md:grid-cols-2 gap-6">
         {/* Colonne gauche: Liste de courses */}
         <div className="space-y-4">
@@ -308,6 +415,15 @@ export default function ListeCourses({ territoire = '971' }) {
                   </div>
                 ))}
               </div>
+            )}
+
+            {/* Product Suggestions */}
+            {listeCourses.length > 0 && productSuggestions.length > 0 && (
+              <ProductSuggestionsDisplay 
+                suggestions={productSuggestions}
+                onAddProduct={ajouterProduitRapide}
+                className="mt-4"
+              />
             )}
 
             {/* Consentement GPS */}
@@ -366,6 +482,14 @@ export default function ListeCourses({ territoire = '971' }) {
 
         {/* Colonne droite: Recommandations */}
         <div className="space-y-4">
+          {/* Optimal Route Display */}
+          {gpsActive && optimalRoute && showOptimalRoute && (
+            <OptimalRouteDisplay 
+              route={optimalRoute}
+              onClose={() => setShowOptimalRoute(false)}
+            />
+          )}
+          
           <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
             <h2 className="text-xl font-semibold text-white mb-4">Recommandations</h2>
 
@@ -441,6 +565,7 @@ export default function ListeCourses({ territoire = '971' }) {
           )}
         </div>
       </div>
+      )}
     </div>
   );
 }
