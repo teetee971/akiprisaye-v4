@@ -266,6 +266,13 @@ button:active, .btn:active {
   border-color: rgba(74, 163, 255, 0.35);
 }
 
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .card:hover {
+    transform: none;
+  }
+}
+
 /* Inputs modernes */
 input, textarea, select {
   background: rgba(255, 255, 255, 0.05);
