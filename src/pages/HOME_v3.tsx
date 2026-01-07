@@ -8,6 +8,10 @@
 import { Link } from 'react-router-dom';
 import { GlassCard } from "../components/ui/glass-card";
 import { useState, useEffect } from 'react';
+import { RealSavingsBlock } from "../components/home/RealSavingsBlock";
+import { BeforeAfterComparison } from "../components/home/BeforeAfterComparison";
+import { OptimalRoutePreview } from "../components/home/OptimalRoutePreview";
+import { StoreRanking } from "../components/home/StoreRanking";
 
 export default function HomeV3() {
   const [stats, setStats] = useState({
@@ -62,6 +66,18 @@ export default function HomeV3() {
           Observatoire citoyen indépendant – données ouvertes
         </div>
       </GlassCard>
+
+      {/* ① BLOC "ÉCONOMIES RÉELLES" - PRIORITÉ ABSOLUE - IMPACT MAX */}
+      <RealSavingsBlock />
+
+      {/* ② COMPARAISON VISUELLE "AVANT / APRÈS" - Exemple concret */}
+      <BeforeAfterComparison />
+
+      {/* ③ ITINÉRAIRE OPTIMAL - Différenciation forte */}
+      <OptimalRoutePreview />
+
+      {/* ⑤ CLASSEMENT DES ENSEIGNES - Social + Crédible */}
+      <StoreRanking />
 
       {/* Public Counters - Transparency */}
       <GlassCard>
