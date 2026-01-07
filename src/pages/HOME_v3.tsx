@@ -52,6 +52,12 @@ export default function HomeV3() {
         {/* Primary CTA */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Link 
+            to="/recherche-prix?source=ticket" 
+            className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 rounded-xl text-lg font-semibold transition-all transform hover:scale-105 shadow-lg"
+          >
+            🧾 Scanner un ticket de caisse
+          </Link>
+          <Link 
             to="/scan" 
             className="w-full sm:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-500 rounded-xl text-lg font-semibold transition-all transform hover:scale-105 shadow-lg"
           >
@@ -135,18 +141,26 @@ export default function HomeV3() {
 
       {/* User Journey - 3 Steps */}
       <div className="grid md:grid-cols-3 gap-6">
-        <GlassCard className="text-center hover:border-blue-500/50 transition-colors">
-          <div className="text-5xl mb-4">📸</div>
+        <GlassCard className="text-center hover:border-orange-500/50 transition-colors">
+          <div className="text-5xl mb-4">🧾</div>
           <h3 className="text-xl font-bold mb-3">1. Scanner</h3>
           <p className="text-gray-300 mb-4">
             Photographiez le code-barres ou votre ticket de caisse
           </p>
-          <Link 
-            to="/scan" 
-            className="inline-block px-6 py-2 bg-blue-600/20 hover:bg-blue-600/30 rounded-lg text-blue-400 font-medium transition-colors"
-          >
-            Essayer →
-          </Link>
+          <div className="flex flex-col gap-2">
+            <Link 
+              to="/recherche-prix?source=ticket" 
+              className="inline-block px-6 py-2 bg-orange-600/20 hover:bg-orange-600/30 rounded-lg text-orange-400 font-medium transition-colors"
+            >
+              Scanner un ticket →
+            </Link>
+            <Link 
+              to="/scan" 
+              className="inline-block px-6 py-2 bg-blue-600/20 hover:bg-blue-600/30 rounded-lg text-blue-400 font-medium transition-colors text-sm"
+            >
+              Ou scanner un produit
+            </Link>
+          </div>
         </GlassCard>
 
         <GlassCard className="text-center hover:border-green-500/50 transition-colors">

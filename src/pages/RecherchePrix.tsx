@@ -126,8 +126,37 @@ export default function RecherchePrix() {
           </div>
 
           {/* Search Mode Buttons */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
             
+            {/* Receipt Scan - PROMINENT */}
+            <button
+              onClick={() => handleSearchModeSelect('receipt')}
+              className="glass-card p-8 hover:bg-orange-500/10 transition-all group border-2 border-orange-500/40 hover:border-orange-500/60 relative overflow-hidden"
+              aria-label="Scanner ticket de caisse"
+            >
+              {/* Badge "Nouveau" */}
+              <div className="absolute top-4 right-4 px-3 py-1 bg-orange-500 text-white text-xs font-bold rounded-full">
+                NOUVEAU
+              </div>
+              <div className="w-16 h-16 bg-orange-500/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-orange-500/30 transition-colors mx-auto">
+                <Receipt className="w-8 h-8 text-orange-400" />
+              </div>
+              <h3 className="text-white font-bold text-xl mb-3">
+                📋 Scanner votre ticket de caisse
+              </h3>
+              <p className="text-sm text-gray-300 mb-4">
+                Analysez tous les produits de votre ticket en une seule fois
+              </p>
+              <ul className="text-xs text-gray-400 space-y-1 text-left">
+                <li>✓ Reconnaissance automatique des produits</li>
+                <li>✓ Comparaison avec les prix du territoire</li>
+                <li>✓ Traitement 100% local (RGPD conforme)</li>
+              </ul>
+              <div className="mt-6 px-6 py-3 bg-orange-600/20 hover:bg-orange-600/30 rounded-lg text-orange-300 font-semibold transition-colors inline-block">
+                Commencer →
+              </div>
+            </button>
+
             {/* Text Search */}
             <button
               onClick={() => handleSearchModeSelect('text')}
@@ -145,55 +174,51 @@ export default function RecherchePrix() {
               </p>
             </button>
 
+          </div>
+
+          {/* Secondary Search Methods */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
+            
             {/* Barcode Scan */}
             <button
               onClick={() => handleSearchModeSelect('barcode')}
-              className="glass-card p-6 hover:bg-slate-800/60 transition-all group"
+              className="glass-card p-4 hover:bg-slate-800/60 transition-all group"
               aria-label="Scanner code-barres"
             >
-              <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:bg-green-500/30 transition-colors">
-                <Barcode className="w-6 h-6 text-green-400" />
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center group-hover:bg-green-500/30 transition-colors flex-shrink-0">
+                  <Barcode className="w-5 h-5 text-green-400" />
+                </div>
+                <div className="text-left">
+                  <h3 className="text-white font-semibold text-sm mb-1">
+                    Scanner code-barres
+                  </h3>
+                  <p className="text-xs text-gray-400">
+                    Scannez le code EAN du produit
+                  </p>
+                </div>
               </div>
-              <h3 className="text-white font-semibold mb-2">
-                Scanner code-barres
-              </h3>
-              <p className="text-sm text-gray-400">
-                Scannez le code EAN du produit
-              </p>
             </button>
 
             {/* Photo Scan */}
             <button
               onClick={() => handleSearchModeSelect('photo')}
-              className="glass-card p-6 hover:bg-slate-800/60 transition-all group"
+              className="glass-card p-4 hover:bg-slate-800/60 transition-all group"
               aria-label="Photographier produit"
             >
-              <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:bg-purple-500/30 transition-colors">
-                <Camera className="w-6 h-6 text-purple-400" />
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center group-hover:bg-purple-500/30 transition-colors flex-shrink-0">
+                  <Camera className="w-5 h-5 text-purple-400" />
+                </div>
+                <div className="text-left">
+                  <h3 className="text-white font-semibold text-sm mb-1">
+                    Photographier produit
+                  </h3>
+                  <p className="text-xs text-gray-400">
+                    Recherche assistée par photo
+                  </p>
+                </div>
               </div>
-              <h3 className="text-white font-semibold mb-2">
-                Photographier produit
-              </h3>
-              <p className="text-sm text-gray-400">
-                Recherche assistée par photo
-              </p>
-            </button>
-
-            {/* Receipt Scan */}
-            <button
-              onClick={() => handleSearchModeSelect('receipt')}
-              className="glass-card p-6 hover:bg-slate-800/60 transition-all group"
-              aria-label="Scanner ticket de caisse"
-            >
-              <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:bg-orange-500/30 transition-colors">
-                <Receipt className="w-6 h-6 text-orange-400" />
-              </div>
-              <h3 className="text-white font-semibold mb-2">
-                Scanner ticket
-              </h3>
-              <p className="text-sm text-gray-400">
-                Analysez votre ticket de caisse
-              </p>
             </button>
 
           </div>
