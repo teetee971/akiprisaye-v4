@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { MapPin, ShoppingCart, AlertCircle, Info, Navigation } from 'lucide-react';
+import { getUserPosition, calculateDistancesBatch, isGeolocationAvailable } from '../utils/geoLocation';
 
 // Catégories officielles basées sur rapports OPMR/DGCCRF
 const CATEGORIES_OFFICIELLES = {
@@ -79,14 +80,14 @@ export default function ListeCourses({ territoire = '971' }) {
     chargerMagasins();
   }, [territoire]);
 
-  // Fonction GPS (locale uniquement)
-  const activerGPS = () => {
+  // Fonction GPS (locale uniquement) - optimisée avec callbacks
+  const activerGPS = useCallback(async () => {
     if (!consentementGPS) {
       alert('Vous devez accepter l\'utilisation de votre localisation pour cette fonctionnalité.');
       return;
     }
 
-    if (!navigator.geolocation) {
+    if (!isGeolocationAvailable()) {
       setErreurGPS('La géolocalisation n\'est pas supportée par votre navigateur');
       return;
     }
@@ -94,65 +95,70 @@ export default function ListeCourses({ territoire = '971' }) {
     setGpsActive(true);
     setErreurGPS(null);
 
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
+    try {
+      const pos = await getUserPosition();
+      
+      if (pos) {
         // ⚠️ IMPORTANT: Position utilisée UNIQUEMENT localement
         // JAMAIS stockée, JAMAIS envoyée au serveur
         setPosition({
-          latitude: pos.coords.latitude,
-          longitude: pos.coords.longitude,
+          latitude: pos.lat,
+          longitude: pos.lon,
         });
-        calculerMagasinsProches(pos.coords);
-      },
-      (error) => {
+        calculerMagasinsProches(pos);
+      } else {
         setGpsActive(false);
-        setErreurGPS('Impossible d\'obtenir votre position: ' + error.message);
-      },
-      {
-        enableHighAccuracy: false,
-        timeout: 10000,
-        maximumAge: 300000, // 5 minutes
-      },
-    );
-  };
+        setErreurGPS('Impossible d\'obtenir votre position. Veuillez autoriser la géolocalisation.');
+      }
+    } catch (error) {
+      setGpsActive(false);
+      setErreurGPS('Impossible d\'obtenir votre position: ' + error.message);
+    }
+  }, [consentementGPS, magasins]);
 
-  // Calcul distance (formule Haversine)
-  const calculerDistance = (lat1, lon1, lat2, lon2) => {
-    const R = 6371; // Rayon de la Terre en km
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-  };
-
-  // Calculer magasins proches avec score de pertinence
-  const calculerMagasinsProches = (coords) => {
+  // Calculer magasins proches avec vraies distances GPS
+  const calculerMagasinsProches = useCallback((userPos) => {
     if (!magasins || magasins.length === 0) return;
 
-    // Note: Dans la réalité, les coordonnées GPS des magasins viendraient de SIRENE
-    // Pour cette démo, on utilise des coordonnées approximatives
-    const magasinsAvecDistance = magasins
-      .filter(m => m.presence === 'confirmee')
-      .map(magasin => {
-        // Distance simulée (à remplacer par vraies coordonnées SIRENE)
-        const distanceKm = Math.random() * 10 + 0.5;
-        
-        return {
+    // Filter stores with confirmed presence and valid coordinates
+    const storesWithCoords = magasins
+      .filter(m => m.presence === 'confirmee' && m.coordonnees_gps?.latitude && m.coordonnees_gps?.longitude)
+      .map(m => ({
+        ...m,
+        lat: m.coordonnees_gps.latitude,
+        lon: m.coordonnees_gps.longitude,
+      }));
+
+    if (storesWithCoords.length === 0) {
+      // Fallback: use approximate distances for demo if no GPS data available
+      const magasinsAvecDistance = magasins
+        .filter(m => m.presence === 'confirmee')
+        .map(magasin => ({
           ...magasin,
-          distance: distanceKm.toFixed(1),
-        };
-      })
+          distance: (Math.random() * 10 + 0.5).toFixed(1),
+        }))
+        .sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+      
+      setMagasinsProches(magasinsAvecDistance);
+      return;
+    }
+
+    // Use efficient batch distance calculation
+    const storesWithDistances = calculateDistancesBatch(userPos, storesWithCoords);
+    
+    // Sort by distance
+    const sorted = storesWithDistances
+      .map(store => ({
+        ...store,
+        distance: store.distance.toFixed(1),
+      }))
       .sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
 
-    setMagasinsProches(magasinsAvecDistance);
-  };
+    setMagasinsProches(sorted);
+  }, [magasins]);
 
-  // Calculer score de pertinence (NON PRIX)
-  const calculerScorePertinence = (magasin, categoriesRequises) => {
+  // Calculer score de pertinence (NON PRIX) - memoized
+  const calculerScorePertinence = useCallback((magasin, categoriesRequises) => {
     let score = 0;
     const raisons = [];
 
@@ -187,31 +193,39 @@ export default function ListeCourses({ territoire = '971' }) {
     }
 
     return { score, raisons, niveau: score >= 6 ? 'Prioritaire' : score >= 4 ? 'Pertinent' : 'Moins pertinent' };
-  };
+  }, []);
 
   // Ajouter produit à la liste
-  const ajouterProduit = () => {
+  const ajouterProduit = useCallback(() => {
     if (!produitSelectionne) return;
     const produit = PRODUITS_GENERIQUES.find(p => p.nom === produitSelectionne);
     if (produit && !listeCourses.find(p => p.nom === produit.nom)) {
       setListeCourses([...listeCourses, produit]);
       setProduitSelectionne('');
     }
-  };
+  }, [produitSelectionne, listeCourses]);
 
   // Retirer produit
-  const retirerProduit = (nom) => {
+  const retirerProduit = useCallback((nom) => {
     setListeCourses(listeCourses.filter(p => p.nom !== nom));
-  };
+  }, [listeCourses]);
 
-  // Obtenir catégories uniques de la liste
-  const categoriesRequises = [...new Set(listeCourses.map(p => p.categorie))];
+  // Obtenir catégories uniques de la liste (memoized)
+  const categoriesRequises = useMemo(() => 
+    [...new Set(listeCourses.map(p => p.categorie))],
+    [listeCourses]
+  );
 
-  // Générer recommandations
-  const recommandations = magasinsProches.map(magasin => ({
-    magasin,
-    pertinence: calculerScorePertinence(magasin, categoriesRequises),
-  })).sort((a, b) => b.pertinence.score - a.pertinence.score);
+  // Générer recommandations (memoized)
+  const recommandations = useMemo(() => 
+    magasinsProches
+      .map(magasin => ({
+        magasin,
+        pertinence: calculerScorePertinence(magasin, categoriesRequises),
+      }))
+      .sort((a, b) => b.pertinence.score - a.pertinence.score),
+    [magasinsProches, categoriesRequises, calculerScorePertinence]
+  );
 
   return (
     <div className="max-w-6xl mx-auto p-4 space-y-6">

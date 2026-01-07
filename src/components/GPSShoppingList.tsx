@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { MapPin, ShoppingCart, TrendingDown, Navigation } from 'lucide-react';
+import { getUserPosition, calculateDistancesBatch, type GeoPosition } from '../utils/geoLocation';
 
 // Default update time computed once at module load for demo purposes
 // In production, this would be the actual last data update timestamp
@@ -33,7 +34,7 @@ interface GPSShoppingListProps {
 }
 
 export default function GPSShoppingList({ items, lastUpdate = DEFAULT_UPDATE_TIME, className }: GPSShoppingListProps) {
-  const [position, setPosition] = useState<{ lat: number; lon: number } | null>(null);
+  const [position, setPosition] = useState<GeoPosition | null>(null);
   const [loading, setLoading] = useState(false);
   const [storeOptions, setStoreOptions] = useState<StoreOption[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -43,39 +44,36 @@ export default function GPSShoppingList({ items, lastUpdate = DEFAULT_UPDATE_TIM
     return timeFormatter.format(lastUpdate);
   }, [lastUpdate]);
 
-  const requestLocation = () => {
+  const requestLocation = useCallback(async () => {
     setLoading(true);
     setError(null);
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setPosition({
-            lat: pos.coords.latitude,
-            lon: pos.coords.longitude
-          });
-          // Mock calculation - in production, fetch from API
-          calculateStoreOptions();
-          setLoading(false);
-        },
-        (error) => {
-          console.error('Geolocation error:', error);
-          setLoading(false);
-          setError("Impossible d'obtenir votre position. Veuillez autoriser la géolocalisation.");
-        }
-      );
-    } else {
+    
+    try {
+      const pos = await getUserPosition();
+      
+      if (pos) {
+        setPosition(pos);
+        // Calculate store options with real GPS data
+        await calculateStoreOptions(pos);
+      } else {
+        setError("Impossible d'obtenir votre position. Veuillez autoriser la géolocalisation.");
+      }
+    } catch (err) {
+      console.error('Geolocation error:', err);
+      setError("Une erreur s'est produite lors de la localisation.");
+    } finally {
       setLoading(false);
-      setError('La géolocalisation n\'est pas disponible sur votre appareil.');
     }
-  };
+  }, []);
 
-  const calculateStoreOptions = () => {
-    // Mock data - in production, fetch from API with real prices
-    const mockOptions: StoreOption[] = [
+  const calculateStoreOptions = useCallback(async (userPos: GeoPosition) => {
+    // Mock data - in production, fetch from API with real prices and GPS coordinates
+    const mockStores = [
       {
         id: '1',
         name: 'Super U',
-        distance: 4.2,
+        lat: 16.271,
+        lon: -61.588,
         totalCost: 87.30,
         travelCost: 2.10,
         address: 'Zone commerciale Jarry, Baie-Mahault'
@@ -83,7 +81,8 @@ export default function GPSShoppingList({ items, lastUpdate = DEFAULT_UPDATE_TIM
       {
         id: '2',
         name: 'Carrefour Market',
-        distance: 2.8,
+        lat: 16.2415,
+        lon: -61.5331,
         totalCost: 92.50,
         travelCost: 1.40,
         address: 'Centre-ville, Pointe-à-Pitre'
@@ -91,14 +90,30 @@ export default function GPSShoppingList({ items, lastUpdate = DEFAULT_UPDATE_TIM
       {
         id: '3',
         name: 'Leader Price',
-        distance: 6.1,
+        lat: 16.224,
+        lon: -61.493,
         totalCost: 84.90,
         travelCost: 3.05,
         address: 'Route de Basse-Terre, Les Abymes'
       }
     ];
-    setStoreOptions(mockOptions);
-  };
+
+    // Use batch distance calculation for efficiency
+    const storesWithDistances = calculateDistancesBatch(userPos, mockStores);
+    
+    // Calculate travel cost based on actual distance
+    const optionsWithRealDistance: StoreOption[] = storesWithDistances.map(store => ({
+      id: store.id,
+      name: store.name,
+      distance: store.distance,
+      totalCost: store.totalCost,
+      // Recalculate travel cost: 0.5€/km (round trip = distance * 2)
+      travelCost: Math.round(store.distance * 2 * 0.5 * 100) / 100,
+      address: store.address,
+    }));
+    
+    setStoreOptions(optionsWithRealDistance);
+  }, []);
 
   // Use useMemo to avoid recalculating on every render
   const bestOption = useMemo(() => {
