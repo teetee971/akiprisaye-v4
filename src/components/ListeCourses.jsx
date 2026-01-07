@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { MapPin, ShoppingCart, AlertCircle, Info, Navigation } from 'lucide-react';
+import { MapPin, ShoppingCart, AlertCircle, Info, Navigation, TrendingUp, Award } from 'lucide-react';
 import { getUserPosition, calculateDistancesBatch, isGeolocationAvailable } from '../utils/geoLocation';
+import { solveShoppingRoute } from '../utils/routeOptimization';
+import { getSuggestedProducts } from '../utils/productSuggestions';
+import { loadStats, trackTrip, getBadges, clearStats } from '../utils/shoppingStats';
+import OptimalRouteDisplay from './OptimalRouteDisplay';
+import ProductSuggestionsDisplay from './ProductSuggestionsDisplay';
+import StatsDisplay from './StatsDisplay';
 
 // Catégories officielles basées sur rapports OPMR/DGCCRF
 const CATEGORIES_OFFICIELLES = {
@@ -60,6 +66,20 @@ export default function ListeCourses({ territoire = '971' }) {
   const [magasinsProches, setMagasinsProches] = useState([]);
   const [erreurGPS, setErreurGPS] = useState(null);
   const [consentementGPS, setConsentementGPS] = useState(false);
+  
+  // New features state
+  const [optimalRoute, setOptimalRoute] = useState(null);
+  const [showStats, setShowStats] = useState(false);
+  const [stats, setStats] = useState(null);
+  const [badges, setBadges] = useState([]);
+  const [showOptimalRoute, setShowOptimalRoute] = useState(false);
+
+  // Load stats on mount
+  useEffect(() => {
+    const loadedStats = loadStats();
+    setStats(loadedStats);
+    setBadges(getBadges(loadedStats));
+  }, []);
 
   // Charger les magasins du territoire
   useEffect(() => {
@@ -155,6 +175,16 @@ export default function ListeCourses({ territoire = '971' }) {
       .sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
 
     setMagasinsProches(sorted);
+    
+    // Calculate optimal route if multiple stores
+    if (sorted.length >= 2) {
+      const route = solveShoppingRoute(userPos, sorted.slice(0, 5).map(s => ({
+        ...s,
+        distance: parseFloat(s.distance)
+      })));
+      setOptimalRoute(route);
+      setShowOptimalRoute(true);
+    }
   }, [magasins]);
 
   // Calculer score de pertinence (NON PRIX) - memoized
@@ -204,10 +234,34 @@ export default function ListeCourses({ territoire = '971' }) {
       setProduitSelectionne('');
     }
   }, [produitSelectionne, listeCourses]);
+  
+  // Ajouter produit rapide (depuis suggestions)
+  const ajouterProduitRapide = useCallback((nomProduit) => {
+    const produit = PRODUITS_GENERIQUES.find(p => p.nom === nomProduit);
+    if (produit && !listeCourses.find(p => p.nom === produit.nom)) {
+      setListeCourses([...listeCourses, produit]);
+    }
+  }, [listeCourses]);
 
   // Retirer produit
   const retirerProduit = useCallback((nom) => {
     setListeCourses(listeCourses.filter(p => p.nom !== nom));
+  }, [listeCourses]);
+  
+  // Handle stats clear
+  const handleClearStats = useCallback(() => {
+    if (confirm('Êtes-vous sûr de vouloir effacer toutes vos statistiques ?')) {
+      clearStats();
+      const freshStats = loadStats();
+      setStats(freshStats);
+      setBadges(getBadges(freshStats));
+    }
+  }, []);
+  
+  // Get product suggestions
+  const productSuggestions = useMemo(() => {
+    const productNames = listeCourses.map(p => p.nom);
+    return getSuggestedProducts(productNames);
   }, [listeCourses]);
 
   // Obtenir catégories uniques de la liste (memoized)
@@ -254,23 +308,62 @@ export default function ListeCourses({ territoire = '971' }) {
         <p className="text-blue-200">
           Organisez vos courses selon les données officielles et la distance
         </p>
-      </div>
-
-      {/* Avertissement méthodologique */}
-      <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-4">
-        <div className="flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
-          <div className="text-sm text-yellow-100">
-            <p className="font-semibold mb-1">Ce module NE compare PAS les prix</p>
-            <p className="text-yellow-200">
-              Il propose une aide à la décision basée sur le <strong>type de magasin</strong>, 
-              la <strong>distance</strong> et les <strong>données officielles</strong> (OPMR, INSEE). 
-              Aucun prix exact n'est affiché car nous n'avons pas accès à ces données.
-            </p>
-          </div>
+        
+        {/* Tab Navigation */}
+        <div className="flex gap-2 mt-4">
+          <button
+            onClick={() => setShowStats(false)}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              !showStats 
+                ? 'bg-blue-600 text-white' 
+                : 'bg-blue-900/30 text-blue-300 hover:bg-blue-900/50'
+            }`}
+          >
+            <ShoppingCart className="w-4 h-4 inline mr-2" />
+            Ma Liste
+          </button>
+          <button
+            onClick={() => setShowStats(true)}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              showStats 
+                ? 'bg-purple-600 text-white' 
+                : 'bg-purple-900/30 text-purple-300 hover:bg-purple-900/50'
+            }`}
+          >
+            <Award className="w-4 h-4 inline mr-2" />
+            Statistiques
+          </button>
         </div>
       </div>
 
+      {/* Avertissement méthodologique */}
+      {!showStats && (
+        <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-yellow-100">
+              <p className="font-semibold mb-1">Ce module NE compare PAS les prix</p>
+              <p className="text-yellow-200">
+                Il propose une aide à la décision basée sur le <strong>type de magasin</strong>, 
+                la <strong>distance</strong> et les <strong>données officielles</strong> (OPMR, INSEE). 
+                Aucun prix exact n'est affiché car nous n'avons pas accès à ces données.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Stats View */}
+      {showStats && stats && (
+        <StatsDisplay 
+          stats={stats} 
+          badges={badges}
+          onClearStats={handleClearStats}
+        />
+      )}
+
+      {/* Shopping List View */}
+      {!showStats && (
       <div className="grid md:grid-cols-2 gap-6">
         {/* Colonne gauche: Liste de courses */}
         <div className="space-y-4">
@@ -322,6 +415,15 @@ export default function ListeCourses({ territoire = '971' }) {
                   </div>
                 ))}
               </div>
+            )}
+
+            {/* Product Suggestions */}
+            {listeCourses.length > 0 && productSuggestions.length > 0 && (
+              <ProductSuggestionsDisplay 
+                suggestions={productSuggestions}
+                onAddProduct={ajouterProduitRapide}
+                className="mt-4"
+              />
             )}
 
             {/* Consentement GPS */}
@@ -380,6 +482,14 @@ export default function ListeCourses({ territoire = '971' }) {
 
         {/* Colonne droite: Recommandations */}
         <div className="space-y-4">
+          {/* Optimal Route Display */}
+          {gpsActive && optimalRoute && showOptimalRoute && (
+            <OptimalRouteDisplay 
+              route={optimalRoute}
+              onClose={() => setShowOptimalRoute(false)}
+            />
+          )}
+          
           <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
             <h2 className="text-xl font-semibold text-white mb-4">Recommandations</h2>
 
@@ -455,6 +565,7 @@ export default function ListeCourses({ territoire = '971' }) {
           )}
         </div>
       </div>
+      )}
     </div>
   );
 }
