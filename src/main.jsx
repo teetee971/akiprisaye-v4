@@ -10,6 +10,7 @@ import Layout from './components/Layout';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
+import { ScanFlowProvider } from './context/ScanFlowContext';
 import NotFound from './pages/NotFound';
 
 // Lazy load other pages for better performance with retry logic
@@ -81,6 +82,12 @@ const EnhancedComparator = lazyWithRetry(() => import('./pages/EnhancedComparato
 
 // Service Comparator (flights, boats, internet, mobile, water, electricity)
 const ServiceComparator = lazyWithRetry(() => import('./pages/ServiceComparator'));
+
+// Unified Scan Flow
+const ScanFlow = lazyWithRetry(() => import('./pages/ScanFlow'));
+
+// Product Photo Analysis
+const ProductPhotoAnalysis = lazyWithRetry(() => import('./pages/ProductPhotoAnalysis'));
 
 // Loading component
 function LoadingFallback() {
@@ -165,14 +172,17 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <ErrorBoundary>
       <ThemeProvider>
         <AuthProvider>
-          <BrowserRouter>
-            <Suspense fallback={<LoadingFallback />}>
-              <Routes>
-                <Route path='/' element={<Layout />}>
+          <ScanFlowProvider>
+            <BrowserRouter>
+              <Suspense fallback={<LoadingFallback />}>
+                <Routes>
+                  <Route path='/' element={<Layout />}>
                   <Route index element={<Home />} />
                   <Route path='chat' element={<ChatIALocal />} />
                   <Route path='scan' element={<ScanOCR />} />
                   <Route path='scan-ean' element={<ScanEAN />} />
+                  <Route path='scanner-produit' element={<ScanFlow />} />
+                  <Route path='analyse-photo-produit' element={<ProductPhotoAnalysis />} />
                   <Route path='comparaison-enseignes' element={<ComparaisonEnseignes />} />
                   <Route path='comparateur' element={<Comparateur />} />
                   <Route path='carte' element={<Carte />} />
@@ -245,8 +255,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               </Routes>
             </Suspense>
           </BrowserRouter>
-        </AuthProvider>
-      </ThemeProvider>
-    </ErrorBoundary>
-  </React.StrictMode>,
+        </ScanFlowProvider>
+      </AuthProvider>
+    </ThemeProvider>
+  </ErrorBoundary>
+</React.StrictMode>,
 );
