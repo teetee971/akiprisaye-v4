@@ -4,6 +4,7 @@
  * Tests the unified scan flow context provider and hooks
  */
 
+import React from 'react';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { ScanFlowProvider, useScanFlow } from '../ScanFlowContext';

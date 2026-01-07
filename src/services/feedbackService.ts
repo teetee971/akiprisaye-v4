@@ -5,6 +5,8 @@
  * Améliore l'expérience utilisateur avec des feedbacks sensoriels
  */
 
+import React from 'react';
+
 /**
  * Patterns de vibration prédéfinis
  */
@@ -270,6 +272,3 @@ export function useFeedback() {
     onClick: feedbackService.onClick.bind(feedbackService),
   };
 }
-
-// Pour les imports React
-import React from 'react';

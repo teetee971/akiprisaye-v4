@@ -5,6 +5,8 @@
  * Fournit des conseils pour améliorer les scans
  */
 
+import React from 'react';
+
 export interface CameraQuality {
   distance: 'too_close' | 'too_far' | 'perfect';
   lighting: 'too_dark' | 'too_bright' | 'perfect';
@@ -254,6 +256,3 @@ export function useCameraQualityAnalyzer(
 
   return { quality, tips, isAnalyzing };
 }
-
-// Pour les imports React
-import React from 'react';
