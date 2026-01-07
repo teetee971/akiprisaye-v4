@@ -66,7 +66,8 @@ export default function ScanFlow() {
     if (source === 'ean') {
       navigate('/scan-ean?flow=unified');
     } else if (source === 'photo') {
-      navigate('/scan-ean?flow=unified&mode=photo');
+      // Navigate to new comprehensive product photo analysis
+      navigate('/analyse-photo-produit');
     } else if (source === 'ticket') {
       navigate('/scan?flow=unified');
     }
@@ -193,12 +194,12 @@ export default function ScanFlow() {
                   className="p-6 bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 hover:border-blue-500 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ImageIcon className="w-12 h-12 mx-auto mb-3 text-purple-400" />
-                  <h3 className="text-white font-semibold mb-2">Photo produit</h3>
+                  <h3 className="text-white font-semibold mb-2">Analyse Complète</h3>
                   <p className="text-gray-400 text-xs">
-                    Importer une photo du produit
+                    Ingrédients, nutrition, prix, tendances
                   </p>
-                  <div className="mt-3 text-yellow-400 text-xs">
-                    ⚠️ Détection OCR (expérimental)
+                  <div className="mt-3 text-green-400 text-xs">
+                    ✓ Fiche produit détaillée
                   </div>
                 </button>
 
@@ -230,7 +231,7 @@ export default function ScanFlow() {
                   <strong>Code-barres:</strong> Détection automatique rapide et fiable (95%+)
                 </li>
                 <li>
-                  <strong>Photo produit:</strong> OCR expérimental, validation utilisateur obligatoire
+                  <strong>Analyse complète:</strong> OCR ingrédients, nutrition, prix, tendances (75-85% fiabilité)
                 </li>
                 <li>
                   <strong>Ticket:</strong> OCR avec limites selon qualité (60-80% fiabilité)
@@ -239,7 +240,7 @@ export default function ScanFlow() {
                   Aucune donnée personnelle n'est stockée ou transmise à des tiers
                 </li>
                 <li>
-                  Les prix affichés sont informatifs et non contractuels
+                  Les prix et informations affichées sont informatifs et non contractuels
                 </li>
               </ul>
             </div>

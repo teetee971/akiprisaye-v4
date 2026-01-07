@@ -86,6 +86,9 @@ const ServiceComparator = lazyWithRetry(() => import('./pages/ServiceComparator'
 // Unified Scan Flow
 const ScanFlow = lazyWithRetry(() => import('./pages/ScanFlow'));
 
+// Product Photo Analysis
+const ProductPhotoAnalysis = lazyWithRetry(() => import('./pages/ProductPhotoAnalysis'));
+
 // Loading component
 function LoadingFallback() {
   return (
@@ -179,6 +182,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='scan' element={<ScanOCR />} />
                   <Route path='scan-ean' element={<ScanEAN />} />
                   <Route path='scanner-produit' element={<ScanFlow />} />
+                  <Route path='analyse-photo-produit' element={<ProductPhotoAnalysis />} />
                   <Route path='comparaison-enseignes' element={<ComparaisonEnseignes />} />
                   <Route path='comparateur' element={<Comparateur />} />
                   <Route path='carte' element={<Carte />} />
