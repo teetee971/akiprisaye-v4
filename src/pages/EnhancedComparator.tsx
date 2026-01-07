@@ -9,20 +9,36 @@
  * 5. Clear user feedback at each step
  * 6. Results hierarchy with sorting
  * 7. Direct action links
+ * 
+ * Updated to support unified scan flow:
+ * - Accepts URL parameters from scan flow
+ * - Displays scanned product context (reference price, source, confidence)
+ * - Shows reliability badge based on scan source
  */
 
-import { useState } from 'react';
-import { Navigation, MapPin } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Navigation, MapPin, Camera, Image as ImageIcon, Receipt } from 'lucide-react';
 import EnhancedSearch from '../components/search/EnhancedSearch';
 import EnhancedComparisonDisplay from '../components/comparison/EnhancedComparisonDisplay';
 import TerritorySelector from '../components/TerritorySelector';
 import { comparePrices } from '../services/enhancedPriceService';
 import type { EnhancedPriceComparison } from '../types/enhancedPrice';
 import { getUserPosition, calculateDistance, formatDistance, type GeoPosition } from '../utils/geoLocation';
+import type { ScanSource } from '../types/scanFlow';
 
 export default function EnhancedComparator() {
+  const [searchParams] = useSearchParams()
+  
+  // Scan context from URL (if coming from unified flow)
+  const scanEAN = searchParams.get('ean')
+  const scanSource = searchParams.get('source') as ScanSource | null
+  const scanConfidence = searchParams.get('confidence')
+  const referencePrice = searchParams.get('referencePrice')
+  const referenceStore = searchParams.get('referenceStore')
+  
   const [territory, setTerritory] = useState('GP');
-  const [selectedEAN, setSelectedEAN] = useState('');
+  const [selectedEAN, setSelectedEAN] = useState(scanEAN || '');
   const [selectedProductName, setSelectedProductName] = useState('');
   const [comparison, setComparison] = useState<EnhancedPriceComparison | null>(null);
   const [loading, setLoading] = useState(false);
@@ -30,6 +46,13 @@ export default function EnhancedComparator() {
   const [userPosition, setUserPosition] = useState<GeoPosition | null>(null);
   const [gpsLoading, setGpsLoading] = useState(false);
   const [sortByDistance, setSortByDistance] = useState(false);
+  
+  // Auto-load comparison if coming from scan flow
+  useEffect(() => {
+    if (scanEAN && !comparison && !loading) {
+      handleSelectProduct(scanEAN, 'Produit scanné')
+    }
+  }, [scanEAN])
   
   const handleSelectProduct = async (ean: string, productName: string) => {
     setSelectedEAN(ean);
@@ -258,6 +281,69 @@ export default function EnhancedComparator() {
                 )}
               </button>
             )}
+          </div>
+        )}
+        
+        {/* Scan Context Display (if coming from unified flow) */}
+        {scanSource && scanEAN && (
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-300 rounded-xl p-6 mb-8">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0">
+                {scanSource === 'ean' && <Camera className="w-12 h-12 text-blue-600" />}
+                {scanSource === 'photo' && <ImageIcon className="w-12 h-12 text-purple-600" />}
+                {scanSource === 'ticket' && <Receipt className="w-12 h-12 text-orange-600" />}
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  📱 Produit scanné
+                </h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-gray-600">Source:</span>{' '}
+                    <span className="font-medium text-gray-900">
+                      {scanSource === 'ean' && 'Code-barres caméra'}
+                      {scanSource === 'photo' && 'Photo produit (OCR)'}
+                      {scanSource === 'ticket' && 'Ticket de caisse (OCR)'}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">EAN:</span>{' '}
+                    <span className="font-mono font-medium text-gray-900">{scanEAN}</span>
+                  </div>
+                  {scanConfidence && (
+                    <div>
+                      <span className="text-gray-600">Confiance:</span>{' '}
+                      <span className={`font-semibold ${
+                        parseInt(scanConfidence) >= 90 ? 'text-green-600' :
+                        parseInt(scanConfidence) >= 70 ? 'text-yellow-600' :
+                        'text-orange-600'
+                      }`}>
+                        {scanConfidence}%
+                      </span>
+                    </div>
+                  )}
+                  {referencePrice && (
+                    <div>
+                      <span className="text-gray-600">Prix scanné:</span>{' '}
+                      <span className="font-semibold text-blue-600">
+                        {parseFloat(referencePrice).toFixed(2)} €
+                      </span>
+                    </div>
+                  )}
+                  {referenceStore && (
+                    <div className="col-span-2">
+                      <span className="text-gray-600">Enseigne:</span>{' '}
+                      <span className="font-medium text-gray-900">{referenceStore}</span>
+                    </div>
+                  )}
+                </div>
+                {referencePrice && (
+                  <div className="mt-3 p-3 bg-blue-100 rounded-lg text-sm text-blue-900">
+                    💡 <strong>Prix de référence détecté:</strong> Comparez ce prix avec ceux des autres enseignes ci-dessous
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
         
