@@ -12,6 +12,7 @@ import { RealSavingsBlock } from "../components/home/RealSavingsBlock";
 import { BeforeAfterComparison } from "../components/home/BeforeAfterComparison";
 import { OptimalRoutePreview } from "../components/home/OptimalRoutePreview";
 import { StoreRanking } from "../components/home/StoreRanking";
+import { DailyShockCard } from "../components/home/DailyShockCard";
 
 export default function HomeV3() {
   const [stats, setStats] = useState({
@@ -66,6 +67,9 @@ export default function HomeV3() {
           Observatoire citoyen indépendant – données ouvertes
         </div>
       </GlassCard>
+
+      {/* ⑭ HAUSSES DU JOUR - EMOTIONAL HOOK - AU-DESSUS DE TOUT */}
+      <DailyShockCard territory="GP" />
 
       {/* ① BLOC "ÉCONOMIES RÉELLES" - PRIORITÉ ABSOLUE - IMPACT MAX */}
       <RealSavingsBlock />
