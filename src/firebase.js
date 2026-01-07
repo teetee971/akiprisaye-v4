@@ -12,7 +12,20 @@ const firebaseConfig = {
   measurementId: "G-NFHCZTLPDM"
 };
 
-export const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const firebaseError = null;
+let app = null;
+let auth = null;
+let db = null;
+let firebaseError = null;
+
+try {
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+  console.log('✅ Firebase initialized successfully');
+} catch (error) {
+  firebaseError = error?.message || 'Unknown Firebase initialization error';
+  console.error('⚠️ Firebase initialization failed:', firebaseError);
+  // Services remain null - app will continue to function
+}
+
+export { app, auth, db, firebaseError };

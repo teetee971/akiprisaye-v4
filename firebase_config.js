@@ -15,13 +15,23 @@ const firebaseConfig = {
   measurementId: "G-NFHCZTLPDM"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
-const functions = getFunctions(app);
+let app = null;
+let auth = null;
+let db = null;
+let storage = null;
+let functions = null;
 
-console.log('✅ Firebase initialisé avec succès');
+try {
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+  storage = getStorage(app);
+  functions = getFunctions(app);
+  console.log('✅ Firebase initialisé avec succès');
+} catch (error) {
+  console.warn('⚠️ Firebase désactivé - l\'application fonctionne sans backend:', error.code || error.message);
+  // Les services restent null - l'app continuera de fonctionner
+}
 
-// Exporter tous les services
+// Exporter tous les services (null si échec)
 export { app, auth, db, storage, functions };
