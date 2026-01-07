@@ -99,133 +99,20 @@ export async function searchProducts(
   filters: EnhancedSearchFilters
 ): Promise<ProductSearchResult[]> {
   try {
-    // Fetch enhanced price data
-    const response = await fetch('/data/enhanced-prices.json');
+    // Fetch enhanced price data - using expanded database by default
+    const response = await fetch('/data/expanded-prices.json');
     if (!response.ok) {
-      throw new Error('Failed to fetch price data');
+      // Fallback to smaller database if expanded not available
+      const fallbackResponse = await fetch('/data/enhanced-prices.json');
+      if (!fallbackResponse.ok) {
+        throw new Error('Failed to fetch price data');
+      }
+      const fallbackData: EnhancedPriceData = await fallbackResponse.json();
+      return processSearchFilters(fallbackData.products, filters);
     }
     
     const data: EnhancedPriceData = await response.json();
-    let products = [...data.products];
-    
-    // Filter by territory
-    if (filters.territory) {
-      products = products.filter(p =>
-        p.prices.some(price => price.territory === filters.territory)
-      );
-    }
-    
-    // Filter by category
-    if (filters.category) {
-      products = products.filter(p => p.category === filters.category);
-    }
-    
-    // Filter by brand
-    if (filters.brand) {
-      const normalizedBrand = normalizeText(filters.brand);
-      products = products.filter(p => p.normalizedBrand === normalizedBrand);
-    }
-    
-    // Filter by price age
-    if (filters.maxPriceAge) {
-      const cutoffDate = new Date();
-      cutoffDate.setDate(cutoffDate.getDate() - filters.maxPriceAge);
-      const cutoffISO = cutoffDate.toISOString();
-      
-      products = products.filter(p =>
-        p.prices.some(price => price.observedAt >= cutoffISO)
-      );
-    }
-    
-    // Filter by minimum reliability
-    if (filters.minReliability !== undefined) {
-      products = products.filter(p =>
-        p.prices.some(price => price.reliability.score >= filters.minReliability)
-      );
-    }
-    
-    // Search by query
-    let results: ProductSearchResult[] = [];
-    
-    if (filters.query && filters.query.trim().length >= 2) {
-      const searchResults = products.map(product => {
-        const { score, matchedFields } = calculateRelevance(product, filters.query!);
-        return {
-          product,
-          relevanceScore: score,
-          matchedFields,
-        };
-      });
-      
-      // Filter out non-matches
-      results = searchResults.filter(r => r.relevanceScore > 0);
-    } else {
-      // No query, return all filtered products
-      results = products.map(product => ({
-        product,
-        relevanceScore: 0,
-        matchedFields: [],
-      }));
-    }
-    
-    // Sort results
-    const sortBy = filters.sortBy || 'relevance';
-    const sortOrder = filters.sortOrder || 'desc';
-    
-    results.sort((a, b) => {
-      let comparison = 0;
-      
-      switch (sortBy) {
-        case 'relevance':
-          comparison = b.relevanceScore - a.relevanceScore;
-          break;
-          
-        case 'price': {
-          const pricesA = a.product.prices.filter(p => 
-            !filters.territory || p.territory === filters.territory
-          );
-          const pricesB = b.product.prices.filter(p => 
-            !filters.territory || p.territory === filters.territory
-          );
-          
-          const minPriceA = pricesA.length > 0 
-            ? Math.min(...pricesA.map(p => p.price))
-            : Infinity;
-          const minPriceB = pricesB.length > 0
-            ? Math.min(...pricesB.map(p => p.price))
-            : Infinity;
-          
-          comparison = minPriceA - minPriceB;
-          break;
-        }
-          
-        case 'reliability': {
-          const avgReliabilityA = a.product.prices.reduce((sum, p) => 
-            sum + p.reliability.score, 0) / a.product.prices.length;
-          const avgReliabilityB = b.product.prices.reduce((sum, p) => 
-            sum + p.reliability.score, 0) / b.product.prices.length;
-          
-          comparison = avgReliabilityB - avgReliabilityA;
-          break;
-        }
-          
-        case 'date': {
-          const latestDateA = Math.max(
-            ...a.product.prices.map(p => new Date(p.observedAt).getTime())
-          );
-          const latestDateB = Math.max(
-            ...b.product.prices.map(p => new Date(p.observedAt).getTime())
-          );
-          
-          comparison = latestDateB - latestDateA;
-          break;
-        }
-      }
-      
-      return sortOrder === 'asc' ? comparison : -comparison;
-    });
-    
-    return results;
+    return processSearchFilters(data.products, filters);
   } catch (error) {
     console.error('Error searching products:', error);
     return [];
@@ -233,13 +120,147 @@ export async function searchProducts(
 }
 
 /**
+ * Process search filters on products
+ */
+function processSearchFilters(
+  products: CanonicalProduct[],
+  filters: EnhancedSearchFilters
+): ProductSearchResult[] {
+  let filteredProducts = [...products];
+  
+  // Filter by territory
+  if (filters.territory) {
+    filteredProducts = filteredProducts.filter(p =>
+      p.prices.some(price => price.territory === filters.territory)
+    );
+  }
+  
+  // Filter by category
+  if (filters.category) {
+    filteredProducts = filteredProducts.filter(p => p.category === filters.category);
+  }
+  
+  // Filter by brand
+  if (filters.brand) {
+    const normalizedBrand = normalizeText(filters.brand);
+    filteredProducts = filteredProducts.filter(p => p.normalizedBrand === normalizedBrand);
+  }
+  
+  // Filter by price age
+  if (filters.maxPriceAge) {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - filters.maxPriceAge);
+    const cutoffISO = cutoffDate.toISOString();
+    
+    filteredProducts = filteredProducts.filter(p =>
+      p.prices.some(price => price.observedAt >= cutoffISO)
+    );
+  }
+  
+  // Filter by minimum reliability
+  if (filters.minReliability !== undefined) {
+    filteredProducts = filteredProducts.filter(p =>
+      p.prices.some(price => price.reliability.score >= filters.minReliability)
+    );
+  }
+  
+  // Search by query
+  let results: ProductSearchResult[] = [];
+  
+  if (filters.query && filters.query.trim().length >= 2) {
+    const searchResults = filteredProducts.map(product => {
+      const { score, matchedFields } = calculateRelevance(product, filters.query!);
+      return {
+        product,
+        relevanceScore: score,
+        matchedFields,
+      };
+    });
+    
+    // Filter out non-matches
+    results = searchResults.filter(r => r.relevanceScore > 0);
+  } else {
+    // No query, return all filtered products
+    results = filteredProducts.map(product => ({
+      product,
+      relevanceScore: 0,
+      matchedFields: [],
+    }));
+  }
+  
+  // Sort results
+  const sortBy = filters.sortBy || 'relevance';
+  const sortOrder = filters.sortOrder || 'desc';
+  
+  results.sort((a, b) => {
+    let comparison = 0;
+    
+    switch (sortBy) {
+      case 'relevance':
+        comparison = b.relevanceScore - a.relevanceScore;
+        break;
+        
+      case 'price': {
+        const pricesA = a.product.prices.filter(p => 
+          !filters.territory || p.territory === filters.territory
+        );
+        const pricesB = b.product.prices.filter(p => 
+          !filters.territory || p.territory === filters.territory
+        );
+        
+        const minPriceA = pricesA.length > 0 
+          ? Math.min(...pricesA.map(p => p.price))
+          : Infinity;
+        const minPriceB = pricesB.length > 0
+          ? Math.min(...pricesB.map(p => p.price))
+          : Infinity;
+        
+        comparison = minPriceA - minPriceB;
+        break;
+      }
+        
+      case 'reliability': {
+        const avgReliabilityA = a.product.prices.reduce((sum, p) => 
+          sum + p.reliability.score, 0) / a.product.prices.length;
+        const avgReliabilityB = b.product.prices.reduce((sum, p) => 
+          sum + p.reliability.score, 0) / b.product.prices.length;
+        
+        comparison = avgReliabilityB - avgReliabilityA;
+        break;
+      }
+        
+      case 'date': {
+        const latestDateA = Math.max(
+          ...a.product.prices.map(p => new Date(p.observedAt).getTime())
+        );
+        const latestDateB = Math.max(
+          ...b.product.prices.map(p => new Date(p.observedAt).getTime())
+        );
+        
+        comparison = latestDateB - latestDateA;
+        break;
+      }
+    }
+    
+    return sortOrder === 'asc' ? comparison : -comparison;
+  });
+  
+  return results;
+}
+
+/**
  * Get product by EAN
  */
 export async function getProductByEAN(ean: string): Promise<CanonicalProduct | null> {
   try {
-    const response = await fetch('/data/enhanced-prices.json');
+    // Try expanded database first
+    let response = await fetch('/data/expanded-prices.json');
     if (!response.ok) {
-      throw new Error('Failed to fetch price data');
+      // Fallback to smaller database
+      response = await fetch('/data/enhanced-prices.json');
+      if (!response.ok) {
+        throw new Error('Failed to fetch price data');
+      }
     }
     
     const data: EnhancedPriceData = await response.json();
@@ -340,9 +361,13 @@ export async function comparePrices(
  */
 export async function getCategories(): Promise<string[]> {
   try {
-    const response = await fetch('/data/enhanced-prices.json');
+    // Try expanded database first
+    let response = await fetch('/data/expanded-prices.json');
     if (!response.ok) {
-      throw new Error('Failed to fetch price data');
+      response = await fetch('/data/enhanced-prices.json');
+      if (!response.ok) {
+        throw new Error('Failed to fetch price data');
+      }
     }
     
     const data: EnhancedPriceData = await response.json();
@@ -359,9 +384,13 @@ export async function getCategories(): Promise<string[]> {
  */
 export async function getBrands(): Promise<string[]> {
   try {
-    const response = await fetch('/data/enhanced-prices.json');
+    // Try expanded database first
+    let response = await fetch('/data/expanded-prices.json');
     if (!response.ok) {
-      throw new Error('Failed to fetch price data');
+      response = await fetch('/data/enhanced-prices.json');
+      if (!response.ok) {
+        throw new Error('Failed to fetch price data');
+      }
     }
     
     const data: EnhancedPriceData = await response.json();
