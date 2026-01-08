@@ -79,6 +79,38 @@ export default function CivicModules() {
                 📊 Comparer les prix par territoire
               </a>
               
+              {/* Priority 1 - Vital Transport Comparators */}
+              <div className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-500/30 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-blue-200 mb-3 flex items-center gap-2">
+                  <span className="bg-blue-500 text-white text-xs px-2 py-0.5 rounded">PRIORITÉ 1</span>
+                  🥇 Transports Vitaux (Impact Maximum)
+                </h3>
+                <div className="grid md:grid-cols-2 gap-3">
+                  <a
+                    href="/comparateur-vols"
+                    className="block p-3 bg-slate-800/70 border border-blue-700/50 rounded-lg hover:bg-slate-800/90 transition-colors"
+                  >
+                    <h4 className="font-medium text-blue-200 mb-1 text-sm flex items-center gap-2">
+                      ✈️ Comparateur Vols
+                    </h4>
+                    <p className="text-xs text-gray-400 leading-relaxed">
+                      DOM ↔ Métropole — Prix, compagnies, moments d'achat, saisons
+                    </p>
+                  </a>
+                  <a
+                    href="/comparateur-bateaux"
+                    className="block p-3 bg-slate-800/70 border border-blue-700/50 rounded-lg hover:bg-slate-800/90 transition-colors"
+                  >
+                    <h4 className="font-medium text-blue-200 mb-1 text-sm flex items-center gap-2">
+                      🚢 Comparateur Bateaux/Ferries
+                    </h4>
+                    <p className="text-xs text-gray-400 leading-relaxed">
+                      Inter-îles — Passagers, véhicules, fréquences
+                    </p>
+                  </a>
+                </div>
+              </div>
+              
               {/* Secondary CTAs Grid */}
               <div className="grid md:grid-cols-2 gap-3">
                 <a

@@ -1,0 +1,417 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "lastUpdated": "2026-01-08T00:00:00Z",
+    "description": "Comparateur de prix des bateaux/ferries - Inter-îles, Transport véhicules",
+    "disclaimer": "A KI PRI SA YÉ observe les prix, ne vend pas. Transparence sur les écarts, pas d'affiliation opaque.",
+    "methodology": "v1.0.0",
+    "updateFrequency": "weekly"
+  },
+  "ports": [
+    {
+      "code": "PTP-PORT",
+      "name": "Port de Pointe-à-Pitre",
+      "city": "Pointe-à-Pitre",
+      "territory": "GP",
+      "island": "Grande-Terre"
+    },
+    {
+      "code": "FDF-PORT",
+      "name": "Port de Fort-de-France",
+      "city": "Fort-de-France",
+      "territory": "MQ",
+      "island": "Martinique"
+    },
+    {
+      "code": "SFG-PORT",
+      "name": "Port de Grand Case",
+      "city": "Grand Case",
+      "territory": "MF",
+      "island": "Saint-Martin"
+    },
+    {
+      "code": "STB-PORT",
+      "name": "Port de Gustavia",
+      "city": "Gustavia",
+      "territory": "BL",
+      "island": "Saint-Barthélemy"
+    },
+    {
+      "code": "DOM-PORT",
+      "name": "Port de La Désirade",
+      "city": "La Désirade",
+      "territory": "GP",
+      "island": "La Désirade"
+    },
+    {
+      "code": "STE-PORT",
+      "name": "Port des Saintes",
+      "city": "Terre-de-Haut",
+      "territory": "GP",
+      "island": "Les Saintes"
+    }
+  ],
+  "operators": [
+    {
+      "code": "EXPR",
+      "name": "L'Express des Îles",
+      "type": "ferry"
+    },
+    {
+      "code": "JFF",
+      "name": "Jeans for Freedom",
+      "type": "ferry"
+    },
+    {
+      "code": "VAL",
+      "name": "Val'Ferry",
+      "type": "ferry"
+    },
+    {
+      "code": "IGS",
+      "name": "IGS Antilles",
+      "type": "ferry"
+    }
+  ],
+  "boatPrices": [
+    {
+      "id": "boat-001",
+      "operator": "L'Express des Îles",
+      "operatorCode": "EXPR",
+      "route": {
+        "origin": {
+          "code": "PTP-PORT",
+          "name": "Port de Pointe-à-Pitre",
+          "city": "Pointe-à-Pitre",
+          "territory": "GP",
+          "island": "Grande-Terre"
+        },
+        "destination": {
+          "code": "FDF-PORT",
+          "name": "Port de Fort-de-France",
+          "city": "Fort-de-France",
+          "territory": "MQ",
+          "island": "Martinique"
+        },
+        "routeType": "inter_territory",
+        "islandGroup": "Antilles"
+      },
+      "pricing": {
+        "passengerPrice": 79.00,
+        "childPrice": 45.00,
+        "vehiclePrice": {
+          "car": 185.00,
+          "motorcycle": 75.00
+        }
+      },
+      "currency": "EUR",
+      "serviceClass": "standard",
+      "fareConditions": {
+        "refundable": false,
+        "changeable": true,
+        "mealsIncluded": false,
+        "deckAccess": true,
+        "cabinAvailable": false
+      },
+      "observationDate": "2026-01-06T10:00:00Z",
+      "source": {
+        "type": "user_report",
+        "observedAt": "2026-01-06T10:00:00Z",
+        "verificationMethod": "manual",
+        "reliability": "high"
+      },
+      "volume": 15,
+      "confidence": "high",
+      "verified": true,
+      "schedule": {
+        "frequency": "Daily",
+        "departureTimes": ["08:00", "16:00"],
+        "duration": "3h30"
+      },
+      "capacity": {
+        "passengers": 450,
+        "vehicles": 60
+      }
+    },
+    {
+      "id": "boat-002",
+      "operator": "Jeans for Freedom",
+      "operatorCode": "JFF",
+      "route": {
+        "origin": {
+          "code": "PTP-PORT",
+          "name": "Port de Pointe-à-Pitre",
+          "city": "Pointe-à-Pitre",
+          "territory": "GP",
+          "island": "Grande-Terre"
+        },
+        "destination": {
+          "code": "FDF-PORT",
+          "name": "Port de Fort-de-France",
+          "city": "Fort-de-France",
+          "territory": "MQ",
+          "island": "Martinique"
+        },
+        "routeType": "inter_territory",
+        "islandGroup": "Antilles"
+      },
+      "pricing": {
+        "passengerPrice": 75.00,
+        "childPrice": 42.00,
+        "vehiclePrice": {
+          "car": 175.00,
+          "motorcycle": 70.00
+        }
+      },
+      "currency": "EUR",
+      "serviceClass": "standard",
+      "fareConditions": {
+        "refundable": false,
+        "changeable": true,
+        "mealsIncluded": false,
+        "deckAccess": true,
+        "cabinAvailable": false
+      },
+      "observationDate": "2026-01-05T14:00:00Z",
+      "source": {
+        "type": "user_report",
+        "observedAt": "2026-01-05T14:00:00Z",
+        "verificationMethod": "manual",
+        "reliability": "high"
+      },
+      "volume": 12,
+      "confidence": "high",
+      "verified": true,
+      "schedule": {
+        "frequency": "5x/week",
+        "departureTimes": ["09:00", "17:00"],
+        "duration": "3h45"
+      },
+      "capacity": {
+        "passengers": 380,
+        "vehicles": 50
+      }
+    },
+    {
+      "id": "boat-003",
+      "operator": "L'Express des Îles",
+      "operatorCode": "EXPR",
+      "route": {
+        "origin": {
+          "code": "PTP-PORT",
+          "name": "Port de Pointe-à-Pitre",
+          "city": "Pointe-à-Pitre",
+          "territory": "GP",
+          "island": "Grande-Terre"
+        },
+        "destination": {
+          "code": "SFG-PORT",
+          "name": "Port de Grand Case",
+          "city": "Grand Case",
+          "territory": "MF",
+          "island": "Saint-Martin"
+        },
+        "routeType": "inter_island",
+        "islandGroup": "Antilles"
+      },
+      "pricing": {
+        "passengerPrice": 65.00,
+        "childPrice": 38.00
+      },
+      "currency": "EUR",
+      "serviceClass": "standard",
+      "fareConditions": {
+        "refundable": false,
+        "changeable": true,
+        "mealsIncluded": false,
+        "deckAccess": true,
+        "cabinAvailable": false
+      },
+      "observationDate": "2026-01-07T09:00:00Z",
+      "source": {
+        "type": "user_report",
+        "observedAt": "2026-01-07T09:00:00Z",
+        "verificationMethod": "manual",
+        "reliability": "high"
+      },
+      "volume": 10,
+      "confidence": "high",
+      "verified": true,
+      "schedule": {
+        "frequency": "Daily",
+        "departureTimes": ["07:30", "15:30"],
+        "duration": "2h15"
+      },
+      "capacity": {
+        "passengers": 300,
+        "vehicles": 0
+      }
+    },
+    {
+      "id": "boat-004",
+      "operator": "Val'Ferry",
+      "operatorCode": "VAL",
+      "route": {
+        "origin": {
+          "code": "PTP-PORT",
+          "name": "Port de Pointe-à-Pitre",
+          "city": "Pointe-à-Pitre",
+          "territory": "GP",
+          "island": "Grande-Terre"
+        },
+        "destination": {
+          "code": "STE-PORT",
+          "name": "Port des Saintes",
+          "city": "Terre-de-Haut",
+          "territory": "GP",
+          "island": "Les Saintes"
+        },
+        "routeType": "inter_island",
+        "islandGroup": "Antilles"
+      },
+      "pricing": {
+        "passengerPrice": 22.00,
+        "childPrice": 12.00
+      },
+      "currency": "EUR",
+      "serviceClass": "standard",
+      "fareConditions": {
+        "refundable": false,
+        "changeable": false,
+        "mealsIncluded": false,
+        "deckAccess": true,
+        "cabinAvailable": false
+      },
+      "observationDate": "2026-01-06T11:00:00Z",
+      "source": {
+        "type": "user_report",
+        "observedAt": "2026-01-06T11:00:00Z",
+        "verificationMethod": "manual",
+        "reliability": "high"
+      },
+      "volume": 8,
+      "confidence": "high",
+      "verified": true,
+      "schedule": {
+        "frequency": "Daily",
+        "departureTimes": ["08:00", "10:30", "15:00", "17:30"],
+        "duration": "1h00"
+      },
+      "capacity": {
+        "passengers": 200,
+        "vehicles": 0
+      }
+    },
+    {
+      "id": "boat-005",
+      "operator": "IGS Antilles",
+      "operatorCode": "IGS",
+      "route": {
+        "origin": {
+          "code": "PTP-PORT",
+          "name": "Port de Pointe-à-Pitre",
+          "city": "Pointe-à-Pitre",
+          "territory": "GP",
+          "island": "Grande-Terre"
+        },
+        "destination": {
+          "code": "DOM-PORT",
+          "name": "Port de La Désirade",
+          "city": "La Désirade",
+          "territory": "GP",
+          "island": "La Désirade"
+        },
+        "routeType": "inter_island",
+        "islandGroup": "Antilles"
+      },
+      "pricing": {
+        "passengerPrice": 18.00,
+        "childPrice": 10.00
+      },
+      "currency": "EUR",
+      "serviceClass": "standard",
+      "fareConditions": {
+        "refundable": false,
+        "changeable": false,
+        "mealsIncluded": false,
+        "deckAccess": true,
+        "cabinAvailable": false
+      },
+      "observationDate": "2026-01-05T13:00:00Z",
+      "source": {
+        "type": "user_report",
+        "observedAt": "2026-01-05T13:00:00Z",
+        "verificationMethod": "manual",
+        "reliability": "high"
+      },
+      "volume": 6,
+      "confidence": "medium",
+      "verified": true,
+      "schedule": {
+        "frequency": "3x/week",
+        "departureTimes": ["09:00"],
+        "duration": "0h45"
+      },
+      "capacity": {
+        "passengers": 150,
+        "vehicles": 0
+      }
+    },
+    {
+      "id": "boat-006",
+      "operator": "Jeans for Freedom",
+      "operatorCode": "JFF",
+      "route": {
+        "origin": {
+          "code": "SFG-PORT",
+          "name": "Port de Grand Case",
+          "city": "Grand Case",
+          "territory": "MF",
+          "island": "Saint-Martin"
+        },
+        "destination": {
+          "code": "STB-PORT",
+          "name": "Port de Gustavia",
+          "city": "Gustavia",
+          "territory": "BL",
+          "island": "Saint-Barthélemy"
+        },
+        "routeType": "inter_island",
+        "islandGroup": "Antilles"
+      },
+      "pricing": {
+        "passengerPrice": 45.00,
+        "childPrice": 25.00
+      },
+      "currency": "EUR",
+      "serviceClass": "comfort",
+      "fareConditions": {
+        "refundable": false,
+        "changeable": true,
+        "mealsIncluded": false,
+        "deckAccess": true,
+        "cabinAvailable": false
+      },
+      "observationDate": "2026-01-07T15:00:00Z",
+      "source": {
+        "type": "user_report",
+        "observedAt": "2026-01-07T15:00:00Z",
+        "verificationMethod": "manual",
+        "reliability": "high"
+      },
+      "volume": 9,
+      "confidence": "high",
+      "verified": true,
+      "schedule": {
+        "frequency": "Daily",
+        "departureTimes": ["08:30", "16:30"],
+        "duration": "0h45"
+      },
+      "capacity": {
+        "passengers": 180,
+        "vehicles": 0
+      }
+    }
+  ]
+}
+
