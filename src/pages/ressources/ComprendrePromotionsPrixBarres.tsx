@@ -68,7 +68,7 @@ const ComprendrePromotionsPrixBarres: React.FC = () => {
           </div>
 
           <p className="text-sm text-blue-700 bg-blue-50 p-3 rounded">
-            ℹ️ {promotionDefinition.note}
+            <span role="img" aria-label="Information">ℹ️</span> {promotionDefinition.note}
           </p>
         </div>
 
@@ -100,7 +100,7 @@ const ComprendrePromotionsPrixBarres: React.FC = () => {
           </div>
 
           <p className="text-sm text-purple-700 bg-purple-50 p-3 rounded">
-            ⚠️ {strikethroughPriceDefinition.note}
+            <span role="img" aria-label="Attention">⚠️</span> {strikethroughPriceDefinition.note}
           </p>
         </div>
 
@@ -155,7 +155,7 @@ const ComprendrePromotionsPrixBarres: React.FC = () => {
           <div className="space-y-3">
             {observatoryCapabilities.map((capability, index) => (
               <div key={index} className="flex items-start bg-indigo-50 p-3 rounded">
-                <span className="text-indigo-600 mr-2 text-xl">✓</span>
+                <span className="text-indigo-600 mr-2 text-xl" role="img" aria-label="Oui">✓</span>
                 <span className="text-gray-700">{capability}</span>
               </div>
             ))}
@@ -176,7 +176,7 @@ const ComprendrePromotionsPrixBarres: React.FC = () => {
           <div className="space-y-3">
             {observatoryLimitations.map((limitation, index) => (
               <div key={index} className="flex items-start bg-orange-50 p-3 rounded">
-                <span className="text-orange-600 mr-2 text-xl">✗</span>
+                <span className="text-orange-600 mr-2 text-xl" role="img" aria-label="Non">✗</span>
                 <span className="text-gray-700">{limitation}</span>
               </div>
             ))}
@@ -255,7 +255,7 @@ const ComprendrePromotionsPrixBarres: React.FC = () => {
           <div className="space-y-4">
             {interpretationErrors.map((error) => (
               <div key={error.id} className="bg-yellow-50 p-4 rounded">
-                <p className="font-semibold text-yellow-900 mb-2">❌ {error.error_type}</p>
+                <p className="font-semibold text-yellow-900 mb-2"><span role="img" aria-label="Erreur">❌</span> {error.error_type}</p>
                 <div className="mb-2 pl-4 border-l-2 border-yellow-400">
                   <p className="text-sm text-gray-700 mb-1">
                     <span className="font-semibold">Raisonnement incorrect :</span>
@@ -294,7 +294,7 @@ const ComprendrePromotionsPrixBarres: React.FC = () => {
           </div>
 
           <p className="text-sm text-cyan-700 bg-cyan-50 p-3 rounded mt-4">
-            ℹ️ Ces facteurs expliquent des différences observables. Ils ne justifient ni ne condamnent aucune pratique commerciale.
+            <span role="img" aria-label="Information">ℹ️</span> Ces facteurs expliquent des différences observables. Ils ne justifient ni ne condamnent aucune pratique commerciale.
           </p>
         </div>
 
@@ -321,7 +321,7 @@ const ComprendrePromotionsPrixBarres: React.FC = () => {
               <div className="space-y-2">
                 {observatoryRole.what_it_does.map((item, index) => (
                   <div key={index} className="flex items-start">
-                    <span className="text-green-600 mr-2">✓</span>
+                    <span className="text-green-600 mr-2" role="img" aria-label="Fait">✓</span>
                     <span className="text-sm text-gray-700">{item}</span>
                   </div>
                 ))}
@@ -333,7 +333,7 @@ const ComprendrePromotionsPrixBarres: React.FC = () => {
               <div className="space-y-2">
                 {observatoryRole.what_it_does_not.map((item, index) => (
                   <div key={index} className="flex items-start">
-                    <span className="text-red-600 mr-2">✗</span>
+                    <span className="text-red-600 mr-2" role="img" aria-label="Non fait">✗</span>
                     <span className="text-sm text-gray-700">{item}</span>
                   </div>
                 ))}
@@ -373,7 +373,7 @@ const ComprendrePromotionsPrixBarres: React.FC = () => {
                 <div className="grid grid-cols-2 gap-4 mb-3">
                   <div>
                     <p className="text-sm text-gray-600">Prix barré</p>
-                    <p className="text-xl font-bold text-gray-900 line-through">{promo.regular_price.toFixed(2)} €</p>
+                    <p className="text-xl font-bold text-gray-900"><del title="Prix barré">{promo.regular_price.toFixed(2)} €</del></p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Prix promotionnel</p>
@@ -399,7 +399,7 @@ const ComprendrePromotionsPrixBarres: React.FC = () => {
           </div>
 
           <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded mt-4">
-            ⚠️ Ces exemples sont purement pédagogiques. Aucune enseigne réelle, aucun territoire, aucun produit réel n'est visé.
+            <span role="img" aria-label="Attention">⚠️</span> Ces exemples sont purement pédagogiques. Aucune enseigne réelle, aucun territoire, aucun produit réel n'est visé.
           </p>
         </div>
 

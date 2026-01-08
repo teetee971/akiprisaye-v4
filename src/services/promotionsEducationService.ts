@@ -81,7 +81,7 @@ export const promotionExamples: PromotionExample[] = [
     description: 'Produit cosmétique C',
     regular_price: 8.90,
     promotional_price: 6.90,
-    discount_percentage: 22.5,
+    discount_percentage: 22,
     start_date: '01/05',
     end_date: '30/05',
     is_genuine: false,
