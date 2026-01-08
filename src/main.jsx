@@ -109,6 +109,21 @@ const BateauxPrix = lazyWithRetry(() => import('./pages/recherche-prix/Bateaux')
 // Mobile Plans Module (feature flagged)
 const AbonnementsMobile = lazyWithRetry(() => import('./pages/recherche-prix/AbonnementsMobile'));
 
+// Internet Plans Module (feature flagged)
+const AbonnementsInternet = lazyWithRetry(() => import('./pages/recherche-prix/AbonnementsInternet'));
+
+// Electricity Price Module (feature flagged)
+const Electricite = lazyWithRetry(() => import('./pages/recherche-prix/Electricite'));
+
+// Water Price Module (feature flagged)
+const Eau = lazyWithRetry(() => import('./pages/recherche-prix/Eau'));
+
+// Freight Price Module (feature flagged)
+const Fret = lazyWithRetry(() => import('./pages/recherche-prix/Fret'));
+
+// Air Freight Price Module (feature flagged)
+const FretAerien = lazyWithRetry(() => import('./pages/recherche-prix/FretAerien'));
+
 // Loading component
 function LoadingFallback() {
   return (
@@ -333,6 +348,111 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                             </h2>
                             <p className="text-gray-400 text-sm">
                               Le comparateur de prix des abonnements mobiles sera bientôt disponible.
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    } 
+                  />
+                  
+                  {/* Internet Plans Module (feature flagged) */}
+                  <Route 
+                    path='recherche-prix/abonnements/internet' 
+                    element={
+                      import.meta.env.VITE_FEATURE_INTERNET_PLANS === 'true' ? (
+                        <AbonnementsInternet />
+                      ) : (
+                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                              Module en préparation
+                            </h2>
+                            <p className="text-gray-400 text-sm">
+                              Le comparateur de prix des abonnements Internet sera bientôt disponible.
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    } 
+                  />
+                  
+                  {/* Electricity Price Module (feature flagged) */}
+                  <Route 
+                    path='recherche-prix/energie/electricite' 
+                    element={
+                      import.meta.env.VITE_FEATURE_ELECTRICITY === 'true' ? (
+                        <Electricite />
+                      ) : (
+                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                              Module en préparation
+                            </h2>
+                            <p className="text-gray-400 text-sm">
+                              Le comparateur de prix de l'électricité sera bientôt disponible.
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    } 
+                  />
+                  
+                  {/* Water Price Module (feature flagged) */}
+                  <Route 
+                    path='recherche-prix/energie/eau' 
+                    element={
+                      import.meta.env.VITE_FEATURE_WATER === 'true' ? (
+                        <Eau />
+                      ) : (
+                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                              Module en préparation
+                            </h2>
+                            <p className="text-gray-400 text-sm">
+                              Le comparateur de prix de l'eau sera bientôt disponible.
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    } 
+                  />
+                  
+                  {/* Freight Price Module (feature flagged) */}
+                  <Route 
+                    path='recherche-prix/fret' 
+                    element={
+                      import.meta.env.VITE_FEATURE_FREIGHT === 'true' ? (
+                        <Fret />
+                      ) : (
+                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                              Module en préparation
+                            </h2>
+                            <p className="text-gray-400 text-sm">
+                              Le comparateur de coûts de fret maritime sera bientôt disponible.
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    } 
+                  />
+                  
+                  {/* Air Freight Price Module (feature flagged) */}
+                  <Route 
+                    path='recherche-prix/fret-aerien' 
+                    element={
+                      import.meta.env.VITE_FEATURE_FRET_AERIEN === 'true' ? (
+                        <FretAerien />
+                      ) : (
+                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                              Module en préparation
+                            </h2>
+                            <p className="text-gray-400 text-sm">
+                              Le comparateur de coûts de fret aérien sera bientôt disponible.
                             </p>
                           </div>
                         </div>
