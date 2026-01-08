@@ -33,10 +33,15 @@ export default function LocationButton({
 
   // Message display callback
   const showMessage = (message: string, type: 'info' | 'error' | 'success') => {
+    // Split message into main text and suggestions
+    const parts = message.split('\n\nSuggestions:\n');
+    const mainMessage = parts[0];
+    const suggestions = parts[1] ? parts[1].split('\n').map(s => s.replace('• ', '')) : [];
+    
     setStatus({
       type,
-      message,
-      suggestions: type === 'error' ? message.split('\n\nSuggestions:\n')[1]?.split('\n').map(s => s.replace('• ', '')) : undefined
+      message: mainMessage,
+      suggestions: suggestions.length > 0 ? suggestions : undefined
     });
   };
 

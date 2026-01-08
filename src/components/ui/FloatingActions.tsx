@@ -30,7 +30,7 @@ export default function FloatingActions({
   onChatClick, 
   onCartClick,
   raised = false 
-}: FloatingActionsProps = {}) {
+}: FloatingActionsProps) {
   const location = useLocation();
   const disabledRoutes = ['/observatoire', '/pricing', '/tarifs', '/inscription', '/login', '/connexion', '/subscribe'];
   const isDisabled = disabledRoutes.some((path) => location.pathname.startsWith(path));

@@ -80,6 +80,10 @@ function isWebView(): boolean {
 
 /**
  * Map GeolocationPositionError to user-friendly message
+ * 
+ * Note: Error messages are currently in French to match the application's language.
+ * In a future update, consider extracting these messages to a localization/i18n system
+ * for multi-language support.
  */
 function mapGeolocationError(error: GeolocationPositionError): GeolocationResult['error'] {
   const isInFrame = isInIframe();
@@ -122,9 +126,9 @@ function mapGeolocationError(error: GeolocationPositionError): GeolocationResult
       suggestions: [
         'Cliquez sur l\'icône de localisation dans la barre d\'adresse de votre navigateur',
         'Autorisez l\'accès à la localisation pour ce site',
-        isWebViewContext ? 'Vérifiez les permissions de l\'application dans les paramètres de votre téléphone' : null,
-        isInFrame ? 'Essayez d\'ouvrir la page directement (hors iframe)' : null
-      ].filter(Boolean) as string[]
+        ...(isWebViewContext ? ['Vérifiez les permissions de l\'application dans les paramètres de votre téléphone'] : []),
+        ...(isInFrame ? ['Essayez d\'ouvrir la page directement (hors iframe)'] : [])
+      ]
     };
   }
 
