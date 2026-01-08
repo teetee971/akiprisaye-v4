@@ -1,7 +1,13 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 export default function ScrollToTop() {
   const [isVisible, setIsVisible] = useState(false);
+  const location = useLocation();
+
+  // Routes where FloatingActions are visible
+  const disabledRoutes = ['/observatoire', '/pricing', '/tarifs', '/inscription', '/login', '/connexion', '/subscribe'];
+  const showFABs = !disabledRoutes.some((path) => location.pathname.startsWith(path));
 
   // Show button when page is scrolled down
   const toggleVisibility = () => {
@@ -24,6 +30,11 @@ export default function ScrollToTop() {
     window.addEventListener('scroll', toggleVisibility);
     return () => window.removeEventListener('scroll', toggleVisibility);
   }, []);
+
+  // Hide ScrollToTop when FloatingActions (FABs) are present to avoid z-index conflict and visual clutter
+  if (isVisible && showFABs) {
+    return null;
+  }
 
   return (
     <>
