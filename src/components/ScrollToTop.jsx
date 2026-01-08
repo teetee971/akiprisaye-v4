@@ -5,9 +5,9 @@ export default function ScrollToTop() {
   const [isVisible, setIsVisible] = useState(false);
   const location = useLocation();
 
-  // Routes where FloatingActions are visible
-  const disabledRoutes = ['/observatoire', '/pricing', '/tarifs', '/inscription', '/login', '/connexion', '/subscribe'];
-  const showFABs = !disabledRoutes.some((path) => location.pathname.startsWith(path));
+  // Routes where FloatingActions (FABs) are disabled/hidden
+  const fabDisabledRoutes = ['/observatoire', '/pricing', '/tarifs', '/inscription', '/login', '/connexion', '/subscribe'];
+  const areFABsVisible = !fabDisabledRoutes.some((path) => location.pathname.startsWith(path));
 
   // Show button when page is scrolled down
   const toggleVisibility = () => {
@@ -31,8 +31,8 @@ export default function ScrollToTop() {
     return () => window.removeEventListener('scroll', toggleVisibility);
   }, []);
 
-  // Hide ScrollToTop when FloatingActions (FABs) are present to avoid z-index conflict and visual clutter
-  if (isVisible && showFABs) {
+  // Hide ScrollToTop when FloatingActions (FABs) are visible to avoid z-index conflict and visual clutter
+  if (isVisible && areFABsVisible) {
     return null;
   }
 
