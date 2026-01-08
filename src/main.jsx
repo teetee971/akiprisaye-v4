@@ -106,6 +106,9 @@ const AvionsPrix = lazyWithRetry(() => import('./pages/recherche-prix/Avions'));
 // Boat/Ferry Price Module (feature flagged)
 const BateauxPrix = lazyWithRetry(() => import('./pages/recherche-prix/Bateaux'));
 
+// Mobile Plans Module (feature flagged)
+const AbonnementsMobile = lazyWithRetry(() => import('./pages/recherche-prix/AbonnementsMobile'));
+
 // Loading component
 function LoadingFallback() {
   return (
@@ -309,6 +312,27 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                             </h2>
                             <p className="text-gray-400 text-sm">
                               Le comparateur de prix de bateaux/ferries sera bientôt disponible.
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    } 
+                  />
+                  
+                  {/* Mobile Plans Module (feature flagged) */}
+                  <Route 
+                    path='recherche-prix/abonnements/mobile' 
+                    element={
+                      import.meta.env.VITE_FEATURE_MOBILE_PLANS === 'true' ? (
+                        <AbonnementsMobile />
+                      ) : (
+                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                              Module en préparation
+                            </h2>
+                            <p className="text-gray-400 text-sm">
+                              Le comparateur de prix des abonnements mobiles sera bientôt disponible.
                             </p>
                           </div>
                         </div>
