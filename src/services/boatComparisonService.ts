@@ -246,8 +246,8 @@ export function analyzeVehicleTransport(
   }
 
   const operators = operatorsWithVehicles.map((price) => {
-    const vehicleTypes: any[] = [];
-    const pricing: any[] = [];
+    const vehicleTypes: ('car' | 'motorcycle' | 'van' | 'truck')[] = [];
+    const pricing: { vehicleType: 'car' | 'motorcycle' | 'van' | 'truck'; price: number }[] = [];
 
     if (price.pricing.vehiclePrice?.car) {
       vehicleTypes.push('car');

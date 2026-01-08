@@ -346,3 +346,4 @@ export interface SpeedTestResult {
   testServer: string;
   source: TelecomSourceReference;
 }
+

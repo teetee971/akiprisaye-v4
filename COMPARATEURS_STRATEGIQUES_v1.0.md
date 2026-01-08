@@ -391,3 +391,4 @@ Route : `/methodologie`
 
 **A KI PRI SA YÉ** — Observatoire citoyen des prix
 *Observer, pas vendre. Transparence, pas affiliation.*
+

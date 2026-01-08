@@ -349,7 +349,7 @@ export function analyzeSeasonalPrices(
 
   return {
     route,
-    seasons: seasons as any,
+    seasons: seasons.filter((s): s is NonNullable<typeof s> => s !== null),
     highestSeasonMultiplier: Math.round(highestSeasonMultiplier * 100) / 100,
   };
 }
