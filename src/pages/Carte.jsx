@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet.markercluster';
-import { Car, Footprints, Bus, MapPin, Loader2 } from 'lucide-react';
+import { Car, Footprints, Bus, MapPin, Loader2, Clock, History, Share2, Wifi, WifiOff } from 'lucide-react';
 import { getStoresByTerritory } from '../services/mapService';
 import { getActiveTerritories, TERRITORIES } from '../constants/territories';
 
@@ -26,9 +26,109 @@ export default function Carte() {
   const [stores, setStores] = useState([]);
   const [userPosition, setUserPosition] = useState(null);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [recentDestinations, setRecentDestinations] = useState([]);
+  const [showRecentDestinations, setShowRecentDestinations] = useState(false);
 
   // Constants
   const NAVIGATION_TIMEOUT = 1000; // Timeout for resetting navigation state
+  const MAX_RECENT_DESTINATIONS = 5; // Maximum recent destinations to store
+  const RECENT_DESTINATIONS_KEY = 'akiprisaye_recent_destinations'; // localStorage key
+
+  // Load recent destinations from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(RECENT_DESTINATIONS_KEY);
+    if (saved) {
+      try {
+        setRecentDestinations(JSON.parse(saved));
+      } catch (e) {
+        console.error('Error loading recent destinations:', e);
+      }
+    }
+  }, []);
+
+  // Monitor online/offline status
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Helper function to save destination to recent history
+  const saveToRecentDestinations = (store) => {
+    const newDestination = {
+      name: store.name,
+      lat: store.lat,
+      lon: store.lon,
+      category: store.category,
+      timestamp: Date.now()
+    };
+
+    setRecentDestinations(prev => {
+      // Remove duplicate if exists
+      const filtered = prev.filter(d => !(d.lat === store.lat && d.lon === store.lon));
+      // Add new destination at the beginning
+      const updated = [newDestination, ...filtered].slice(0, MAX_RECENT_DESTINATIONS);
+      // Save to localStorage
+      localStorage.setItem(RECENT_DESTINATIONS_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  // Helper function to estimate travel time
+  const estimateTravelTime = (distance, mode) => {
+    // Average speeds: driving 50km/h, walking 5km/h, transit 30km/h
+    const speeds = {
+      driving: 50,
+      walking: 5,
+      transit: 30
+    };
+    
+    const speed = speeds[mode] || 50;
+    const timeInHours = distance / speed;
+    const timeInMinutes = Math.round(timeInHours * 60);
+    
+    return timeInMinutes;
+  };
+
+  // Helper function to format travel time
+  const formatTravelTime = (minutes) => {
+    if (minutes < 60) {
+      return `${minutes} min`;
+    }
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return mins > 0 ? `${hours}h ${mins}min` : `${hours}h`;
+  };
+
+  // Helper function to share store location
+  const shareLocation = (store) => {
+    const shareData = {
+      title: `${store.name} - ${store.category}`,
+      text: `Localisation de ${store.name}`,
+      url: `https://www.google.com/maps/search/?api=1&query=${store.lat},${store.lon}`
+    };
+
+    // Check if Web Share API is supported
+    if (navigator.share) {
+      navigator.share(shareData)
+        .then(() => console.log('Shared successfully'))
+        .catch((error) => console.log('Error sharing:', error));
+    } else {
+      // Fallback: copy to clipboard
+      const text = `${store.name} - ${store.category}\nCoordonnées GPS: ${store.lat}, ${store.lon}\nLien: https://www.google.com/maps/search/?api=1&query=${store.lat},${store.lon}`;
+      navigator.clipboard.writeText(text)
+        .then(() => alert('Coordonnées copiées dans le presse-papier !'))
+        .catch(() => alert(`${store.name}\nCoordonnées: ${store.lat}, ${store.lon}`));
+    }
+  };
 
   // Helper function to calculate distance between two points (Haversine formula)
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -53,7 +153,18 @@ export default function Carte() {
   };
 
   // Helper function to detect platform and open appropriate navigation app
-  const handleGPS = (lat, lon, mode, storeName) => {
+  const handleGPS = (lat, lon, mode, storeName, store) => {
+    // Check if offline
+    if (!isOnline) {
+      alert('Vous êtes hors ligne. Les coordonnées GPS sont disponibles ci-dessous:\nLatitude: ' + lat + '\nLongitude: ' + lon);
+      return;
+    }
+
+    // Save to recent destinations if store object is provided
+    if (store) {
+      saveToRecentDestinations(store);
+    }
+
     // Validate coordinates
     if (typeof lat !== 'number' || typeof lon !== 'number' || 
         isNaN(lat) || isNaN(lon) ||
@@ -159,6 +270,69 @@ export default function Carte() {
           🗺️ Carte Interactive des Magasins
         </h1>
 
+        {/* Offline/Online Status Banner */}
+        {!isOnline && (
+          <div className="mb-6 bg-orange-600/20 border border-orange-500/50 rounded-lg p-4 flex items-center gap-3">
+            <WifiOff size={24} className="text-orange-400" />
+            <div>
+              <p className="font-semibold text-orange-400">Mode hors ligne</p>
+              <p className="text-sm text-slate-300">
+                Vous êtes hors ligne. Les coordonnées GPS sont disponibles mais la navigation nécessite une connexion.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Recent Destinations */}
+        {recentDestinations.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-xl font-semibold text-slate-300 flex items-center gap-2">
+                <History size={20} className="text-blue-400" />
+                Destinations récentes
+              </h2>
+              <button
+                onClick={() => setShowRecentDestinations(!showRecentDestinations)}
+                className="text-sm text-blue-400 hover:text-blue-300"
+              >
+                {showRecentDestinations ? 'Masquer' : 'Afficher'}
+              </button>
+            </div>
+            {showRecentDestinations && (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {recentDestinations.map((dest, idx) => {
+                  const distance = userPosition 
+                    ? calculateDistance(userPosition[0], userPosition[1], dest.lat, dest.lon)
+                    : null;
+                  return (
+                    <div
+                      key={idx}
+                      className="border border-slate-600 rounded-lg p-3 bg-slate-700/50 hover:border-blue-400 transition"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="font-medium text-slate-200 text-sm">{dest.name}</h3>
+                          <p className="text-xs text-slate-400">{dest.category}</p>
+                          {distance && (
+                            <p className="text-xs text-blue-400 mt-1">{formatDistance(distance)}</p>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => handleGPS(dest.lat, dest.lon, 'driving', dest.name, dest)}
+                          className="px-2 py-1 bg-blue-600/30 text-blue-300 rounded text-xs hover:bg-blue-600/40"
+                          disabled={isNavigating || !isOnline}
+                        >
+                          <Car size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Territory Selector */}
         <div className="mb-6">
           <label className="block text-sm font-medium mb-2 text-slate-300">
@@ -204,35 +378,58 @@ export default function Carte() {
                     <p className="text-sm text-slate-600">{store.category}</p>
                     <p className="text-xs text-slate-500">{currentTerritory?.name || territory}</p>
                     {distance && (
-                      <p className="text-xs text-blue-600 font-medium mt-1">
-                        <MapPin size={12} className="inline mr-1" />
-                        Distance: {formatDistance(distance)}
-                      </p>
+                      <div className="text-xs mt-1 space-y-1">
+                        <p className="text-blue-600 font-medium">
+                          <MapPin size={12} className="inline mr-1" />
+                          Distance: {formatDistance(distance)}
+                        </p>
+                        <div className="flex gap-2 text-slate-600">
+                          <span title="Temps en voiture">
+                            <Car size={12} className="inline mr-1" />
+                            {formatTravelTime(estimateTravelTime(distance, 'driving'))}
+                          </span>
+                          <span title="Temps à pied">
+                            <Footprints size={12} className="inline mr-1" />
+                            {formatTravelTime(estimateTravelTime(distance, 'walking'))}
+                          </span>
+                          <span title="Temps en transport">
+                            <Bus size={12} className="inline mr-1" />
+                            {formatTravelTime(estimateTravelTime(distance, 'transit'))}
+                          </span>
+                        </div>
+                      </div>
                     )}
                     <div className="flex gap-2 mt-2">
                       <button
-                        onClick={() => handleGPS(store.lat, store.lon, 'driving', store.name)}
+                        onClick={() => handleGPS(store.lat, store.lon, 'driving', store.name, store)}
                         className="flex items-center gap-1 px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 disabled:opacity-50"
                         title="Naviguer en voiture"
-                        disabled={isNavigating}
+                        disabled={isNavigating || !isOnline}
                       >
                         {isNavigating ? <Loader2 size={14} className="animate-spin" /> : <Car size={14} />}
                       </button>
                       <button
-                        onClick={() => handleGPS(store.lat, store.lon, 'walking', store.name)}
+                        onClick={() => handleGPS(store.lat, store.lon, 'walking', store.name, store)}
                         className="flex items-center gap-1 px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 disabled:opacity-50"
                         title="Naviguer à pied"
-                        disabled={isNavigating}
+                        disabled={isNavigating || !isOnline}
                       >
                         {isNavigating ? <Loader2 size={14} className="animate-spin" /> : <Footprints size={14} />}
                       </button>
                       <button
-                        onClick={() => handleGPS(store.lat, store.lon, 'transit', store.name)}
+                        onClick={() => handleGPS(store.lat, store.lon, 'transit', store.name, store)}
                         className="flex items-center gap-1 px-2 py-1 bg-purple-600 text-white rounded text-xs hover:bg-purple-700 disabled:opacity-50"
                         title="Transports en commun"
-                        disabled={isNavigating}
+                        disabled={isNavigating || !isOnline}
                       >
                         {isNavigating ? <Loader2 size={14} className="animate-spin" /> : <Bus size={14} />}
+                      </button>
+                      <button
+                        onClick={() => shareLocation(store)}
+                        className="flex items-center gap-1 px-2 py-1 bg-slate-600 text-white rounded text-xs hover:bg-slate-700"
+                        title="Partager"
+                      >
+                        <Share2 size={14} />
                       </button>
                     </div>
                   </div>
@@ -281,7 +478,7 @@ export default function Carte() {
               >
                 <h3 className="font-semibold text-slate-100 mb-1">{store.name}</h3>
                 <p className="text-slate-400 text-sm mb-2">{store.category}</p>
-                <div className="flex items-center justify-between text-slate-500 text-xs mb-3">
+                <div className="flex items-center justify-between text-slate-500 text-xs mb-2">
                   <span>📍 {store.lat.toFixed(4)}°, {store.lon.toFixed(4)}°</span>
                   {distance && (
                     <span className="text-blue-400 font-medium">
@@ -289,33 +486,58 @@ export default function Carte() {
                     </span>
                   )}
                 </div>
+                {distance && (
+                  <div className="grid grid-cols-3 gap-2 text-xs text-slate-400 mb-3 bg-slate-900/50 rounded p-2">
+                    <div className="flex items-center gap-1">
+                      <Car size={12} />
+                      <span>{formatTravelTime(estimateTravelTime(distance, 'driving'))}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Footprints size={12} />
+                      <span>{formatTravelTime(estimateTravelTime(distance, 'walking'))}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Bus size={12} />
+                      <span>{formatTravelTime(estimateTravelTime(distance, 'transit'))}</span>
+                    </div>
+                  </div>
+                )}
                 <div className="space-y-2">
                   <div className="flex gap-2">
                     <button
-                      onClick={() => handleGPS(store.lat, store.lon, 'driving', store.name)}
+                      onClick={() => handleGPS(store.lat, store.lon, 'driving', store.name, store)}
                       className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-600/20 text-blue-400 rounded-lg text-sm hover:bg-blue-600/30 transition border border-blue-500/30 disabled:opacity-50"
-                      disabled={isNavigating}
+                      disabled={isNavigating || !isOnline}
                     >
                       {isNavigating ? <Loader2 size={16} className="animate-spin" /> : <Car size={16} />}
                       <span>En voiture</span>
                     </button>
                     <button
-                      onClick={() => handleGPS(store.lat, store.lon, 'walking', store.name)}
+                      onClick={() => handleGPS(store.lat, store.lon, 'walking', store.name, store)}
                       className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-green-600/20 text-green-400 rounded-lg text-sm hover:bg-green-600/30 transition border border-green-500/30 disabled:opacity-50"
-                      disabled={isNavigating}
+                      disabled={isNavigating || !isOnline}
                     >
                       {isNavigating ? <Loader2 size={16} className="animate-spin" /> : <Footprints size={16} />}
                       <span>À pied</span>
                     </button>
                   </div>
-                  <button
-                    onClick={() => handleGPS(store.lat, store.lon, 'transit', store.name)}
-                    className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-purple-600/20 text-purple-400 rounded-lg text-sm hover:bg-purple-600/30 transition border border-purple-500/30 disabled:opacity-50"
-                    disabled={isNavigating}
-                  >
-                    {isNavigating ? <Loader2 size={16} className="animate-spin" /> : <Bus size={16} />}
-                    <span>Transports en commun</span>
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleGPS(store.lat, store.lon, 'transit', store.name, store)}
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-purple-600/20 text-purple-400 rounded-lg text-sm hover:bg-purple-600/30 transition border border-purple-500/30 disabled:opacity-50"
+                      disabled={isNavigating || !isOnline}
+                    >
+                      {isNavigating ? <Loader2 size={16} className="animate-spin" /> : <Bus size={16} />}
+                      <span>Transports en commun</span>
+                    </button>
+                    <button
+                      onClick={() => shareLocation(store)}
+                      className="flex items-center justify-center px-3 py-2 bg-slate-600/20 text-slate-400 rounded-lg text-sm hover:bg-slate-600/30 transition border border-slate-500/30"
+                      title="Partager la localisation"
+                    >
+                      <Share2 size={16} />
+                    </button>
+                  </div>
                 </div>
               </div>
             );
