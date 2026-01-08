@@ -139,6 +139,9 @@ const QuestionsLogistiqueDOM = lazyWithRetry(() => import('./pages/ressources/Qu
 // Price Variation Education Module (feature flagged) - PRIORITY 19
 const PourquoiPrixVarieSansChangement = lazyWithRetry(() => import('./pages/ressources/PourquoiPrixVarieSansChangement'));
 
+// Promotions Education Module (feature flagged) - PRIORITY 20
+const ComprendrePromotionsPrixBarres = lazyWithRetry(() => import('./pages/ressources/ComprendrePromotionsPrixBarres'));
+
 // Loading component
 function LoadingFallback() {
   return (
@@ -573,6 +576,27 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                             </h2>
                             <p className="text-gray-400 text-sm">
                               Le module éducatif sur les variations de prix sera bientôt disponible.
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    } 
+                  />
+                  
+                  {/* Promotions Education Module (feature flagged) - PRIORITY 20 */}
+                  <Route 
+                    path='ressources/comprendre-promotions-prix-barres' 
+                    element={
+                      import.meta.env.VITE_FEATURE_PROMOTIONS_EDU === 'true' ? (
+                        <ComprendrePromotionsPrixBarres />
+                      ) : (
+                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                              Module en préparation
+                            </h2>
+                            <p className="text-gray-400 text-sm">
+                              Le module éducatif sur les promotions et prix barrés sera bientôt disponible.
                             </p>
                           </div>
                         </div>
