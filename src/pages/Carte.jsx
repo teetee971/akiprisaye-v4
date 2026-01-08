@@ -26,22 +26,35 @@ export default function Carte() {
   const [stores, setStores] = useState([]);
   const [userPosition, setUserPosition] = useState(null);
 
-  // Helper function to open Google Maps navigation
+  // Helper function to open Google Maps navigation with user feedback
   const handleGPS = (lat, lon, mode) => {
     // Validate coordinates
     if (typeof lat !== 'number' || typeof lon !== 'number' || 
         isNaN(lat) || isNaN(lon) ||
         lat < -90 || lat > 90 || lon < -180 || lon > 180) {
       console.error('Invalid coordinates provided');
+      alert('Coordonnées invalides. Impossible d\'ouvrir la navigation.');
       return;
     }
     // Validate travel mode
     if (mode !== 'driving' && mode !== 'walking') {
       console.error('Invalid travel mode. Must be "driving" or "walking"');
+      alert('Mode de transport invalide.');
       return;
     }
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}&travelmode=${mode}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
+    
+    try {
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}&travelmode=${mode}`;
+      const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+      
+      // Check if popup was blocked
+      if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+        alert('Le navigateur a bloqué l\'ouverture de Google Maps. Veuillez autoriser les popups pour ce site.');
+      }
+    } catch (error) {
+      console.error('Error opening navigation:', error);
+      alert('Erreur lors de l\'ouverture de la navigation. Veuillez réessayer.');
+    }
   };
 
   // Construire la liste des territoires actifs
