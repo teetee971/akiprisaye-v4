@@ -35,6 +35,11 @@ export default function Carte() {
       console.error('Invalid coordinates provided');
       return;
     }
+    // Validate travel mode
+    if (mode !== 'driving' && mode !== 'walking') {
+      console.error('Invalid travel mode. Must be "driving" or "walking"');
+      return;
+    }
     const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}&travelmode=${mode}`;
     window.open(url, '_blank', 'noopener,noreferrer');
   };
