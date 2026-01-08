@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet.markercluster';
-import { Car, Footprints, Bus, MapPin, Loader2, Clock, History, Share2, Wifi, WifiOff } from 'lucide-react';
+import { Car, Footprints, Bus, MapPin, Loader2, History, Share2, WifiOff } from 'lucide-react';
 import { getStoresByTerritory } from '../services/mapService';
 import { getActiveTerritories, TERRITORIES } from '../constants/territories';
 
@@ -34,6 +34,11 @@ export default function Carte() {
   const NAVIGATION_TIMEOUT = 1000; // Timeout for resetting navigation state
   const MAX_RECENT_DESTINATIONS = 5; // Maximum recent destinations to store
   const RECENT_DESTINATIONS_KEY = 'akiprisaye_recent_destinations'; // localStorage key
+  
+  // Travel speed constants (in km/h)
+  const SPEED_DRIVING = 50;
+  const SPEED_WALKING = 5;
+  const SPEED_TRANSIT = 30;
 
   // Load recent destinations from localStorage on mount
   useEffect(() => {
@@ -84,14 +89,14 @@ export default function Carte() {
 
   // Helper function to estimate travel time
   const estimateTravelTime = (distance, mode) => {
-    // Average speeds: driving 50km/h, walking 5km/h, transit 30km/h
+    // Use speed constants
     const speeds = {
-      driving: 50,
-      walking: 5,
-      transit: 30
+      driving: SPEED_DRIVING,
+      walking: SPEED_WALKING,
+      transit: SPEED_TRANSIT
     };
     
-    const speed = speeds[mode] || 50;
+    const speed = speeds[mode] || SPEED_DRIVING;
     const timeInHours = distance / speed;
     const timeInMinutes = Math.round(timeInHours * 60);
     
@@ -154,9 +159,10 @@ export default function Carte() {
 
   // Helper function to detect platform and open appropriate navigation app
   const handleGPS = (lat, lon, mode, storeName, store) => {
-    // Check if offline
+    // Check if offline - show inline message instead of alert
     if (!isOnline) {
-      alert('Vous êtes hors ligne. Les coordonnées GPS sont disponibles ci-dessous:\nLatitude: ' + lat + '\nLongitude: ' + lon);
+      // Coordinates are still available offline, just can't navigate
+      console.warn('User is offline, navigation unavailable');
       return;
     }
 
@@ -170,13 +176,11 @@ export default function Carte() {
         isNaN(lat) || isNaN(lon) ||
         lat < -90 || lat > 90 || lon < -180 || lon > 180) {
       console.error('Invalid coordinates provided');
-      alert('Coordonnées invalides. Impossible d\'ouvrir la navigation.');
       return;
     }
     // Validate travel mode
     if (mode !== 'driving' && mode !== 'walking' && mode !== 'transit') {
       console.error('Invalid travel mode. Must be "driving", "walking", or "transit"');
-      alert('Mode de transport invalide.');
       return;
     }
     
@@ -224,14 +228,13 @@ export default function Carte() {
       
       // Check if popup was blocked (browsers may return null or undefined)
       if (!newWindow) {
-        alert('Le navigateur a bloqué l\'ouverture de Google Maps. Veuillez autoriser les popups pour ce site.');
+        console.warn('Popup was blocked by browser');
       }
       
       // Reset loading state after a short delay
       setTimeout(() => setIsNavigating(false), NAVIGATION_TIMEOUT);
     } catch (error) {
       console.error('Error opening navigation:', error);
-      alert('Erreur lors de l\'ouverture de la navigation. Veuillez réessayer.');
       setIsNavigating(false);
     }
   };
