@@ -72,6 +72,21 @@ export default function StoreDetail() {
   return (
     <div className="min-h-screen bg-slate-950 py-8 px-4">
       <div className="max-w-7xl mx-auto">
+        {/* Neutral Banner - Credibility */}
+        <div className="bg-blue-900/20 border border-blue-700/50 rounded-xl p-5 mb-6">
+          <div className="flex items-start gap-4">
+            <span className="text-3xl">🏛️</span>
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold text-blue-200 mb-2">
+                Données issues de sources publiques et d'observations citoyennes
+              </h2>
+              <p className="text-blue-100 text-sm">
+                Ce site ne vend rien et ne recommande aucun achat.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Header */}
         <div className="mb-6">
           <button

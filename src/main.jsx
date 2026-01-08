@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import './styles/globals.css';
 import './styles/civic-glass.css';
 import './styles/glass.css';
@@ -176,13 +177,14 @@ window.addEventListener('unhandledrejection', (event) => {
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
-      <ThemeProvider>
-        <AuthProvider>
-          <ScanFlowProvider>
-            <BrowserRouter>
-              <Suspense fallback={<LoadingFallback />}>
-                <Routes>
-                  <Route path='/' element={<Layout />}>
+      <HelmetProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <ScanFlowProvider>
+              <BrowserRouter>
+                <Suspense fallback={<LoadingFallback />}>
+                  <Routes>
+                    <Route path='/' element={<Layout />}>
                   <Route index element={<Home />} />
                   <Route path='chat' element={<ChatIALocal />} />
                   <Route path='scan' element={<ScanOCR />} />
@@ -270,6 +272,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         </ScanFlowProvider>
       </AuthProvider>
     </ThemeProvider>
+  </HelmetProvider>
   </ErrorBoundary>
 </React.StrictMode>,
 );

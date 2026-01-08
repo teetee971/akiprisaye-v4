@@ -151,12 +151,14 @@ export default function ProductPhotoAnalysis() {
           </div>
         </div>
 
-        {/* Institutional disclaimer */}
+        {/* Institutional disclaimer with micro-reassurance */}
         <div className="mb-6 p-4 bg-blue-900/30 border border-blue-700 rounded-lg">
+          <p className="text-blue-200 text-sm mb-2">
+            <strong>📸 Reconnaissance assistée • Confirmation humaine possible</strong>
+          </p>
           <p className="text-blue-200 text-sm">
-            <strong>ℹ️ Observatoire citoyen</strong> - Cette fonctionnalité analyse les informations
-            visibles sur l'emballage via OCR. Les données sont informatives et non contractuelles.
-            Précision variable selon la qualité de la photo.
+            Cette fonctionnalité analyse les informations visibles sur l'emballage via OCR.
+            Les données sont informatives et non contractuelles. Précision variable selon la qualité de la photo.
           </p>
         </div>
 

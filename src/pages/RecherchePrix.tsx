@@ -90,17 +90,17 @@ export default function RecherchePrix() {
             />
           ) : (
             <>
-              {/* Header */}
-              <div className="text-center mb-12">
-                <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                  Recherche de prix
+              {/* Header - Sticky */}
+              <div className="sticky top-16 z-10 bg-slate-950/95 backdrop-blur-sm pb-6 mb-8 border-b border-slate-800">
+                <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 text-center">
+                  Que souhaitez-vous comparer ?
                 </h1>
-                <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-                  Recherchez, scannez et comparez les prix dans votre territoire en 3 étapes simples.
+                <p className="text-base text-gray-400 text-center">
+                  Choisissez votre mode de recherche
                 </p>
               </div>
 
-          {/* Main Search Input */}
+          {/* Main Search Input - Text Search */}
           <div className="glass-container mb-8">
             <form onSubmit={handleTextSearch} className="flex gap-2">
               <div className="flex-1 relative">
@@ -109,7 +109,7 @@ export default function RecherchePrix() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Rechercher un produit par nom..."
+                  placeholder="🔎 Rechercher un produit par nom..."
                   className="w-full pl-12 pr-4 py-4 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   aria-label="Recherche de produit par nom"
                 />
@@ -125,120 +125,98 @@ export default function RecherchePrix() {
             </form>
           </div>
 
-          {/* Search Mode Buttons */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          {/* 4 Visual Actions - Aligned */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             
-            {/* Receipt Scan - PROMINENT */}
-            <button
-              onClick={() => handleSearchModeSelect('receipt')}
-              className="glass-card p-8 hover:bg-orange-500/10 transition-all group border-2 border-orange-500/40 hover:border-orange-500/60 relative overflow-hidden"
-              aria-label="Scanner ticket de caisse"
-            >
-              {/* Badge "Nouveau" */}
-              <div className="absolute top-4 right-4 px-3 py-1 bg-orange-500 text-white text-xs font-bold rounded-full">
-                NOUVEAU
-              </div>
-              <div className="w-16 h-16 bg-orange-500/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-orange-500/30 transition-colors mx-auto">
-                <Receipt className="w-8 h-8 text-orange-400" />
-              </div>
-              <h3 className="text-white font-bold text-xl mb-3">
-                📋 Scanner votre ticket de caisse
-              </h3>
-              <p className="text-sm text-gray-300 mb-4">
-                Analysez tous les produits de votre ticket en une seule fois
-              </p>
-              <ul className="text-xs text-gray-400 space-y-1 text-left">
-                <li>✓ Reconnaissance automatique des produits</li>
-                <li>✓ Comparaison avec les prix du territoire</li>
-                <li>✓ Traitement 100% local (RGPD conforme)</li>
-              </ul>
-              <div className="mt-6 px-6 py-3 bg-orange-600/20 hover:bg-orange-600/30 rounded-lg text-orange-300 font-semibold transition-colors inline-block">
-                Commencer →
-              </div>
-            </button>
-
-            {/* Text Search */}
+            {/* 1. Text Search */}
             <button
               onClick={() => handleSearchModeSelect('text')}
-              className="glass-card p-6 hover:bg-slate-800/60 transition-all group"
+              className="glass-card p-6 hover:bg-blue-600/10 transition-all group border border-blue-500/30 hover:border-blue-500/60"
               aria-label="Recherche par nom"
             >
-              <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-4 group-hover:bg-blue-500/30 transition-colors">
+              <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-3 mx-auto group-hover:bg-blue-500/30 transition-colors">
                 <Search className="w-6 h-6 text-blue-400" />
               </div>
-              <h3 className="text-white font-semibold mb-2">
-                Recherche par nom
+              <h3 className="text-white font-semibold text-center mb-1">
+                🔎 Nom du produit
               </h3>
-              <p className="text-sm text-gray-400">
-                Recherchez un produit par son nom
+              <p className="text-xs text-gray-400 text-center">
+                Recherche par texte
+              </p>
+            </button>
+
+            {/* 2. Barcode Scan */}
+            <button
+              onClick={() => handleSearchModeSelect('barcode')}
+              className="glass-card p-6 hover:bg-green-600/10 transition-all group border border-green-500/30 hover:border-green-500/60"
+              aria-label="Scanner code-barres"
+            >
+              <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center mb-3 mx-auto group-hover:bg-green-500/30 transition-colors">
+                <Barcode className="w-6 h-6 text-green-400" />
+              </div>
+              <h3 className="text-white font-semibold text-center mb-1">
+                📦 Code-barres
+              </h3>
+              <p className="text-xs text-gray-400 text-center">
+                Scanner EAN/UPC
+              </p>
+            </button>
+
+            {/* 3. Photo Scan */}
+            <button
+              onClick={() => handleSearchModeSelect('photo')}
+              className="glass-card p-6 hover:bg-purple-600/10 transition-all group border border-purple-500/30 hover:border-purple-500/60"
+              aria-label="Photographier produit"
+            >
+              <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mb-3 mx-auto group-hover:bg-purple-500/30 transition-colors">
+                <Camera className="w-6 h-6 text-purple-400" />
+              </div>
+              <h3 className="text-white font-semibold text-center mb-1">
+                📸 Photo produit
+              </h3>
+              <p className="text-xs text-gray-400 text-center">
+                Recherche par image
+              </p>
+            </button>
+
+            {/* 4. Receipt Scan - PROMINENT */}
+            <button
+              onClick={() => handleSearchModeSelect('receipt')}
+              className="glass-card p-6 hover:bg-orange-600/10 transition-all group border-2 border-orange-500/50 hover:border-orange-500/80 relative"
+              aria-label="Scanner ticket de caisse"
+            >
+              <div className="absolute top-2 right-2 px-2 py-0.5 bg-orange-500 text-white text-xs font-bold rounded">
+                NOUVEAU
+              </div>
+              <div className="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center mb-3 mx-auto group-hover:bg-orange-500/30 transition-colors">
+                <Receipt className="w-6 h-6 text-orange-400" />
+              </div>
+              <h3 className="text-white font-semibold text-center mb-1">
+                🧾 Ticket de caisse
+              </h3>
+              <p className="text-xs text-gray-400 text-center">
+                Analyse complète
               </p>
             </button>
 
           </div>
 
-          {/* Secondary Search Methods */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
-            
-            {/* Barcode Scan */}
-            <button
-              onClick={() => handleSearchModeSelect('barcode')}
-              className="glass-card p-4 hover:bg-slate-800/60 transition-all group"
-              aria-label="Scanner code-barres"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center group-hover:bg-green-500/30 transition-colors flex-shrink-0">
-                  <Barcode className="w-5 h-5 text-green-400" />
-                </div>
-                <div className="text-left">
-                  <h3 className="text-white font-semibold text-sm mb-1">
-                    Scanner code-barres
-                  </h3>
-                  <p className="text-xs text-gray-400">
-                    Scannez le code EAN du produit
-                  </p>
-                </div>
-              </div>
-            </button>
-
-            {/* Photo Scan */}
-            <button
-              onClick={() => handleSearchModeSelect('photo')}
-              className="glass-card p-4 hover:bg-slate-800/60 transition-all group"
-              aria-label="Photographier produit"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center group-hover:bg-purple-500/30 transition-colors flex-shrink-0">
-                  <Camera className="w-5 h-5 text-purple-400" />
-                </div>
-                <div className="text-left">
-                  <h3 className="text-white font-semibold text-sm mb-1">
-                    Photographier produit
-                  </h3>
-                  <p className="text-xs text-gray-400">
-                    Recherche assistée par photo
-                  </p>
-                </div>
-              </div>
-            </button>
-
-          </div>
-
-          {/* Information Banner */}
-          <div className="glass-card p-6 border border-blue-500/30">
+          {/* Micro-reassurance Banner */}
+          <div className="glass-card p-6 border border-blue-500/30 mb-8">
             <div className="flex items-start gap-4">
               <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
                 <span className="text-blue-400 text-xl">ℹ️</span>
               </div>
               <div>
                 <h3 className="text-white font-semibold mb-2">
-                  Outil d'intérêt général
+                  Outil d'information citoyenne
                 </h3>
                 <p className="text-sm text-gray-300 mb-3">
-                  Cet observatoire est un <strong>outil d'information citoyenne</strong>, 
-                  basé sur des données publiques et des contributions volontaires.
+                  <strong>Données indicatives issues d'observations publiques</strong>
+                  <br />Aucun conseil d'achat • Outil d'information citoyenne
                 </p>
                 <ul className="text-sm text-gray-400 space-y-1">
-                  <li>✓ Données réelles • Aucune estimation arbitraire</li>
+                  <li>✓ Traitement 100% local • Aucune donnée transmise</li>
                   <li>✓ Transparence totale • Méthodologie accessible</li>
                   <li>✓ RGPD compliant • Pas de tracking utilisateur</li>
                 </ul>
