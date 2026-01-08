@@ -23,6 +23,9 @@ export default function BarcodeScanner({ onScan, onClose, options = {} }: Barcod
   const [scanMode, setScanMode] = useState<'camera' | 'upload'>('camera');
   const [userMessage, setUserMessage] = useState<ScannerMessage | null>(null);
   
+  // OPTIMIZATION #2: Scan feedback state
+  const [scanFeedback, setScanFeedback] = useState<'searching' | 'focusing' | 'detecting' | null>(null);
+  
   const videoRef = useRef<HTMLVideoElement>(null);
   const readerRef = useRef<BrowserMultiFormatReader | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -88,6 +91,7 @@ export default function BarcodeScanner({ onScan, onClose, options = {} }: Barcod
     setUserMessage(null);
     setIsScanning(true);
     setHasPermission(null); // Reset permission state
+    setScanFeedback('searching'); // OPTIMIZATION #2: Set initial feedback
     scanStartTimeRef.current = Date.now();
     transitionState('scanning', 'User initiated scan');
 
@@ -475,14 +479,49 @@ export default function BarcodeScanner({ onScan, onClose, options = {} }: Barcod
                 muted
               />
               
-              {/* Scanning overlay */}
+              {/* OPTIMIZATION #2: Enhanced scanning overlay with real-time feedback */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="border-2 border-green-500 w-64 h-32 rounded-lg shadow-lg">
-                  <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-green-500 rounded-tl-lg"></div>
-                  <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-green-500 rounded-tr-lg"></div>
-                  <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-green-500 rounded-bl-lg"></div>
-                  <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-green-500 rounded-br-lg"></div>
+                {/* Scan frame with dynamic border */}
+                <div className={`border-2 w-64 h-32 rounded-lg shadow-lg transition-all ${
+                  scanFeedback === 'searching' ? 'border-blue-500 animate-pulse' :
+                  scanFeedback === 'focusing' ? 'border-yellow-500' :
+                  scanFeedback === 'detecting' ? 'border-green-500 scale-105' :
+                  'border-green-500'
+                }`}>
+                  <div className={`absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 rounded-tl-lg transition-colors ${
+                    scanFeedback === 'searching' ? 'border-blue-500' :
+                    scanFeedback === 'focusing' ? 'border-yellow-500' :
+                    'border-green-500'
+                  }`}></div>
+                  <div className={`absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 rounded-tr-lg transition-colors ${
+                    scanFeedback === 'searching' ? 'border-blue-500' :
+                    scanFeedback === 'focusing' ? 'border-yellow-500' :
+                    'border-green-500'
+                  }`}></div>
+                  <div className={`absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 rounded-bl-lg transition-colors ${
+                    scanFeedback === 'searching' ? 'border-blue-500' :
+                    scanFeedback === 'focusing' ? 'border-yellow-500' :
+                    'border-green-500'
+                  }`}></div>
+                  <div className={`absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 rounded-br-lg transition-colors ${
+                    scanFeedback === 'searching' ? 'border-blue-500' :
+                    scanFeedback === 'focusing' ? 'border-yellow-500' :
+                    'border-green-500'
+                  }`}></div>
                 </div>
+                
+                {/* Feedback message overlay */}
+                {scanFeedback && (
+                  <div className={`absolute top-4 left-0 right-0 text-center px-4 py-2 text-sm font-medium transition-all ${
+                    scanFeedback === 'searching' ? 'bg-blue-600/90 text-white' :
+                    scanFeedback === 'focusing' ? 'bg-yellow-600/90 text-white' :
+                    'bg-green-600/90 text-white'
+                  }`}>
+                    {scanFeedback === 'searching' && '📷 Recherche de code-barres...'}
+                    {scanFeedback === 'focusing' && '🎯 Code détecté ! Analyse...'}
+                    {scanFeedback === 'detecting' && '✓ Lecture en cours...'}
+                  </div>
+                )}
               </div>
 
               {/* Torch button */}
