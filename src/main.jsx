@@ -100,6 +100,9 @@ const StoreDetail = lazyWithRetry(() => import('./pages/StoreDetail'));
 // Unified Price Search Hub - Single entry point for all search modes
 const RecherchePrix = lazyWithRetry(() => import('./pages/RecherchePrix'));
 
+// Flight Price Module (feature flagged)
+const AvionsPrix = lazyWithRetry(() => import('./pages/recherche-prix/Avions'));
+
 // Loading component
 function LoadingFallback() {
   return (
@@ -267,6 +270,27 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   
                   {/* Unified Price Search Hub - Single entry point */}
                   <Route path='recherche-prix' element={<RecherchePrix />} />
+                  
+                  {/* Flight Price Module (feature flagged) */}
+                  <Route 
+                    path='recherche-prix/avions' 
+                    element={
+                      import.meta.env.VITE_FEATURE_FLIGHTS === 'true' ? (
+                        <AvionsPrix />
+                      ) : (
+                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                              Module en préparation
+                            </h2>
+                            <p className="text-gray-400 text-sm">
+                              Le comparateur de prix de billets d'avion sera bientôt disponible.
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    } 
+                  />
                   
                   {/* New simplified pages for automatic generation */}
                   <Route path='comparer' element={<CompareSimple />} />
