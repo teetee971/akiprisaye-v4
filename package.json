@@ -8,7 +8,11 @@
         "test": "vitest",
         "test:ci": "SKIP_OCR_TESTS=true vitest run --passWithNoTests",
         "observations:add": "node scripts/add-observation.js",
-        "observations:generate": "node scripts/generate-index.js"
+        "observations:generate": "node scripts/generate-index.js",
+        "cap:sync": "cap sync",
+        "cap:build": "npm run build && cap sync",
+        "cap:open:android": "cap open android",
+        "android:dev": "npm run build && cap sync android && cap open android"
     },
     "dependencies": {
         "@openfoodfacts/openfoodfacts-nodejs": "^2.0.0-alpha.19",
@@ -34,6 +38,9 @@
         "tesseract.js": "^6.0.1"
     },
     "devDependencies": {
+        "@capacitor/android": "^8.0.0",
+        "@capacitor/cli": "^7.4.4",
+        "@capacitor/core": "^8.0.0",
         "@eslint/js": "^9.15.0",
         "@tailwindcss/postcss": "^4.1.17",
         "@testing-library/jest-dom": "^6.9.1",
