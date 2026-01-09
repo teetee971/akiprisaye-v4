@@ -1,8 +1,7 @@
 import React from 'react';
-import { Check, Sparkles, TrendingUp, Shield, Zap, X, Lock, Database, FileText, Bell, AlertCircle, CreditCard } from 'lucide-react';
+import { Check, Sparkles, TrendingUp, Shield, Zap, X, Lock, Database, FileText, Bell, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { redirectToCitizenPlusCheckout, redirectToAnalyseCheckout } from '../services/stripeCheckout';
 
 const pricingPlans = [
   {
@@ -96,39 +95,13 @@ export default function Pricing() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  // Check if payments feature is enabled
-  const isPaymentsEnabled = import.meta.env.VITE_FEATURE_PAYMENTS === 'true';
-
-  /**
-   * Handle subscription button click
-   * For CITOYEN+ and ANALYSE plans, redirect to Stripe Checkout
-   * For CITOYEN plan, redirect to home (it's free)
-   * 
-   * GUARANTEE: CITOYEN plan never requires payment
-   */
   const handleSelectPlan = (planId: string) => {
-    // CITOYEN plan is always free - just go to home
-    if (planId === 'citoyen') {
-      navigate('/');
+    const target = `/inscription?plan=${planId}`;
+    if (!user) {
+      navigate(`/connexion?next=${encodeURIComponent(target)}`);
       return;
     }
-
-    // For paid plans, use Stripe Checkout if payments are enabled
-    if (isPaymentsEnabled) {
-      if (planId === 'citoyen_plus') {
-        redirectToCitizenPlusCheckout();
-      } else if (planId === 'analyse') {
-        redirectToAnalyseCheckout();
-      }
-    } else {
-      // Fallback: redirect to inscription page if payments disabled
-      const target = `/inscription?plan=${planId}`;
-      if (!user) {
-        navigate(`/connexion?next=${encodeURIComponent(target)}`);
-        return;
-      }
-      navigate(target);
-    }
+    navigate(target);
   };
 
   return (
@@ -272,41 +245,18 @@ export default function Pricing() {
                 </div>
               )}
 
-              {/* Ethical Disclaimer for Paid Plans */}
-              {plan.id !== 'citoyen' && isPaymentsEnabled && (
-                <div className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 rounded-lg">
-                  <p className="text-xs text-emerald-800 dark:text-emerald-300 leading-relaxed">
-                    <strong>Financement éthique :</strong> Le paiement finance uniquement l'infrastructure et les modules avancés. L'accès citoyen reste gratuit.
-                  </p>
-                </div>
-              )}
-
               {/* CTA Button */}
-              {/* GUARANTEE: CITOYEN plan never shows a payment button */}
-              {plan.id === 'citoyen' ? (
-                // Free plan - just go to home
-                <button
-                  type="button"
-                  onClick={() => handleSelectPlan(plan.id)}
-                  className={`w-full py-3 px-6 text-center font-bold rounded-xl transition-all bg-gradient-to-r ${plan.color} hover:opacity-90 text-white`}
-                >
-                  {plan.cta}
-                </button>
-              ) : (
-                // Paid plans - show subscribe button
-                <button
-                  type="button"
-                  onClick={() => handleSelectPlan(plan.id)}
-                  className={`w-full py-3 px-6 text-center font-bold rounded-xl transition-all flex items-center justify-center gap-2 ${
-                    plan.popular
-                      ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl'
-                      : `bg-gradient-to-r ${plan.color} hover:opacity-90 text-white`
-                  }`}
-                >
-                  <CreditCard className="w-5 h-5" />
-                  S'abonner
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => handleSelectPlan(plan.id)}
+                className={`w-full py-3 px-6 text-center font-bold rounded-xl transition-all ${
+                  plan.popular
+                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl'
+                    : `bg-gradient-to-r ${plan.color} hover:opacity-90 text-white`
+                }`}
+              >
+                {plan.cta}
+              </button>
             </div>
           ))}
         </div>

@@ -142,10 +142,6 @@ const PourquoiPrixVarieSansChangement = lazyWithRetry(() => import('./pages/ress
 // Promotions Education Module (feature flagged) - PRIORITY 20
 const ComprendrePromotionsPrixBarres = lazyWithRetry(() => import('./pages/ressources/ComprendrePromotionsPrixBarres'));
 
-// Payment Result Pages (feature flagged)
-const PaiementSucces = lazyWithRetry(() => import('./pages/paiement/Succes'));
-const PaiementAnnule = lazyWithRetry(() => import('./pages/paiement/Annule'));
-
 // Loading component
 function LoadingFallback() {
   return (
@@ -601,47 +597,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                             </h2>
                             <p className="text-gray-400 text-sm">
                               Le module éducatif sur les promotions et prix barrés sera bientôt disponible.
-                            </p>
-                          </div>
-                        </div>
-                      )
-                    } 
-                  />
-                  
-                  {/* Payment Result Pages (feature flagged) */}
-                  <Route 
-                    path='paiement/succes' 
-                    element={
-                      import.meta.env.VITE_FEATURE_PAYMENTS === 'true' ? (
-                        <PaiementSucces />
-                      ) : (
-                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
-                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
-                              Fonctionnalité indisponible
-                            </h2>
-                            <p className="text-gray-400 text-sm">
-                              Les paiements ne sont pas activés.
-                            </p>
-                          </div>
-                        </div>
-                      )
-                    } 
-                  />
-                  
-                  <Route 
-                    path='paiement/annule' 
-                    element={
-                      import.meta.env.VITE_FEATURE_PAYMENTS === 'true' ? (
-                        <PaiementAnnule />
-                      ) : (
-                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
-                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
-                              Fonctionnalité indisponible
-                            </h2>
-                            <p className="text-gray-400 text-sm">
-                              Les paiements ne sont pas activés.
                             </p>
                           </div>
                         </div>
