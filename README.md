@@ -4,26 +4,30 @@
 [![CI Schema Validation](https://img.shields.io/badge/CI-JSON%20Schema%20Validation-blue)](#)
 [![Browser Only](https://img.shields.io/badge/Runtime-Browser--Only-important)](#)
 
-**Plateforme intelligente de comparaison des prix, transparence économique et protection du consommateur – France & territoires ultramarins**
+**Application citoyenne de transparence des prix et des coûts réels dans les territoires ultramarins**
 
 ## 🌍 Présentation
 
-**A KI PRI SA YÉ** est une plateforme web professionnelle dédiée à la lutte contre la vie chère, à la transparence des prix, et à la protection des consommateurs, couvrant l'ensemble des territoires français, y compris :
+**A KI PRI SA YÉ** est une application d'information citoyenne dédiée à la compréhension des prix dans les territoires ultramarins.
 
+Elle permet d'analyser les écarts de prix entre les territoires, de comprendre le rôle du transport, de la logistique, des taxes et des intermédiaires.
+
+L'application ne vend aucun produit et ne réalise aucune transaction commerciale. Elle a pour objectif de rendre les mécanismes de formation des prix plus lisibles pour tous.
+
+**Territoires couverts :**
 - **DOM** (Guadeloupe, Martinique, Guyane, La Réunion, Mayotte)
 - **ROM / COM** (Saint-Martin, Saint-Barthélemy, Polynésie française, Nouvelle-Calédonie, Wallis-et-Futuna, Saint-Pierre-et-Miquelon, Terres australes, etc.)
 
-Le projet repose exclusivement sur des données réelles, vérifiables et sourcées, avec une architecture moderne, évolutive et sécurisée.
+**🎯 Phrase d'accroche : Comprendre pourquoi tout coûte plus cher.**
 
 ---
 
 ## 🎯 Objectifs principaux
 
-1. **Comparer les prix réels** des produits par territoire
-2. **Offrir une lecture claire et sourcée** des informations économiques
-3. **Donner aux citoyens** des outils concrets pour mieux consommer
-4. **Permettre aux enseignes, institutions et groupes** d'accéder à des services professionnels payants
-5. **Créer une référence nationale ultramarine** sur les prix et la consommation
+1. **Expliquer les écarts de prix** entre les territoires ultramarins et la métropole
+2. **Rendre visible le rôle** du transport, de la logistique, des taxes et des intermédiaires
+3. **Donner aux citoyens** un outil d'information pour comprendre les prix
+4. **Créer une référence** sur la transparence des prix dans les DOM
 
 ---
 

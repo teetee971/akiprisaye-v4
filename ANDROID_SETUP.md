@@ -2,28 +2,44 @@
 
 ## Overview
 
-This document describes the Android app setup using Capacitor, with Google Play Billing for premium subscriptions.
+This document describes the Android app setup using Capacitor for the civic transparency application.
 
 ## Fundamental Principles (NON-NEGOTIABLE)
 
-✅ **CITOYEN mode remains 100% FREE forever** (web and Android)
-✅ **No web-based payments** - premium features only on Android via Google Play Billing
-✅ **Premium is optional** - all essential features remain free
+✅ **Civic information tool** - dedicated to price transparency and understanding
+✅ **No commercial transactions** - not a marketplace or shopping app
+✅ **Free access to information** - core transparency features always available
 ✅ **GDPR compliant** - no tracking, no data collection
 ✅ **Public interest tool** - neutral, institutional, educational
 
 ## Architecture
 
-### Platform Structure
+### App Identity
 
-- **Web Version**: 100% free (CITOYEN mode only)
-- **Android App**: FREE (CITOYEN) + optional PREMIUM via Google Play Billing
+- **Official Name**: A KI PRI SA YÉ
+- **Package**: com.akiprisaye.app
+- **Platform**: Android
+- **Primary Language**: Français
+- **Zone**: DOM (Guadeloupe, Martinique, Guyane, Réunion – extensible)
+
+### Positioning
+
+Application citoyenne de transparence des prix et des coûts réels dans les territoires ultramarins.
+
+**What it is:**
+- A civic information tool
+- A price transparency platform
+- An educational resource about price formation
+
+**What it is NOT:**
+- Not a marketplace
+- Not a shopping app
+- Not a payment platform
 
 ### Technology Stack
 
 - **Base**: React + Vite + TypeScript
 - **Mobile Framework**: Capacitor (converts web app to native Android)
-- **Payment**: Google Play Billing (Android only)
 - **Build**: Gradle (Android)
 
 ## Project Structure
