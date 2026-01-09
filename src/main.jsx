@@ -97,6 +97,9 @@ const ProductPhotoAnalysis = lazyWithRetry(() => import('./pages/ProductPhotoAna
 // Store Detail Page with company info, graphs, and history
 const StoreDetail = lazyWithRetry(() => import('./pages/StoreDetail'));
 
+// Basket Comparison Page - PROMPT 4
+const BasketComparison = lazyWithRetry(() => import('./pages/BasketComparison'));
+
 // Unified Price Search Hub - Single entry point for all search modes
 const RecherchePrix = lazyWithRetry(() => import('./pages/RecherchePrix'));
 
@@ -306,6 +309,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   
                   {/* Store Detail Page - Fiche enseigne avec graphs, filiales, etc. */}
                   <Route path='enseigne/:storeId' element={<StoreDetail />} />
+                  
+                  {/* Basket Comparison Page - PROMPT 4 */}
+                  <Route path='comparer-panier' element={<BasketComparison />} />
                   
                   {/* Unified Price Search Hub - Single entry point */}
                   <Route path='recherche-prix' element={<RecherchePrix />} />
