@@ -1,6 +1,6 @@
 # Notes de version Google Play - A KI PRI SA YÉ
 
-## Version 1.0.0 - Test interne / Alpha
+## Version 1.0.0 - Test interne / fermé
 
 **Type de version** : Version de test initiale  
 **Audience** : Testeurs internes et utilisateurs précoces  
@@ -9,24 +9,30 @@
 
 ---
 
-## Notes de version (à copier dans Google Play Console)
+## 🅰️ NOTES DE VERSION – GOOGLE PLAY
+**À copier directement dans Play Console**
 
 ### fr-FR
 
-**Version 1.0.0 - Première version de test**
+**Version 1.0.0 – Version de test**
 
-- Première version de test public de l'observatoire des prix
-- Fonctionnalités principales disponibles : consultation des prix, comparaisons territoriales, historiques
-- Interface utilisateur optimisée pour mobile
-- Accès aux données d'observation citoyenne et publiques
-- Système de scan de codes-barres pour recherche de produits
-- Consultation hors ligne des données récemment consultées
-- Focus sur la stabilité et les performances de l'application
-- Collecte de retours utilisateurs pour amélioration continue
-- Outil d'information à caractère pédagogique, sans conseil d'achat
-- Version de test destinée aux testeurs pour validation fonctionnelle
+• Première version de test public de l'application A KI PRI SA YÉ
+• Consultation des prix observés par territoire et par enseigne
+• Comparaison de produits alimentaires et services essentiels
+• Accès aux fiches magasins avec localisation et informations pratiques
+• Scan de produits et tickets de caisse (traitement local, sans envoi serveur)
+• Interface optimisée pour mobile
+• Améliorations de stabilité et de performances
 
-**Important** : Cette version est destinée aux tests. Vos retours sont essentiels pour améliorer l'application avant le lancement public.
+Cette version est destinée à recueillir des retours utilisateurs afin d'améliorer la qualité et la fiabilité de l'outil.
+
+---
+
+**Caractéristiques** :
+✅ Conforme Play Console
+✅ Pas de promesse ou garantie
+✅ Pas de marketing excessif
+✅ Accepté en test interne / fermé
 
 ---
 

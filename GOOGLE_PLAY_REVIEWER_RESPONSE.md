@@ -7,23 +7,22 @@
 
 ---
 
-## Réponse type aux reviewers Google Play
+## 🅳 Réponse prête si Google Play demande une clarification
 
 ### Version courte (< 500 caractères)
 
 ```
 Bonjour,
 
-A KI PRI SA YÉ est un observatoire des prix à vocation d'information publique. L'application permet de consulter des données de prix issues d'observations citoyennes et de sources publiques ouvertes.
+L'application A KI PRI SA YÉ est un outil d'intérêt général dédié à l'observation et à la compréhension des prix.
 
-Nous ne fournissons aucun conseil d'achat ni recommandation commerciale. L'outil est informatif et pédagogique uniquement.
+Elle ne propose aucun achat, aucune transaction commerciale, et ne fournit aucun conseil d'achat. Les données affichées sont issues de sources publiques et de contributions citoyennes volontaires, à des fins purement informatives.
 
-Les données sont traitées conformément au RGPD. Notre politique de confidentialité est accessible publiquement.
+Les fonctionnalités de scan (produits ou tickets) sont traitées localement sur l'appareil de l'utilisateur. Aucune image, donnée personnelle ou information sensible n'est transmise à un serveur.
 
-Nous restons disponibles pour toute clarification.
+L'application respecte les principes de confidentialité et de minimisation des données, sans création de compte ni suivi utilisateur.
 
-Cordialement,
-Équipe A KI PRI SA YÉ
+Cordialement
 ```
 
 ---

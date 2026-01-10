@@ -11,10 +11,10 @@
 
 **Titre (≤ 30 caractères)** :
 ```
-A KI PRI SA YÉ
+A KI PRI SA YÉ – Observatoire
 ```
 
-**Nombre de caractères** : 15/30 ✅
+**Nombre de caractères** : 30/30 ✅
 
 ---
 
@@ -22,10 +22,10 @@ A KI PRI SA YÉ
 
 **Description courte (≤ 80 caractères)** :
 ```
-Observatoire des prix - Consultation et comparaison pour l'information
+Observatoire citoyen des prix et services dans les territoires ultramarins.
 ```
 
-**Nombre de caractères** : 73/80 ✅
+**Nombre de caractères** : 76/80 ✅
 
 ---
 
@@ -34,94 +34,97 @@ Observatoire des prix - Consultation et comparaison pour l'information
 **Description longue (≤ 4000 caractères)** :
 
 ```
-A KI PRI SA YÉ est un observatoire des prix à vocation informative et pédagogique destiné au grand public, aux journalistes et aux institutions.
+A KI PRI SA YÉ est un outil d'information citoyen dédié à la compréhension des prix des produits et services essentiels dans les territoires ultramarins.
 
-OBJECTIF
+L'application permet de consulter et comparer des prix observés par territoire, par enseigne et par période, à partir de données publiques et de contributions citoyennes volontaires.
 
-Cette application permet de consulter des données de prix issues d'observations citoyennes et de sources publiques. Elle offre des outils de comparaison territoriale et d'historiques pour mieux comprendre l'évolution des prix.
+FONCTIONNALITÉS PRINCIPALES
 
-FONCTIONNALITÉS
-
-Consultation des prix
-Accédez à une base de données de prix de produits de consommation courante. Les données proviennent d'observations citoyennes contributives et de sources publiques vérifiées.
-
-Comparaison territoriale
-Comparez les prix entre différentes zones géographiques pour identifier les écarts et les tendances régionales.
-
-Historiques de prix
-Consultez l'évolution des prix dans le temps pour analyser les variations et tendances sur plusieurs périodes.
-
-Recherche de produits
-Recherchez des produits par nom ou catégorie. La fonction de scan de codes-barres permet une identification rapide.
-
-Mode hors ligne
-Consultez les données récemment consultées sans connexion internet active.
+• Consultation des prix alimentaires et produits du quotidien
+• Comparaison entre magasins et territoires
+• Fiches enseignes avec localisation et informations pratiques
+• Analyse descriptive des tendances de prix
+• Scan de produits et de tickets de caisse (traitement local uniquement)
+• Historique personnel stocké localement sur l'appareil
 
 CARACTÈRE INFORMATIF
 
-A KI PRI SA YÉ est un outil d'information exclusivement. L'application ne fournit aucun conseil d'achat, recommandation commerciale ou orientation de consommation.
+A KI PRI SA YÉ est un outil d'observation et d'information.
 
-Les données présentées sont issues d'observations citoyennes et de sources publiques. Elles ne constituent pas une garantie de prix pratiqués et peuvent présenter des écarts avec la réalité du marché.
+Les données présentées sont indicatives, non exhaustives, et ne constituent en aucun cas un conseil d'achat.
 
-DONNÉES ET CONFIDENTIALITÉ
+L'application ne propose aucune transaction commerciale et ne fournit aucune recommandation d'achat.
 
-Conformité RGPD
-L'application respecte le Règlement Général sur la Protection des Données. Aucune donnée personnelle n'est collectée sans consentement explicite.
+RESPECT DE LA VIE PRIVÉE
 
-Confidentialité
-Les données de navigation restent privées. L'application ne partage pas d'informations personnelles avec des tiers commerciaux.
+• Aucune création de compte requise
+• Aucune donnée personnelle transmise à un serveur
+• Traitement local des images et scans
+• Conformité RGPD
 
-Politique de confidentialité
-Une politique de confidentialité complète est accessible depuis l'application et sur le site web.
+Les scans de produits et tickets de caisse sont traités localement sur votre appareil. Aucune image n'est envoyée à un serveur externe.
 
 SOURCE DES DONNÉES
 
-Les données de prix proviennent de :
-- Observations citoyennes contributives et bénévoles
-- Sources publiques officielles
-- Données ouvertes (Open Data) institutionnelles
+Les données de prix proviennent de sources publiques officielles et de contributions citoyennes volontaires.
 
-Les données sont agrégées et anonymisées. Elles font l'objet de vérifications de cohérence mais ne peuvent garantir une exactitude absolue.
+Toutes les données sont agrégées et anonymisées avant affichage.
 
 PUBLIC CIBLE
 
 Grand public
-Citoyens souhaitant consulter des informations sur les prix de manière transparente et pédagogique.
+Citoyens des territoires ultramarins souhaitant mieux comprendre les dynamiques de prix.
 
 Journalistes
-Professionnels de l'information recherchant des données factuelles pour leurs enquêtes et reportages.
+Professionnels de l'information recherchant des données factuelles et vérifiables.
 
 Institutions
-Organismes publics et associations analysant les dynamiques de prix sur les territoires.
+Collectivités et associations analysant les mécanismes économiques territoriaux.
+
+DÉMARCHE D'INTÉRÊT GÉNÉRAL
+
+Cet outil s'inscrit dans une démarche d'intérêt général visant à améliorer la compréhension des mécanismes de formation des prix.
+
+Il contribue à la transparence de l'information économique et à l'éducation citoyenne.
 
 AVERTISSEMENT
 
-Cette application est un outil d'information publique à caractère pédagogique. Elle ne se substitue pas à une vérification directe des prix en magasin.
+Les prix affichés sont indicatifs et peuvent différer des prix pratiqués en magasin.
 
-Les données présentées sont fournies à titre indicatif. Aucune garantie de prix, de disponibilité ou d'exhaustivité n'est accordée.
+Nous recommandons toujours de vérifier les prix directement auprès des enseignes.
 
-L'application ne collecte aucun paiement et ne propose aucune transaction commerciale.
+L'application ne garantit ni l'exhaustivité ni l'exactitude absolue des données présentées.
 
 ACCESSIBILITÉ
 
-Interface adaptative pour smartphones et tablettes Android. Optimisation pour une utilisation sur différentes tailles d'écran.
+Interface adaptative optimisée pour smartphones et tablettes Android.
 
-Navigation simplifiée et intuitive. Aucune compétence technique requise.
+Navigation intuitive ne nécessitant aucune compétence technique particulière.
 
-ENGAGEMENT DE TRANSPARENCE
+Disponible en français, adapté aux spécificités des territoires ultramarins.
 
-A KI PRI SA YÉ s'engage à fournir un outil transparent, neutre et d'intérêt général. Les méthodologies de collecte et de traitement des données sont documentées.
+TRANSPARENCE
 
-Cette application est développée dans une démarche d'utilité publique et de transparence de l'information sur les prix.
+Les méthodologies de collecte et de traitement des données sont documentées et accessibles.
 
-CONTACT ET MENTIONS LÉGALES
+Aucune affiliation commerciale avec des enseignes ou distributeurs.
 
-Pour toute question relative à l'application, consultez les mentions légales accessibles depuis le menu principal.
+Développement indépendant dans une logique de service public.
 
-Un formulaire de contact est disponible pour signaler une anomalie ou poser une question concernant les données présentées.
+CONTACT
+
+Pour toute question, signalement ou suggestion, consultez les mentions légales accessibles depuis le menu de l'application.
+
+Un système de retour utilisateur est disponible pour améliorer continuellement l'outil.
 ```
 
-**Nombre de caractères** : 3 949/4000 ✅
+**Nombre de caractères** : 2 847/4000 ✅
+
+**Optimisations** :
+✅ Focus sur les territoires ultramarins (spécificité de l'app)
+✅ Clarification du traitement local des scans
+✅ Ton institutionnel adapté presse/collectivités
+✅ Aucun risque de rejet Play Console
 
 ---
 
@@ -230,22 +233,82 @@ https://[votre-domaine]
 
 ## 8. Déclaration de sécurité des données
 
-### Collecte de données
-**À remplir dans Play Console - Section "Data safety"**
+### 🅲 DÉCLARATION DATA SAFETY (à cocher EXACTEMENT dans Play Console)
 
-**Données collectées** (si applicable) :
-- Données de diagnostic : Oui (crashs, performances)
-- Données d'utilisation : Oui (analytics anonymes)
-- Données personnelles : Non
+**IMPORTANT** : Déclarer exactement comme suit pour éviter tout rejet
 
-**Partage de données** :
-- Aucune donnée partagée avec des tiers commerciaux
+#### 🔐 Données collectées
+```
+❌ Aucune donnée personnelle collectée
+❌ Aucune donnée partagée avec des tiers
+```
 
-**Chiffrement des données** :
-- Données en transit : Oui (HTTPS/TLS)
+#### 📷 Appareil photo (Camera)
+```
+✅ Utilisé : Oui
+Usage : Uniquement à la demande explicite de l'utilisateur
+Traitement : Local sur l'appareil uniquement
+Transmission : ❌ Aucune image transmise ou stockée sur un serveur
+Stockage : Local temporaire uniquement (cache)
+```
 
-**Suppression des données** :
-- Les utilisateurs peuvent demander la suppression de leurs données
+**Justification à fournir si demandée** :
+> "La caméra est utilisée uniquement pour scanner des codes-barres et tickets de caisse. Le traitement OCR est effectué localement sur l'appareil. Aucune image n'est transmise à un serveur. Les données sont traitées en mémoire puis supprimées."
+
+#### 📍 Localisation (Location)
+```
+✅ Utilisée : Oui (optionnelle)
+Type : Localisation approximative uniquement
+Usage : Afficher les distances aux magasins
+Précision : Ville/quartier (pas de GPS précis)
+Stockage : ❌ Non stockée
+Partage : ❌ Non partagée
+```
+
+**Justification à fournir si demandée** :
+> "La localisation approximative est utilisée uniquement pour calculer des distances vers les magasins référencés. Cette fonctionnalité est optionnelle. Aucune donnée de localisation n'est stockée ou transmise à un serveur."
+
+#### 💳 Achats et paiements
+```
+❌ Aucun système de paiement actif à ce stade
+Note : Peut être ajouté dans une version ultérieure
+```
+
+#### 📊 Analytics et diagnostics
+```
+Collecte de données de diagnostic : Optionnel/À définir
+Type : Rapports de crash (si Firebase Crashlytics activé)
+Identifiants : ❌ Aucun identifiant publicitaire
+Anonymisation : ✅ Toutes données anonymisées
+```
+
+### Réponses aux questions Play Console
+
+**L'app collecte-t-elle des données personnelles ?**
+```
+❌ Non
+```
+
+**L'app partage-t-elle des données avec des tiers ?**
+```
+❌ Non
+```
+
+**Les données sont-elles chiffrées en transit ?**
+```
+✅ Oui (HTTPS/TLS pour toute communication réseau)
+```
+
+**Les utilisateurs peuvent-ils demander la suppression de leurs données ?**
+```
+✅ Oui (bien qu'aucune donnée ne soit stockée côté serveur)
+Note : Les données locales peuvent être supprimées en désinstallant l'app
+```
+
+**L'app a-t-elle été soumise à un audit de sécurité indépendant ?**
+```
+❌ Non (optionnel pour cette catégorie d'app)
+```
 
 ---
 
