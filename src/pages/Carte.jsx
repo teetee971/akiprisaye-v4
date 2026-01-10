@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { Link } from 'react-router-dom';
 import L from 'leaflet';
 import 'leaflet.markercluster';
 import { Car, Footprints, Bus, MapPin, Loader2, History, Share2, WifiOff } from 'lucide-react';
@@ -462,6 +463,19 @@ export default function Carte() {
                         <p className="text-xs text-slate-400 italic">Temps estimés - ne tiennent pas compte du trafic</p>
                       </div>
                     )}
+                    
+                    {/* PROMPT 1: Link to Store Detail */}
+                    {store.id && (
+                      <div className="mt-2 mb-2">
+                        <Link
+                          to={`/enseigne/${store.id}`}
+                          className="inline-block w-full text-center px-3 py-1.5 bg-slate-800 text-white rounded text-xs hover:bg-slate-700 transition-colors"
+                        >
+                          🏪 Voir la fiche magasin
+                        </Link>
+                      </div>
+                    )}
+                    
                     <div className="flex gap-2 mt-2">
                       <button
                         onClick={() => handleGPS(store.lat, store.lon, 'driving', store.name, store)}
