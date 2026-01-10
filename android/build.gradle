@@ -22,6 +22,29 @@ allprojects {
         google()
         mavenCentral()
     }
+    
+    configurations.all {
+        resolutionStrategy {
+            // Exclude old kotlin-stdlib-jdk7 and kotlin-stdlib-jdk8
+            // These are now included in kotlin-stdlib since version 1.8+
+            exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
+            exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+        }
+    }
+}
+
+// Force all subprojects to use Java 17
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            project.android {
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
+            }
+        }
+    }
 }
 
 task clean(type: Delete) {
