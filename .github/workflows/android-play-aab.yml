@@ -80,7 +80,7 @@ jobs:
           
           # Verify AAB is signed (fail if not signed)
           echo "🔍 Verifying AAB signature..."
-          if ! jarsigner -verify -verbose "$AAB_PATH"; then
+          if ! jarsigner -verify "$AAB_PATH"; then
             echo "❌ ERROR: AAB signature verification failed"
             echo "❌ The AAB is unsigned or improperly signed"
             echo "⚠️  Check keystore configuration and environment variables"

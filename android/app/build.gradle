@@ -5,7 +5,9 @@ android {
     compileSdk rootProject.ext.compileSdkVersion
     
     // Keystore configuration
-    def keystoreFile = 'release.jks'
+    // Path is relative to this build.gradle file location (android/app/)
+    // Keystore is stored one directory up in android/
+    def keystoreFile = '../release.jks'
     
     defaultConfig {
         applicationId "com.akiprisaye.app"
@@ -24,7 +26,9 @@ android {
     // Signing configuration for release builds
     signingConfigs {
         release {
-            // Keystore file location (relative to android/ directory)
+            // Keystore file location
+            // Path relative to this build.gradle (android/app/)
+            // Keystore is in android/release.jks, one directory up
             storeFile file(keystoreFile)
             
             // Get passwords from environment variables (for CI/CD)
