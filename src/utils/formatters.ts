@@ -4,11 +4,14 @@
  * Purpose: Pure functions for formatting numbers, currencies, percentages
  * Used by: All components displaying prices, percentages, and numbers
  * 
+ * Note: For territory-aware price formatting, use formatPriceForTerritory() from territories.ts
+ * 
  * @module formatters
  */
 
 /**
- * Format a number as currency (Euro)
+ * Format a number as currency (Euro by default)
+ * For territory-specific formatting, use formatPriceForTerritory() instead
  * 
  * @param amount - Amount to format
  * @param decimals - Number of decimal places (default: 2)

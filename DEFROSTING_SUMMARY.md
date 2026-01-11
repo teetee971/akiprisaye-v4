@@ -19,7 +19,7 @@ This document details the refactoring work performed to identify and safely extr
    - Color palettes for charts and UI
 
 2. **Refactored into organized structure**:
-   - Configuration files in `src/config/`
+   - Configuration files in `src/config/` and `src/constants/`
    - Utility functions in `src/utils/`
    - Clear separation of concerns
 
@@ -27,6 +27,95 @@ This document details the refactoring work performed to identify and safely extr
    - Future-proof data structures (arrays, maps, enums)
    - Helper functions for common operations
    - Type-safe TypeScript interfaces
+   - **Single-file territory management**: Adding a new territory requires modifying only `src/constants/territories.ts`
+
+---
+
+## Single Source of Truth: Territories ⭐
+
+### Enhanced Territory Configuration
+
+The `src/constants/territories.ts` file has been enhanced to be the **absolute single source of truth** for all territory-related data. Adding a new territory now requires modifying **only this one file**.
+
+#### What's Included
+
+Each territory now has complete configuration:
+```typescript
+{
+  code: 'GP',              // Territory ID (type-safe)
+  name: 'Guadeloupe',      // Display name
+  fullName: '...',         // Full official name
+  type: 'DROM',            // Territory type
+  inseeCode: '971',        // INSEE code
+  center: { lat, lng },    // Map coordinates
+  zoom: 11,                // Default map zoom
+  flag: '🇬🇵',             // Emoji flag
+  active: true,            // Feature flag
+  currency: 'EUR',         // ISO currency code ✨ NEW
+  locale: 'fr-FR',         // Locale for formatting ✨ NEW
+  timezone: 'America/Guadeloupe', // IANA timezone ✨ NEW
+  meta: { country, region } // Additional metadata ✨ NEW
+}
+```
+
+#### How to Add a New Territory
+
+**Example**: Adding Clipperton Island
+
+```typescript
+// src/constants/territories.ts
+
+// 1. Add to TerritoryId type
+export type TerritoryId = 
+  | 'GP' | 'MQ' | 'GF' | 'RE' | 'YT'
+  | 'CP'; // ← Add here
+
+// 2. Add to TERRITORIES object
+export const TERRITORIES: Record<TerritoryId, Territory> = {
+  // ... existing territories
+  
+  CP: { // ← Add complete config here
+    code: 'CP',
+    name: 'Clipperton',
+    fullName: 'Île de Clipperton',
+    type: 'Autres',
+    inseeCode: '989',
+    center: { lat: 10.3, lng: -109.2 },
+    zoom: 12,
+    flag: '🇨🇵',
+    active: true,
+    currency: 'EUR',
+    locale: 'fr-FR',
+    timezone: 'Pacific/Clipperton',
+    meta: { country: 'France', region: 'Pacifique' },
+  },
+};
+```
+
+**That's it!** ✨ The new territory automatically appears in:
+- All dropdowns/selectors
+- Territory filters
+- Map displays
+- Comparison tools
+- Statistics dashboards
+
+#### Helper Functions Available
+
+```typescript
+// Get all active territories
+const territories = getActiveTerritories();
+
+// Get dropdown options
+const options = getTerritoriesAsOptions(includeAll: true);
+
+// Format price for territory
+const price = formatPriceForTerritory(99.99, 'PF'); // "5 000 XPF"
+
+// Get territory info
+const territory = getTerritory('GP');
+console.log(territory.currency); // "EUR"
+console.log(territory.timezone); // "America/Guadeloupe"
+```
 
 ---
 
