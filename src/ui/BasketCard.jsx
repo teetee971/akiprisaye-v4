@@ -1,14 +1,33 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { saveBasketToHistory } from '../services/tiPanieService';
 import PriceBadge from '../components/PriceBadge';
 import BasketTerritoryComparison from './BasketTerritoryComparison';
+import TrendIndicator from './TrendIndicator';
 import { compareBasketAcrossTerritories } from '../utils/priceAnalysis';
+import { saveBasketSnapshot, getTrend } from '../utils/priceHistory';
 
 export default function BasketCard({ basket, selectedTerritories }) {
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  // Automatically save price snapshot when basket is displayed
+  useEffect(() => {
+    if (basket && basket.id && basket.price) {
+      // Save snapshot for each selected territory
+      if (selectedTerritories && selectedTerritories.length > 0) {
+        selectedTerritories.forEach(territoryId => {
+          const price = basket.prices?.[territoryId] || basket.price;
+          saveBasketSnapshot(String(basket.id), territoryId, price);
+        });
+      } else {
+        // Fallback: save for basket's default territory
+        const territoryId = basket.territory || 'GP';
+        saveBasketSnapshot(String(basket.id), territoryId, basket.price);
+      }
+    }
+  }, [basket, selectedTerritories]);
 
   const handleViewOnMap = () => {
     // Navigate to map with the basket's location
@@ -36,6 +55,10 @@ export default function BasketCard({ basket, selectedTerritories }) {
 
     territoryComparison = compareBasketAcrossTerritories(priceMap, selectedTerritories);
   }
+
+  // Get trend for primary territory (first selected or basket's territory)
+  const primaryTerritory = selectedTerritories?.[0] || basket.territory || 'GP';
+  const trend = getTrend(primaryTerritory, 'week', String(basket.id));
 
   return (
     <div
@@ -100,6 +123,18 @@ export default function BasketCard({ basket, selectedTerritories }) {
             showSavings={true}
           />
         </div>
+
+        {/* Trend Indicator (only if historical data available) */}
+        {trend && trend.direction !== 'unknown' && (
+          <div className="mb-3">
+            <TrendIndicator
+              direction={trend.direction}
+              percentageChange={trend.percentageChange}
+              period="week"
+              showPercentage={true}
+            />
+          </div>
+        )}
 
         {/* Territory Comparison (only if multiple territories selected) */}
         {territoryComparison && territoryComparison.length > 1 && (
