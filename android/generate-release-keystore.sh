@@ -34,7 +34,7 @@ if [ -f "$KEYSTORE_FILE" ]; then
 fi
 
 # Check if keytool is available
-if ! command -v keytool &> /dev/null; then
+if ! command -v keytool >/dev/null 2>&1; then
     echo -e "${RED}ERROR: keytool command not found!${NC}"
     echo -e "${YELLOW}Please ensure Java JDK is installed.${NC}"
     exit 1
@@ -55,14 +55,12 @@ echo -e "${GREEN}Generating release keystore...${NC}"
 echo ""
 
 # Generate the keystore
-keytool -genkeypair \
+if keytool -genkeypair \
   -keystore "$KEYSTORE_FILE" \
   -alias "$ALIAS" \
   -keyalg "$KEY_ALG" \
   -keysize "$KEY_SIZE" \
-  -validity "$VALIDITY"
-
-if [ $? -eq 0 ]; then
+  -validity "$VALIDITY"; then
     echo ""
     echo -e "${GREEN}========================================${NC}"
     echo -e "${GREEN}✓ Keystore generated successfully!${NC}"

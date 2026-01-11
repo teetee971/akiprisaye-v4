@@ -299,7 +299,8 @@ base64 release.jks > release.jks.base64
 ```yaml
 - name: Decode keystore
   run: |
-    echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/release.jks
+    echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/release.jks && \
+    test -f android/release.jks || { echo "Failed to decode keystore"; exit 1; }
 
 - name: Build signed AAB
   env:
