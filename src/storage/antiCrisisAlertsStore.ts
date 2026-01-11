@@ -191,7 +191,8 @@ export function getAlertStorageStats(): {
   
   const itemsWithAlerts = states.filter(s => s.lastAlertAt !== undefined);
   const alertTimes = itemsWithAlerts
-    .map(s => s.lastAlertAt!)
+    .map(s => s.lastAlertAt)
+    .filter((time): time is number => time !== undefined)
     .sort((a, b) => a - b);
 
   return {

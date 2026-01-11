@@ -120,8 +120,9 @@ export function shouldTriggerAntiCrisisAlert(
 
   // Check rate limiting
   if (!canAlertAgain(state)) {
+    const timeSinceAlert = state.lastAlertAt ? Date.now() - state.lastAlertAt : 0;
     const hoursUntilNext = Math.ceil(
-      (MIN_ALERT_INTERVAL_MS - (Date.now() - state.lastAlertAt!)) / (60 * 60 * 1000)
+      (MIN_ALERT_INTERVAL_MS - timeSinceAlert) / (60 * 60 * 1000)
     );
     return {
       shouldAlert: false,

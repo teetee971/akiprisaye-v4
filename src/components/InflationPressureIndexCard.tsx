@@ -103,8 +103,14 @@ const InflationPressureIndexCard: React.FC<InflationPressureIndexCardProps> = ({
       <div className="px-6 py-4 space-y-4">
         {/* Pressure level badge */}
         <div className="flex items-center gap-3">
-          <span className={`px-4 py-2 rounded-full text-sm font-medium ${textColorClass} bg-opacity-10`}
-                style={{ backgroundColor: `var(--tw-${barColorClass.replace('bg-', '')}-100)` }}>
+          <span className={`px-4 py-2 rounded-full text-sm font-medium ${textColorClass}`}
+                style={{ 
+                  backgroundColor: barColorClass.includes('green') ? 'rgb(220 252 231)' :
+                                  barColorClass.includes('blue') ? 'rgb(219 234 254)' :
+                                  barColorClass.includes('yellow') ? 'rgb(254 249 195)' :
+                                  barColorClass.includes('orange') ? 'rgb(255 237 213)' :
+                                  'rgb(254 226 226)'
+                }}>
             Pression {ilpp.level.toLowerCase()}
           </span>
           <span className="text-xs text-gray-500">

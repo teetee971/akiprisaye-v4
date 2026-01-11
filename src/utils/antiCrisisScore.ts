@@ -173,7 +173,7 @@ export function computeAntiCrisisScore(
   let score = 0;
 
   // Criterion 1: Price below median
-  const belowMedian = currentPrice !== null && currentPrice <= medianPrice;
+  const belowMedian = currentPrice !== null && currentPrice < medianPrice;
   if (belowMedian) score++;
   
   reasons.push({
@@ -182,8 +182,8 @@ export function computeAntiCrisisScore(
     value: currentPrice,
     threshold: medianPrice,
     explanation: belowMedian
-      ? `Prix actuel (${currentPrice?.toFixed(2)}€) ≤ médiane territoriale (${medianPrice.toFixed(2)}€)`
-      : `Prix actuel (${currentPrice?.toFixed(2)}€) > médiane territoriale (${medianPrice.toFixed(2)}€)`
+      ? `Prix actuel (${currentPrice?.toFixed(2)}€) < médiane territoriale (${medianPrice.toFixed(2)}€)`
+      : `Prix actuel (${currentPrice?.toFixed(2)}€) ≥ médiane territoriale (${medianPrice.toFixed(2)}€)`
   });
 
   // Criterion 2: Stable or decreasing trend

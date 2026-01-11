@@ -104,7 +104,10 @@ function normalize(value: number, max: number): number {
 export function computeILPP(data: ILPPInputData): number {
   // Each component is already expected to be 0-100 or needs normalization
   // avgChange: normalize to 0-100 (max 50% change = 100)
-  const normalizedAvgChange = normalize(Math.abs(data.avgChange), 50);
+  // Only positive changes contribute to inflation pressure
+  const normalizedAvgChange = data.avgChange > 0 
+    ? normalize(data.avgChange, 50)
+    : 0;
   
   // volatility: already 0-100 percentage
   const normalizedVolatility = Math.min(100, Math.max(0, data.volatility));
@@ -200,7 +203,9 @@ export function calculateILPPComponents(
   const increaseFrequency = (increaseCount / (prices.length - 1)) * 100;
 
   // 4. Dispersion (use volatility as proxy for now)
-  // In a full implementation, this would be calculated across multiple stores
+  // NOTE: In a full implementation, this would be calculated across multiple stores
+  // For now, using volatility as a reasonable proxy since both measure price variability
+  // TODO: Calculate actual cross-store dispersion when multi-store data is available
   const dispersion = volatility;
 
   return {

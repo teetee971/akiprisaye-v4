@@ -1,0 +1,62 @@
+{
+  "FR-971": {
+    "name": "Guadeloupe",
+    "code": "GP",
+    "ilpp": 68,
+    "lastUpdated": "2024-01-11"
+  },
+  "FR-972": {
+    "name": "Martinique",
+    "code": "MQ",
+    "ilpp": 72,
+    "lastUpdated": "2024-01-11"
+  },
+  "FR-973": {
+    "name": "Guyane",
+    "code": "GF",
+    "ilpp": 55,
+    "lastUpdated": "2024-01-11"
+  },
+  "FR-974": {
+    "name": "La Réunion",
+    "code": "RE",
+    "ilpp": 61,
+    "lastUpdated": "2024-01-11"
+  },
+  "FR-976": {
+    "name": "Mayotte",
+    "code": "YT",
+    "ilpp": 79,
+    "lastUpdated": "2024-01-11"
+  },
+  "FR-977": {
+    "name": "Saint-Barthélemy",
+    "code": "BL",
+    "ilpp": 45,
+    "lastUpdated": "2024-01-11"
+  },
+  "FR-978": {
+    "name": "Saint-Martin",
+    "code": "MF",
+    "ilpp": 52,
+    "lastUpdated": "2024-01-11"
+  },
+  "FR-75": {
+    "name": "Paris",
+    "code": "75",
+    "ilpp": 42,
+    "lastUpdated": "2024-01-11"
+  },
+  "FR-13": {
+    "name": "Bouches-du-Rhône",
+    "code": "13",
+    "ilpp": 38,
+    "lastUpdated": "2024-01-11"
+  },
+  "FR-69": {
+    "name": "Rhône",
+    "code": "69",
+    "ilpp": 35,
+    "lastUpdated": "2024-01-11"
+  }
+}

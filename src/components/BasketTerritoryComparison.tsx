@@ -245,7 +245,7 @@ const BasketTerritoryComparison: React.FC<BasketTerritoryComparisonProps> = ({
                           {showAntiCrisis && (
                             <p className="text-xs text-gray-500 italic">
                               Historique insuffisant pour analyse Anti-Crise 
-                              (minimum {territory.antiCrisisResult.reasons[0]?.threshold || 5} observations requises)
+                              (minimum 5 observations requises)
                             </p>
                           )}
                         </div>
