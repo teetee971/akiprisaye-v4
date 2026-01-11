@@ -13,14 +13,22 @@
 import { useState, useEffect } from 'react';
 import { Card } from './card.jsx';
 import pricesHistory from '../data/prices-history.json';
+import {
+  PRICE_ALERT_THRESHOLDS,
+  ALERT_SEVERITY_ORDER,
+  getAlertSeverity,
+  exceedsAlertThresholds,
+} from '../config/thresholds';
+import { calculatePercentageChange, calculateAbsoluteChange } from '../utils/priceAnalysis';
+import { formatCurrency, formatPercentage } from '../utils/formatters';
 
 const ALERT_THRESHOLD_KEY = 'akiprisaye_alert_thresholds';
 const USER_ALERTS_KEY = 'akiprisaye_user_alerts';
 
 export function AlertesPrix() {
   const [thresholds, setThresholds] = useState({
-    percentage: 5, // Alert if price increases by more than 5%
-    absolute: 0.50,  // Alert if price increases by more than 0.50€
+    percentage: PRICE_ALERT_THRESHOLDS.DEFAULT_PERCENTAGE,
+    absolute: PRICE_ALERT_THRESHOLDS.DEFAULT_ABSOLUTE,
   });
   const [alerts, setAlerts] = useState([]);
   const [watchedProducts, setWatchedProducts] = useState([]);
@@ -54,15 +62,11 @@ export function AlertesPrix() {
       const current = history[history.length - 1];
       const previous = history[history.length - 2];
       
-      const absoluteChange = current.price - previous.price;
-      const percentageChange = ((absoluteChange / previous.price) * 100);
+      const absoluteChange = calculateAbsoluteChange(current.price, previous.price);
+      const percentageChange = calculatePercentageChange(current.price, previous.price);
 
       // Check if alert thresholds are exceeded
-      const isAbnormalIncrease = 
-        absoluteChange > 0 && (
-          percentageChange > thresholds.percentage ||
-          absoluteChange > thresholds.absolute
-        );
+      const isAbnormalIncrease = exceedsAlertThresholds(absoluteChange, percentageChange, thresholds);
 
       if (isAbnormalIncrease) {
         detectedAlerts.push({
@@ -74,16 +78,15 @@ export function AlertesPrix() {
           absoluteChange,
           percentageChange: percentageChange.toFixed(1),
           date: current.date,
-          severity: percentageChange > 10 ? 'high' : percentageChange > 5 ? 'medium' : 'low',
+          severity: getAlertSeverity(percentageChange),
         });
       }
     });
 
     // Sort by severity and percentage change
     detectedAlerts.sort((a, b) => {
-      const severityOrder = { high: 0, medium: 1, low: 2 };
-      if (severityOrder[a.severity] !== severityOrder[b.severity]) {
-        return severityOrder[a.severity] - severityOrder[b.severity];
+      if (ALERT_SEVERITY_ORDER[a.severity] !== ALERT_SEVERITY_ORDER[b.severity]) {
+        return ALERT_SEVERITY_ORDER[a.severity] - ALERT_SEVERITY_ORDER[b.severity];
       }
       return b.percentageChange - a.percentageChange;
     });
@@ -277,19 +280,19 @@ export function AlertesPrix() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
                       <div className="text-xs opacity-75 mb-1">Prix précédent</div>
-                      <div className="font-semibold">{alert.previousPrice.toFixed(2)} €</div>
+                      <div className="font-semibold">{formatCurrency(alert.previousPrice)}</div>
                     </div>
                     <div>
                       <div className="text-xs opacity-75 mb-1">Prix actuel</div>
-                      <div className="font-semibold">{alert.currentPrice.toFixed(2)} €</div>
+                      <div className="font-semibold">{formatCurrency(alert.currentPrice)}</div>
                     </div>
                     <div>
                       <div className="text-xs opacity-75 mb-1">Augmentation</div>
-                      <div className="font-semibold">+{alert.absoluteChange.toFixed(2)} €</div>
+                      <div className="font-semibold">+{formatCurrency(alert.absoluteChange)}</div>
                     </div>
                     <div>
                       <div className="text-xs opacity-75 mb-1">Variation</div>
-                      <div className="font-semibold">+{alert.percentageChange}%</div>
+                      <div className="font-semibold">+{formatPercentage(parseFloat(alert.percentageChange))}</div>
                     </div>
                   </div>
 
@@ -334,9 +337,9 @@ export function AlertesPrix() {
           </p>
           <p>
             <strong>Sévérité :</strong>
-            <span className="ml-2">🔴 Haute (+10%)</span>
-            <span className="ml-2">🟠 Moyenne (+5-10%)</span>
-            <span className="ml-2">🟡 Faible ({'<'}+5%)</span>
+            <span className="ml-2">🔴 Haute (+{PRICE_ALERT_THRESHOLDS.HIGH_SEVERITY_PERCENTAGE}%)</span>
+            <span className="ml-2">🟠 Moyenne (+{PRICE_ALERT_THRESHOLDS.MEDIUM_SEVERITY_PERCENTAGE}-{PRICE_ALERT_THRESHOLDS.HIGH_SEVERITY_PERCENTAGE}%)</span>
+            <span className="ml-2">🟡 Faible ({'<'}+{PRICE_ALERT_THRESHOLDS.MEDIUM_SEVERITY_PERCENTAGE}%)</span>
           </p>
           <p>
             <strong>Stockage :</strong> Préférences sauvegardées en local (localStorage)
