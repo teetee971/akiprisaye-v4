@@ -98,5 +98,6 @@ export function getAllTimeSlots(): readonly string[] {
  * Check if a time slot is valid
  */
 export function isValidTimeSlot(slot: string): boolean {
-  return slot === ALL_TIME_SLOTS || TIME_SLOTS.includes(slot as any);
+  if (slot === ALL_TIME_SLOTS) return true;
+  return (TIME_SLOTS as readonly string[]).includes(slot);
 }

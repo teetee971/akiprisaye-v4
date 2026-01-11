@@ -79,6 +79,7 @@ export function AlertesPrix() {
           percentageChange: percentageChange.toFixed(1),
           date: current.date,
           severity: getAlertSeverity(percentageChange),
+          _percentageChangeNum: percentageChange, // Keep numeric value for display
         });
       }
     });
@@ -292,7 +293,7 @@ export function AlertesPrix() {
                     </div>
                     <div>
                       <div className="text-xs opacity-75 mb-1">Variation</div>
-                      <div className="font-semibold">+{formatPercentage(parseFloat(alert.percentageChange))}</div>
+                      <div className="font-semibold">+{formatPercentage(alert._percentageChangeNum ?? parseFloat(alert.percentageChange))}</div>
                     </div>
                   </div>
 

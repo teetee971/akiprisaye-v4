@@ -278,13 +278,26 @@ export function getTerritoryByCode(code: string): Territory | undefined {
 
 /**
  * Get all active territories (enabled = true)
+ * Computed dynamically to ensure it's always up-to-date
  */
 export function getActiveTerritories(): Territory[] {
   return Object.values(TERRITORIES).filter(t => t.active);
 }
 
 /**
- * Get enabled territories (alias for getActiveTerritories)
+ * Get enabled territories (computed on first access)
+ */
+let _cachedEnabledTerritories: Territory[] | null = null;
+export function getEnabledTerritories(): Territory[] {
+  if (!_cachedEnabledTerritories) {
+    _cachedEnabledTerritories = getActiveTerritories();
+  }
+  return _cachedEnabledTerritories;
+}
+
+/**
+ * ENABLED_TERRITORIES - Alias for backward compatibility
+ * Use getEnabledTerritories() for lazy-loaded version
  */
 export const ENABLED_TERRITORIES = getActiveTerritories();
 
@@ -310,9 +323,16 @@ export function getTerritoryOrDefault(code?: string): Territory {
 export const DEFAULT_TERRITORY: TerritoryId = getActiveTerritories()[0]?.code ?? 'GP';
 
 /**
- * List of active territory codes
+ * List of active territory codes (computed lazily)
  */
-export const ACTIVE_TERRITORY_CODES: TerritoryId[] = getActiveTerritories().map(t => t.code);
+export function getActiveTerritoryCodesIds(): TerritoryId[] {
+  return getActiveTerritories().map(t => t.code);
+}
+
+/**
+ * ACTIVE_TERRITORY_CODES - For backward compatibility
+ */
+export const ACTIVE_TERRITORY_CODES: TerritoryId[] = getActiveTerritoryCodesIds();
 
 /**
  * Constant for "All territories" filter option

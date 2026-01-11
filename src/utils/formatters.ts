@@ -11,14 +11,22 @@
 
 /**
  * Format a number as currency (Euro by default)
- * For territory-specific formatting, use formatPriceForTerritory() instead
+ * 
+ * ⚠️ NOTE: This function formats prices as EUR (€) only.
+ * For territory-specific currency formatting (EUR, XPF, etc.), 
+ * use formatPriceForTerritory() from src/constants/territories.ts
  * 
  * @param amount - Amount to format
  * @param decimals - Number of decimal places (default: 2)
+ * @param currency - Currency symbol (default: '€')
  * @returns Formatted currency string
+ * 
+ * @example
+ * formatCurrency(99.99) // "99.99 €"
+ * formatCurrency(99.99, 2, '$') // "99.99 $"
  */
-export function formatCurrency(amount: number, decimals: number = 2): string {
-  return amount.toFixed(decimals) + ' €';
+export function formatCurrency(amount: number, decimals: number = 2, currency: string = '€'): string {
+  return amount.toFixed(decimals) + ' ' + currency;
 }
 
 /**
