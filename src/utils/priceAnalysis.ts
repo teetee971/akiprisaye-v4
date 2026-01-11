@@ -171,3 +171,85 @@ export function isAbnormalPrice(
   const deviation = Math.abs(currentPrice - mean) / stdDev;
   return deviation > deviationThreshold;
 }
+
+/**
+ * Multi-territory basket comparison result
+ */
+export interface TerritoryBasketComparison {
+  territoryId: string;
+  totalPrice: number;
+  deltaFromMin: number;
+  deltaPercentage: number;
+  isCheapest: boolean;
+}
+
+/**
+ * Compare a basket across multiple territories
+ * 
+ * @param basket - Basket object with price per territory or price calculation function
+ * @param territoryIds - Array of territory IDs to compare
+ * @param getPriceForTerritory - Function to get price for a given territory (optional)
+ * @returns Array of comparison results sorted by price (cheapest first)
+ * 
+ * @example
+ * const results = compareBasketAcrossTerritories(
+ *   { GP: 45.50, MQ: 48.20, GF: 46.80 },
+ *   ['GP', 'MQ', 'GF']
+ * );
+ * // Returns: [
+ * //   { territoryId: 'GP', totalPrice: 45.50, deltaFromMin: 0, deltaPercentage: 0, isCheapest: true },
+ * //   { territoryId: 'GF', totalPrice: 46.80, deltaFromMin: 1.30, deltaPercentage: 2.86, isCheapest: false },
+ * //   { territoryId: 'MQ', totalPrice: 48.20, deltaFromMin: 2.70, deltaPercentage: 5.93, isCheapest: false }
+ * // ]
+ */
+export function compareBasketAcrossTerritories(
+  basket: Record<string, number> | any,
+  territoryIds: string[],
+  getPriceForTerritory?: (basket: any, territoryId: string) => number
+): TerritoryBasketComparison[] {
+  if (territoryIds.length === 0) {
+    return [];
+  }
+
+  // Calculate prices for each territory
+  const territoryPrices: Array<{ territoryId: string; totalPrice: number }> = [];
+  
+  for (const territoryId of territoryIds) {
+    let price: number;
+    
+    if (getPriceForTerritory) {
+      // Use custom price calculation function
+      price = getPriceForTerritory(basket, territoryId);
+    } else if (typeof basket === 'object' && basket[territoryId] !== undefined) {
+      // Basket is a simple object with territory keys
+      price = basket[territoryId];
+    } else if (basket.price !== undefined) {
+      // Basket has a single price property (fallback)
+      price = basket.price;
+    } else {
+      // Skip territories without price data
+      continue;
+    }
+    
+    territoryPrices.push({ territoryId, totalPrice: price });
+  }
+
+  if (territoryPrices.length === 0) {
+    return [];
+  }
+
+  // Find minimum price
+  const minPrice = Math.min(...territoryPrices.map(tp => tp.totalPrice));
+
+  // Build comparison results
+  const results: TerritoryBasketComparison[] = territoryPrices.map(tp => ({
+    territoryId: tp.territoryId,
+    totalPrice: tp.totalPrice,
+    deltaFromMin: tp.totalPrice - minPrice,
+    deltaPercentage: minPrice > 0 ? ((tp.totalPrice - minPrice) / minPrice) * 100 : 0,
+    isCheapest: tp.totalPrice === minPrice,
+  }));
+
+  // Sort by price (cheapest first)
+  return results.sort((a, b) => a.totalPrice - b.totalPrice);
+}

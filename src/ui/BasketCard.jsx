@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { saveBasketToHistory } from '../services/tiPanieService';
 import PriceBadge from '../components/PriceBadge';
+import BasketTerritoryComparison from './BasketTerritoryComparison';
+import { compareBasketAcrossTerritories } from '../utils/priceAnalysis';
 
-export default function BasketCard({ basket }) {
+export default function BasketCard({ basket, selectedTerritories }) {
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -19,6 +21,21 @@ export default function BasketCard({ basket }) {
       await saveBasketToHistory(user.uid, basket);
     }
   };
+
+  // Calculate territory comparison if multiple territories selected
+  let territoryComparison = null;
+  if (selectedTerritories && selectedTerritories.length > 1) {
+    // Build price map from basket data
+    // Assuming basket has prices per territory or we use the same price for all
+    const priceMap = {};
+    selectedTerritories.forEach(territoryId => {
+      // If basket has territory-specific prices, use them
+      // Otherwise use the base price (same for all territories)
+      priceMap[territoryId] = basket.prices?.[territoryId] || basket.price || 0;
+    });
+
+    territoryComparison = compareBasketAcrossTerritories(priceMap, selectedTerritories);
+  }
 
   return (
     <div
@@ -84,13 +101,18 @@ export default function BasketCard({ basket }) {
           />
         </div>
 
+        {/* Territory Comparison (only if multiple territories selected) */}
+        {territoryComparison && territoryComparison.length > 1 && (
+          <BasketTerritoryComparison comparison={territoryComparison} basket={basket} />
+        )}
+
         {/* Action Button */}
         <button
           onClick={(e) => {
             e.stopPropagation();
             handleViewOnMap();
           }}
-          className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-sm"
+          className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition text-sm mt-3"
         >
           📍 Voir sur la carte
         </button>
