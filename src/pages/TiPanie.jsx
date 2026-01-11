@@ -6,7 +6,7 @@ import BasketFilters from '../ui/BasketFilters';
 export default function TiPanie() {
   const [baskets, setBaskets] = useState([]);
   const [filters, setFilters] = useState({
-    territory: 'all',
+    selectedTerritories: ['GP'], // Default to Guadeloupe
     store: '',
     timeSlot: '',
     stockOnly: false,
@@ -20,7 +20,14 @@ export default function TiPanie() {
   const loadBaskets = async () => {
     setLoading(true);
     try {
-      const data = await getBaskets(filters);
+      // Convert selectedTerritories to legacy territory format for service compatibility
+      const serviceFilters = {
+        ...filters,
+        territory: filters.selectedTerritories?.length === 1 
+          ? filters.selectedTerritories[0] 
+          : 'all',
+      };
+      const data = await getBaskets(serviceFilters);
       setBaskets(data);
     } catch (error) {
       console.error('Error loading baskets:', error);
@@ -80,7 +87,11 @@ export default function TiPanie() {
         {!loading && baskets.length > 0 && (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {baskets.map((basket) => (
-              <BasketCard key={basket.id} basket={basket} />
+              <BasketCard 
+                key={basket.id} 
+                basket={basket} 
+                selectedTerritories={filters.selectedTerritories}
+              />
             ))}
           </div>
         )}
