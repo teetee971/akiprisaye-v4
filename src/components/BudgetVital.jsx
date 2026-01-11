@@ -12,6 +12,9 @@
 import { useState } from 'react';
 import { Card } from './card.jsx';
 import budgetData from '../data/budget-vital.json';
+import { getActiveTerritories } from '../constants/territories';
+import { calculateBudgetAnalysis } from '../utils/priceAnalysis';
+import { formatCurrency, formatPercentage } from '../utils/formatters';
 
 export function BudgetVital() {
   const [selectedProfile, setSelectedProfile] = useState('adulte-seul');
@@ -32,16 +35,14 @@ export function BudgetVital() {
     );
   }
 
-  // Calculate deficit or surplus
-  const difference = referenceIncome - budget.total;
-  const isDeficit = difference < 0;
-  const percentOfIncome = ((budget.total / referenceIncome) * 100).toFixed(1);
+  // Calculate deficit or surplus using utility
+  const { difference, isDeficit, percentOfIncome } = calculateBudgetAnalysis(referenceIncome, budget.total);
 
+  // Get active territories with France for comparison
   const territories = [
-    { code: 'GP', name: 'Guadeloupe', flag: '🇬🇵' },
-    { code: 'MQ', name: 'Martinique', flag: '🇲🇶' },
-    { code: 'GF', name: 'Guyane', flag: '🇬🇫' },
-    { code: 'RE', name: 'La Réunion', flag: '🇷🇪' },
+    ...getActiveTerritories()
+      .filter(t => ['GP', 'MQ', 'GF', 'RE'].includes(t.code))
+      .map(t => ({ code: t.code, name: t.name, flag: t.flag })),
     { code: 'FR', name: 'France métropolitaine', flag: '🇫🇷' },
   ];
 
@@ -124,7 +125,7 @@ export function BudgetVital() {
               >
                 <div className="text-sm text-gray-600 dark:text-gray-400">SMIC net</div>
                 <div className="text-lg font-bold text-gray-900 dark:text-white">
-                  {budgetData.referenceIncomes[selectedTerritory].SMIC.toFixed(2)} €
+                  {formatCurrency(budgetData.referenceIncomes[selectedTerritory].SMIC)}
                 </div>
               </button>
               <button
@@ -137,7 +138,7 @@ export function BudgetVital() {
               >
                 <div className="text-sm text-gray-600 dark:text-gray-400">RSA</div>
                 <div className="text-lg font-bold text-gray-900 dark:text-white">
-                  {budgetData.referenceIncomes[selectedTerritory].RSA.toFixed(2)} €
+                  {formatCurrency(budgetData.referenceIncomes[selectedTerritory].RSA)}
                 </div>
               </button>
             </div>
@@ -165,11 +166,11 @@ export function BudgetVital() {
               TOTAL MENSUEL
             </span>
             <span className="text-3xl font-bold text-green-600 dark:text-green-400">
-              {budget.total.toFixed(2)} €
+              {formatCurrency(budget.total)}
             </span>
           </div>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-            Représente {percentOfIncome}% du {selectedIncome} mensuel
+            Représente {formatPercentage(percentOfIncome)} du {selectedIncome} mensuel
           </p>
         </div>
       </Card>
@@ -194,7 +195,7 @@ export function BudgetVital() {
             <div className={`text-4xl font-bold mb-3 ${
               isDeficit ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
             }`}>
-              {Math.abs(difference).toFixed(2)} €
+              {formatCurrency(Math.abs(difference))}
             </div>
 
             <p className={`text-sm ${
@@ -202,15 +203,15 @@ export function BudgetVital() {
             }`}>
               {isDeficit ? (
                 <>
-                  Avec un {selectedIncome} mensuel de {referenceIncome.toFixed(2)} € et un budget vital de {budget.total.toFixed(2)} €,
-                  le déficit mensuel est de {Math.abs(difference).toFixed(2)} €.
+                  Avec un {selectedIncome} mensuel de {formatCurrency(referenceIncome)} et un budget vital de {formatCurrency(budget.total)},
+                  le déficit mensuel est de {formatCurrency(Math.abs(difference))}.
                   <br /><br />
                   <strong>Cela signifie que le revenu de référence ne couvre pas les besoins essentiels.</strong>
                 </>
               ) : (
                 <>
-                  Avec un {selectedIncome} mensuel de {referenceIncome.toFixed(2)} € et un budget vital de {budget.total.toFixed(2)} €,
-                  il reste {difference.toFixed(2)} € pour les autres dépenses.
+                  Avec un {selectedIncome} mensuel de {formatCurrency(referenceIncome)} et un budget vital de {formatCurrency(budget.total)},
+                  il reste {formatCurrency(difference)} pour les autres dépenses.
                   <br /><br />
                   <strong>Ce montant représente ce qui reste après avoir couvert les besoins essentiels.</strong>
                 </>
@@ -260,7 +261,7 @@ function BudgetLine({ label, amount }) {
     <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
       <span className="text-gray-700 dark:text-gray-300">{label}</span>
       <span className="font-semibold text-gray-900 dark:text-white">
-        {amount.toFixed(2)} €
+        {formatCurrency(amount)}
       </span>
     </div>
   );

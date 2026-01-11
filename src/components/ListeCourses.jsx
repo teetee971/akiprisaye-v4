@@ -7,55 +7,7 @@ import { loadStats, trackTrip, getBadges, clearStats } from '../utils/shoppingSt
 import OptimalRouteDisplay from './OptimalRouteDisplay';
 import ProductSuggestionsDisplay from './ProductSuggestionsDisplay';
 import StatsDisplay from './StatsDisplay';
-
-// Catégories officielles basées sur rapports OPMR/DGCCRF
-const CATEGORIES_OFFICIELLES = {
-  'alimentaire_base': {
-    nom: 'Produits alimentaires de base',
-    types_magasins: ['Supermarché', 'Hypermarché', 'Hard discount', 'Commerce de proximité'],
-    source: 'OPMR - Panier de référence',
-  },
-  'frais': {
-    nom: 'Produits frais',
-    types_magasins: ['Supermarché', 'Hypermarché', 'Marché alimentaire'],
-    source: 'OPMR - Alimentation fraîche',
-  },
-  'carburant': {
-    nom: 'Carburant',
-    types_magasins: ['Station-service'],
-    source: 'prix-carburants.gouv.fr',
-  },
-  'bricolage': {
-    nom: 'Bricolage / Matériaux',
-    types_magasins: ['Bricolage / Matériaux'],
-    source: 'INSEE - NAF 4752',
-  },
-  'hygiene': {
-    nom: 'Hygiène / Santé',
-    types_magasins: ['Pharmacie', 'Parapharmacie', 'Supermarché'],
-    source: 'OPMR - Hygiène',
-  },
-};
-
-const PRODUITS_GENERIQUES = [
-  { nom: 'Riz', categorie: 'alimentaire_base' },
-  { nom: 'Pâtes', categorie: 'alimentaire_base' },
-  { nom: 'Lait', categorie: 'frais' },
-  { nom: 'Pain', categorie: 'frais' },
-  { nom: 'Fruits', categorie: 'frais' },
-  { nom: 'Légumes', categorie: 'frais' },
-  { nom: 'Viande', categorie: 'frais' },
-  { nom: 'Poisson', categorie: 'frais' },
-  { nom: 'Huile', categorie: 'alimentaire_base' },
-  { nom: 'Sucre', categorie: 'alimentaire_base' },
-  { nom: 'Farine', categorie: 'alimentaire_base' },
-  { nom: 'Eau', categorie: 'alimentaire_base' },
-  { nom: 'Essence', categorie: 'carburant' },
-  { nom: 'Diesel', categorie: 'carburant' },
-  { nom: 'Médicaments', categorie: 'hygiene' },
-  { nom: 'Shampooing', categorie: 'hygiene' },
-  { nom: 'Savon', categorie: 'hygiene' },
-];
+import { PRODUCT_CATEGORIES, GENERIC_PRODUCTS } from '../config/categories';
 
 export default function ListeCourses({ territoire = '971' }) {
   const [listeCourses, setListeCourses] = useState([]);
@@ -194,7 +146,7 @@ export default function ListeCourses({ territoire = '971' }) {
 
     // Critère 1: Type de magasin correspond aux catégories
     const typesCompatibles = categoriesRequises.flatMap(cat => 
-      CATEGORIES_OFFICIELLES[cat]?.types_magasins || [],
+      PRODUCT_CATEGORIES[cat]?.types_magasins || [],
     );
     
     if (typesCompatibles.includes(magasin.type_magasin)) {
@@ -228,7 +180,7 @@ export default function ListeCourses({ territoire = '971' }) {
   // Ajouter produit à la liste
   const ajouterProduit = useCallback(() => {
     if (!produitSelectionne) return;
-    const produit = PRODUITS_GENERIQUES.find(p => p.nom === produitSelectionne);
+    const produit = GENERIC_PRODUCTS.find(p => p.nom === produitSelectionne);
     if (produit && !listeCourses.find(p => p.nom === produit.nom)) {
       setListeCourses([...listeCourses, produit]);
       setProduitSelectionne('');
@@ -237,7 +189,7 @@ export default function ListeCourses({ territoire = '971' }) {
   
   // Ajouter produit rapide (depuis suggestions)
   const ajouterProduitRapide = useCallback((nomProduit) => {
-    const produit = PRODUITS_GENERIQUES.find(p => p.nom === nomProduit);
+    const produit = GENERIC_PRODUCTS.find(p => p.nom === nomProduit);
     if (produit && !listeCourses.find(p => p.nom === produit.nom)) {
       setListeCourses([...listeCourses, produit]);
     }
@@ -378,7 +330,7 @@ export default function ListeCourses({ territoire = '971' }) {
                 className="flex-1 bg-slate-700 border border-slate-600 rounded px-3 py-2 text-white"
               >
                 <option value="">Sélectionner un produit</option>
-                {PRODUITS_GENERIQUES
+                {GENERIC_PRODUCTS
                   .filter(p => !listeCourses.find(lp => lp.nom === p.nom))
                   .map(p => (
                     <option key={p.nom} value={p.nom}>{p.nom}</option>
@@ -403,7 +355,7 @@ export default function ListeCourses({ territoire = '971' }) {
                     <div>
                       <p className="text-white font-medium">{produit.nom}</p>
                       <p className="text-xs text-slate-400">
-                        {CATEGORIES_OFFICIELLES[produit.categorie]?.nom}
+                        {PRODUCT_CATEGORIES[produit.categorie]?.nom}
                       </p>
                     </div>
                     <button
@@ -471,8 +423,8 @@ export default function ListeCourses({ territoire = '971' }) {
               <div className="space-y-2">
                 {categoriesRequises.map(cat => (
                   <div key={cat} className="text-xs text-slate-400">
-                    <span className="text-slate-300">{CATEGORIES_OFFICIELLES[cat]?.nom}:</span>{' '}
-                    {CATEGORIES_OFFICIELLES[cat]?.source}
+                    <span className="text-slate-300">{PRODUCT_CATEGORIES[cat]?.nom}:</span>{' '}
+                    {PRODUCT_CATEGORIES[cat]?.source}
                   </div>
                 ))}
               </div>

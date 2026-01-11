@@ -6,6 +6,8 @@
  * WebView limitations, and user denials.
  */
 
+import uxMonitor from './uxMonitor';
+
 export interface GeolocationResult {
   success: boolean;
   position?: {
@@ -200,6 +202,9 @@ export async function requestGeolocation(
   // Check permission state if available
   const permissionState = await checkPermissionState();
   
+  // PROMPT 4: Monitor geolocation request
+  uxMonitor.geolocationRequested();
+  
   if (permissionState === 'denied') {
     const result: GeolocationResult = {
       success: false,
@@ -217,6 +222,9 @@ export async function requestGeolocation(
     if (showMessage) {
       showMessage(result.error.userMessage, 'error');
     }
+    
+    // PROMPT 4: Monitor geolocation denied
+    uxMonitor.geolocationDenied('denied_previously');
     
     return result;
   }
@@ -242,6 +250,9 @@ export async function requestGeolocation(
           showMessage('Position obtenue avec succès !', 'success');
         }
         
+        // PROMPT 4: Monitor geolocation success
+        uxMonitor.geolocationGranted();
+        
         resolve(result);
       },
       (error) => {
@@ -260,6 +271,9 @@ export async function requestGeolocation(
           
           showMessage(message, 'error');
         }
+        
+        // PROMPT 4: Monitor geolocation denied
+        uxMonitor.geolocationDenied(result.error?.code || 'unknown');
         
         resolve(result);
       },

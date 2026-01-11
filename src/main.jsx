@@ -84,6 +84,10 @@ const EnhancedComparator = lazyWithRetry(() => import('./pages/EnhancedComparato
 // Service Comparator (flights, boats, internet, mobile, water, electricity)
 const ServiceComparator = lazyWithRetry(() => import('./pages/ServiceComparator'));
 
+// Strategic Comparators - Priority 1
+const FlightComparator = lazyWithRetry(() => import('./pages/FlightComparator'));
+const BoatComparator = lazyWithRetry(() => import('./pages/BoatComparator'));
+
 // Unified Scan Flow
 const ScanFlow = lazyWithRetry(() => import('./pages/ScanFlow'));
 
@@ -93,8 +97,53 @@ const ProductPhotoAnalysis = lazyWithRetry(() => import('./pages/ProductPhotoAna
 // Store Detail Page with company info, graphs, and history
 const StoreDetail = lazyWithRetry(() => import('./pages/StoreDetail'));
 
+// Basket Comparison Page - PROMPT 4
+const BasketComparison = lazyWithRetry(() => import('./pages/BasketComparison'));
+
 // Unified Price Search Hub - Single entry point for all search modes
 const RecherchePrix = lazyWithRetry(() => import('./pages/RecherchePrix'));
+
+// Flight Price Module (feature flagged)
+const AvionsPrix = lazyWithRetry(() => import('./pages/recherche-prix/Avions'));
+
+// Boat/Ferry Price Module (feature flagged)
+const BateauxPrix = lazyWithRetry(() => import('./pages/recherche-prix/Bateaux'));
+
+// Mobile Plans Module (feature flagged)
+const AbonnementsMobile = lazyWithRetry(() => import('./pages/recherche-prix/AbonnementsMobile'));
+
+// Internet Plans Module (feature flagged)
+const AbonnementsInternet = lazyWithRetry(() => import('./pages/recherche-prix/AbonnementsInternet'));
+
+// Electricity Price Module (feature flagged)
+const Electricite = lazyWithRetry(() => import('./pages/recherche-prix/Electricite'));
+
+// Water Price Module (feature flagged)
+const Eau = lazyWithRetry(() => import('./pages/recherche-prix/Eau'));
+
+// Freight Price Module (feature flagged)
+const Fret = lazyWithRetry(() => import('./pages/recherche-prix/Fret'));
+
+// Air Freight Price Module (feature flagged)
+const FretAerien = lazyWithRetry(() => import('./pages/recherche-prix/FretAerien'));
+
+// Logistics Index Module (feature flagged) - PRIORITY 8
+const IndiceLogistique = lazyWithRetry(() => import('./pages/recherche-prix/IndiceLogistique'));
+
+// Logistics Delays & Tensions Module (feature flagged) - PRIORITY 9
+const DelaisTensionsLogistiques = lazyWithRetry(() => import('./pages/recherche-prix/DelaisTensionsLogistiques'));
+
+// Logistics Explanation Module (feature flagged) - PRIORITY 10
+const PourquoiDelaisProduit = lazyWithRetry(() => import('./pages/recherche-prix/PourquoiDelaisProduit'));
+
+// Logistics FAQ Module (feature flagged) - PRIORITY 12-13
+const QuestionsLogistiqueDOM = lazyWithRetry(() => import('./pages/ressources/QuestionsLogistiqueDOM'));
+
+// Price Variation Education Module (feature flagged) - PRIORITY 19
+const PourquoiPrixVarieSansChangement = lazyWithRetry(() => import('./pages/ressources/PourquoiPrixVarieSansChangement'));
+
+// Promotions Education Module (feature flagged) - PRIORITY 20
+const ComprendrePromotionsPrixBarres = lazyWithRetry(() => import('./pages/ressources/ComprendrePromotionsPrixBarres'));
 
 // Loading component
 function LoadingFallback() {
@@ -251,11 +300,315 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='comparateur-services' element={<ServiceComparator />} />
                   <Route path='services' element={<ServiceComparator />} />
                   
+                  {/* Strategic Comparators - Priority 1: Vital Transport */}
+                  <Route path='comparateur-vols' element={<FlightComparator />} />
+                  <Route path='vols' element={<FlightComparator />} />
+                  <Route path='comparateur-bateaux' element={<BoatComparator />} />
+                  <Route path='bateaux' element={<BoatComparator />} />
+                  <Route path='ferries' element={<BoatComparator />} />
+                  
                   {/* Store Detail Page - Fiche enseigne avec graphs, filiales, etc. */}
                   <Route path='enseigne/:storeId' element={<StoreDetail />} />
                   
+                  {/* Basket Comparison Page - PROMPT 4 */}
+                  <Route path='comparer-panier' element={<BasketComparison />} />
+                  
                   {/* Unified Price Search Hub - Single entry point */}
                   <Route path='recherche-prix' element={<RecherchePrix />} />
+                  
+                  {/* Flight Price Module (feature flagged) */}
+                  <Route 
+                    path='recherche-prix/avions' 
+                    element={
+                      import.meta.env.VITE_FEATURE_FLIGHTS === 'true' ? (
+                        <AvionsPrix />
+                      ) : (
+                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                              Module en préparation
+                            </h2>
+                            <p className="text-gray-400 text-sm">
+                              Le comparateur de prix de billets d'avion sera bientôt disponible.
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    } 
+                  />
+                  
+                  {/* Boat/Ferry Price Module (feature flagged) */}
+                  <Route 
+                    path='recherche-prix/bateaux' 
+                    element={
+                      import.meta.env.VITE_FEATURE_BOATS === 'true' ? (
+                        <BateauxPrix />
+                      ) : (
+                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                              Module en préparation
+                            </h2>
+                            <p className="text-gray-400 text-sm">
+                              Le comparateur de prix de bateaux/ferries sera bientôt disponible.
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    } 
+                  />
+                  
+                  {/* Mobile Plans Module (feature flagged) */}
+                  <Route 
+                    path='recherche-prix/abonnements/mobile' 
+                    element={
+                      import.meta.env.VITE_FEATURE_MOBILE_PLANS === 'true' ? (
+                        <AbonnementsMobile />
+                      ) : (
+                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                              Module en préparation
+                            </h2>
+                            <p className="text-gray-400 text-sm">
+                              Le comparateur de prix des abonnements mobiles sera bientôt disponible.
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    } 
+                  />
+                  
+                  {/* Internet Plans Module (feature flagged) */}
+                  <Route 
+                    path='recherche-prix/abonnements/internet' 
+                    element={
+                      import.meta.env.VITE_FEATURE_INTERNET_PLANS === 'true' ? (
+                        <AbonnementsInternet />
+                      ) : (
+                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                              Module en préparation
+                            </h2>
+                            <p className="text-gray-400 text-sm">
+                              Le comparateur de prix des abonnements Internet sera bientôt disponible.
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    } 
+                  />
+                  
+                  {/* Electricity Price Module (feature flagged) */}
+                  <Route 
+                    path='recherche-prix/energie/electricite' 
+                    element={
+                      import.meta.env.VITE_FEATURE_ELECTRICITY === 'true' ? (
+                        <Electricite />
+                      ) : (
+                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                              Module en préparation
+                            </h2>
+                            <p className="text-gray-400 text-sm">
+                              Le comparateur de prix de l'électricité sera bientôt disponible.
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    } 
+                  />
+                  
+                  {/* Water Price Module (feature flagged) */}
+                  <Route 
+                    path='recherche-prix/energie/eau' 
+                    element={
+                      import.meta.env.VITE_FEATURE_WATER === 'true' ? (
+                        <Eau />
+                      ) : (
+                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                              Module en préparation
+                            </h2>
+                            <p className="text-gray-400 text-sm">
+                              Le comparateur de prix de l'eau sera bientôt disponible.
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    } 
+                  />
+                  
+                  {/* Freight Price Module (feature flagged) */}
+                  <Route 
+                    path='recherche-prix/fret' 
+                    element={
+                      import.meta.env.VITE_FEATURE_FREIGHT === 'true' ? (
+                        <Fret />
+                      ) : (
+                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                              Module en préparation
+                            </h2>
+                            <p className="text-gray-400 text-sm">
+                              Le comparateur de coûts de fret maritime sera bientôt disponible.
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    } 
+                  />
+                  
+                  {/* Air Freight Price Module (feature flagged) */}
+                  <Route 
+                    path='recherche-prix/fret-aerien' 
+                    element={
+                      import.meta.env.VITE_FEATURE_FRET_AERIEN === 'true' ? (
+                        <FretAerien />
+                      ) : (
+                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                              Module en préparation
+                            </h2>
+                            <p className="text-gray-400 text-sm">
+                              Le comparateur de coûts de fret aérien sera bientôt disponible.
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    } 
+                  />
+                  
+                  {/* Logistics Index Module (feature flagged) - PRIORITY 8 */}
+                  <Route 
+                    path='recherche-prix/indice-logistique' 
+                    element={
+                      import.meta.env.VITE_FEATURE_LOGISTICS_INDEX === 'true' ? (
+                        <IndiceLogistique />
+                      ) : (
+                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                              Module en préparation
+                            </h2>
+                            <p className="text-gray-400 text-sm">
+                              L'indice logistique DOM sera bientôt disponible.
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    } 
+                  />
+                  
+                  {/* Logistics Delays & Tensions Module (feature flagged) - PRIORITY 9 */}
+                  <Route 
+                    path='recherche-prix/delais-logistiques' 
+                    element={
+                      import.meta.env.VITE_FEATURE_LOGISTICS_DELAYS === 'true' ? (
+                        <DelaisTensionsLogistiques />
+                      ) : (
+                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                              Module en préparation
+                            </h2>
+                            <p className="text-gray-400 text-sm">
+                              Le module délais & tensions logistiques sera bientôt disponible.
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    } 
+                  />
+                  
+                  {/* Logistics Explanation Module (feature flagged) - PRIORITY 10 */}
+                  <Route 
+                    path='recherche-prix/pourquoi-delais-produit' 
+                    element={
+                      import.meta.env.VITE_FEATURE_LOGISTICS_EXPLANATION === 'true' ? (
+                        <PourquoiDelaisProduit />
+                      ) : (
+                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                              Module en préparation
+                            </h2>
+                            <p className="text-gray-400 text-sm">
+                              Le module d'explication des délais produits sera bientôt disponible.
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    } 
+                  />
+                  
+                  {/* Logistics FAQ Module (feature flagged) - PRIORITY 12-13 */}
+                  <Route 
+                    path='ressources/questions-logistique-dom' 
+                    element={
+                      import.meta.env.VITE_FEATURE_LOGISTICS_FAQ === 'true' ? (
+                        <QuestionsLogistiqueDOM />
+                      ) : (
+                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                              Module en préparation
+                            </h2>
+                            <p className="text-gray-400 text-sm">
+                              La FAQ logistique DOM sera bientôt disponible.
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    } 
+                  />
+                  
+                  {/* Price Variation Education Module (feature flagged) - PRIORITY 19 */}
+                  <Route 
+                    path='ressources/pourquoi-prix-varie-sans-changement' 
+                    element={
+                      import.meta.env.VITE_FEATURE_PRICE_VARIATION_EDU === 'true' ? (
+                        <PourquoiPrixVarieSansChangement />
+                      ) : (
+                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                              Module en préparation
+                            </h2>
+                            <p className="text-gray-400 text-sm">
+                              Le module éducatif sur les variations de prix sera bientôt disponible.
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    } 
+                  />
+                  
+                  {/* Promotions Education Module (feature flagged) - PRIORITY 20 */}
+                  <Route 
+                    path='ressources/comprendre-promotions-prix-barres' 
+                    element={
+                      import.meta.env.VITE_FEATURE_PROMOTIONS_EDU === 'true' ? (
+                        <ComprendrePromotionsPrixBarres />
+                      ) : (
+                        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+                          <div className="bg-slate-900/50 backdrop-blur-md rounded-xl border border-slate-700/50 p-8 text-center max-w-md">
+                            <h2 className="text-xl font-semibold text-gray-100 mb-2">
+                              Module en préparation
+                            </h2>
+                            <p className="text-gray-400 text-sm">
+                              Le module éducatif sur les promotions et prix barrés sera bientôt disponible.
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    } 
+                  />
                   
                   {/* New simplified pages for automatic generation */}
                   <Route path='comparer' element={<CompareSimple />} />
