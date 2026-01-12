@@ -166,6 +166,140 @@ Comparateur de prix existant
 
 ---
 
+## ✨ Qualité & Transparence
+
+### Politique Qualité Non Négociable
+
+Ce projet applique **une gouvernance qualité stricte et vérifiable** pour garantir une expérience utilisateur de qualité, même sur réseaux dégradés (DOM/ROM/COM).
+
+#### 🔒 CI Strict — Zéro Warning, Zéro Compromis
+
+Toute Pull Request provoquant :
+- ❌ Une régression Lighthouse (performance, accessibilité, SEO)
+- ❌ Un warning TypeScript
+- ❌ Un warning ESLint
+- ❌ Une violation WCAG 2.1 AA
+- ❌ Un dépassement de budget performance
+- ❌ Une vulnérabilité npm ≥ moderate
+
+**est automatiquement rejetée.**
+
+#### 📊 Lighthouse CI — Seuils Stricts
+
+- **Performance ≥ 85** — Navigation fluide même en 3G/4G instable
+- **Accessibilité ≥ 95** — Application utilisable par tous
+- **Bonnes pratiques ≥ 95** — Sécurité et compatibilité garanties
+- **SEO ≥ 90** — Visibilité et partage optimaux
+
+**Métriques Core Web Vitals (bloquantes) :**
+- LCP (Largest Contentful Paint) < 3.5s
+- CLS (Cumulative Layout Shift) < 0.1
+- FCP (First Contentful Paint) < 2.5s
+- TBT (Total Blocking Time) < 300ms
+- Speed Index < 4.0s
+
+#### 🎯 Budgets Performance par Module
+
+| Type de ressource | Budget max |
+|-------------------|-----------|
+| Scripts (JS) | 350 KB |
+| Images | 500 KB |
+| Stylesheets (CSS) | 50 KB |
+| **Total page** | **1.2 MB** |
+
+**Modules concernés :**
+- Page d'accueil
+- Module Anti-Crise
+- Comparateurs (prix, enseignes, territoires)
+- Observatoire temps réel
+- Carte interactive
+
+⛔ **Tout dépassement = CI FAIL**
+
+#### ♿ Accessibilité WCAG 2.1 AA Automatisée
+
+Tests automatiques via **axe-core** (référence industrie) :
+- ✅ Contrastes de couleurs
+- ✅ Navigation clavier complète
+- ✅ aria-labels et rôles ARIA
+- ✅ Ordre des titres (h1, h2, h3...)
+- ✅ Labels de formulaires
+- ✅ Focus visible
+- ✅ Alt text pour images
+
+**Pages testées :**
+- Accueil
+- Anti-Crise
+- Comparateur
+- Observatoire
+
+#### 📈 Transparence des Rapports
+
+- 🔗 **Rapports Lighthouse publics** : URL générée à chaque build et postée en commentaire de PR
+- 📊 **Métriques suivies** : Core Web Vitals, budgets, accessibilité, SEO
+- 🗂️ **Historique conservé** : 30 jours dans GitHub Actions artifacts
+
+**Prochaine étape :** Page publique `/transparence/qualite-technique` avec historique complet.
+
+### Bonnes Pratiques Appliquées
+
+✅ **Performance**
+- Lazy-load des cartes (Leaflet)
+- Code splitting par route
+- Images optimisées WebP/AVIF
+- Compression Gzip/Brotli
+- Fonts locales uniquement
+
+✅ **Accessibilité**
+- Navigation clavier complète
+- Contrastes WCAG AA
+- ARIA labels cohérents
+- Responsive mobile-first
+
+✅ **Sécurité**
+- Aucun tracker tiers bloquant
+- CSP (Content Security Policy)
+- Audit npm automatique
+- Dépendances à jour
+
+✅ **Respect utilisateurs**
+- Pas de dark patterns
+- Données réelles uniquement
+- Transparent sur les sources
+- Respect RGPD
+
+### Pipeline CI/CD Complet
+
+```
+1. Lint strict (ESLint --max-warnings=0)
+2. TypeScript strict (--noEmit)
+3. Tests fonctionnels (Vitest)
+4. Build sans warnings (Vite)
+5. Audit sécurité (npm audit)
+6. Tests accessibilité (axe-core WCAG)
+7. Lighthouse CI (performance + budgets)
+8. Déploiement Cloudflare Pages
+```
+
+👉 **Aucun bypass possible. Qualité mesurable et auditable.**
+
+### Positionnement Stratégique
+
+❌ **Ce que nous ne sommes PAS :**
+- Une app "bons plans" avec prix simulés
+- Un site avec dark patterns ou FOMO artificiel
+- Une plateforme d'affiliation déguisée
+
+✅ **Ce que nous SOMMES :**
+- Données réelles et vérifiables
+- Qualité mesurée objectivement
+- Respect des utilisateurs DOM/ROM/COM
+- Transparence totale (code, méthodes, sources)
+
+**Résultat :** Crédibilité institutionnelle (collectivités, associations, médias, chercheurs).
+
+---
+
 ## 🚀 Déploiement & CI/CD
 
 **Hébergement :** Cloudflare Pages  
@@ -220,11 +354,49 @@ npm run preview
 
 ## 🔐 Sécurité & conformité
 
+### Signature Cryptographique des Données
+
+**A KI PRI SA YÉ** applique un système de **signature cryptographique** pour garantir l'intégrité des données publiques :
+
+#### 🎯 Garanties
+
+- ✅ **Intégrité** — Toute modification des données est détectable
+- ✅ **Traçabilité** — Horodatage précis de chaque dataset
+- ✅ **Auditabilité** — Vérification possible par n'importe qui (journalistes, chercheurs, institutions)
+- ✅ **Transparence** — Méthode publique et documentée
+
+#### 📦 Données Signées
+
+Tous les datasets critiques sont signés avec SHA-256 :
+- Prix par territoire
+- Panier Anti-Crise
+- Classements (enseignes, territoires)
+- Indices (IEVR, pression prix)
+
+#### 🔍 Vérification Publique
+
+Chaque dataset est accompagné d'un fichier `.proof.json` contenant :
+- Hash SHA-256 des données
+- Timestamp de création
+- Métadonnées (territoire, période, version)
+
+**Vérification en ligne :** `/transparence/verifier-integrite` (à venir)
+
+**Vérification technique :**
+```bash
+npm run data:verify data/prix-gp.json data/prix-gp.proof.json
+```
+
+**Documentation complète :** [DATA_SIGNING.md](docs/DATA_SIGNING.md)
+
+### Autres Mesures de Sécurité
+
 - **CSP maîtrisée** (scripts, workers, blob autorisés si nécessaires)
 - **Données sourcées et traçables**
 - **Pas de données fictives**
 - **Transparence utilisateur**
 - **Tests de sécurité automatisés**
+- **npm audit en CI** (vulnérabilités ≥ moderate bloquent le déploiement)
 
 ---
 

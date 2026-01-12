@@ -160,3 +160,8 @@ ChatGPT*.png
 *banner*.png
 *affiche*.png
 *flyer*.png
+
+# Lighthouse CI
+.lighthouseci/
+lighthouse-results.json
+build.log

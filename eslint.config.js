@@ -1,6 +1,7 @@
 import js from '@eslint/js'
 import globals from 'globals'
 import react from 'eslint-plugin-react'
+import reactHooks from 'eslint-plugin-react-hooks'
 
 export default [
   // =========================
@@ -26,7 +27,9 @@ export default [
   {
     rules: {
       ...js.configs.recommended.rules,
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      'no-fallthrough': 'error',
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
     },
   },
 
@@ -64,7 +67,7 @@ export default [
         cancelAnimationFrame: 'readonly',
       },
     },
-    plugins: { react },
+    plugins: { react, 'react-hooks': reactHooks },
     settings: {
       react: {
         version: 'detect'
@@ -74,6 +77,8 @@ export default [
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'error',
     },
   },
 
