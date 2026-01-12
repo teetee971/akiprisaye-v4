@@ -1,5 +1,4 @@
 import React from 'react';
-import { TrendDirection } from '../utils/priceHistory';
 
 /**
  * TrendIndicator - Display price trend with icon and color
@@ -8,7 +7,7 @@ import { TrendDirection } from '../utils/priceHistory';
  * Only displays if trend data is available
  * 
  * @param {Object} props
- * @param {TrendDirection} props.direction - Trend direction ('up', 'down', 'stable', 'unknown')
+ * @param {'up'|'down'|'stable'|'unknown'} props.direction - Trend direction ('up', 'down', 'stable', 'unknown')
  * @param {number} props.percentageChange - Percentage change value
  * @param {string} props.period - Time period analyzed ('day', 'week', 'month')
  * @param {boolean} props.showPercentage - Whether to show percentage (default: false)
