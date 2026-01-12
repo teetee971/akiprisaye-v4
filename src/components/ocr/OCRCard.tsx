@@ -13,6 +13,8 @@
  * - available: Whether the feature is available
  */
 
+import React from 'react';
+
 interface OCRCardProps {
   icon: string;
   title: string;
