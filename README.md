@@ -354,11 +354,49 @@ npm run preview
 
 ## 🔐 Sécurité & conformité
 
+### Signature Cryptographique des Données
+
+**A KI PRI SA YÉ** applique un système de **signature cryptographique** pour garantir l'intégrité des données publiques :
+
+#### 🎯 Garanties
+
+- ✅ **Intégrité** — Toute modification des données est détectable
+- ✅ **Traçabilité** — Horodatage précis de chaque dataset
+- ✅ **Auditabilité** — Vérification possible par n'importe qui (journalistes, chercheurs, institutions)
+- ✅ **Transparence** — Méthode publique et documentée
+
+#### 📦 Données Signées
+
+Tous les datasets critiques sont signés avec SHA-256 :
+- Prix par territoire
+- Panier Anti-Crise
+- Classements (enseignes, territoires)
+- Indices (IEVR, pression prix)
+
+#### 🔍 Vérification Publique
+
+Chaque dataset est accompagné d'un fichier `.proof.json` contenant :
+- Hash SHA-256 des données
+- Timestamp de création
+- Métadonnées (territoire, période, version)
+
+**Vérification en ligne :** `/transparence/verifier-integrite` (à venir)
+
+**Vérification technique :**
+```bash
+npm run data:verify data/prix-gp.json data/prix-gp.proof.json
+```
+
+**Documentation complète :** [DATA_SIGNING.md](docs/DATA_SIGNING.md)
+
+### Autres Mesures de Sécurité
+
 - **CSP maîtrisée** (scripts, workers, blob autorisés si nécessaires)
 - **Données sourcées et traçables**
 - **Pas de données fictives**
 - **Transparence utilisateur**
 - **Tests de sécurité automatisés**
+- **npm audit en CI** (vulnérabilités ≥ moderate bloquent le déploiement)
 
 ---
 
