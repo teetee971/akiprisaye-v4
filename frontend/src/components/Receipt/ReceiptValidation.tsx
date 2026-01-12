@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import type { ReceiptProduct, ReceiptData } from './types';
+import type { ReceiptProduct, ReceiptData, ObservationSourceType } from './types';
+import { getSourceTypeLabel, getSourceTypeDescription } from './types';
 
 type ReceiptValidationProps = {
   extractedText: string;
@@ -16,6 +17,7 @@ export const ReceiptValidation: React.FC<ReceiptValidationProps> = ({
   onValidate,
   onCancel,
 }) => {
+  const [sourceType, setSourceType] = useState<ObservationSourceType>('ticket_caisse');
   const [storeName, setStoreName] = useState('');
   const [storeAddress, setStoreAddress] = useState('');
   const [purchaseDate, setPurchaseDate] = useState('');
@@ -62,7 +64,7 @@ export const ReceiptValidation: React.FC<ReceiptValidationProps> = ({
     }
 
     const receiptData: ReceiptData = {
-      type: 'ticket_caisse',
+      type: sourceType,
       territoire: territory,
       enseigne: storeName.split(' ')[0], // Extract store brand
       magasin: {
@@ -79,6 +81,9 @@ export const ReceiptValidation: React.FC<ReceiptValidationProps> = ({
       auteur: 'citoyen_anonyme',
       niveau_confiance_global: products.length >= 3 ? 'élevé' : 'moyen',
       statut: 'valide',
+      source_metadata: sourceType === 'presentoir_promo' ? {
+        is_promotional: true,
+      } : undefined,
     };
 
     onValidate(receiptData);
@@ -104,6 +109,62 @@ export const ReceiptValidation: React.FC<ReceiptValidationProps> = ({
           <br />
           Aucune donnée n'est utilisée sans votre confirmation explicite.
         </p>
+      </div>
+
+      {/* Source Type Selection */}
+      <div className="mb-6 bg-blue-50 p-4 rounded-lg border border-blue-200">
+        <h3 className="font-semibold text-gray-900 mb-3">📷 Type d'observation</h3>
+        <div className="space-y-2">
+          <label className="flex items-start space-x-3 cursor-pointer">
+            <input
+              type="radio"
+              name="sourceType"
+              value="ticket_caisse"
+              checked={sourceType === 'ticket_caisse'}
+              onChange={(e) => setSourceType(e.target.value as ObservationSourceType)}
+              className="mt-1"
+            />
+            <div>
+              <div className="font-medium text-gray-900">{getSourceTypeLabel('ticket_caisse')}</div>
+              <div className="text-sm text-gray-600">{getSourceTypeDescription('ticket_caisse')}</div>
+            </div>
+          </label>
+          <label className="flex items-start space-x-3 cursor-pointer">
+            <input
+              type="radio"
+              name="sourceType"
+              value="etiquette_rayon"
+              checked={sourceType === 'etiquette_rayon'}
+              onChange={(e) => setSourceType(e.target.value as ObservationSourceType)}
+              className="mt-1"
+            />
+            <div>
+              <div className="font-medium text-gray-900">{getSourceTypeLabel('etiquette_rayon')}</div>
+              <div className="text-sm text-gray-600">{getSourceTypeDescription('etiquette_rayon')}</div>
+            </div>
+          </label>
+          <label className="flex items-start space-x-3 cursor-pointer">
+            <input
+              type="radio"
+              name="sourceType"
+              value="presentoir_promo"
+              checked={sourceType === 'presentoir_promo'}
+              onChange={(e) => setSourceType(e.target.value as ObservationSourceType)}
+              className="mt-1"
+            />
+            <div>
+              <div className="font-medium text-gray-900">{getSourceTypeLabel('presentoir_promo')}</div>
+              <div className="text-sm text-gray-600">{getSourceTypeDescription('presentoir_promo')}</div>
+            </div>
+          </label>
+        </div>
+        {sourceType === 'presentoir_promo' && (
+          <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded">
+            <p className="text-sm text-orange-900">
+              ⚠️ <strong>Prix promotionnel :</strong> Cette observation sera marquée comme offre temporaire et stockée séparément.
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -16,8 +16,13 @@ export type ReceiptPreuve = {
   ocr_local: boolean;
 };
 
+export type ObservationSourceType = 
+  | 'ticket_caisse'           // Receipt/till slip (existing)
+  | 'etiquette_rayon'         // Shelf label
+  | 'presentoir_promo';       // Promotional display
+
 export type ReceiptData = {
-  type: 'ticket_caisse';
+  type: ObservationSourceType;
   territoire: string;
   enseigne: string;
   magasin: ReceiptMagasin;
@@ -28,6 +33,16 @@ export type ReceiptData = {
   auteur: string;
   niveau_confiance_global: 'faible' | 'moyen' | 'élevé';
   statut: 'valide' | 'en_attente' | 'rejeté';
+  // Optional metadata for enhanced traceability
+  source_metadata?: {
+    is_promotional?: boolean;   // If promotional display
+    capture_quality?: 'high' | 'medium' | 'low';
+    geolocation?: {
+      latitude: number;
+      longitude: number;
+      accuracy: number;
+    };
+  };
 };
 
 export type ReceiptQualityBadge = {
@@ -68,4 +83,30 @@ export const getQualityBadge = (observationCount: number): ReceiptQualityBadge =
     icon: '🟢',
     color: 'green',
   };
+};
+
+export const getSourceTypeLabel = (sourceType: ObservationSourceType): string => {
+  switch (sourceType) {
+    case 'ticket_caisse':
+      return 'Ticket de caisse';
+    case 'etiquette_rayon':
+      return 'Étiquette rayon';
+    case 'presentoir_promo':
+      return 'Présentoir promotionnel';
+    default:
+      return 'Source inconnue';
+  }
+};
+
+export const getSourceTypeDescription = (sourceType: ObservationSourceType): string => {
+  switch (sourceType) {
+    case 'ticket_caisse':
+      return 'Prix capturé depuis un ticket de caisse validé avec date et heure précises';
+    case 'etiquette_rayon':
+      return 'Prix observé sur étiquette de rayon en magasin';
+    case 'presentoir_promo':
+      return 'Prix promotionnel observé - marqué comme offre temporaire';
+    default:
+      return '';
+  }
 };

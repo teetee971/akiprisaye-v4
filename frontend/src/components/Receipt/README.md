@@ -1,8 +1,28 @@
-# Receipt Scanner Module - Module Scan de Ticket
+# Receipt Scanner Module - Module Scan d'Observations de Prix
 
 ## 📋 Vue d'ensemble
 
-Le module **Receipt Scanner** permet aux citoyens de scanner des tickets de caisse réels pour produire des observations de prix vérifiables, utilisables par le module Anti-Crise.
+Le module **Receipt Scanner** (Module 23) permet aux citoyens de capturer des prix réels en magasin pour produire des observations de prix vérifiables, utilisables par le module Anti-Crise.
+
+## 📷 Types d'observations supportés (Module D - Extension)
+
+### 1. Ticket de caisse (`ticket_caisse`)
+- Prix capturé depuis un ticket de caisse validé
+- Date et heure précises
+- Traçabilité juridique maximale
+- **Recommandé** pour observations de haute qualité
+
+### 2. Étiquette rayon (`etiquette_rayon`)
+- Prix observé sur étiquette de rayon en magasin
+- Capture directe du prix affiché
+- Date de capture (jour uniquement)
+- Enseigne visible
+
+### 3. Présentoir promotionnel (`presentoir_promo`)
+- Prix promotionnel observé
+- Marqué automatiquement comme "offre temporaire"
+- Stocké séparément des prix standards
+- Ne participe pas aux calculs de prix médian standard
 
 ## 🎯 Objectif
 
@@ -30,7 +50,7 @@ Le module **Receipt Scanner** permet aux citoyens de scanner des tickets de cais
 
 ```typescript
 {
-  "type": "ticket_caisse",
+  "type": "ticket_caisse" | "etiquette_rayon" | "presentoir_promo",
   "territoire": "Martinique",
   "enseigne": "Leader Price",
   "magasin": {
@@ -49,12 +69,21 @@ Le module **Receipt Scanner** permet aux citoyens de scanner des tickets de cais
     }
   ],
   "preuve": {
-    "image": "ticket_20260112_1432.jpg",
+    "image": "data:image/jpeg;base64,...",
     "ocr_local": true
   },
   "auteur": "citoyen_anonyme",
   "niveau_confiance_global": "élevé",
-  "statut": "valide"
+  "statut": "valide",
+  "source_metadata": {
+    "is_promotional": true,  // Si presentoir_promo
+    "capture_quality": "high",
+    "geolocation": {  // Optionnel
+      "latitude": 14.6037,
+      "longitude": -61.0733,
+      "accuracy": 10
+    }
+  }
 }
 ```
 
@@ -71,9 +100,11 @@ Le module **Receipt Scanner** permet aux citoyens de scanner des tickets de cais
 - Texte extrait brut
 
 ### État 3: ✍️ Validation
+- **Sélection du type d'observation** (ticket/étiquette/promo)
 - Saisie informations magasin
 - Validation ligne par ligne
 - Ajout produits manuels
+- Marquage automatique si promotionnel
 
 ### État 4: ⚠️ Incertain
 - Lignes non exploitables marquées
