@@ -68,13 +68,15 @@ export function computeTrend(prices: number[]): TrendMetrics {
   const volatility = Math.sqrt(variance);
 
   // MoM (Month-over-Month) - comparer le dernier mois avec l'avant-dernier
-  const momPct = n > 1
+  // Guard contre division par zéro
+  const momPct = n > 1 && prices[n - 2] !== 0
     ? ((prices[n - 1] - prices[n - 2]) / prices[n - 2]) * 100
     : undefined;
 
   // YoY (Year-over-Year) - comparer le dernier mois avec le même mois l'année précédente
   // Nécessite au moins 13 observations (mois actuel + 12 mois précédents)
-  const yoyPct = n >= 13
+  // Guard contre division par zéro
+  const yoyPct = n >= 13 && prices[n - 13] !== 0
     ? ((prices[n - 1] - prices[n - 13]) / prices[n - 13]) * 100
     : undefined;
 

@@ -121,6 +121,8 @@ export class AntiCrisisBasketService {
 
   /**
    * Singleton pattern
+   * Note: In Node.js single-threaded environment, this is safe.
+   * For multi-threaded environments, additional synchronization would be needed.
    */
   public static getInstance(): AntiCrisisBasketService {
     if (!AntiCrisisBasketService.instance) {
@@ -154,9 +156,10 @@ export class AntiCrisisBasketService {
     // FILTRE CRITIQUE: Ne garder QUE les observations du territoire demandé
     // Principe fondamental: ❌ JAMAIS de comparaison inter-territoires
     const territoryObservations = priceHistory.filter(obs => {
-      // Si territory n'est pas défini dans l'observation, on la garde (compatibilité)
+      // Si territory n'est pas défini dans l'observation, on la garde (compatibilité ascendante)
+      // IMPORTANT: Dans un environnement de production, le champ territory devrait être obligatoire
       if (!obs.territory) return true;
-      // Sinon, on ne garde que si le territoire correspond
+      // Sinon, on ne garde que si le territoire correspond exactement
       return obs.territory === territory;
     });
 
