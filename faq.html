@@ -11,11 +11,11 @@
   <meta property="og:title" content="FAQ - A KI PRI SA YÉ" />
   
   <!-- PWA -->
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="manifest" href="/manifest.webmanifest" />
   <meta name="theme-color" content="#0f62fe" />
   
-  <link rel="stylesheet" href="shared-nav.css" />
-  <link rel="stylesheet" href="cookie-consent.css" />
+  <link rel="stylesheet" href="/shared-nav.css" />
+  <link rel="stylesheet" href="/cookie-consent.css" />
   <style>
     body {
       margin: 0;
@@ -120,15 +120,15 @@
     </div>
     <ul class="mobile-nav-list">
       <li><a href="/"><span class="mobile-nav-icon">🏠</span>Accueil</a></li>
-      <li><a href="/comparateur.html"><span class="mobile-nav-icon">🔍</span>Comparateur</a></li>
-      <li><a href="/scanner.html"><span class="mobile-nav-icon">📷</span>Scanner</a></li>
-      <li><a href="/carte.html"><span class="mobile-nav-icon">🗺️</span>Carte</a></li>
-      <li><a href="/modules.html"><span class="mobile-nav-icon">🧩</span>Modules</a></li>
-      <li><a href="/ia-conseiller.html"><span class="mobile-nav-icon">🤖</span>IA Conseiller</a></li>
-      <li><a href="/historique.html"><span class="mobile-nav-icon">📊</span>Historique</a></li>
-      <li><a href="/mon-compte.html"><span class="mobile-nav-icon">👤</span>Mon Compte</a></li>
-      <li><a href="/faq.html"><span class="mobile-nav-icon">❓</span>FAQ</a></li>
-      <li><a href="/contact.html"><span class="mobile-nav-icon">📧</span>Contact</a></li>
+      <li><a href="/comparateur"><span class="mobile-nav-icon">🔍</span>Comparateur</a></li>
+      <li><a href="/scan"><span class="mobile-nav-icon">📷</span>Scanner</a></li>
+      <li><a href="/carte"><span class="mobile-nav-icon">🗺️</span>Carte</a></li>
+      <li><a href="/civic-modules"><span class="mobile-nav-icon">🧩</span>Modules</a></li>
+      <li><a href="/ia-conseiller"><span class="mobile-nav-icon">🤖</span>IA Conseiller</a></li>
+      <li><a href="/historique-prix"><span class="mobile-nav-icon">📊</span>Historique</a></li>
+      <li><a href="/mon-compte"><span class="mobile-nav-icon">👤</span>Mon Compte</a></li>
+      <li><a href="/faq"><span class="mobile-nav-icon">❓</span>FAQ</a></li>
+      <li><a href="/contact"><span class="mobile-nav-icon">📧</span>Contact</a></li>
     </ul>
   </nav>
 
@@ -143,10 +143,10 @@
         <a href="/" class="shared-logo" aria-label="A KI PRI SA YÉ - Accueil"><img src="/logo-akpsy.svg" alt="A KI PRI SA YÉ" /></a>
       </div>
       <nav class="header-nav" role="navigation" aria-label="Navigation principale">
-        <a href="/comparateur.html">Comparateur</a>
-        <a href="/scanner.html">Scanner</a>
-        <a href="/modules.html">Modules</a>
-        <a href="/mon-compte.html">Mon Compte</a>
+        <a href="/comparateur">Comparateur</a>
+        <a href="/scan">Scanner</a>
+        <a href="/civic-modules">Modules</a>
+        <a href="/mon-compte">Mon Compte</a>
       </nav>
     </div>
   </header>
@@ -236,7 +236,7 @@
         <span class="faq-icon">▼</span>
       </h3>
       <div class="faq-answer">
-        <p>Oui, nous prenons la protection de vos données très au sérieux. L'application respecte le <strong>RGPD</strong> et la législation française sur la protection des données. Vos informations personnelles ne sont jamais partagées avec des tiers sans votre consentement. Consultez notre <a href="/mentions.html#privacy" style="color: #0f62fe;">politique de confidentialité</a> pour plus de détails.</p>
+        <p>Oui, nous prenons la protection de vos données très au sérieux. L'application respecte le <strong>RGPD</strong> et la législation française sur la protection des données. Vos informations personnelles ne sont jamais partagées avec des tiers sans votre consentement. Consultez notre <a href="/mentions-legales#privacy" style="color: #0f62fe;">politique de confidentialité</a> pour plus de détails.</p>
       </div>
     </div>
 
@@ -246,7 +246,7 @@
         <span class="faq-icon">▼</span>
       </h3>
       <div class="faq-answer">
-        <p>Nous utilisons des cookies techniques nécessaires au fonctionnement de l'application (authentification, préférences). Les cookies de performance et fonctionnels nécessitent votre consentement via le bandeau qui apparaît lors de votre première visite. Vous pouvez consulter notre <a href="/mentions.html#cookies" style="color: #0f62fe;">politique de cookies</a> pour plus d'informations.</p>
+        <p>Nous utilisons des cookies techniques nécessaires au fonctionnement de l'application (authentification, préférences). Les cookies de performance et fonctionnels nécessitent votre consentement via le bandeau qui apparaît lors de votre première visite. Vous pouvez consulter notre <a href="/mentions-legales#cookies" style="color: #0f62fe;">politique de cookies</a> pour plus d'informations.</p>
       </div>
     </div>
 
@@ -268,7 +268,7 @@
         <span class="faq-icon">▼</span>
       </h3>
       <div class="faq-answer">
-        <p>Nous travaillons avec l'API <strong>Open Food Facts</strong> pour les informations produits et sommes en cours de partenariat avec des enseignes locales et des associations. La liste complète sera disponible sur la <a href="/partenaires.html" style="color: #0f62fe;">page Partenaires</a>.</p>
+        <p>Nous travaillons avec l'API <strong>Open Food Facts</strong> pour les informations produits et sommes en cours de partenariat avec des enseignes locales et des associations. La liste complète sera disponible sur la <a href="/partenaires" style="color: #0f62fe;">page Partenaires</a>.</p>
       </div>
     </div>
 
@@ -299,7 +299,7 @@
         <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
           <li>Signaler les prix que vous observez en magasin</li>
           <li>Partager l'application avec votre entourage</li>
-          <li>Nous faire part de vos suggestions via la <a href="/contact.html" style="color: #0f62fe;">page Contact</a></li>
+          <li>Nous faire part de vos suggestions via la <a href="/contact" style="color: #0f62fe;">page Contact</a></li>
           <li>Rejoindre notre communauté de testeurs</li>
         </ul>
       </div>
@@ -441,7 +441,7 @@
         <span class="faq-icon">▼</span>
       </h3>
       <div class="faq-answer">
-        <p>Si vous rencontrez un problème ou souhaitez signaler une erreur de prix, utilisez notre <a href="/contact.html" style="color: #0f62fe;">formulaire de contact</a>. Nous vous répondrons dans les plus brefs délais.</p>
+        <p>Si vous rencontrez un problème ou souhaitez signaler une erreur de prix, utilisez notre <a href="/contact" style="color: #0f62fe;">formulaire de contact</a>. Nous vous répondrons dans les plus brefs délais.</p>
       </div>
     </div>
 
@@ -451,12 +451,12 @@
         <span class="faq-icon">▼</span>
       </h3>
       <div class="faq-answer">
-        <p>N'hésitez pas à nous contacter via la <a href="/contact.html" style="color: #0f62fe;">page Contact</a> ou par email à <a href="mailto:contact@akiprisaye.com" style="color: #0f62fe;">contact@akiprisaye.com</a>. Notre équipe se fera un plaisir de vous aider.</p>
+        <p>N'hésitez pas à nous contacter via la <a href="/contact" style="color: #0f62fe;">page Contact</a> ou par email à <a href="mailto:contact@akiprisaye.com" style="color: #0f62fe;">contact@akiprisaye.com</a>. Notre équipe se fera un plaisir de vous aider.</p>
       </div>
     </div>
   </main>
   
-  <script type="module" src="shared-nav.js"></script>
+  <script type="module" src="/shared-nav.js"></script>
   <script>
     // FAQ Accordion functionality
     document.addEventListener('DOMContentLoaded', () => {

@@ -2,8 +2,15 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🔧 Dashboard de Diagnostic - A KI PRI SA YÉ</title>
+    <meta name="description" content="Tableau de bord technique pour le diagnostic et monitoring du site A KI PRI SA YÉ.">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
@@ -194,7 +201,7 @@
         <button class="btn secondary" onclick="testImages()">🖼️ Test Images</button>
         <button class="btn secondary" onclick="testServers()">🌐 Test Serveurs</button>
         <button class="btn success" onclick="clearLogs()">🗑️ Effacer Logs</button>
-        <a href="http://localhost:5173/index_final.html" class="btn" target="_blank">🚀 Ouvrir Site Final</a>
+        <a href="http://localhost:5173/index_final.html" class="btn" target="_blank" rel="noopener noreferrer">🚀 Ouvrir Site Final</a>
     </div>
 
     <div class="dashboard">
