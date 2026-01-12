@@ -1,4 +1,11 @@
 export { ReceiptScanner } from './ReceiptScanner';
 export { ReceiptValidation } from './ReceiptValidation';
 export { ReceiptWorkflow } from './ReceiptWorkflow';
+export { ReceiptMultiCapture } from './ReceiptMultiCapture';
+export { ReceiptLineReview } from './ReceiptLineReview';
+export { ReceiptLineReviewEnhanced } from './ReceiptLineReviewEnhanced';
+export { ReceiptScannerWithMode } from './ReceiptScannerWithMode';
+export { EnhancedReceiptWorkflow } from './EnhancedReceiptWorkflow';
+export { TicketQualityDisplay } from './TicketQualityDisplay';
+export { RecurringProductBadge, ProductHistoryInfo } from './RecurringProductBadge';
 export * from './types';
