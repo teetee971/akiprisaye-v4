@@ -22,3 +22,11 @@ export { default as TerritoryRankingDisplay } from './TerritoryRankingDisplay';
 export type { AdvancedAnalysisToggleProps } from './AdvancedAnalysisToggle';
 export type { TerritoryRankingTableProps } from './TerritoryRankingTable';
 export type { TerritoryRankingDisplayProps } from './TerritoryRankingDisplay';
+
+// Module G - Anomaly Alert System
+export { default as AnomalyAlertSelector } from './AnomalyAlertSelector';
+export { default as TerritorialAnomalyPanel } from './TerritorialAnomalyPanel';
+export { default as TerritoryAnalysisWithAlerts } from './TerritoryAnalysisWithAlerts';
+export type { AnomalyAlertSelectorProps } from './AnomalyAlertSelector';
+export type { TerritorialAnomalyPanelProps } from './TerritorialAnomalyPanel';
+export type { TerritoryAnalysisWithAlertsProps } from './TerritoryAnalysisWithAlerts';
