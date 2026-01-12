@@ -8,14 +8,13 @@ import 'leaflet/dist/leaflet.css';
 // Fix for default marker icon in React-Leaflet
 // Leaflet's default icon paths need to be set explicitly
 import L from 'leaflet';
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
 delete L.Icon.Default.prototype._getIconUrl;
 
 L.Icon.Default.mergeOptions({
-  iconUrl: icon,
-  shadowUrl: iconShadow,
+  iconRetinaUrl: '/images/marker-icon-2x.png',
+  iconUrl: '/images/marker-icon.png',
+  shadowUrl: '/images/marker-shadow.png',
 });
 
 /**
