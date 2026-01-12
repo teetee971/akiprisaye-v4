@@ -16,6 +16,12 @@ export type ReceiptPreuve = {
   ocr_local: boolean;
 };
 
+export type ReceiptCaptureSession = {
+  sessionId: string;
+  images: Blob[];
+  createdAt: number;
+};
+
 export type ObservationSourceType = 
   | 'ticket_caisse'           // Receipt/till slip (existing)
   | 'etiquette_rayon'         // Shelf label
