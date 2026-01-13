@@ -173,8 +173,11 @@ export default function Scanner() {
                     onChange={(e) => setSettings({ ...settings, enableOcrFallback: e.target.checked })}
                     className="rounded"
                   />
-                  Activer l'OCR en fallback (expérimental)
+                  Activer la reconnaissance optique (OCR)
                 </label>
+                <p className="text-xs text-gray-400 mt-1 ml-6">
+                  L'OCR aide à détecter les codes-barres sur des images floues
+                </p>
               </div>
             </div>
           )}
