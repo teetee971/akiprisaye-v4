@@ -1,9 +1,10 @@
 /**
  * Excel Exporter Utility
  * Export price comparisons, shopping lists, and inflation reports to Excel
+ * Using ExcelJS for secure, vulnerability-free Excel generation
  */
 
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 
 interface Product {
   ean?: string;
@@ -18,108 +19,169 @@ export class ExcelExporter {
   /**
    * Export price comparison to Excel
    */
-  exportPriceComparison(products: Product[]): Blob {
-    const worksheet = XLSX.utils.json_to_sheet(
-      products.map(p => ({
-        'Code EAN': p.ean || 'N/A',
-        'Produit': p.name,
-        'Prix (€)': p.price.toFixed(2),
-        'Magasin': p.store || 'N/A',
-        'Territoire': p.territory || 'N/A'
-      }))
-    );
+  async exportPriceComparison(products: Product[]): Promise<Blob> {
+    const workbook = new ExcelJS.Workbook();
+    
+    // Price comparison sheet
+    const worksheet = workbook.addWorksheet('Comparaison Prix');
+    worksheet.columns = [
+      { header: 'Code EAN', key: 'ean', width: 15 },
+      { header: 'Produit', key: 'name', width: 30 },
+      { header: 'Prix (€)', key: 'price', width: 12 },
+      { header: 'Magasin', key: 'store', width: 25 },
+      { header: 'Territoire', key: 'territory', width: 15 }
+    ];
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Comparaison Prix');
+    products.forEach(p => {
+      worksheet.addRow({
+        ean: p.ean || 'N/A',
+        name: p.name,
+        price: p.price.toFixed(2),
+        store: p.store || 'N/A',
+        territory: p.territory || 'N/A'
+      });
+    });
 
-    // Add summary statistics
+    // Style header
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF4472C4' }
+    };
+
+    // Summary statistics sheet
     const avgPrice = products.reduce((sum, p) => sum + p.price, 0) / products.length;
     const minPrice = Math.min(...products.map(p => p.price));
     const maxPrice = Math.max(...products.map(p => p.price));
 
-    const summaryData = [
-      { Statistique: 'Prix Minimum', Valeur: `${minPrice.toFixed(2)}€` },
-      { Statistique: 'Prix Maximum', Valeur: `${maxPrice.toFixed(2)}€` },
-      { Statistique: 'Prix Moyen', Valeur: `${avgPrice.toFixed(2)}€` },
-      { Statistique: 'Écart', Valeur: `${(maxPrice - minPrice).toFixed(2)}€` }
+    const summarySheet = workbook.addWorksheet('Statistiques');
+    summarySheet.columns = [
+      { header: 'Statistique', key: 'stat', width: 20 },
+      { header: 'Valeur', key: 'value', width: 15 }
     ];
 
-    const summarySheet = XLSX.utils.json_to_sheet(summaryData);
-    XLSX.utils.book_append_sheet(workbook, summarySheet, 'Statistiques');
+    summarySheet.addRows([
+      { stat: 'Prix Minimum', value: `${minPrice.toFixed(2)}€` },
+      { stat: 'Prix Maximum', value: `${maxPrice.toFixed(2)}€` },
+      { stat: 'Prix Moyen', value: `${avgPrice.toFixed(2)}€` },
+      { stat: 'Écart', value: `${(maxPrice - minPrice).toFixed(2)}€` }
+    ]);
 
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    return new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    summarySheet.getRow(1).font = { bold: true };
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    return new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
   }
 
   /**
    * Export shopping list to Excel
    */
-  exportShoppingList(list: any): Blob {
-    const worksheet = XLSX.utils.json_to_sheet(
-      list.items.map((item: any) => ({
-        'Produit': item.productName,
-        'Code EAN': item.productEAN,
-        'Quantité': item.quantity,
-        'Catégorie': item.category,
-        'Priorité': item.priority,
-        'Notes': item.notes || ''
-      }))
-    );
+  async exportShoppingList(list: any): Promise<Blob> {
+    const workbook = new ExcelJS.Workbook();
+    
+    const worksheet = workbook.addWorksheet('Liste de Courses');
+    worksheet.columns = [
+      { header: 'Produit', key: 'name', width: 30 },
+      { header: 'Code EAN', key: 'ean', width: 15 },
+      { header: 'Quantité', key: 'quantity', width: 12 },
+      { header: 'Catégorie', key: 'category', width: 20 },
+      { header: 'Priorité', key: 'priority', width: 12 },
+      { header: 'Notes', key: 'notes', width: 40 }
+    ];
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Liste de Courses');
+    list.items.forEach((item: any) => {
+      worksheet.addRow({
+        name: item.productName,
+        ean: item.productEAN,
+        quantity: item.quantity,
+        category: item.category,
+        priority: item.priority,
+        notes: item.notes || ''
+      });
+    });
+
+    worksheet.getRow(1).font = { bold: true };
 
     // Add optimization results if available
     if (list.optimization) {
       const opt = list.optimization;
-      const optData = opt.stores.map((store: any) => ({
-        'Magasin': store.storeName,
-        'Nombre d\'articles': store.items.length,
-        'Sous-total (€)': store.subtotal.toFixed(2)
-      }));
+      const optSheet = workbook.addWorksheet('Optimisation');
+      optSheet.columns = [
+        { header: 'Magasin', key: 'store', width: 30 },
+        { header: 'Nombre d\'articles', key: 'count', width: 20 },
+        { header: 'Sous-total (€)', key: 'subtotal', width: 15 }
+      ];
 
-      const optSheet = XLSX.utils.json_to_sheet(optData);
-      XLSX.utils.book_append_sheet(workbook, optSheet, 'Optimisation');
+      opt.stores.forEach((store: any) => {
+        optSheet.addRow({
+          store: store.storeName,
+          count: store.items.length,
+          subtotal: store.subtotal.toFixed(2)
+        });
+      });
+
+      optSheet.getRow(1).font = { bold: true };
     }
 
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    return new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const buffer = await workbook.xlsx.writeBuffer();
+    return new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
   }
 
   /**
    * Export inflation report to Excel
    */
-  exportInflationReport(data: any): Blob {
-    const workbook = XLSX.utils.book_new();
+  async exportInflationReport(data: any): Promise<Blob> {
+    const workbook = new ExcelJS.Workbook();
 
     // Overview sheet
-    const overviewData = data.territories.map((t: any) => ({
-      'Territoire': t.territoryName,
-      'Taux d\'inflation (%)': t.overallInflationRate.toFixed(2),
-      'Écart métropole (%)': t.comparedToMetropole?.toFixed(2) || 'N/A',
-      'Dernière mise à jour': new Date(t.lastUpdated).toLocaleDateString('fr-FR')
-    }));
+    const overviewSheet = workbook.addWorksheet('Vue d\'ensemble');
+    overviewSheet.columns = [
+      { header: 'Territoire', key: 'territory', width: 20 },
+      { header: 'Taux d\'inflation (%)', key: 'rate', width: 20 },
+      { header: 'Écart métropole (%)', key: 'gap', width: 20 },
+      { header: 'Dernière mise à jour', key: 'updated', width: 20 }
+    ];
 
-    const overviewSheet = XLSX.utils.json_to_sheet(overviewData);
-    XLSX.utils.book_append_sheet(workbook, overviewSheet, 'Vue d\'ensemble');
+    data.territories.forEach((t: any) => {
+      overviewSheet.addRow({
+        territory: t.territoryName,
+        rate: t.overallInflationRate.toFixed(2),
+        gap: t.comparedToMetropole?.toFixed(2) || 'N/A',
+        updated: new Date(t.lastUpdated).toLocaleDateString('fr-FR')
+      });
+    });
+
+    overviewSheet.getRow(1).font = { bold: true };
 
     // Category details for each territory
     data.territories.forEach((territory: any) => {
-      const categoryData = territory.categories.map((cat: any) => ({
-        'Catégorie': cat.category,
-        'Prix Moyen Actuel (€)': cat.currentAverage.toFixed(2),
-        'Prix Moyen Précédent (€)': cat.previousAverage.toFixed(2),
-        'Taux d\'inflation (%)': cat.inflationRate.toFixed(2),
-        'Changement (€)': cat.priceChange.toFixed(2)
-      }));
-
-      const categorySheet = XLSX.utils.json_to_sheet(categoryData);
       const sheetName = territory.territoryName.substring(0, 31); // Excel limit
-      XLSX.utils.book_append_sheet(workbook, categorySheet, sheetName);
+      const categorySheet = workbook.addWorksheet(sheetName);
+      
+      categorySheet.columns = [
+        { header: 'Catégorie', key: 'category', width: 20 },
+        { header: 'Prix Moyen Actuel (€)', key: 'current', width: 22 },
+        { header: 'Prix Moyen Précédent (€)', key: 'previous', width: 25 },
+        { header: 'Taux d\'inflation (%)', key: 'rate', width: 20 },
+        { header: 'Changement (€)', key: 'change', width: 18 }
+      ];
+
+      territory.categories.forEach((cat: any) => {
+        categorySheet.addRow({
+          category: cat.category,
+          current: cat.currentAverage.toFixed(2),
+          previous: cat.previousAverage.toFixed(2),
+          rate: cat.inflationRate.toFixed(2),
+          change: cat.priceChange.toFixed(2)
+        });
+      });
+
+      categorySheet.getRow(1).font = { bold: true };
     });
 
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    return new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const buffer = await workbook.xlsx.writeBuffer();
+    return new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
   }
 
   /**
@@ -134,6 +196,31 @@ export class ExcelExporter {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Helper to export and trigger download
+   */
+  async exportAndDownload(
+    type: 'priceComparison' | 'shoppingList' | 'inflationReport',
+    data: any,
+    filename: string
+  ): Promise<void> {
+    let blob: Blob;
+    
+    switch (type) {
+      case 'priceComparison':
+        blob = await this.exportPriceComparison(data);
+        break;
+      case 'shoppingList':
+        blob = await this.exportShoppingList(data);
+        break;
+      case 'inflationReport':
+        blob = await this.exportInflationReport(data);
+        break;
+    }
+    
+    this.downloadBlob(blob, filename);
   }
 }
 
