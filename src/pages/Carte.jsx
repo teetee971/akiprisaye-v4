@@ -22,6 +22,78 @@ function MapUpdater({ position }) {
   return null;
 }
 
+// Phase 2: Marker Clustering Component
+function MarkerClusterGroup({ stores, isNavigating, handleGPS, currentTerritory, formatDistance, estimateTravelTime, formatTravelTime }) {
+  const map = useMap();
+
+  useEffect(() => {
+    // Create marker cluster group with custom settings
+    const markerClusterGroup = L.markerClusterGroup({
+      chunkedLoading: true,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: true,
+      zoomToBoundsOnClick: true,
+      maxClusterRadius: 60,
+      disableClusteringAtZoom: 15,
+      iconCreateFunction: function(cluster) {
+        const count = cluster.getChildCount();
+        let className = 'marker-cluster-';
+        if (count < 10) {
+          className += 'small';
+        } else if (count < 20) {
+          className += 'medium';
+        } else {
+          className += 'large';
+        }
+        
+        return L.divIcon({
+          html: `<div><span>${count}</span></div>`,
+          className: `marker-cluster ${className}`,
+          iconSize: L.point(40, 40)
+        });
+      }
+    });
+
+    // Add markers to cluster group
+    stores.forEach((store) => {
+      const leafletMarker = L.marker([store.lat, store.lon]);
+      
+      // Create popup content similar to existing design
+      const popupContent = document.createElement('div');
+      popupContent.className = 'text-slate-900';
+      popupContent.innerHTML = `
+        <h3 class="font-semibold">${store.name}</h3>
+        <p class="text-sm text-slate-600">${store.category}</p>
+        <p class="text-xs text-slate-500">${currentTerritory?.name || ''}</p>
+        ${store.distance ? `
+          <div class="text-xs mt-1 space-y-1">
+            <p class="text-blue-600 font-medium">
+              Distance: ${formatDistance(store.distance)} <span class="text-slate-500">(estimée)</span>
+            </p>
+          </div>
+        ` : ''}
+      `;
+      
+      leafletMarker.bindPopup(popupContent, {
+        maxWidth: 300,
+        className: 'custom-popup'
+      });
+      
+      markerClusterGroup.addLayer(leafletMarker);
+    });
+
+    // Add cluster group to map
+    map.addLayer(markerClusterGroup);
+
+    // Cleanup on unmount
+    return () => {
+      map.removeLayer(markerClusterGroup);
+    };
+  }, [map, stores, currentTerritory, formatDistance]);
+
+  return null;
+}
+
 export default function Carte() {
   const [territory, setTerritory] = useState('GP'); // Code territoire
   const [stores, setStores] = useState([]);
@@ -35,6 +107,11 @@ export default function Carte() {
   const [selectedCategory, setSelectedCategory] = useState('Toutes');
   const [selectedServices, setSelectedServices] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
+  
+  // Phase 2: Geolocation states
+  const [sortByDistance, setSortByDistance] = useState(false);
+  const [nearMeRadius, setNearMeRadius] = useState(10); // km
+  const [showNearMeOnly, setShowNearMeOnly] = useState(false);
 
   // Constants
   const NAVIGATION_TIMEOUT = 1000; // Timeout for resetting navigation state
@@ -320,9 +397,9 @@ export default function Carte() {
     return 'Autre';
   };
 
-  // Phase 1: Filter stores based on selected category and services
+  // Phase 1 & 2: Filter and sort stores based on selected filters
   const filteredStores = useMemo(() => {
-    return storesWithDistance.filter(store => {
+    let filtered = storesWithDistance.filter(store => {
       // Filter by category
       if (selectedCategory !== 'Toutes' && getStoreCategory(store) !== selectedCategory) {
         return false;
@@ -336,9 +413,25 @@ export default function Carte() {
         if (!hasAllServices) return false;
       }
       
+      // Phase 2: Filter by distance (Near Me)
+      if (showNearMeOnly && store.distance !== null) {
+        if (store.distance > nearMeRadius) return false;
+      }
+      
       return true;
     });
-  }, [storesWithDistance, selectedCategory, selectedServices]);
+    
+    // Phase 2: Sort by distance if enabled
+    if (sortByDistance && userPosition) {
+      filtered = [...filtered].sort((a, b) => {
+        if (a.distance === null) return 1;
+        if (b.distance === null) return -1;
+        return a.distance - b.distance;
+      });
+    }
+    
+    return filtered;
+  }, [storesWithDistance, selectedCategory, selectedServices, showNearMeOnly, nearMeRadius, sortByDistance, userPosition]);
 
   // Phase 1: Calculate statistics
   const storeStats = useMemo(() => {
@@ -618,6 +711,89 @@ export default function Carte() {
             </div>
           )}
         </div>
+
+        {/* Phase 2: Near Me Feature */}
+        {userPosition && (
+          <div className="mb-6 bg-gradient-to-r from-blue-900/30 to-purple-900/30 border border-blue-700/50 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold text-blue-400 flex items-center gap-2">
+                <MapPin size={20} className="text-blue-400" />
+                📍 Magasins près de moi
+              </h2>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setSortByDistance(!sortByDistance)}
+                  className={`px-3 py-1 rounded-lg text-sm transition ${
+                    sortByDistance
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                  }`}
+                >
+                  {sortByDistance ? '✓ Trié par distance' : 'Trier par distance'}
+                </button>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              {/* Near Me Toggle */}
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={showNearMeOnly}
+                    onChange={(e) => setShowNearMeOnly(e.target.checked)}
+                    className="rounded border-slate-600 bg-slate-700 text-blue-500 focus:ring-blue-500 focus:ring-offset-slate-800"
+                  />
+                  <span>Afficher uniquement les magasins proches</span>
+                </label>
+              </div>
+
+              {/* Distance Radius Selector */}
+              {showNearMeOnly && (
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-slate-300">
+                    Rayon de recherche: <span className="text-blue-400 font-bold">{nearMeRadius} km</span>
+                  </label>
+                  <input
+                    type="range"
+                    min="1"
+                    max="50"
+                    value={nearMeRadius}
+                    onChange={(e) => setNearMeRadius(Number(e.target.value))}
+                    className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                  />
+                  <div className="flex justify-between text-xs text-slate-500 mt-1">
+                    <span>1 km</span>
+                    <span>25 km</span>
+                    <span>50 km</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Nearest Stores Quick View */}
+              {sortByDistance && filteredStores.length > 0 && (
+                <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-700">
+                  <h3 className="text-sm font-medium text-slate-300 mb-2">🎯 Les 3 plus proches :</h3>
+                  <div className="space-y-2">
+                    {filteredStores.slice(0, 3).map((store, idx) => (
+                      <div key={idx} className="flex items-center justify-between text-sm">
+                        <div>
+                          <span className="text-blue-400 font-medium">{idx + 1}.</span>
+                          <span className="text-slate-300 ml-2">{store.name}</span>
+                        </div>
+                        {store.distance && (
+                          <span className="text-green-400 font-medium">
+                            {(store.distance).toFixed(1)} km
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Map Container */}
         <div className="rounded-lg overflow-hidden border border-slate-700 shadow-xl h-[600px] bg-slate-800">
