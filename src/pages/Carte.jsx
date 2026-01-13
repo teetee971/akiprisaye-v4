@@ -30,6 +30,11 @@ export default function Carte() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [recentDestinations, setRecentDestinations] = useState([]);
   const [showRecentDestinations, setShowRecentDestinations] = useState(false);
+  
+  // Phase 1: Filter states
+  const [selectedCategory, setSelectedCategory] = useState('Toutes');
+  const [selectedServices, setSelectedServices] = useState([]);
+  const [showFilters, setShowFilters] = useState(false);
 
   // Constants
   const NAVIGATION_TIMEOUT = 1000; // Timeout for resetting navigation state
@@ -297,6 +302,57 @@ export default function Carte() {
       distance: calculateDistance(userPosition[0], userPosition[1], store.lat, store.lon)
     }));
   }, [stores, userPosition]);
+
+  // Phase 1: Helper function to categorize stores
+  const getStoreCategory = (store) => {
+    const chain = store.chain.toLowerCase();
+    if (['système u', 'carrefour', 'casino', 'e.leclerc', 'leader price', 'auchan', 
+         'ecomax', 'simply market', 'intermarché', '8 à huit', 'vival', 
+         'super score', 'euromarché', 'match'].some(food => chain.includes(food) || food.includes(chain))) {
+      return 'Alimentation';
+    } else if (['mr. bricolage', 'bricopro', 'bricomarché'].some(hw => chain.includes(hw) || hw.includes(chain))) {
+      return 'Bricolage';
+    } else if (['darty', 'but'].some(elec => chain.includes(elec) || elec.includes(chain))) {
+      return 'Électronique';
+    } else if (['décathlon', 'intersport'].some(sport => chain.includes(sport) || sport.includes(chain))) {
+      return 'Sport';
+    }
+    return 'Autre';
+  };
+
+  // Phase 1: Filter stores based on selected category and services
+  const filteredStores = useMemo(() => {
+    return storesWithDistance.filter(store => {
+      // Filter by category
+      if (selectedCategory !== 'Toutes' && getStoreCategory(store) !== selectedCategory) {
+        return false;
+      }
+      
+      // Filter by services
+      if (selectedServices.length > 0) {
+        const storeServices = store.services || [];
+        // Store must have all selected services
+        const hasAllServices = selectedServices.every(service => storeServices.includes(service));
+        if (!hasAllServices) return false;
+      }
+      
+      return true;
+    });
+  }, [storesWithDistance, selectedCategory, selectedServices]);
+
+  // Phase 1: Calculate statistics
+  const storeStats = useMemo(() => {
+    const categories = {};
+    const chains = {};
+    
+    stores.forEach(store => {
+      const category = getStoreCategory(store);
+      categories[category] = (categories[category] || 0) + 1;
+      chains[store.chain] = (chains[store.chain] || 0) + 1;
+    });
+    
+    return { categories, chains, total: stores.length };
+  }, [stores]);
   const activeTerritories = getActiveTerritories();
   const territoryPositions = {};
   activeTerritories.forEach(t => {
@@ -424,6 +480,145 @@ export default function Carte() {
           </select>
         </div>
 
+        {/* Phase 1: Statistics Display */}
+        <div className="mb-6 bg-slate-800/50 border border-slate-700 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold text-blue-400">📊 Statistiques</h2>
+            <span className="text-2xl font-bold text-blue-300">{storeStats.total} magasins</span>
+          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            {/* Categories Stats */}
+            <div>
+              <h3 className="text-sm font-medium text-slate-300 mb-2">Par Catégorie</h3>
+              <div className="space-y-1">
+                {Object.entries(storeStats.categories).sort((a, b) => b[1] - a[1]).map(([cat, count]) => (
+                  <div key={cat} className="flex justify-between text-sm">
+                    <span className="text-slate-400">
+                      {cat === 'Alimentation' && '🛒 '}
+                      {cat === 'Bricolage' && '🔨 '}
+                      {cat === 'Électronique' && '💻 '}
+                      {cat === 'Sport' && '⚽ '}
+                      {cat}
+                    </span>
+                    <span className="text-blue-400 font-medium">{count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Top Chains */}
+            <div>
+              <h3 className="text-sm font-medium text-slate-300 mb-2">Top Enseignes</h3>
+              <div className="space-y-1">
+                {Object.entries(storeStats.chains).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([chain, count]) => (
+                  <div key={chain} className="flex justify-between text-sm">
+                    <span className="text-slate-400">{chain}</span>
+                    <span className="text-blue-400 font-medium">{count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Phase 1: Filters Section */}
+        <div className="mb-6 bg-slate-800/50 border border-slate-700 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold text-blue-400">🔍 Filtres</h2>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="text-sm text-blue-400 hover:text-blue-300"
+            >
+              {showFilters ? 'Masquer' : 'Afficher'}
+            </button>
+          </div>
+          
+          {showFilters && (
+            <div className="space-y-4">
+              {/* Category Filter */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-slate-300">
+                  Catégorie
+                </label>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg bg-slate-700 text-slate-100 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="Toutes">Toutes les catégories</option>
+                  <option value="Alimentation">🛒 Alimentation ({storeStats.categories['Alimentation'] || 0})</option>
+                  <option value="Bricolage">🔨 Bricolage ({storeStats.categories['Bricolage'] || 0})</option>
+                  <option value="Électronique">💻 Électronique ({storeStats.categories['Électronique'] || 0})</option>
+                  <option value="Sport">⚽ Sport ({storeStats.categories['Sport'] || 0})</option>
+                </select>
+              </div>
+
+              {/* Services Filter */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-slate-300">
+                  Services disponibles
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {['parking', 'livraison', 'carte_bancaire', 'SAV', 'essence', 'retrait_course'].map(service => (
+                    <label key={service} className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer hover:text-blue-400">
+                      <input
+                        type="checkbox"
+                        checked={selectedServices.includes(service)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedServices([...selectedServices, service]);
+                          } else {
+                            setSelectedServices(selectedServices.filter(s => s !== service));
+                          }
+                        }}
+                        className="rounded border-slate-600 bg-slate-700 text-blue-500 focus:ring-blue-500 focus:ring-offset-slate-800"
+                      />
+                      <span>
+                        {service === 'parking' && '🅿️ Parking'}
+                        {service === 'livraison' && '🚚 Livraison'}
+                        {service === 'carte_bancaire' && '💳 CB'}
+                        {service === 'SAV' && '🔧 SAV'}
+                        {service === 'essence' && '⛽ Essence'}
+                        {service === 'retrait_course' && '📦 Click&Collect'}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Active Filters Display */}
+              {(selectedCategory !== 'Toutes' || selectedServices.length > 0) && (
+                <div className="flex items-center gap-2 text-sm pt-2 border-t border-slate-600">
+                  <span className="text-slate-400">Filtres actifs:</span>
+                  {selectedCategory !== 'Toutes' && (
+                    <span className="px-2 py-1 bg-blue-600/20 text-blue-300 rounded">
+                      {selectedCategory}
+                    </span>
+                  )}
+                  {selectedServices.map(service => (
+                    <span key={service} className="px-2 py-1 bg-green-600/20 text-green-300 rounded">
+                      {service}
+                    </span>
+                  ))}
+                  <button
+                    onClick={() => {
+                      setSelectedCategory('Toutes');
+                      setSelectedServices([]);
+                    }}
+                    className="ml-auto text-xs text-red-400 hover:text-red-300"
+                  >
+                    Réinitialiser
+                  </button>
+                </div>
+              )}
+
+              {/* Results Count */}
+              <div className="text-sm text-center text-slate-400 pt-2 border-t border-slate-600">
+                {filteredStores.length} magasin(s) affiché(s) sur {storeStats.total}
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Map Container */}
         <div className="rounded-lg overflow-hidden border border-slate-700 shadow-xl h-[600px] bg-slate-800">
           <MapContainer
@@ -438,7 +633,7 @@ export default function Carte() {
             />
             <MapUpdater position={territoryPositions[territory]} />
             
-            {storesWithDistance.map((store, index) => {
+            {filteredStores.map((store, index) => {
               const storeKey = `${store.lat},${store.lon}`;
               const isStoreNavigating = isNavigating[storeKey] || false;
               
@@ -558,10 +753,10 @@ export default function Carte() {
         {/* Store List */}
         <div className="mt-8">
           <h2 className="text-2xl font-semibold mb-4 text-blue-400">
-            Magasins en {currentTerritory?.name || territory} ({stores.length})
+            Magasins en {currentTerritory?.name || territory} ({filteredStores.length} / {stores.length})
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {storesWithDistance.map((store, index) => {
+            {filteredStores.map((store, index) => {
               const storeKey = `${store.lat},${store.lon}`;
               const isStoreNavigating = isNavigating[storeKey] || false;
               
