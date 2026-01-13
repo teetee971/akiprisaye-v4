@@ -12,7 +12,7 @@ export default function Layout() {
   const navItems = [
     { path: '/', label: 'Accueil' },
     { path: '/comparateur', label: 'Comparateur' },
-    { path: '/scan', label: 'Scanner' },
+    { path: '/ocr', label: 'OCR & Scan' },
     { path: '/carte', label: 'Carte' },
     { path: '/observatoire', label: 'Observatoire' },
     { path: '/observatoire-vivant', label: 'Observatoire vivant' },

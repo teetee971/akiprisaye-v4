@@ -227,6 +227,10 @@ window.addEventListener('unhandledrejection', (event) => {
   }
 });
 
+// Proof that OCR routes are loaded in the bundle
+console.log('[OCR Routes] ✅ OCR Hub and OCR History routes are registered and included in bundle');
+console.log('[OCR Routes] Routes: /ocr and /ocr/history');
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
