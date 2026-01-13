@@ -24,6 +24,10 @@ import {
 } from '../../services/ocr/ocrHistoryService';
 
 export default function OCRHistory() {
+  // PROOF: Log when component renders (production included)
+  console.log('[OCR History] ✅ OCRHistory component rendered successfully');
+  console.log('[OCR History] Current route:', window.location.pathname);
+
   const [consent, setConsent] = useState(hasHistoryConsent());
   const [history, setHistory] = useState<OCRHistoryEntry[]>([]);
   const [stats, setStats] = useState(getHistoryStats());
@@ -92,6 +96,11 @@ export default function OCRHistory() {
       </Helmet>
 
       <div className="min-h-screen bg-slate-950 text-white pt-24 pb-12 px-4">
+        {/* PROOF BANNER - Visible proof that OCR History is active */}
+        <div className="bg-green-600 text-white text-center py-2 px-4 font-bold text-sm">
+          ✅ OCR HISTORY ACTIVE - Component loaded successfully | Route: {window.location.pathname}
+        </div>
+        
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-8">

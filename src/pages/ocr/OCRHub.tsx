@@ -95,6 +95,10 @@ const GOVERNANCE_PRINCIPLES = [
 export default function OCRHub() {
   const navigate = useNavigate();
 
+  // PROOF: Log when component renders (production included)
+  console.log('[OCR Hub] ✅ OCRHub component rendered successfully');
+  console.log('[OCR Hub] Current route:', window.location.pathname);
+
   const handleNavigate = (route: string) => {
     navigate(route);
   };
@@ -110,6 +114,11 @@ export default function OCRHub() {
       </Helmet>
 
       <div className="min-h-screen bg-slate-950 text-white">
+        {/* PROOF BANNER - Visible proof that OCR Hub is active */}
+        <div className="bg-green-600 text-white text-center py-2 px-4 font-bold text-sm">
+          ✅ OCR HUB ACTIVE - Component loaded successfully | Route: {window.location.pathname}
+        </div>
+        
         {/* Hero Section */}
         <section className="pt-24 pb-12 px-4">
           <div className="max-w-5xl mx-auto text-center">

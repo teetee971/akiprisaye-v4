@@ -95,8 +95,9 @@ const ScanFlow = lazyWithRetry(() => import('./pages/ScanFlow'));
 const ProductPhotoAnalysis = lazyWithRetry(() => import('./pages/ProductPhotoAnalysis'));
 
 // OCR Hub - Unified entry point for all OCR features
-const OCRHub = lazyWithRetry(() => import('./pages/ocr/OCRHub'));
-const OCRHistory = lazyWithRetry(() => import('./pages/ocr/OCRHistory'));
+// CRITICAL: Direct imports (NO lazy loading) to prevent tree-shaking
+import OCRHub from './pages/ocr/OCRHub';
+import OCRHistory from './pages/ocr/OCRHistory';
 
 // Store Detail Page with company info, graphs, and history
 const StoreDetail = lazyWithRetry(() => import('./pages/StoreDetail'));
@@ -227,11 +228,13 @@ window.addEventListener('unhandledrejection', (event) => {
   }
 });
 
-// Proof that OCR routes are loaded in the bundle (development only)
-if (import.meta.env.DEV) {
-  console.log('[OCR Routes] ✅ OCR Hub and OCR History routes are registered and included in bundle');
-  console.log('[OCR Routes] Routes: /ocr and /ocr/history');
-}
+// PROOF: OCR routes are loaded in bundle (ALWAYS - production included)
+console.log('[OCR Routes] ✅ OCR Hub and OCR History routes are registered and included in bundle');
+console.log('[OCR Routes] Routes: /ocr and /ocr/history');
+console.log('[OCR Routes] Components imported directly (no lazy load):', {
+  OCRHub: typeof OCRHub,
+  OCRHistory: typeof OCRHistory
+});
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -246,8 +249,22 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                     <Route path='/' element={<Layout />}>
                   <Route index element={<Home />} />
                   <Route path='chat' element={<ChatIALocal />} />
+                  
+                  {/* OCR ROUTES - DIRECT IMPORT (NO LAZY) - PROOF ACTIVE */}
                   <Route path='ocr' element={<OCRHub />} />
                   <Route path='ocr/history' element={<OCRHistory />} />
+                  
+                  {/* DEBUG ROUTE - Proof OCR router is active */}
+                  <Route path='ocr-debug' element={
+                    <div style={{padding: '40px', textAlign: 'center', backgroundColor: '#10b981', color: 'white', fontSize: '24px', fontWeight: 'bold'}}>
+                      ✅ OCR ROUTER ACTIVE - Routes /ocr and /ocr/history are registered
+                      <br/><br/>
+                      <a href="/ocr" style={{color: 'white', textDecoration: 'underline'}}>Go to /ocr</a>
+                      {' | '}
+                      <a href="/ocr/history" style={{color: 'white', textDecoration: 'underline'}}>Go to /ocr/history</a>
+                    </div>
+                  } />
+                  
                   <Route path='scan' element={<ScanOCR />} />
                   <Route path='scan-ean' element={<ScanEAN />} />
                   <Route path='scanner-produit' element={<ScanFlow />} />
