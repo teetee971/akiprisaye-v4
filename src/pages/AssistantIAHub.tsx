@@ -308,7 +308,7 @@ export default function AssistantIAHub() {
           <p className="text-slate-400 mb-4">Découvrez aussi</p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link
-              to="/comparateur"
+              to="/comparateurs"
               className="px-4 py-2 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 rounded-lg text-slate-300 text-sm transition"
             >
               📊 Comparateur de prix

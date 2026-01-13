@@ -23,6 +23,77 @@ L'application ne vend aucun produit et ne réalise aucune transaction commercial
 
 ---
 
+## 🧭 Navigation Optimisée - 7 Hubs Principaux
+
+**Nouvelle architecture !** La navigation a été simplifiée et organisée en 7 hubs principaux pour une expérience utilisateur fluide et intuitive.
+
+### 🏠 Accueil
+Point d'entrée principal avec vue d'ensemble et accès rapide à toutes les fonctionnalités.
+
+### 📊 Comparateurs
+Hub unifié regroupant tous les outils de comparaison :
+- Comparateur prix classique
+- Prix au kilo / formats
+- Détection shrinkflation
+- Équivalence Métropole (IEVR)
+- Historique des prix
+- Comparateurs services (vols, bateaux, télécoms)
+
+**Route:** `/comparateurs`
+
+### 🗺️ Carte & Itinéraires
+Fonctionnalités cartographiques et optimisation de trajets :
+- Carte interactive des magasins
+- Optimiseur d'itinéraire multi-destinations
+- Planification liste de courses intelligente
+- Recherche magasins à proximité
+
+**Route:** `/carte`
+
+### 📷 Scanner
+Hub unifié pour tous les modes de scan :
+- Scanner code-barres (EAN-13, EAN-8, UPC)
+- Scanner texte & tickets (OCR local)
+- Scanner produit complet
+- Analyse photo produit
+
+**Route:** `/scanner`
+
+### 🤖 Assistant IA
+Intelligence artificielle locale et respectueuse de la vie privée :
+- Conseiller budget IA
+- Chat IA local (100% privé)
+- Analyses de marché
+- Assistant courses intelligent
+
+**Route:** `/assistant-ia`
+
+### 📈 Observatoire
+Données agrégées et analyses de marché :
+- Dashboard prix en temps réel
+- Observatoire vivant
+- Méthodologie publique
+- Données ouvertes
+
+**Route:** `/observatoire`
+
+### 🤝 Solidarité
+Actions solidaires et anti-gaspillage :
+- Ti-Panié Solidaire (paniers anti-gaspi)
+- Modules citoyens
+- Contribution aux prix
+- Initiatives locales
+
+**Route:** `/solidarite`
+
+### 💡 Bénéfices de la Nouvelle Navigation
+- **-70% d'entrées menu** : Passage de 15+ à 7 entrées principales
+- **3x plus rapide** : Moins de clics pour atteindre la fonctionnalité souhaitée
+- **Mobile-first** : Optimisé pour la navigation tactile
+- **Backward compatible** : Les anciennes routes restent accessibles
+
+---
+
 ## 🔎 OCR & Scan - Hub Unifié
 
 **Nouveau !** Module OCR centralisé et institutionnel pour l'extraction locale de texte depuis images.

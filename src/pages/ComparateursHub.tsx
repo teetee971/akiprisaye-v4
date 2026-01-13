@@ -267,7 +267,7 @@ export default function ComparateursHub() {
           <p className="text-slate-400 mb-4">Vous cherchez autre chose ?</p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link
-              to="/ocr"
+              to="/scanner"
               className="px-4 py-2 bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 rounded-lg text-slate-300 text-sm transition"
             >
               📷 Scanner un produit

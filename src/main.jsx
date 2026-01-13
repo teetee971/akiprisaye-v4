@@ -17,7 +17,6 @@ import NotFound from './pages/NotFound';
 // Hub Pages - Direct imports for main navigation entries
 import ComparateursHub from './pages/ComparateursHub';
 import ScannerHub from './pages/ScannerHub';
-import CarteHub from './pages/CarteHub';
 import AssistantIAHub from './pages/AssistantIAHub';
 import SolidariteHub from './pages/SolidariteHub';
 
@@ -251,7 +250,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   {/* HUB ROUTES - Main navigation entries (7 hubs) */}
                   <Route path='comparateurs' element={<ComparateursHub />} />
                   <Route path='scanner' element={<ScannerHub />} />
-                  <Route path='carte' element={<Carte />} />
+                  <Route path='carte' element={<Carte />} /> {/* Carte already has all map/route features */}
                   <Route path='assistant-ia' element={<AssistantIAHub />} />
                   <Route path='solidarite' element={<SolidariteHub />} />
                   {/* Observatoire kept as-is */}
@@ -268,7 +267,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='analyse-photo-produit' element={<ProductPhotoAnalysis />} />
                   <Route path='comparaison-enseignes' element={<ComparaisonEnseignes />} />
                   <Route path='comparateur' element={<Comparateur />} />
-                  <Route path='carte' element={<Carte />} />
                   <Route path='actualites' element={<NewsSimple />} />
                   <Route path='alertes' element={<Alertes />} />
                   <Route path='a-propos' element={<APropos />} />
