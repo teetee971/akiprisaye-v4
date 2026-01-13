@@ -16,6 +16,18 @@ const formatPrice = (price: number): string => {
 };
 
 /**
+ * Escape CSV field to prevent injection and parsing errors
+ */
+const escapeCSV = (field: string | number | boolean): string => {
+  const str = String(field);
+  // If field contains comma, quote, or newline, wrap in quotes and escape existing quotes
+  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+};
+
+/**
  * Export flight comparison to CSV
  */
 export const exportFlightComparisonToCSV = (result: FlightComparisonResult): void => {
@@ -35,18 +47,18 @@ export const exportFlightComparisonToCSV = (result: FlightComparisonResult): voi
   ];
 
   const rows = result.airlines.map(ranking => [
-    ranking.rank,
-    ranking.flightPrice.airline,
-    ranking.flightPrice.price.toFixed(2),
-    ranking.flightPrice.additionalFees?.total.toFixed(2) || '0.00',
-    (ranking.flightPrice.price + (ranking.flightPrice.additionalFees?.total || 0)).toFixed(2),
-    ranking.flightPrice.duration,
-    ranking.flightPrice.stops,
-    ranking.flightPrice.fareConditions.baggageIncluded ? 'Oui' : 'Non',
-    ranking.flightPrice.fareConditions.refundable ? 'Oui' : 'Non',
-    ranking.flightPrice.fareConditions.changeable ? 'Oui' : 'Non',
-    ranking.percentageDifferenceFromCheapest.toFixed(2),
-    ranking.priceCategory
+    escapeCSV(ranking.rank),
+    escapeCSV(ranking.flightPrice.airline),
+    escapeCSV(ranking.flightPrice.price.toFixed(2)),
+    escapeCSV(ranking.flightPrice.additionalFees?.total.toFixed(2) || '0.00'),
+    escapeCSV((ranking.flightPrice.price + (ranking.flightPrice.additionalFees?.total || 0)).toFixed(2)),
+    escapeCSV(ranking.flightPrice.duration),
+    escapeCSV(ranking.flightPrice.stops),
+    escapeCSV(ranking.flightPrice.fareConditions.baggageIncluded ? 'Oui' : 'Non'),
+    escapeCSV(ranking.flightPrice.fareConditions.refundable ? 'Oui' : 'Non'),
+    escapeCSV(ranking.flightPrice.fareConditions.changeable ? 'Oui' : 'Non'),
+    escapeCSV(ranking.percentageDifferenceFromCheapest.toFixed(2)),
+    escapeCSV(ranking.priceCategory)
   ]);
 
   const csvContent = [
@@ -75,16 +87,16 @@ export const exportBoatComparisonToCSV = (result: BoatComparisonResult): void =>
   ];
 
   const rows = result.operators.map(ranking => [
-    ranking.rank,
-    ranking.boatPrice.operator,
-    ranking.boatPrice.pricing.passengerPrice.toFixed(2),
-    ranking.boatPrice.pricing.childPrice?.toFixed(2) || 'N/A',
-    ranking.boatPrice.pricing.vehiclePrice?.car.toFixed(2) || 'N/A',
-    ranking.boatPrice.pricing.vehiclePrice?.motorcycle?.toFixed(2) || 'N/A',
-    ranking.boatPrice.schedule.duration,
-    ranking.boatPrice.schedule.frequency,
-    ranking.percentageDifferenceFromCheapest.toFixed(2),
-    ranking.priceCategory
+    escapeCSV(ranking.rank),
+    escapeCSV(ranking.boatPrice.operator),
+    escapeCSV(ranking.boatPrice.pricing.passengerPrice.toFixed(2)),
+    escapeCSV(ranking.boatPrice.pricing.childPrice?.toFixed(2) || 'N/A'),
+    escapeCSV(ranking.boatPrice.pricing.vehiclePrice?.car.toFixed(2) || 'N/A'),
+    escapeCSV(ranking.boatPrice.pricing.vehiclePrice?.motorcycle?.toFixed(2) || 'N/A'),
+    escapeCSV(ranking.boatPrice.schedule.duration),
+    escapeCSV(ranking.boatPrice.schedule.frequency),
+    escapeCSV(ranking.percentageDifferenceFromCheapest.toFixed(2)),
+    escapeCSV(ranking.priceCategory)
   ]);
 
   const csvContent = [
@@ -224,6 +236,9 @@ const downloadCSV = (content: string, filename: string): void => {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  
+  // Revoke the URL to free up memory
+  URL.revokeObjectURL(url);
 };
 
 /**
@@ -241,4 +256,7 @@ const downloadText = (content: string, filename: string): void => {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  
+  // Revoke the URL to free up memory
+  URL.revokeObjectURL(url);
 };
