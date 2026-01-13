@@ -21,6 +21,7 @@ import {
 } from '../config/thresholds';
 import { calculatePercentageChange, calculateAbsoluteChange } from '../utils/priceAnalysis';
 import { formatCurrency, formatPercentage } from '../utils/formatters';
+import { DataSourceWarning } from './DataSourceWarning.jsx';
 
 const ALERT_THRESHOLD_KEY = 'akiprisaye_alert_thresholds';
 const USER_ALERTS_KEY = 'akiprisaye_user_alerts';
@@ -146,6 +147,14 @@ export function AlertesPrix() {
 
   return (
     <div className="space-y-6">
+      {/* Data Source Warning */}
+      {pricesHistory.metadata.dataStatus !== 'OFFICIEL' && (
+        <DataSourceWarning 
+          dataStatus={pricesHistory.metadata.dataStatus}
+          requiredSources={pricesHistory.metadata.requiredSources}
+        />
+      )}
+
       {/* Header */}
       <div className="bg-gradient-to-r from-orange-600 to-orange-800 rounded-lg p-6 text-white">
         <h2 className="text-2xl font-bold mb-2">

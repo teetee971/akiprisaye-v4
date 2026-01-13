@@ -15,6 +15,7 @@ import budgetData from '../data/budget-vital.json';
 import { getActiveTerritories } from '../constants/territories';
 import { calculateBudgetAnalysis } from '../utils/priceAnalysis';
 import { formatCurrency, formatPercentage } from '../utils/formatters';
+import { DataSourceWarning } from './DataSourceWarning.jsx';
 
 export function BudgetVital() {
   const [selectedProfile, setSelectedProfile] = useState('adulte-seul');
@@ -48,6 +49,14 @@ export function BudgetVital() {
 
   return (
     <div className="space-y-6">
+      {/* Data Source Warning */}
+      {budgetData.metadata.dataStatus !== 'OFFICIEL' && (
+        <DataSourceWarning 
+          dataStatus={budgetData.metadata.dataStatus}
+          requiredSources={budgetData.metadata.requiredSources}
+        />
+      )}
+
       {/* Header */}
       <div className="bg-gradient-to-r from-green-600 to-green-800 rounded-lg p-6 text-white">
         <h2 className="text-2xl font-bold mb-2">

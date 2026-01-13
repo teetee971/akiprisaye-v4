@@ -14,6 +14,7 @@ import { useState } from 'react';
 import { Card } from './card.jsx';
 import ievrData from '../data/ievr-data.json';
 import { getTerritoryStatus } from '../utils/ievrCalculations.js';
+import { DataSourceWarning } from './DataSourceWarning.jsx';
 
 export function DossierMedia() {
   const [selectedFormat, setSelectedFormat] = useState('html');
@@ -39,6 +40,14 @@ export function DossierMedia() {
 
   return (
     <div className="space-y-6">
+      {/* Data Source Warning */}
+      {ievrData.metadata.dataStatus !== 'OFFICIEL' && (
+        <DataSourceWarning 
+          dataStatus={ievrData.metadata.dataStatus}
+          requiredSources={ievrData.metadata.requiredSources}
+        />
+      )}
+
       {/* Header */}
       <div className="bg-gradient-to-r from-slate-700 to-slate-900 rounded-lg p-6 text-white print:bg-white print:text-black">
         <h1 className="text-3xl font-bold mb-2">
