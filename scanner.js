@@ -2,6 +2,13 @@
  * A KI PRI SA YÉ - Module Scanner Code-Barres v3.2
  * Compatible mobile / Samsung S24+ / PWA / HTTPS
  * Supporte EAN-8 / EAN-13 / UPC / QR
+ * 
+ * NOTE: This is a legacy file. The production scanner uses
+ * src/components/BarcodeScanner.tsx which uses @zxing/library
+ * 
+ * To use ZXing in this file, include it via CDN in the HTML:
+ * <script src="https://unpkg.com/@zxing/library@latest"></script>
+ * Then use: const { BrowserMultiFormatReader } = ZXing
  *****************************************************/
 
 // -----------------------------
@@ -117,7 +124,18 @@ let codeReader = null;
 
 function initializeBarcodeReader() {
   if (!codeReader) {
-    codeReader = new BrowserMultiFormatReader();
+    // Note: ZXing must be loaded via CDN or bundler
+    // For CDN: <script src="https://unpkg.com/@zxing/library@latest"></script>
+    // Then use: new ZXing.BrowserMultiFormatReader()
+    // Production scanner in src/components/BarcodeScanner.tsx uses proper imports
+    if (typeof ZXing !== 'undefined') {
+      codeReader = new ZXing.BrowserMultiFormatReader();
+    } else if (typeof BrowserMultiFormatReader !== 'undefined') {
+      codeReader = new BrowserMultiFormatReader();
+    } else {
+      console.error('ZXing library not loaded. Please include @zxing/library');
+      return null;
+    }
   }
   return codeReader;
 }
@@ -129,6 +147,12 @@ function initializeBarcodeReader() {
 function decodeBarcode(imageData) {
   try {
     const reader = initializeBarcodeReader();
+    
+    if (!reader) {
+      // Fallback: No ZXing available
+      // Production users should be using BarcodeScanner.tsx instead
+      return;
+    }
     
     // Create a canvas from imageData
     const canvas = document.createElement('canvas');
@@ -146,11 +170,9 @@ function decodeBarcode(imageData) {
       })
       .catch(error => {
         // Expected errors during scanning (no barcode in frame, etc.)
-        if (!(error instanceof NotFoundException)) {
-          // Only log unexpected errors
-          if (!(error instanceof ChecksumException) && !(error instanceof FormatException)) {
-            console.warn('Barcode decode error:', error.message);
-          }
+        // NotFoundException, ChecksumException, FormatException are expected
+        if (error && error.name && !['NotFoundException', 'ChecksumException', 'FormatException'].includes(error.name)) {
+          console.warn('Barcode decode error:', error.message);
         }
       });
   } catch (error) {
