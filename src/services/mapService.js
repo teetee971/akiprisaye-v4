@@ -1,17 +1,25 @@
+import { getStoresByTerritory as getStoresFromSeed } from '../data/seedStores.js';
+
+/**
+ * Get stores by territory for display on the map
+ * Converts seedStores format to map format
+ * @param {string} territory - Territory name (e.g., 'Guadeloupe', 'Martinique')
+ * @returns {Array} Array of stores with lat, lon, name, category, and id
+ */
 export const getStoresByTerritory = (territory) => {
-  const stores = {
-    'Guadeloupe': [
-      { name: 'Carrefour Destrellan', lat: 16.262, lon: -61.583, category: 'Supermarché' },
-      { name: 'Super U Baie-Mahault', lat: 16.271, lon: -61.588, category: 'Supermarché' },
-      { name: 'Leader Price Gosier', lat: 16.224, lon: -61.493, category: 'Discount' },
-    ],
-    'Martinique': [
-      { name: 'Hyper U Le Lamentin', lat: 14.613, lon: -60.996, category: 'Supermarché' },
-      { name: 'Carrefour Dillon', lat: 14.610, lon: -61.058, category: 'Supermarché' },
-    ],
-    'Guyane': [
-      { name: 'Carrefour Matoury', lat: 4.853, lon: -52.328, category: 'Supermarché' },
-    ],
-  };
-  return stores[territory] || [];
+  const stores = getStoresFromSeed(territory);
+  
+  // Convert seedStores format to map format
+  return stores.map(store => ({
+    id: store.id,
+    name: store.name,
+    lat: store.coordinates.lat,
+    lon: store.coordinates.lon,
+    category: store.chain, // Use chain as category
+    city: store.city,
+    address: store.address,
+    phone: store.phone,
+    openingHours: store.openingHours,
+    services: store.services,
+  }));
 };
