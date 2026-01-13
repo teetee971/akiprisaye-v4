@@ -9,6 +9,9 @@
  * @returns {Object} Extracted data: products, total, store, date
  */
 
+import { logInfo, logWarn, logError } from './utils/logger.js';
+import { saveReceipt } from './utils/firestore.js';
+
 /**
  * Validate image file
  * @param {File} file - Uploaded file

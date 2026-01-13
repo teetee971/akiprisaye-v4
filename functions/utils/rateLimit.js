@@ -11,19 +11,18 @@
 // Store: IP -> { count, resetTime }
 const rateLimitStore = new Map();
 
-// Cleanup old entries periodically
-// Note: In serverless environments, this may not run consistently
-// Consider using KV with TTL or Durable Objects for production
-let cleanupInterval;
-if (typeof setInterval !== 'undefined') {
-  cleanupInterval = setInterval(() => {
-    const now = Date.now();
-    for (const [ip, data] of rateLimitStore.entries()) {
-      if (data.resetTime < now) {
-        rateLimitStore.delete(ip);
-      }
+/**
+ * Manual cleanup of expired entries
+ * Called on-demand during rate limit checks instead of using setInterval
+ * This avoids global scope async operations which are disallowed in Cloudflare Workers
+ */
+function cleanupExpiredEntries() {
+  const now = Date.now();
+  for (const [ip, data] of rateLimitStore.entries()) {
+    if (data.resetTime < now) {
+      rateLimitStore.delete(ip);
     }
-  }, 5 * 60 * 1000);
+  }
 }
 
 /**
@@ -34,6 +33,10 @@ if (typeof setInterval !== 'undefined') {
  * @returns {Object} { allowed: boolean, remaining: number, resetTime: number }
  */
 export function checkRateLimit(ip, maxRequests = 5, windowMs = 60 * 60 * 1000) {
+  // Clean up expired entries on each check to avoid memory leaks
+  // This replaces the global setInterval which is not allowed in Cloudflare Workers
+  cleanupExpiredEntries();
+  
   const now = Date.now();
   const data = rateLimitStore.get(ip);
   
