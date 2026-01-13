@@ -307,7 +307,16 @@ export default function Carte() {
     // Utiliser le code territoire pour récupérer les magasins
     const territoryObj = TERRITORIES[territory];
     if (territoryObj) {
-      setStores(getStoresByTerritory(territoryObj.name));
+      // mapService now returns a Promise, so we need to handle it
+      getStoresByTerritory(territoryObj.name)
+        .then(stores => {
+          setStores(stores);
+        })
+        .catch(error => {
+          console.error('Error loading stores:', error);
+          // Fallback to empty array if loading fails
+          setStores([]);
+        });
     }
   }, [territory]);
 
