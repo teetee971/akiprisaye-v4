@@ -69,11 +69,14 @@ export const getStoresByTerritory = async (territory, includeReceiptStores = tru
         if (!storeMap.has(store.id)) {
           storeMap.set(store.id, store);
         } else {
-          // Update existing store with receipt observation data
+          // Create new object instead of mutating to avoid React state issues
           const existing = storeMap.get(store.id);
-          existing.hasReceiptObservations = true;
-          existing.observationCount = store.observationCount;
-          existing.lastObservation = store.lastObservation;
+          storeMap.set(store.id, {
+            ...existing,
+            hasReceiptObservations: true,
+            observationCount: store.observationCount,
+            lastObservation: store.lastObservation,
+          });
         }
       });
       

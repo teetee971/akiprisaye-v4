@@ -17,7 +17,7 @@ export async function loadReceiptObservations() {
     // Import the observations index
     const response = await fetch('/data/observations/index.json');
     if (!response.ok) {
-      console.warn('Could not load observations index');
+      console.warn(`Could not load observations index (HTTP ${response.status})`);
       return [];
     }
     const observations = await response.json();
@@ -43,10 +43,12 @@ export function extractStoresFromReceipts(observations) {
     }
     
     // Create a unique key for this store
-    // Use magasin_id if available, otherwise use enseigne + commune
+    // Use magasin_id if available, otherwise use enseigne + commune (or territoire if commune missing)
+    // Note: If commune is missing, stores with same enseigne in same territory will be grouped
+    const locationKey = obs.commune || `TERRITORY_${obs.territoire}`;
     const storeKey = obs.magasin_id 
       ? `${obs.enseigne}_${obs.magasin_id}`
-      : `${obs.enseigne}_${obs.commune || obs.territoire}`;
+      : `${obs.enseigne}_${locationKey}`;
     
     // If we've already seen this store, update the observation count
     if (storesMap.has(storeKey)) {
@@ -85,6 +87,12 @@ export function extractStoresFromReceipts(observations) {
 /**
  * Get stores from receipts with coordinates
  * Filters out stores that need geocoding (no lat/lon)
+ * 
+ * NOTE: Currently returns empty array since extractStoresFromReceipts
+ * marks all stores as needsGeocoding=true. Stores without coordinates
+ * are only useful after being matched with known stores (via matchReceiptStoresWithKnown)
+ * or after implementing geocoding service.
+ * 
  * @returns {Promise<Array>} Array of stores ready for map display
  */
 export async function getStoresFromReceipts() {
@@ -93,7 +101,7 @@ export async function getStoresFromReceipts() {
   
   // Filter to only return stores that have coordinates
   // In a real implementation, you would geocode the addresses
-  // or match with existing store database
+  // or match with existing store database (see matchReceiptStoresWithKnown)
   const storesWithCoordinates = stores.filter(store => 
     store.coordinates && store.coordinates.lat && store.coordinates.lon
   );
