@@ -33,6 +33,15 @@ const SOLIDARITY_FEATURES: SolidarityFeature[] = [
     badge: 'Populaire',
   },
   {
+    id: 'lutte-vie-chere',
+    title: 'Lutte contre la Vie Chère',
+    description: 'Actions et ressources pour des prix justes dans les territoires d\'Outre-mer',
+    icon: Heart,
+    route: '/lutte-vie-chere',
+    color: 'red',
+    badge: 'Nouveau',
+  },
+  {
     id: 'civic-modules',
     title: 'Modules Citoyens',
     description: 'Outils et ressources pour une consommation responsable et solidaire',

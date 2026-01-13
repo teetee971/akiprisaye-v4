@@ -23,7 +23,8 @@ import {
   Plane,
   Ship,
   Wifi,
-  Zap
+  Zap,
+  Bell
 } from 'lucide-react';
 
 interface ComparatorTab {
@@ -80,6 +81,42 @@ const COMPARATOR_TABS: ComparatorTab[] = [
     icon: History,
     route: '/historique-prix',
     color: 'indigo',
+    available: true,
+  },
+  {
+    id: 'history-new',
+    title: 'Historique Prix (Nouveau)',
+    description: 'Version améliorée avec graphiques interactifs',
+    icon: History,
+    route: '/historique-prix-new',
+    color: 'indigo',
+    available: true,
+  },
+  {
+    id: 'price-alerts',
+    title: 'Alertes Prix',
+    description: 'Créez des alertes pour vos produits favoris',
+    icon: Bell,
+    route: '/alertes-prix-new',
+    color: 'yellow',
+    available: true,
+  },
+  {
+    id: 'shopping-list',
+    title: 'Liste Courses Intelligente',
+    description: 'Optimisez votre liste de courses et économisez',
+    icon: ShoppingCart,
+    route: '/liste-courses-intelligente',
+    color: 'emerald',
+    available: true,
+  },
+  {
+    id: 'inflation',
+    title: 'Tableau de Bord Inflation',
+    description: 'Suivez l\'inflation par territoire et catégorie',
+    icon: TrendingDown,
+    route: '/inflation',
+    color: 'red',
     available: true,
   },
   {
