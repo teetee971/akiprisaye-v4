@@ -25,6 +25,8 @@
         "data:sign-all": "for file in data/*.json; do node scripts/data-signing/signData.mjs \"$file\" \"${file%.json}.proof.json\"; done",
         "observations:add": "node scripts/add-observation.js",
         "observations:generate": "node scripts/generate-index.js",
+        "import:off": "cd backend && tsx ../scripts/import-openfoodfacts.ts",
+        "seed:stores": "cd backend && tsx ../scripts/seed-stores.ts",
         "cap:sync": "cap sync",
         "cap:build": "npm run build && cap sync",
         "cap:open:android": "cap open android",
