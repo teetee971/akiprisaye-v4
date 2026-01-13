@@ -3,6 +3,7 @@
 [![Cloudflare Pages](https://img.shields.io/badge/Cloudflare%20Pages-deployed-success?logo=cloudflare&logoColor=white)](https://akiprisaye-web.pages.dev)
 [![CI Schema Validation](https://img.shields.io/badge/CI-JSON%20Schema%20Validation-blue)](#)
 [![Browser Only](https://img.shields.io/badge/Runtime-Browser--Only-important)](#)
+[![OCR Local](https://img.shields.io/badge/OCR-100%25%20Local-green)](#)
 
 **Application citoyenne de transparence des prix et des coûts réels dans les territoires ultramarins**
 
@@ -19,6 +20,57 @@ L'application ne vend aucun produit et ne réalise aucune transaction commercial
 - **ROM / COM** (Saint-Martin, Saint-Barthélemy, Polynésie française, Nouvelle-Calédonie, Wallis-et-Futuna, Saint-Pierre-et-Miquelon, Terres australes, etc.)
 
 **🎯 Phrase d'accroche : Comprendre pourquoi tout coûte plus cher.**
+
+---
+
+## 🔎 OCR & Scan - Hub Unifié
+
+**Nouveau !** Module OCR centralisé et institutionnel pour l'extraction locale de texte depuis images.
+
+### Fonctionnalités OCR
+
+#### 📸 Scan Unifié
+- **Scanner texte & tickets** - Extraction de texte brut depuis images, documents
+- **Scanner code-barres** - Lecture EAN-13, EAN-8, UPC pour identification produits
+- **Scanner produit complet** - Analyse complète (code-barres, ingrédients, prix)
+- **Analyse photo produit** - Identification produit par photo avec extraction d'informations
+
+#### 🎯 Principes OCR Non Négociables
+- ✅ **100% Local** - Traitement WASM (Tesseract.js) dans le navigateur
+- ✅ **Aucune interprétation** - Extraction brute uniquement, zéro analyse santé
+- ✅ **Aucune recommandation** - Pas de notation produit, pas de conseil
+- ✅ **Validation utilisateur** - Toute détection nécessite confirmation humaine
+- ✅ **RGPD Compliant** - Aucune biométrie, aucune transmission serveur
+- ✅ **Transparent** - Méthodologie publique et auditable
+
+#### 📊 Qualité OCR (Informatif)
+- Score de lisibilité technique (0-100)
+- Badges neutres : ✅ Lisible | ⚠️ Partiel | ❌ Insuffisant
+- Facteurs : Netteté image, Contraste, Cohérence linguistique
+- **Legal disclaimer** : "Ce score indique uniquement la lisibilité technique de l'image"
+
+#### 📜 Historique OCR (Opt-in)
+- Stockage local uniquement (localStorage)
+- Consentement explicite requis
+- Suppression totale à tout moment
+- Export JSON pour portabilité
+- Statistiques agrégées (total scans, confiance moyenne)
+- **Max 50 entrées** pour éviter saturation localStorage
+
+#### 🔐 Intégrité Cryptographique
+- Hash SHA-256 du texte extrait
+- Timestamp et métadonnées
+- Vérification publique possible
+- Auditabilité institutionnelle
+
+#### 🔬 Mode Analyse Avancée (Futur)
+- Désactivé par défaut
+- Pour journalistes, chercheurs, agents publics
+- Métriques techniques : confiance par bloc, langue détectée, caractères ambigus
+- Aucun impact fonctionnel
+
+### Accès OCR Hub
+👉 **[/ocr](/ocr)** - Point d'entrée unique pour toutes les fonctionnalités OCR
 
 ---
 

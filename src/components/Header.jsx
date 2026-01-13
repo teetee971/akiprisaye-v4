@@ -103,13 +103,13 @@ export default function Header() {
           </li>
           <li>
             <Link
-              to="/scan"
+              to="/ocr"
               className={`flex items-center gap-3 px-6 py-3 text-white hover:bg-blue-700/20 transition-colors border-l-4 ${
-                isActiveRoute('/scan') ? 'border-blue-400 bg-blue-700/10' : 'border-transparent hover:border-blue-400'
+                isActiveRoute('/ocr') ? 'border-blue-400 bg-blue-700/10' : 'border-transparent hover:border-blue-400'
               }`}
               onClick={closeMobileMenu}
             >
-              <span>📷 Scanner</span>
+              <span>🔎 OCR & Scan</span>
             </Link>
           </li>
           <li>
@@ -233,6 +233,14 @@ export default function Header() {
                 }`}
               >
                 Comprendre
+              </Link>
+              <Link
+                to="/ocr"
+                className={`text-white/90 hover:text-white hover:bg-[color:var(--glass-bg)] px-3 py-2 rounded-lg transition-all ${
+                  isActiveRoute('/ocr') ? 'bg-[color:var(--glass-bg)] text-white font-semibold' : ''
+                }`}
+              >
+                OCR & Scan
               </Link>
               <Link
                 to="/civic-modules"
