@@ -68,7 +68,6 @@ const Observatoire = lazyWithRetry(() => import('./pages/Observatoire'));
 const ObservatoireVivant = lazyWithRetry(() => import('./pages/ObservatoireVivant'));
 const ObservatoireTempsReel = lazyWithRetry(() => import('./pages/ObservatoireTempsReel'));
 const ObservatoryMethodology = lazyWithRetry(() => import('./pages/ObservatoryMethodology'));
-const MonEspace = lazyWithRetry(() => import('./pages/MonEspace'));
 const Perimetre = lazyWithRetry(() => import('./pages/Perimetre'));
 const Versions = lazyWithRetry(() => import('./pages/Versions'));
 const Gouvernance = lazyWithRetry(() => import('./pages/Gouvernance'));
@@ -308,7 +307,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='licence-institution' element={<LicenceInstitution />} />
                   <Route path='contact-collectivites' element={<ContactCollectivites />} />
                   <Route path='contact' element={<Contact />} />
-                  <Route path='mon-espace' element={<MonEspace />} />
                   <Route path='ia-conseiller' element={<IaConseiller />} />
                   <Route path='ti-panie' element={<TiPanie />} />
                   <Route path='admin/dashboard' element={<AdminDashboard />} />

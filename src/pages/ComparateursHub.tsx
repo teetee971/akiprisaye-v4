@@ -164,6 +164,24 @@ const COMPARATOR_TABS: ComparatorTab[] = [
     color: 'yellow',
     available: false,
   },
+  {
+    id: 'comparateur-citoyen',
+    title: 'Comparateur Citoyen',
+    description: 'Comparez les prix basés sur les données de l\'observatoire',
+    icon: ShoppingCart,
+    route: '/comparateur-citoyen',
+    color: 'emerald',
+    available: true,
+  },
+  {
+    id: 'comparateur-territoires',
+    title: 'Comparaison Territoires',
+    description: 'Comparez les prix entre différents territoires',
+    icon: MapPin,
+    route: '/comparateur-territoires',
+    color: 'purple',
+    available: true,
+  },
 ];
 
 export default function ComparateursHub() {
