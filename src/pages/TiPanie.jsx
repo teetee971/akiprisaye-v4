@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getBaskets } from '../services/tiPanieService';
+import BasketCard from '../ui/BasketCard';
+import BasketFilters from '../ui/BasketFilters';
 
 export default function TiPanie() {
   const [baskets, setBaskets] = useState([]);
