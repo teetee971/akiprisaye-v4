@@ -123,8 +123,10 @@ export const getBaskets = async (filters = {}) => {
     return validBaskets;
   } catch (error) {
     console.error('Error in getBaskets:', error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    throw new Error(`Impossible de charger les paniers. Veuillez réessayer. Détails: ${errorMessage}`);
+    // Log detailed error for debugging but provide user-friendly message
+    const technicalDetails = error instanceof Error ? error.message : String(error);
+    console.error('Technical details:', technicalDetails);
+    throw new Error('Impossible de charger les paniers. Veuillez réessayer plus tard.');
   }
 };
 
