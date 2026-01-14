@@ -1,12 +1,8 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { MapPin, ShoppingCart, AlertCircle, Info, Navigation, TrendingUp, Award } from 'lucide-react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { getUserPosition, calculateDistancesBatch, isGeolocationAvailable } from '../utils/geoLocation';
 import { solveShoppingRoute } from '../utils/routeOptimization';
 import { getSuggestedProducts } from '../utils/productSuggestions';
-import { loadStats, trackTrip, getBadges, clearStats } from '../utils/shoppingStats';
-import OptimalRouteDisplay from './OptimalRouteDisplay';
-import ProductSuggestionsDisplay from './ProductSuggestionsDisplay';
-import StatsDisplay from './StatsDisplay';
+import { loadStats, getBadges, clearStats } from '../utils/shoppingStats';
 import { PRODUCT_CATEGORIES, GENERIC_PRODUCTS } from '../config/categories';
 
 export default function ListeCourses({ territoire = '971' }) {
@@ -42,7 +38,7 @@ export default function ListeCourses({ territoire = '971' }) {
         if (module.default && module.default.magasins) {
           setMagasins(module.default.magasins);
         }
-      } catch (error) {
+      } catch (_error) {
         if (import.meta.env.DEV) {
           console.log('Données magasins non disponibles pour ce territoire');
         }

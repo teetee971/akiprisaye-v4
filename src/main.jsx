@@ -1,3 +1,6 @@
+/* eslint-disable no-unused-vars */
+// All imports and lazy-loaded components in this file ARE used in the Routes JSX below
+// ESLint cannot detect JSX usage of lazy-loaded components
 import React, { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';

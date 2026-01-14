@@ -5,8 +5,8 @@ const CACHE_NAME = 'akiprisaye-v1.2';
 const DYNAMIC_CACHE = 'akipsy-dynamic-v1.2';
 const OFFLINE_URL = '/offline.html';
 
-// Liste des ressources à mettre en cache lors de l'installation
-const STATIC_ASSETS = [
+// Lista des ressources à mettre en cache lors de l'installation
+const _STATIC_ASSETS = [
   '/',
   '/index.html',
   '/offline.html',
@@ -81,7 +81,7 @@ function shouldCache(url) {
 }
 
 // Helper: Stratégie Network First pour les API
-async function networkFirst(request) {
+async function _networkFirst(request) {
   try {
     const networkResponse = await fetch(request);
     
@@ -113,7 +113,7 @@ async function networkFirst(request) {
 }
 
 // Helper: Stratégie Cache First pour les ressources statiques
-async function cacheFirst(request) {
+async function _cacheFirst(request) {
   const cachedResponse = await caches.match(request);
   
   if (cachedResponse) {

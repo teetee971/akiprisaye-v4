@@ -1,8 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet.markercluster';
-import { MapPin, Loader2 } from 'lucide-react';
 import { getStoresByTerritory } from '../services/mapService';
 import { getActiveTerritories, TERRITORIES } from '../constants/territories';
 
@@ -13,6 +11,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
+// eslint-disable-next-line no-unused-vars
 function MapUpdater({ position }) {
   const map = useMap();
   useEffect(() => {
@@ -22,6 +21,7 @@ function MapUpdater({ position }) {
 }
 
 // Phase 2: Marker Clustering Component
+// eslint-disable-next-line no-unused-vars
 function MarkerClusterGroup({ stores, currentTerritory, formatDistance }) {
   const map = useMap();
 

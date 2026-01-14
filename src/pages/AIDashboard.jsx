@@ -30,8 +30,8 @@ export default function AIDashboard() {
   const [isAdmin, setIsAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
   const [territory, setTerritory] = useState('');
-  const [baskets, setBaskets] = useState([]);
-  const [forecast, setForecast] = useState([]);
+  const [_baskets, _setBaskets] = useState([]);
+  const [_forecast, _setForecast] = useState([]);
   const [kpis, setKpis] = useState({});
   const [recommendations, setRecommendations] = useState([]);
   const [chartData, setChartData] = useState(null);
@@ -105,7 +105,7 @@ export default function AIDashboard() {
     );
   }
 
-  const chartOptions = {
+  const _chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {

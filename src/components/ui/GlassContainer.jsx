@@ -3,17 +3,16 @@
  * Glassmorphism container with ≤12% opacity
  * Dark mode default, institutional look
  */
-import React from 'react';
 import { cn } from '@/lib/utils';
 
 export function GlassContainer({ 
   children, 
   className = '',
-  as: Component = 'div',
+  as: _Component = 'div',
   ...props 
 }) {
   return (
-    <Component
+    <div
       className={cn(
         'glass-container',
         'bg-white/[0.08] backdrop-blur-[14px]',
@@ -26,7 +25,7 @@ export function GlassContainer({
       {...props}
     >
       {children}
-    </Component>
+    </div>
   );
 }
 

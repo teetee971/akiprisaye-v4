@@ -1,10 +1,5 @@
 import React from 'react';
-import { Link, NavLink, Outlet } from 'react-router-dom';
 import '../styles/layout.css';
-import { Menu, X } from 'lucide-react';
-import TiPanierButton from './TiPanierButton';
-import FloatingActions from './ui/FloatingActions';
-import { OfflineIndicator } from './OfflineIndicator';
 
 export default function Layout() {
   const [open, setOpen] = React.useState(false);
