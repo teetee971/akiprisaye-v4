@@ -47,7 +47,7 @@ export class SubscriptionService {
       }
     });
     
-    return this.mapSubscription(sub);
+    return this.mapSubscription(sub, SubscriptionTier.FREE);
   }
   
   private async createPaidSubscription(user: any, plan: any, paymentMethodId: string | null, interval: string): Promise<Subscription> {
@@ -77,14 +77,18 @@ export class SubscriptionService {
     const stripeSub = await stripe.subscriptions.create({
       customer: customerId,
       items: [{ price: priceId }],
-      metadata: { userId: user.id, planId: plan.id },
+      metadata: { 
+        userId: user.id, 
+        planId: plan.id,
+        actualTier: plan.id // Store the actual tier in metadata
+      },
       trial_period_days: plan.id === SubscriptionTier.CITIZEN_PREMIUM ? 14 : 0
     });
     
     const sub = await prisma.subscription.create({
       data: {
         brandId: user.id,
-        plan: 'PRO',
+        plan: this.mapTierToPlan(plan.id),
         price: getPlanPrice(plan.id, interval as 'month' | 'year') * 100,
         billingCycle: interval === 'year' ? 'yearly' : 'monthly',
         status: 'ACTIVE',
@@ -93,7 +97,7 @@ export class SubscriptionService {
       }
     });
     
-    return this.mapSubscription(sub);
+    return this.mapSubscription(sub, plan.id);
   }
   
   async getActiveSubscription(userId: string): Promise<Subscription | null> {
@@ -101,7 +105,11 @@ export class SubscriptionService {
       where: { brandId: userId, status: 'ACTIVE' },
       orderBy: { createdAt: 'desc' }
     });
-    return sub ? this.mapSubscription(sub) : null;
+    if (!sub) return null;
+    
+    // Determine tier from database plan
+    const tier = this.mapPlanToTier(sub.plan);
+    return this.mapSubscription(sub, tier);
   }
   
   async checkFeatureAccess(userId: string, feature: string): Promise<boolean> {
@@ -117,11 +125,31 @@ export class SubscriptionService {
     return false;
   }
   
-  private mapSubscription(sub: any): Subscription {
+  /**
+   * Helper: Map Prisma SubscriptionPlan to SubscriptionTier
+   * This maps the database enum to our new tier system
+   */
+  private mapPlanToTier(plan: any): SubscriptionTier {
+    // For basic mapping - in production, we'll need a more sophisticated approach
+    // such as storing the actual tier in subscription metadata
+    const priceBasedMapping: Record<string, SubscriptionTier> = {
+      'BASIC': SubscriptionTier.FREE,
+      'PRO': SubscriptionTier.CITIZEN_PREMIUM, // Default PRO to CITIZEN_PREMIUM
+      'INSTITUTION': SubscriptionTier.INSTITUTIONAL
+    };
+    return priceBasedMapping[plan] || SubscriptionTier.FREE;
+  }
+  
+  /**
+   * Helper: Map Prisma subscription to our Subscription type
+   * @param sub - Prisma subscription object
+   * @param actualTier - The actual subscription tier (passed from context)
+   */
+  private mapSubscription(sub: any, actualTier: SubscriptionTier): Subscription {
     return {
       id: sub.id,
       userId: sub.brandId,
-      planId: SubscriptionTier.FREE,
+      planId: actualTier,
       status: sub.status.toLowerCase() as any,
       currentPeriodStart: sub.startedAt,
       currentPeriodEnd: sub.endsAt || new Date('2099-12-31'),
