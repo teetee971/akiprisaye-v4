@@ -87,24 +87,6 @@ export interface FreightPricing {
 }
 
 /**
- * Taux d'octroi de mer par territoire
- */
-export const OCTROI_DE_MER_RATES: Record<Territory, number> = {
-  GP: 0.025,  // 2.5% - Guadeloupe
-  MQ: 0.025,  // 2.5% - Martinique
-  GF: 0.05,   // 5.0% - Guyane
-  RE: 0.025,  // 2.5% - La Réunion
-  YT: 0.03,   // 3.0% - Mayotte
-  MF: 0.02,   // 2.0% - Saint-Martin
-  BL: 0.02,   // 2.0% - Saint-Barthélemy
-  PM: 0.02,   // 2.0% - Saint-Pierre-et-Miquelon
-  WF: 0.025,  // 2.5% - Wallis-et-Futuna
-  PF: 0.03,   // 3.0% - Polynésie française
-  NC: 0.025,  // 2.5% - Nouvelle-Calédonie
-  TF: 0.0,    // 0.0% - Terres australes (pas d'octroi)
-};
-
-/**
  * Informations de délai
  */
 export interface FreightTiming {

@@ -9,7 +9,9 @@ import type {
   CarrierStatistics,
   RouteStatistics,
   ReliabilityScore,
+  FreightRoute,
 } from '../types/freightComparison';
+import type { Territory } from '../types/priceAlerts';
 
 /**
  * Soumet une contribution citoyenne
@@ -192,7 +194,7 @@ export async function calculateCarrierStatistics(
  */
 export async function calculateRouteStatistics(
   origin: string,
-  destination: string
+  destination: Territory
 ): Promise<RouteStatistics | null> {
   try {
     const contributions = await getContributionsByRoute(origin, destination);
@@ -230,7 +232,7 @@ export async function calculateRouteStatistics(
     return {
       route: {
         origin,
-        destination: destination as any, // Type conversion
+        destination,
       },
       carrierCount: uniqueCarriers,
       totalShipments: contributions.length,

@@ -14,27 +14,14 @@ import type {
   FreightComparisonResult,
   RouteAggregation,
   FreightPricing,
-  OCTROI_DE_MER_RATES,
 } from '../types/freightComparison';
 import type { Territory } from '../types/priceAlerts';
-
-/**
- * Taux d'octroi de mer par territoire
- */
-const OCTROI_RATES: Record<Territory, number> = {
-  GP: 0.025,  // 2.5%
-  MQ: 0.025,
-  GF: 0.05,   // 5.0%
-  RE: 0.025,
-  YT: 0.03,
-  MF: 0.02,
-  BL: 0.02,
-  PM: 0.02,
-  WF: 0.025,
-  PF: 0.03,
-  NC: 0.025,
-  TF: 0.0,
-};
+import {
+  OCTROI_DE_MER_RATES,
+  HANDLING_FEE_RATE,
+  INSURANCE_RATE,
+  URGENCY_SURCHARGE,
+} from '../constants/freightRates';
 
 /**
  * Calcule l'octroi de mer pour un territoire
@@ -43,7 +30,11 @@ export function calculateOctroiDeMer(
   basePrice: number,
   territory: Territory
 ): number {
-  const rate = OCTROI_RATES[territory] || 0;
+  const rate = OCTROI_DE_MER_RATES[territory];
+  if (rate === undefined) {
+    console.warn(`Unknown territory for octroi de mer calculation: ${territory}`);
+    return 0;
+  }
   return basePrice * rate;
 }
 
@@ -56,24 +47,19 @@ export function calculateTotalCost(
   territory: Territory,
   urgency: UrgencyLevel = 'standard'
 ): FreightPricing {
-  // Frais de manutention (5% du prix de base)
-  const handlingFee = basePrice * 0.05;
+  // Frais de manutention
+  const handlingFee = basePrice * HANDLING_FEE_RATE;
   
-  // Assurance (si valeur déclarée, 2% de la valeur)
+  // Assurance (si valeur déclarée)
   const insurance = packageDetails.declaredValue 
-    ? packageDetails.declaredValue * 0.02 
+    ? packageDetails.declaredValue * INSURANCE_RATE
     : 0;
   
   // Octroi de mer
   const octroi = calculateOctroiDeMer(basePrice, territory);
   
   // Supplément urgence
-  let urgencySurcharge = 0;
-  if (urgency === 'express') {
-    urgencySurcharge = basePrice * 0.3; // +30%
-  } else if (urgency === 'urgent') {
-    urgencySurcharge = basePrice * 0.5; // +50%
-  }
+  const urgencySurcharge = basePrice * URGENCY_SURCHARGE[urgency];
   
   // Total TTC
   const totalTTC = basePrice + handlingFee + insurance + octroi + urgencySurcharge;
