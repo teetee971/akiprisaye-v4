@@ -99,7 +99,7 @@ const EnhancedComparator = lazyWithRetry(() => import('./pages/EnhancedComparato
 const ServiceComparator = lazyWithRetry(() => import('./pages/ServiceComparator'));
 
 // Training Comparator - Professional training and employment guidance for DOM-TOM
-const TrainingComparator = lazyWithRetry(() => import('./pages/TrainingComparator'));
+const TrainingComparator = lazyWithRetry(() => import('./pages/TrainingComparator.tsx'));
 
 // Strategic Comparators - Priority 1
 const FlightComparator = lazyWithRetry(() => import('./pages/FlightComparator'));
