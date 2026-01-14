@@ -1,0 +1,365 @@
+/* ============================================
+   HOME V4 - MODERN & MINIMALIST
+   ============================================ */
+
+.home-v4 {
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+  color: #f1f5f9;
+}
+
+/* ============================================
+   HERO SECTION
+   ============================================ */
+
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 90vh;
+  padding: 2rem;
+  text-align: center;
+}
+
+.hero-content {
+  max-width: 700px;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  font-size: 1.125rem;
+  color: #cbd5e1;
+  margin-bottom: 3rem;
+  font-weight: 400;
+}
+
+.cta-primary {
+  display: inline-block;
+  padding: 1.25rem 3rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.cta-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+.cta-secondary {
+  display: block;
+  margin-top: 1rem;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.cta-secondary:hover {
+  color: #cbd5e1;
+}
+
+/* ============================================
+   3 STEPS SECTION
+   ============================================ */
+
+.steps {
+  padding: 120px 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.step-card {
+  display: block;
+  padding: 2.5rem 2rem;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 16px;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.step-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(59, 130, 246, 0.4);
+  background: rgba(30, 41, 59, 0.6);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.step-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.step-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.step-desc {
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+/* ============================================
+   TERRITORIES SECTION
+   ============================================ */
+
+.territories {
+  padding: 80px 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  color: #f1f5f9;
+}
+
+.territories-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.territory-item {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 12px;
+  transition: all 0.2s;
+  cursor: default;
+}
+
+.territory-item:hover {
+  transform: scale(1.1);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.territory-flag {
+  font-size: 2rem;
+}
+
+/* ============================================
+   FEATURES SECTION
+   ============================================ */
+
+.features {
+  padding: 80px 2rem;
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.features-list {
+  list-style: none;
+  padding: 0;
+  margin: 2rem 0;
+  text-align: left;
+  display: inline-block;
+}
+
+.features-list li {
+  font-size: 1.125rem;
+  padding: 0.75rem 0;
+  color: #cbd5e1;
+}
+
+/* ============================================
+   STATS SECTION
+   ============================================ */
+
+.stats {
+  padding: 80px 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.stat-item {
+  padding: 2rem;
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  border-radius: 16px;
+}
+
+.stat-value {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #3b82f6;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================
+   OBSERVATORY SECTION
+   ============================================ */
+
+.observatory {
+  padding: 80px 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.observatory-content {
+  padding: 3rem 2rem;
+  background: rgba(16, 185, 129, 0.05);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 20px;
+}
+
+.observatory-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.observatory-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #10b981;
+}
+
+.observatory-desc {
+  font-size: 1rem;
+  color: #cbd5e1;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.observatory-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-observatory,
+.btn-docs {
+  padding: 0.875rem 1.75rem;
+  border-radius: 10px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.btn-observatory {
+  background: #10b981;
+  color: white;
+}
+
+.btn-observatory:hover {
+  background: #059669;
+  transform: translateY(-2px);
+}
+
+.btn-docs {
+  background: rgba(30, 41, 59, 0.6);
+  color: #cbd5e1;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.btn-docs:hover {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(148, 163, 184, 0.4);
+}
+
+/* ============================================
+   FOOTER MINIMAL
+   ============================================ */
+
+.footer-minimal {
+  padding: 3rem 2rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #64748b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.footer-minimal a {
+  color: #94a3b8;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-minimal a:hover {
+  color: #cbd5e1;
+}
+
+.footer-minimal span {
+  color: #475569;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .steps {
+    padding: 80px 1.5rem;
+  }
+
+  .stat-value {
+    font-size: 2.5rem;
+  }
+
+  .observatory-content {
+    padding: 2rem 1.5rem;
+  }
+}
