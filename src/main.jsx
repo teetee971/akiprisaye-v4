@@ -100,6 +100,7 @@ const ServiceComparator = lazyWithRetry(() => import('./pages/ServiceComparator'
 // Strategic Comparators - Priority 1
 const FlightComparator = lazyWithRetry(() => import('./pages/FlightComparator'));
 const BoatComparator = lazyWithRetry(() => import('./pages/BoatComparator'));
+const FreightComparator = lazyWithRetry(() => import('./pages/FreightComparator'));
 
 // Unified Scan Flow
 const ScanFlow = lazyWithRetry(() => import('./pages/ScanFlow'));
@@ -345,6 +346,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='comparateur-bateaux' element={<BoatComparator />} />
                   <Route path='bateaux' element={<BoatComparator />} />
                   <Route path='ferries' element={<BoatComparator />} />
+                  
+                  {/* Freight & Parcel Comparator - Priority 1: Maritime Freight */}
+                  <Route path='comparateur-fret' element={<FreightComparator />} />
+                  <Route path='fret' element={<FreightComparator />} />
+                  <Route path='colis' element={<FreightComparator />} />
                   
                   {/* Store Detail Page - Fiche enseigne avec graphs, filiales, etc. */}
                   <Route path='enseigne/:storeId' element={<StoreDetail />} />

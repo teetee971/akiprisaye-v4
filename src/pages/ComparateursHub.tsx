@@ -147,6 +147,15 @@ const COMPARATOR_TABS: ComparatorTab[] = [
     available: true,
   },
   {
+    id: 'freight',
+    title: 'Fret Maritime & Colis',
+    description: 'Comparez les transporteurs pour vos envois Outre-mer',
+    icon: Package,
+    route: '/comparateur-fret',
+    color: 'indigo',
+    available: true,
+  },
+  {
     id: 'telecoms',
     title: 'Forfaits Mobile/Internet',
     description: 'Comparez les offres télécoms',
