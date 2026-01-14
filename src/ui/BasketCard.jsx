@@ -1,10 +1,7 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { saveBasketToHistory } from '../services/tiPanieService';
-import PriceBadge from '../components/PriceBadge';
-import BasketTerritoryComparison from './BasketTerritoryComparison';
-import TrendIndicator from './TrendIndicator';
 import { compareBasketAcrossTerritories } from '../utils/priceAnalysis';
 import { saveBasketSnapshot, getTrend } from '../utils/priceHistory';
 

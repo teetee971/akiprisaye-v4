@@ -18,6 +18,8 @@ export default [
       '**/SentinelQuantumVanguardAIPro/**',
       '**/chat_ia_local/**',
       '**/frontend/public/**',
+      '**/*.min.js',
+      '**/public/ocr/worker.min.js',
     ],
   },
 

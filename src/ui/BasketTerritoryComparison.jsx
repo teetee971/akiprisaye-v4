@@ -1,4 +1,3 @@
-import React from 'react';
 import { getTerritoryDisplayName } from '../constants/territories';
 import { formatCurrency } from '../utils/formatters';
 
