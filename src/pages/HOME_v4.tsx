@@ -40,47 +40,73 @@ export default function HomeV4() {
       setStats(JSON.parse(savedStats));
     }
 
-    // Hide scroll indicator after scrolling
+    // Cache window dimensions
+    let windowHeight = window.innerHeight;
+    let windowWidth = window.innerWidth;
+    let ticking = false;
+
+    // Throttled scroll handler
     const handleScroll = () => {
-      if (window.scrollY > 100) {
-        setShowScrollIndicator(false);
-      }
-      
-      // Show mobile sticky CTA after scrolling past hero
-      if (window.innerWidth <= 768) {
-        setShowMobileCTA(window.scrollY > window.innerHeight * 0.8);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          if (window.scrollY > 100) {
+            setShowScrollIndicator(false);
+          }
+          
+          // Show mobile sticky CTA after scrolling past hero
+          if (windowWidth <= 768) {
+            setShowMobileCTA(window.scrollY > windowHeight * 0.8);
+          }
+          
+          ticking = false;
+        });
+        
+        ticking = true;
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    // Update cached dimensions on resize
+    const handleResize = () => {
+      windowHeight = window.innerHeight;
+      windowWidth = window.innerWidth;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
-  // Animated counter effect
+  // Animated counter effect with RAF
   useEffect(() => {
     if (isStatsInView && (stats.scans > 0 || stats.products > 0)) {
       const duration = 2000; // 2 seconds
-      const steps = 60;
-      const stepDuration = duration / steps;
+      const startTime = performance.now();
       
-      let currentStep = 0;
-      const interval = setInterval(() => {
-        currentStep++;
-        const progress = currentStep / steps;
+      const animate = (currentTime: number) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Easing function for smooth animation
+        const easeOutQuart = 1 - Math.pow(1 - progress, 4);
         
         setDisplayStats({
-          scans: Math.floor(stats.scans * progress),
-          products: Math.floor(stats.products * progress),
-          territories: Math.floor(stats.territories * progress)
+          scans: Math.floor(stats.scans * easeOutQuart),
+          products: Math.floor(stats.products * easeOutQuart),
+          territories: Math.floor(stats.territories * easeOutQuart)
         });
         
-        if (currentStep >= steps) {
-          clearInterval(interval);
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
           setDisplayStats(stats);
         }
-      }, stepDuration);
+      };
       
-      return () => clearInterval(interval);
+      requestAnimationFrame(animate);
     }
   }, [isStatsInView, stats]);
 

@@ -570,9 +570,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * {
+  .home-v4 *,
+  .home-v4 *::before,
+  .home-v4 *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
