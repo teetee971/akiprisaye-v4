@@ -202,7 +202,7 @@ function displayResult(code, format) {
 
   // Redirect to product search with detected code
   setTimeout(() => {
-    window.location.href = `/comparateur.html?ean=${code}`;
+    window.location.href = `/comparateur?ean=${code}`;
   }, 1500);
 }
 
