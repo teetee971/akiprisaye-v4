@@ -6,6 +6,7 @@ import './styles/globals.css';
 import './styles/civic-glass.css';
 import './styles/glass.css';
 import './styles/mobile-fixes.css';
+import './styles/home-v4.css';
 import Home from './pages/Home';
 import Layout from './components/Layout';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -97,10 +98,19 @@ const EnhancedComparator = lazyWithRetry(() => import('./pages/EnhancedComparato
 // Service Comparator (flights, boats, internet, mobile, water, electricity)
 const ServiceComparator = lazyWithRetry(() => import('./pages/ServiceComparator'));
 
+// Training Comparator - Professional training and employment guidance for DOM-TOM
+const TrainingComparator = lazyWithRetry(() => import('./pages/TrainingComparator'));
+
 // Strategic Comparators - Priority 1
 const FlightComparator = lazyWithRetry(() => import('./pages/FlightComparator'));
 const BoatComparator = lazyWithRetry(() => import('./pages/BoatComparator'));
 const FreightComparator = lazyWithRetry(() => import('./pages/FreightComparator'));
+
+// Fuel Comparator - Priority 3
+const FuelComparator = lazyWithRetry(() => import('./pages/FuelComparator'));
+
+// Insurance Comparator - Priority 4
+const InsuranceComparator = lazyWithRetry(() => import('./pages/InsuranceComparator'));
 
 // Unified Scan Flow
 const ScanFlow = lazyWithRetry(() => import('./pages/ScanFlow'));
@@ -339,6 +349,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   {/* Service Comparator (flights, boats, telecoms, utilities) */}
                   <Route path='comparateur-services' element={<ServiceComparator />} />
                   <Route path='services' element={<ServiceComparator />} />
+                  <Route path='formations' element={<TrainingComparator />} />
+                  <Route path='comparateur-formations' element={<TrainingComparator />} />
                   
                   {/* Strategic Comparators - Priority 1: Vital Transport */}
                   <Route path='comparateur-vols' element={<FlightComparator />} />
@@ -351,6 +363,15 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='comparateur-fret' element={<FreightComparator />} />
                   <Route path='fret' element={<FreightComparator />} />
                   <Route path='colis' element={<FreightComparator />} />
+
+                  {/* Comparateur Carburants - Priority 3 */}
+                  <Route path='comparateur-carburants' element={<FuelComparator />} />
+                  <Route path='carburants' element={<FuelComparator />} />
+                  <Route path='essence' element={<FuelComparator />} />
+
+                  {/* Comparateur Assurances - Priority 4 */}
+                  <Route path='comparateur-assurances' element={<InsuranceComparator />} />
+                  <Route path='assurances' element={<InsuranceComparator />} />
                   
                   {/* Store Detail Page - Fiche enseigne avec graphs, filiales, etc. */}
                   <Route path='enseigne/:storeId' element={<StoreDetail />} />
