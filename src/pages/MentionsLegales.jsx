@@ -324,7 +324,7 @@ export default function MentionsLegales() {
           <a href="/contact" className="hover:text-white transition-colors">
             Contact
           </a>
-          <a href="/contact" className="hover:text-white transition-colors">
+          <a href="/faq" className="hover:text-white transition-colors">
             FAQ
           </a>
         </div>
