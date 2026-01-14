@@ -7,13 +7,9 @@
 
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import { HelmetProvider } from 'react-helmet-async';
-import OCRHub from '../OCRHub';
-import OCRHistory from '../OCRHistory';
 
 // Helper to wrap components with necessary providers
-const renderWithProviders = (component, initialEntries = ['/']) => {
+const _renderWithProviders = (component, _initialEntries = ['/']) => {
   return render(
     <HelmetProvider>
       <MemoryRouter initialEntries={initialEntries}>

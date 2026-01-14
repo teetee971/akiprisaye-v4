@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Bar, Line } from 'react-chartjs-2';
+import { useEffect, useState } from 'react';
+import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -35,12 +35,14 @@ export default function AiMarketInsights() {
 
   useEffect(() => {
     checkAdminAccess();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   useEffect(() => {
     if (isAdmin) {
       loadData();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAdmin]);
 
   const checkAdminAccess = async () => {

@@ -1,9 +1,8 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import { Link } from 'react-router-dom';
 import L from 'leaflet';
 import 'leaflet.markercluster';
-import { Car, Footprints, Bus, MapPin, Loader2, History, Share2, WifiOff } from 'lucide-react';
+import { MapPin, Loader2 } from 'lucide-react';
 import { getStoresByTerritory } from '../services/mapService';
 import { getActiveTerritories, TERRITORIES } from '../constants/territories';
 
@@ -23,7 +22,7 @@ function MapUpdater({ position }) {
 }
 
 // Phase 2: Marker Clustering Component
-function MarkerClusterGroup({ stores, isNavigating, handleGPS, currentTerritory, formatDistance, estimateTravelTime, formatTravelTime }) {
+function MarkerClusterGroup({ stores, currentTerritory, formatDistance }) {
   const map = useMap();
 
   useEffect(() => {

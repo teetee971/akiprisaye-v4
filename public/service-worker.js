@@ -92,7 +92,7 @@ async function networkFirst(request) {
     }
     
     return networkResponse;
-  } catch (error) {
+  } catch {
     // En cas d'échec réseau, essaie de récupérer depuis le cache
     const cachedResponse = await caches.match(request);
     
@@ -131,7 +131,7 @@ async function cacheFirst(request) {
     }
     
     return networkResponse;
-  } catch (error) {
+  } catch {
     // En cas d'échec, retourne la page offline pour les requêtes de navigation
     if (request.mode === 'navigate') {
       const offlineResponse = await caches.match('/offline.html');

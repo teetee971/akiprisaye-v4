@@ -30,7 +30,6 @@ let scanning = false;
 // -----------------------------
 document.addEventListener('DOMContentLoaded', () => {
   videoElement = document.getElementById('video-scanner');
-  const resultBox = document.getElementById('scan-result');
   const startBtn = document.getElementById('start-scan');
   const stopBtn = document.getElementById('stop-scan');
 

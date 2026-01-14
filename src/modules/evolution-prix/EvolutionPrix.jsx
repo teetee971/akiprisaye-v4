@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ToggleAnalyseCiblee } from './ToggleAnalyseCiblee';
 import { SelectMagasin } from './SelectMagasin';
 import { SelectProduit } from './SelectProduit';
@@ -10,7 +10,7 @@ import { ObservationContextuelle } from './ObservationContextuelle';
  * Maintains legal safety with disclaimers and minimum observation thresholds
  * @param {string} territory - Territory filter
  */
-export default function EvolutionPrix({ territory = 'guadeloupe' }) {
+export default function EvolutionPrix({ territory: _territory = 'guadeloupe' }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

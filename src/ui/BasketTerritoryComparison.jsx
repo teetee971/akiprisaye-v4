@@ -1,6 +1,3 @@
-import { getTerritoryDisplayName } from '../constants/territories';
-import { formatCurrency } from '../utils/formatters';
-
 /**
  * BasketTerritoryComparison - Display price comparison across territories
  * 
@@ -37,7 +34,7 @@ export default function BasketTerritoryComparison({ comparison, basket }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-700">
-            {comparison.map((result, index) => (
+            {comparison.map((result, _index) => (
               <tr 
                 key={result.territoryId}
                 className={`
