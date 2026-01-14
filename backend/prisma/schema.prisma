@@ -48,6 +48,10 @@ model User {
   /// Date de dernière mise à jour
   updatedAt DateTime @updatedAt @map("updated_at")
   
+  /// Stripe Customer ID (for payment processing)
+  /// RGPD: External service identifier
+  stripeCustomerId String? @unique @map("stripe_customer_id") @db.VarChar(255)
+  
   /// Refresh tokens actifs (pour révocation)
   refreshTokens RefreshToken[]
   
@@ -60,6 +64,7 @@ model User {
   @@index([email])
   @@index([isActive])
   @@index([role])
+  @@index([stripeCustomerId])
   @@map("users")
 }
 
