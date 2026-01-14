@@ -1,1 +1,6 @@
+# Legacy Ti-Panie route redirects
+/ti-panie-solidaire.html  /ti-panie  301
+/ti-panie-solidaire       /ti-panie  301
+
+# SPA fallback - must be last
 /*    /index.html   200
