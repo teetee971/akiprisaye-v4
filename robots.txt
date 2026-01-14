@@ -1,1 +1,4 @@
-Sitemap: https://akiprisaye-web.pages.dev/sitemap.xml
+User-agent: *
+Allow: /
+
+Sitemap: https://akiprisaye.pages.dev/sitemap.xml
