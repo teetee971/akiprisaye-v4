@@ -104,6 +104,9 @@ const BoatComparator = lazyWithRetry(() => import('./pages/BoatComparator'));
 // Fuel Comparator - Priority 3
 const FuelComparator = lazyWithRetry(() => import('./pages/FuelComparator'));
 
+// Insurance Comparator - Priority 4
+const InsuranceComparator = lazyWithRetry(() => import('./pages/InsuranceComparator'));
+
 // Unified Scan Flow
 const ScanFlow = lazyWithRetry(() => import('./pages/ScanFlow'));
 
@@ -353,6 +356,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='comparateur-carburants' element={<FuelComparator />} />
                   <Route path='carburants' element={<FuelComparator />} />
                   <Route path='essence' element={<FuelComparator />} />
+
+                  {/* Comparateur Assurances - Priority 4 */}
+                  <Route path='comparateur-assurances' element={<InsuranceComparator />} />
+                  <Route path='assurances' element={<InsuranceComparator />} />
                   
                   {/* Store Detail Page - Fiche enseigne avec graphs, filiales, etc. */}
                   <Route path='enseigne/:storeId' element={<StoreDetail />} />
