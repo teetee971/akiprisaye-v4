@@ -16,7 +16,7 @@ import ComparisonSummary from '../components/comparateur/ComparisonSummary';
 import LoadingSkeleton from '../components/comparateur/LoadingSkeleton';
 import SortControl from '../components/comparateur/SortControl';
 import ShareButton from '../components/comparateur/ShareButton';
-import { exportFuelComparisonToCSV, exportFuelComparisonToText } from '../utils/exportComparison';
+import { exportFreightComparisonToCSV, exportFreightComparisonToText } from '../utils/exportComparison';
 
 const FuelComparator: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -323,14 +323,14 @@ const FuelComparator: React.FC = () => {
 
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => comparisonResult && exportFuelComparisonToCSV(comparisonResult)}
+                  onClick={() => comparisonResult && exportFreightComparisonToCSV(comparisonResult)}
                   className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center gap-2"
                 >
                   <Download className="w-4 h-4" />
                   <span className="hidden sm:inline">Export CSV</span>
                 </button>
                 <button
-                  onClick={() => comparisonResult && exportFuelComparisonToText(comparisonResult)}
+                  onClick={() => comparisonResult && exportFreightComparisonToText(comparisonResult)}
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2"
                 >
                   <FileText className="w-4 h-4" />
