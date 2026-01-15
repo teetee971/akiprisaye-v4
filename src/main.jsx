@@ -11,6 +11,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import NotFound from './pages/NotFound';
+import { PerformanceMonitor } from './components/PerformanceMonitor';
 
 // Lazy loading error handler to prevent black screens
 function lazyWithRetry(componentImport) {
@@ -149,6 +150,7 @@ if (import.meta.env.PROD) {
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
+    <PerformanceMonitor />
       <ThemeProvider>
         <AuthProvider>
           <BrowserRouter>

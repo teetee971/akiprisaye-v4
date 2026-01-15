@@ -1,0 +1,19 @@
+{
+  "budgets": [
+    {
+      "path": "dist/assets/*. js",
+      "limit": "500kb",
+      "type": "initial"
+    },
+    {
+      "path": "dist/assets/vendor-*. js",
+      "limit": "200kb",
+      "type":  "initial"
+    },
+    {
+      "path": "dist/assets/*. css",
+      "limit": "100kb",
+      "type": "initial"
+    }
+  ]
+}
