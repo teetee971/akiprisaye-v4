@@ -87,6 +87,9 @@ const EvaluationCosmetique = lazyWithRetry(() => import('./pages/EvaluationCosme
 const Observatoire = lazyWithRetry(() => import('./pages/Observatoire'));
 const ObservatoryMethodology = lazyWithRetry(() => import('./pages/ObservatoryMethodology'));
 
+// Settings page - Ticket 4
+const Settings = lazy(() => import('./pages/Settings'));
+
 // New simplified pages for automatic generation
 const HomeSimple = lazyWithRetry(() => import('./pages/Home.tsx'));
 const CompareSimple = lazyWithRetry(() => import('./pages/Compare.tsx'));
@@ -165,12 +168,16 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='methodologie' element={<Methodologie />} />
                   <Route path='mentions-legales' element={<MentionsLegales />} />
                   <Route path='mon-compte' element={<MonCompte />} />
+<<<<<<< HEAD
+                  <Route path='parametres' element={<Settings />} />
+=======
                   <Route path='inscription' element={<Inscription />} />
                   <Route path='login' element={<Login />} />
                   <Route path='reset-password' element={<ResetPassword />} />
                   <Route path='comprendre-prix' element={<ComprendrePrix />} />
                   <Route path='contribuer-prix' element={<ContribuerPrix />} />
                   <Route path='signaler-abus' element={<SignalerAbus />} />
+>>>>>>> origin/main
                   <Route path='pricing' element={<Pricing />} />
                   <Route path='pricing-detailed' element={<PricingDetailed />} />
                   <Route path='subscribe' element={<Subscribe />} />
