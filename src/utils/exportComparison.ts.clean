@@ -265,41 +265,31 @@ const downloadText = (content: string, filename: string): void => {
 };
 
 /**
- * Export freight comparison to CSV
+ * Export fuel comparison to CSV
  */
-export const exportFreightComparisonToCSV = (result: FreightComparisonResult): void => {
+export const exportFuelComparisonToCSV = (result: FuelComparisonResult): void => {
   const headers = [
     'Rang',
-    'Transporteur',
-    'Prix de base (€)',
-    'Frais manutention (€)',
-    'Assurance (€)',
-    'Octroi de mer (€)',
-    'Prix total TTC (€)',
-    'Délai annoncé (jours)',
-    'Délai réel moyen (jours)',
-    'Score fiabilité',
-    'Taux ponctualité (%)',
-    'Incidents signalés',
+    'Station',
+    'Ville',
+    'Carburant',
+    'Prix (€/L)',
+    'Différence vs moins cher (€)',
     'Différence vs moins cher (%)',
-    'Catégorie'
+    'Catégorie',
+    'Prix plafonné'
   ];
 
-  const rows = result.quotes.map(ranking => [
+  const rows = result.rankedPrices.map(ranking => [
     escapeCSV(ranking.rank),
-    escapeCSV(ranking.quote.carrier),
-    escapeCSV(ranking.quote.pricing.basePrice.toFixed(2)),
-    escapeCSV(ranking.quote.pricing.handlingFee.toFixed(2)),
-    escapeCSV(ranking.quote.pricing.insurance?.toFixed(2) || '0.00'),
-    escapeCSV(ranking.quote.pricing.octroi.toFixed(2)),
-    escapeCSV(ranking.quote.pricing.totalTTC.toFixed(2)),
-    escapeCSV(ranking.quote.timing.announcedDays),
-    escapeCSV(ranking.quote.timing.realDaysAverage || ranking.quote.timing.announcedDays),
-    escapeCSV(ranking.quote.reliability.score.toFixed(1)),
-    escapeCSV((ranking.quote.reliability.onTimeRate * 100).toFixed(1)),
-    escapeCSV(ranking.quote.reliability.issuesReported),
-    escapeCSV(ranking.savingsVsCheapest > 0 ? `+${(ranking.savingsVsCheapest / result.aggregation.minPrice * 100).toFixed(2)}` : '0.00'),
-    escapeCSV(ranking.priceCategory)
+    escapeCSV(ranking.fuelPrice.station.name),
+    escapeCSV(ranking.fuelPrice.station.city),
+    escapeCSV(ranking.fuelPrice.fuelType),
+    escapeCSV(ranking.fuelPrice.pricePerLiter.toFixed(3)),
+    escapeCSV(ranking.absoluteDifferenceFromCheapest.toFixed(3)),
+    escapeCSV(ranking.percentageDifferenceFromCheapest.toFixed(2)),
+    escapeCSV(ranking.priceCategory),
+    escapeCSV(ranking.fuelPrice.isPriceCapPlafonne ? 'Oui' : 'Non')
   ]);
 
   const csvContent = [
@@ -307,80 +297,6 @@ export const exportFreightComparisonToCSV = (result: FreightComparisonResult): v
     ...rows.map(row => row.join(','))
   ].join('\n');
 
-  downloadCSV(csvContent, `comparaison-fret-${Date.now()}.csv`);
-};
-
-/**
- * Export freight comparison to text summary
- */
-export const exportFreightComparisonToText = (result: FreightComparisonResult): void => {
-  let text = `COMPARATEUR FRET MARITIME & COLIS\n`;
-  text += `==================================\n\n`;
-  text += `Route: ${result.route.origin} → ${result.route.destination}\n`;
-  text += `Poids: ${result.package.weight} kg\n`;
-  text += `Dimensions: ${result.package.dimensions.length}x${result.package.dimensions.width}x${result.package.dimensions.height} cm\n`;
-  text += `Type: ${result.package.type}\n`;
-  text += `Urgence: ${result.urgency}\n`;
-  text += `Date d'export: ${new Date().toLocaleDateString('fr-FR')}\n\n`;
-  
-  text += `STATISTIQUES\n`;
-  text += `------------\n`;
-  text += `Prix moyen: ${formatPrice(result.aggregation.averagePrice)}\n`;
-  text += `Prix minimum: ${formatPrice(result.aggregation.minPrice)}\n`;
-  text += `Prix maximum: ${formatPrice(result.aggregation.maxPrice)}\n`;
-  text += `Écart de prix: ${result.aggregation.priceRangePercentage.toFixed(1)}%\n`;
-  text += `Transporteurs: ${result.aggregation.carrierCount}\n`;
-  text += `Contributions: ${result.metadata.contributionsCount}\n\n`;
-
-  text += `COMPARAISON PAR TRANSPORTEUR\n`;
-  text += `----------------------------\n`;
-  result.quotes.forEach(ranking => {
-    text += `\n#${ranking.rank} - ${ranking.quote.carrier}\n`;
-    text += `  Prix de base: ${formatPrice(ranking.quote.pricing.basePrice)}\n`;
-    text += `  Frais de manutention: ${formatPrice(ranking.quote.pricing.handlingFee)}\n`;
-    if (ranking.quote.pricing.insurance) {
-      text += `  Assurance: ${formatPrice(ranking.quote.pricing.insurance)}\n`;
-    }
-    text += `  Octroi de mer: ${formatPrice(ranking.quote.pricing.octroi)}\n`;
-    text += `  Prix total TTC: ${formatPrice(ranking.quote.pricing.totalTTC)}\n`;
-    text += `  Délai annoncé: ${ranking.quote.timing.announcedDays} jours\n`;
-    if (ranking.quote.timing.realDaysAverage) {
-      text += `  Délai réel moyen: ${ranking.quote.timing.realDaysAverage} jours`;
-      if (ranking.quote.timing.realDaysAverage > ranking.quote.timing.announcedDays) {
-        text += ` (+${ranking.quote.timing.realDaysAverage - ranking.quote.timing.announcedDays} jours de retard)\n`;
-      } else {
-        text += `\n`;
-      }
-    }
-    text += `  Score de fiabilité: ${ranking.quote.reliability.score.toFixed(1)}/5 (${ranking.quote.reliability.basedOnContributions} avis)\n`;
-    text += `  Taux de ponctualité: ${(ranking.quote.reliability.onTimeRate * 100).toFixed(1)}%\n`;
-    text += `  Incidents signalés: ${ranking.quote.reliability.issuesReported}\n`;
-    if (ranking.savingsVsCheapest > 0) {
-      text += `  Différence vs moins cher: +${formatPrice(ranking.savingsVsCheapest)} (+${(ranking.savingsVsCheapest / result.aggregation.minPrice * 100).toFixed(1)}%)\n`;
-    }
-    if (ranking.isBestValue) {
-      text += `  ✓ MEILLEUR RAPPORT QUALITÉ/PRIX\n`;
-    }
-  });
-
-  text += `\n\nMÉTHODOLOGIE & SOURCES\n`;
-  text += `----------------------\n`;
-  text += `Sources: ${result.metadata.dataSource}\n`;
-  text += `Méthodologie: ${result.metadata.methodology}\n\n`;
-
-  text += `DISCLAIMER\n`;
-  text += `----------\n`;
-  text += `${result.metadata.disclaimer}\n`;
-  text += `\nCe comparateur vise à répondre à la problématique #1 de la vie chère\n`;
-  text += `en Outre-mer identifiée par les Rapports Sénat 2024-2025.\n`;
-  text += `\n80% des importations DOM-TOM passent par le fret maritime.\n`;
-  text += `\nPremier comparateur en France offrant:\n`;
-  text += `✅ Transparence totale sur l'octroi de mer\n`;
-  text += `✅ Délais réels vs annoncés (contributions citoyennes)\n`;
-  text += `✅ Score de fiabilité communautaire\n`;
-  text += `✅ Aucun lien d'affiliation - Observer, pas vendre\n`;
-
-  downloadText(text, `comparaison-fret-${Date.now()}.txt`);
   downloadCSV(csvContent, `comparaison-carburants-${result.territory}-${result.fuelType}-${Date.now()}.csv`);
 };
 
@@ -512,4 +428,123 @@ export const exportInsuranceComparisonToText = (result: InsuranceComparisonResul
   text += `Méthodologie: ${result.metadata.methodology}\n`;
 
   downloadText(text, `comparaison-assurances-${result.territory}-${result.insuranceType}-${Date.now()}.txt`);
+};
+
+/**
+ * Export freight comparison to CSV
+ */
+export const exportFreightComparisonToCSV = (result: FreightComparisonResult): void => {
+  const headers = [
+    'Rang',
+    'Transporteur',
+    'Prix de base (€)',
+    'Frais manutention (€)',
+    'Assurance (€)',
+    'Octroi de mer (€)',
+    'Prix total TTC (€)',
+    'Délai annoncé (jours)',
+    'Délai réel moyen (jours)',
+    'Score fiabilité',
+    'Taux ponctualité (%)',
+    'Incidents signalés',
+    'Différence vs moins cher (%)',
+    'Catégorie'
+  ];
+
+  const rows = result.quotes.map(ranking => [
+    escapeCSV(ranking.rank),
+    escapeCSV(ranking.quote.carrier),
+    escapeCSV(ranking.quote.pricing.basePrice.toFixed(2)),
+    escapeCSV(ranking.quote.pricing.handlingFee.toFixed(2)),
+    escapeCSV(ranking.quote.pricing.insurance?.toFixed(2) || '0.00'),
+    escapeCSV(ranking.quote.pricing.octroi.toFixed(2)),
+    escapeCSV(ranking.quote.pricing.totalTTC.toFixed(2)),
+    escapeCSV(ranking.quote.timing.announcedDays),
+    escapeCSV(ranking.quote.timing.realDaysAverage || ranking.quote.timing.announcedDays),
+    escapeCSV(ranking.quote.reliability.score.toFixed(1)),
+    escapeCSV((ranking.quote.reliability.onTimeRate * 100).toFixed(1)),
+    escapeCSV(ranking.quote.reliability.issuesReported),
+    escapeCSV(ranking.savingsVsCheapest > 0 ? `+${(ranking.savingsVsCheapest / result.aggregation.minPrice * 100).toFixed(2)}` : '0.00'),
+    escapeCSV(ranking.priceCategory)
+  ]);
+
+  const csvContent = [
+    headers.join(','),
+    ...rows.map(row => row.join(','))
+  ].join('\n');
+
+  downloadCSV(csvContent, `comparaison-fret-${Date.now()}.csv`);
+};
+
+/**
+ * Export freight comparison to text summary
+ */
+export const exportFreightComparisonToText = (result: FreightComparisonResult): void => {
+  let text = `COMPARATEUR FRET MARITIME & COLIS\n`;
+  text += `==================================\n\n`;
+  text += `Route: ${result.route.origin} → ${result.route.destination}\n`;
+  text += `Poids: ${result.package.weight} kg\n`;
+  text += `Dimensions: ${result.package.dimensions.length}x${result.package.dimensions.width}x${result.package.dimensions.height} cm\n`;
+  text += `Type: ${result.package.type}\n`;
+  text += `Urgence: ${result.urgency}\n`;
+  text += `Date d'export: ${new Date().toLocaleDateString('fr-FR')}\n\n`;
+  
+  text += `STATISTIQUES\n`;
+  text += `------------\n`;
+  text += `Prix moyen: ${formatPrice(result.aggregation.averagePrice)}\n`;
+  text += `Prix minimum: ${formatPrice(result.aggregation.minPrice)}\n`;
+  text += `Prix maximum: ${formatPrice(result.aggregation.maxPrice)}\n`;
+  text += `Écart de prix: ${result.aggregation.priceRangePercentage.toFixed(1)}%\n`;
+  text += `Transporteurs: ${result.aggregation.carrierCount}\n`;
+  text += `Contributions: ${result.metadata.contributionsCount}\n\n`;
+
+  text += `COMPARAISON PAR TRANSPORTEUR\n`;
+  text += `----------------------------\n`;
+  result.quotes.forEach(ranking => {
+    text += `\n#${ranking.rank} - ${ranking.quote.carrier}\n`;
+    text += `  Prix de base: ${formatPrice(ranking.quote.pricing.basePrice)}\n`;
+    text += `  Frais de manutention: ${formatPrice(ranking.quote.pricing.handlingFee)}\n`;
+    if (ranking.quote.pricing.insurance) {
+      text += `  Assurance: ${formatPrice(ranking.quote.pricing.insurance)}\n`;
+    }
+    text += `  Octroi de mer: ${formatPrice(ranking.quote.pricing.octroi)}\n`;
+    text += `  Prix total TTC: ${formatPrice(ranking.quote.pricing.totalTTC)}\n`;
+    text += `  Délai annoncé: ${ranking.quote.timing.announcedDays} jours\n`;
+    if (ranking.quote.timing.realDaysAverage) {
+      text += `  Délai réel moyen: ${ranking.quote.timing.realDaysAverage} jours`;
+      if (ranking.quote.timing.realDaysAverage > ranking.quote.timing.announcedDays) {
+        text += ` (+${ranking.quote.timing.realDaysAverage - ranking.quote.timing.announcedDays} jours de retard)\n`;
+      } else {
+        text += `\n`;
+      }
+    }
+    text += `  Score de fiabilité: ${ranking.quote.reliability.score.toFixed(1)}/5 (${ranking.quote.reliability.basedOnContributions} avis)\n`;
+    text += `  Taux de ponctualité: ${(ranking.quote.reliability.onTimeRate * 100).toFixed(1)}%\n`;
+    text += `  Incidents signalés: ${ranking.quote.reliability.issuesReported}\n`;
+    if (ranking.savingsVsCheapest > 0) {
+      text += `  Différence vs moins cher: +${formatPrice(ranking.savingsVsCheapest)} (+${(ranking.savingsVsCheapest / result.aggregation.minPrice * 100).toFixed(1)}%)\n`;
+    }
+    if (ranking.isBestValue) {
+      text += `  ✓ MEILLEUR RAPPORT QUALITÉ/PRIX\n`;
+    }
+  });
+
+  text += `\n\nMÉTHODOLOGIE & SOURCES\n`;
+  text += `----------------------\n`;
+  text += `Sources: ${result.metadata.dataSource}\n`;
+  text += `Méthodologie: ${result.metadata.methodology}\n\n`;
+
+  text += `DISCLAIMER\n`;
+  text += `----------\n`;
+  text += `${result.metadata.disclaimer}\n`;
+  text += `\nCe comparateur vise à répondre à la problématique #1 de la vie chère\n`;
+  text += `en Outre-mer identifiée par les Rapports Sénat 2024-2025.\n`;
+  text += `\n80% des importations DOM-TOM passent par le fret maritime.\n`;
+  text += `\nPremier comparateur en France offrant:\n`;
+  text += `✅ Transparence totale sur l'octroi de mer\n`;
+  text += `✅ Délais réels vs annoncés (contributions citoyennes)\n`;
+  text += `✅ Score de fiabilité communautaire\n`;
+  text += `✅ Aucun lien d'affiliation - Observer, pas vendre\n`;
+
+  downloadText(text, `comparaison-fret-${Date.now()}.txt`);
 };
