@@ -41,10 +41,7 @@ class ErrorBoundary extends Component {
               Une erreur temporaire est survenue. Le service reste accessible.
             </p>
             
-<<<<<<< HEAD
             {/* Only show technical details in development */}
-=======
->>>>>>> origin/main
             {import.meta.env.DEV && this.state.error && (
               <details className="mb-6 text-left">
                 <summary className="cursor-pointer text-red-400 font-semibold mb-2">

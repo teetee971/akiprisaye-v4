@@ -173,7 +173,6 @@ export default function Header() {
               <span>👤 Mon Compte</span>
             </Link>
           </li>
-<<<<<<< HEAD
           <li>
             <Link
               to="/parametres"
@@ -188,7 +187,6 @@ export default function Header() {
               </svg>
               <span>Paramètres</span>
             </Link>
-=======
           
           {/* Status Badge in Mobile Menu */}
           <li className="px-6 py-3">
@@ -203,7 +201,6 @@ export default function Header() {
                 <span className="text-gray-300 text-sm font-medium">Invité</span>
               </div>
             )}
->>>>>>> origin/main
           </li>
         </ul>
       </nav>

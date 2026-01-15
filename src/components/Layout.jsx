@@ -1,5 +1,20 @@
 import React from 'react';
+import { Link, NavLink, Outlet } from 'react-router-dom';
+import '../styles/layout.css';
+import { Menu, X } from 'lucide-react';
+import TiPanierButton from './TiPanierButton';
+import FloatingActions from './ui/FloatingActions';
+import { OfflineIndicator } from './OfflineIndicator';
+
+export default function Layout() {
+  const [open, setOpen] = React.useState(false);
+
+  // Navigation principale - Menu simplifié à 7 entrées principales
   // Chaque hub regroupe plusieurs fonctionnalités sous un seul point d'entrée
+  const navItems = [
+    { path: '/', label: 'Accueil', icon: '🏠' },
+    { path: '/comparateurs', label: 'Comparateurs', icon: '📊' },
+    { path: '/carte-itineraires', label: 'Carte', icon: '🗺️' },
     { path: '/scanner', label: 'Scanner', icon: '📷' },
     { path: '/assistant-ia', label: 'Assistant IA', icon: '🤖' },
     { path: '/observatoire-hub', label: 'Observatoire', icon: '📈' },

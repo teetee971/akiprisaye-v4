@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath, URL } from 'node:url';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 // Plugin to suppress Leaflet asset resolution warnings
 function suppressLeafletWarnings() {
@@ -9,12 +10,12 @@ function suppressLeafletWarnings() {
     name: 'suppress-leaflet-warnings',
     configResolved() {
       const originalWarn = console.warn;
-      console.warn = (...args) => {
+      console. warn = (...args) => {
         const msg = args.join(' ');
         // Suppress Leaflet image warnings that are resolved at runtime
         if (
-          msg.includes('images/layers.png') ||
-          msg.includes('images/layers-2x.png') ||
+          msg.includes('images/layers. png') ||
+          msg.includes('images/layers-2x. png') ||
           msg.includes('images/marker-icon.png')
         ) {
           return;
@@ -34,17 +35,24 @@ export default defineConfig({
       targets: [
         {
           src: 'node_modules/leaflet/dist/images/*',
-          dest: 'images',
+          dest:  'images',
         },
       ],
     }),
+    visualizer({
+      open: false,
+      filename: 'dist/stats.html',
+      gzipSize: true,
+      brotliSize: true,
+    }),
   ],
-
+  
   resolve: {
-    alias: {
+    alias:  {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  
   build: {
     chunkSizeWarningLimit: 1200,
     rollupOptions: {
