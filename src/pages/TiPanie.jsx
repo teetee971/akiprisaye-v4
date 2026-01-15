@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getBaskets } from '../services/tiPanieService';
 import BasketCard from '../ui/BasketCard';
 import BasketFilters from '../ui/BasketFilters';
@@ -14,11 +14,7 @@ export default function TiPanie() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    loadBaskets();
-  }, [filters]);
-
-  const loadBaskets = async () => {
+  const loadBaskets = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -46,7 +42,11 @@ export default function TiPanie() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
+
+  useEffect(() => {
+    loadBaskets();
+  }, [loadBaskets]);
 
   const totalSavings = baskets.reduce((sum, b) => sum + (b.originalPrice - b.price), 0);
 
