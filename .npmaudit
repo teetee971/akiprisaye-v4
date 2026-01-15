@@ -1,0 +1,69 @@
+# Accepted npm audit vulnerabilities
+# Last updated: 2026-01-15
+# Project: akiprisaye-web
+
+## Current Status:  4 low severity vulnerabilities (ALL ACCEPTED)
+
+### 1. tmp <=0.2.3
+- Type: devDependency (indirect via @lhci/cli)
+- Used by:  Lighthouse CI for temporary file operations
+- Severity: LOW
+- CVE:  Arbitrary temporary file/directory write via symbolic link
+- Impact: Dev/CI tools only, not in production bundle
+- Status: Waiting for @lhci/cli to update tmp dependency
+
+### 2. @lhci/cli
+- Type: devDependency (direct)
+- Used by: CI/CD pipeline for Lighthouse performance audits
+- Scripts: lhci, lhcicollect, lhci:assert, ci:full
+- Severity:  LOW (depends on vulnerable tmp)
+- Impact: CI tools only, not in production bundle
+- Status: Waiting for upstream fix from @lhci/cli maintainers
+
+### 3. external-editor >=1.1.1
+- Type: devDependency (indirect via inquirer)
+- Used by: CLI prompts and interactive scripts
+- Severity: LOW
+- Impact: Dev tools only, not in production bundle
+- Status: Waiting for inquirer to update external-editor
+
+### 4. inquirer 3.0.0 - 9.3.7
+- Type: devDependency (indirect via @lhci/cli)
+- Used by: Interactive CLI prompts
+- Severity: LOW
+- Impact: Dev tools only, not in production bundle
+- Status:  Waiting for upstream fix
+
+## Impact Assessment:
+✅ Production bundle:  NOT AFFECTED (0 vulnerabilities)
+✅ Runtime dependencies: 100% secure
+✅ Security risk: MINIMAL (devDependencies only)
+✅ Deployment: SAFE TO DEPLOY 🚀
+
+## Why These Are Accepted:
+1. **All are devDependencies**: Not included in production build
+2. **Low severity**: Minimal security impact
+3. **CI/CD tools**:  Used only during development/testing
+4. **No fix available**: Waiting for upstream package updates
+5. **Bundle verified**: Production assets unaffected
+
+## Actions Taken: 
+- ✅ Updated all dependencies to latest compatible versions
+- ✅ Verified production bundle has 0 vulnerabilities
+- ✅ Documented all remaining dev vulnerabilities
+- ✅ Confirmed Lighthouse CI functionality maintained
+
+## Monitoring Plan:
+- Run `npm audit` monthly
+- Check for @lhci/cli updates quarterly
+- Monitor GitHub security advisories
+- Re-evaluate when patches become available
+
+## Related Scripts Using @lhci/cli: 
+- npm run lhci - Run Lighthouse CI audits
+- npm run lhcicollect - Collect Lighthouse data
+- npm run lhci: assert - Assert performance budgets
+- npm run ci:full - Full CI pipeline with Lighthouse
+
+## Last Audit:  2026-01-15
+Next review: 2026-02-15

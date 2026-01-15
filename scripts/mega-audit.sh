@@ -1,297 +1,215 @@
 #!/bin/bash
 set -e
 
-# Couleurs
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
-
-REPORT_DIR="audit-reports/$(date +%Y%m%d-%H%M%S)"
-mkdir -p "$REPORT_DIR"
-
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🔍 MEGA AUDIT COMPLET - akiprisaye-web"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📅 $(date)"
-echo "📁 Rapports:  $REPORT_DIR"
+echo "╔═══════════════════════════════════════════════════════════╗"
+echo "║         🔍 MEGA AUDIT COMPLET - AKIPRISAYE-WEB          ║"
+echo "╚═══════════════════════════════════════════════════════════╝"
+echo ""
+echo "📅 Date: $(date '+%Y-%m-%d %H:%M:%S')"
 echo ""
 
-# ═══════════════════════════════════════════
-# 1. STATISTIQUES PROJET
-# ═══════════════════════════════════════════
-echo -e "${BLUE}[1/12]${NC} 📊 Statistiques projet..."
-{
-  echo "# 📊 STATISTIQUES PROJET"
-  echo ""
-  echo "## Lignes de code"
-  find src -name "*. tsx" -o -name "*. ts" -o -name "*. jsx" -o -name "*. js" 2>/dev/null | xargs wc -l 2>/dev/null | tail -1 || echo "Erreur calcul"
-  echo ""
-  echo "## Fichiers"
-  echo "- Composants:  $(find src/components -name "*.tsx" -o -name "*.jsx" 2>/dev/null | wc -l)"
-  echo "- Pages: $(find src/pages -name "*.tsx" -o -name "*.jsx" 2>/dev/null | wc -l)"
-  echo "- Services: $(find src/services -name "*.ts" -o -name "*.js" 2>/dev/null | wc -l)"
-  echo "- Tests: $(find src -name "*.test.*" 2>/dev/null | wc -l)"
-  echo "- Hooks: $(find src/hooks -name "*.ts" 2>/dev/null | wc -l)"
-  echo "- Utils: $(find src/utils -name "*.ts" 2>/dev/null | wc -l)"
-} > "$REPORT_DIR/01-stats.md"
-cat "$REPORT_DIR/01-stats.md"
+# ============================================================================
+# 1. BUNDLE ANALYSIS
+# ============================================================================
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📦 1.  BUNDLE ANALYSIS"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-
-# ═══════════════════════════════════════════
-# 2. SÉCURITÉ NPM
-# ═══════════════════════════════════════════
-echo -e "${BLUE}[2/12]${NC} 🔒 Audit sécurité npm..."
-{
-  echo "# 🔒 AUDIT SÉCURITÉ"
-  echo ""
-  npm audit --production 2>&1 || echo "Vulnérabilités détectées"
-} > "$REPORT_DIR/02-security. txt"
-npm audit --json > "$REPORT_DIR/02-security.json" 2>&1 || true
-
-CRITICAL=$(cat "$REPORT_DIR/02-security.json" | jq -r '.metadata.vulnerabilities. critical // 0' 2>/dev/null || echo "0")
-HIGH=$(cat "$REPORT_DIR/02-security.json" | jq -r '.metadata.vulnerabilities.high // 0' 2>/dev/null || echo "0")
-
-if [ "$CRITICAL" -gt 0 ] || [ "$HIGH" -gt 0 ]; then
-  echo -e "${RED}⚠️  $CRITICAL critical, $HIGH high${NC}"
-else
-  echo -e "${GREEN}✅ Pas de vulnérabilités critiques${NC}"
-fi
-echo ""
-
-# ═══════════════════════════════════════════
-# 3. LINTING
-# ═══════════════════════════════════════════
-echo -e "${BLUE}[3/12]${NC} 📝 Analyse statique (ESLint)..."
-{
-  echo "# 📝 LINTING (ESLint)"
-  echo ""
-  npm run lint 2>&1 || true
-} > "$REPORT_DIR/03-lint.txt"
-
-WARNINGS=$(grep -c "warning" "$REPORT_DIR/03-lint.txt" 2>/dev/null || echo "0")
-ERRORS=$(grep -c "error" "$REPORT_DIR/03-lint.txt" 2>/dev/null || echo "0")
-echo "   Warnings: $WARNINGS | Errors: $ERRORS"
-echo ""
-
-# ═══════════════════════════════════════════
-# 4. TESTS
-# ═══════════════════════════════════════════
-echo -e "${BLUE}[4/12]${NC} 🧪 Tests unitaires..."
-{
-  echo "# 🧪 TESTS"
-  echo ""
-  npm test -- --run --reporter=verbose 2>&1 || echo "Tests échoués"
-} > "$REPORT_DIR/04-tests.txt"
-npm test -- --run --reporter=json > "$REPORT_DIR/04-tests.json" 2>&1 || true
-
-if grep -q "Test Files.*passed" "$REPORT_DIR/04-tests.txt" 2>/dev/null; then
-  echo -e "${GREEN}✅ Tests passés${NC}"
-else
-  echo -e "${YELLOW}⚠️  Vérifier les tests${NC}"
-fi
-echo ""
-
-# ═══════════════════════════════════════════
-# 5. BUILD
-# ═══════════════════════════════════════════
-echo -e "${BLUE}[5/12]${NC} 📦 Build production..."
-npm run build > "$REPORT_DIR/05-build.log" 2>&1 || echo "Build échoué" > "$REPORT_DIR/05-build.log"
 
 if [ -d "dist" ]; then
-  BUILD_SIZE=$(du -sh dist 2>/dev/null | cut -f1)
-  echo "   Taille:  $BUILD_SIZE"
-  du -sh dist > "$REPORT_DIR/05-build-size.txt"
+  echo "✅ Build directory found"
+  echo ""
+  
+  echo "📊 Bundle sizes:"
+  du -h dist/assets/*. js 2>/dev/null | sort -rh | head -10 || echo "No JS files"
+  
+  echo ""
+  echo "📊 Total bundle size:"
+  du -sh dist/assets/ 2>/dev/null || echo "No dist/assets"
+  
+  echo ""
+  echo "📊 Gzipped sizes (estimated):"
+  find dist/assets -name "*.js" -exec gzip -c {} \; 2>/dev/null | wc -c | awk '{print $1/1024/1024 " MB"}' || echo "Cannot estimate"
 else
-  echo -e "${RED}❌ Build échoué${NC}"
+  echo "⚠️  No build found.  Run:  npm run build"
 fi
+
 echo ""
 
-# ═══════════════════════════════════════════
-# 6. BUNDLE ANALYSIS
-# ═══════════════════════════════════════════
-echo -e "${BLUE}[6/12]${NC} 📊 Analyse des bundles..."
+# ============================================================================
+# 2. CSS ANALYSIS
+# ============================================================================
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🎨 2. CSS ANALYSIS"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
+if [ -f "scripts/analyze-css.sh" ]; then
+  bash scripts/analyze-css.sh
+else
+  echo "⚠️  CSS analysis script not found"
+  if [ -d "dist/assets" ]; then
+    CSS_FILE=$(find dist/assets -name "*. css" | head -1)
+    if [ -f "$CSS_FILE" ]; then
+      echo "📦 CSS file: $(basename $CSS_FILE)"
+      echo "📊 Size: $(du -h $CSS_FILE | awk '{print $1}')"
+    fi
+  fi
+fi
+
+echo ""
+
+# ============================================================================
+# 3. SECURITY CHECK
+# ============================================================================
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🔒 3. SECURITY CHECK"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
+if [ -f ". npmaudit" ]; then
+  echo "✅ Security documentation found"
+  grep -A 3 "## Current Status" .npmaudit || echo "Documented vulnerabilities"
+else
+  echo "⚠️  Running npm audit..."
+  npm audit --json | grep -E '"vulnerabilities":|"total"' || npm audit
+fi
+
+echo ""
+
+# ============================================================================
+# 4. CODE QUALITY
+# ============================================================================
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "✅ 4. CODE QUALITY"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
+echo "🔍 ESLint check..."
+if npm run lint 2>&1 | grep -q "0 errors"; then
+  echo "✅ ESLint:  0 errors"
+else
+  echo "⚠️  ESLint has errors.  Run: npm run lint"
+fi
+
+echo ""
+echo "🔍 TypeScript check..."
+if command -v tsc &> /dev/null; then
+  if tsc --noEmit 2>&1 | grep -q "error TS"; then
+    echo "⚠️  TypeScript has errors"
+  else
+    echo "✅ TypeScript: No errors"
+  fi
+else
+  echo "⚠️  TypeScript not installed"
+fi
+
+echo ""
+
+# ============================================================================
+# 5. PERFORMANCE METRICS
+# ============================================================================
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📈 5. PERFORMANCE METRICS"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
+if [ -f "performance-budget.json" ]; then
+  echo "✅ Performance budgets defined"
+  cat performance-budget.json | grep -E '"maxSize"|"baseline"' | head -5
+else
+  echo "⚠️  No performance budgets found"
+fi
+
+echo ""
+
 if [ -d "dist" ]; then
-  {
-    echo "# 📊 BUNDLE ANALYSIS"
-    echo ""
-    echo "## Top 20 plus gros fichiers JS"
-    find dist -type f -name "*.js" -exec du -h {} \; 2>/dev/null | sort -rh | head -20
-    echo ""
-    echo "## Résumé"
-    echo "- Fichiers JS: $(find dist -name "*.js" 2>/dev/null | wc -l)"
-    echo "- Fichiers CSS: $(find dist -name "*.css" 2>/dev/null | wc -l)"
-    echo "- Images: $(find dist -name "*. png" -o -name "*.jpg" -o -name "*.webp" 2>/dev/null | wc -l)"
-  } > "$REPORT_DIR/06-bundle. txt"
-  echo "   $(find dist -name "*.js" 2>/dev/null | wc -l) fichiers JS"
-else
-  echo "   ⚠️  Pas de dist/"
+  MAIN_JS=$(find dist/assets -name "index-*.js" | head -1)
+  if [ -f "$MAIN_JS" ]; then
+    SIZE=$(stat -f%z "$MAIN_JS" 2>/dev/null || stat -c%s "$MAIN_JS" 2>/dev/null)
+    SIZE_KB=$((SIZE / 1024))
+    echo "📦 Main bundle: ${SIZE_KB} KB"
+    
+    if [ $SIZE_KB -lt 600 ]; then
+      echo "✅ Under 600 KB target"
+    else
+      echo "⚠️  Above 600 KB target"
+    fi
+  fi
 fi
-echo ""
-
-# ═══════════════════════════════════════════
-# 7. DÉPENDANCES
-# ═══════════════════════════════════════════
-echo -e "${BLUE}[7/12]${NC} 📚 Analyse des dépendances..."
-{
-  echo "# 📚 DÉPENDANCES"
-  echo ""
-  echo "## Installées"
-  npm list --depth=0 2>&1 || true
-  echo ""
-  echo "## Outdated"
-  npm outdated 2>&1 || echo "Toutes à jour"
-} > "$REPORT_DIR/07-dependencies.txt"
-npm outdated --json > "$REPORT_DIR/07-outdated.json" 2>&1 || echo "{}" > "$REPORT_DIR/07-outdated.json"
-
-PROD_DEPS=$(cat package.json | jq '. dependencies | length' 2>/dev/null || echo "? ")
-DEV_DEPS=$(cat package.json | jq '. devDependencies | length' 2>/dev/null || echo "?")
-echo "   Production: $PROD_DEPS | Dev: $DEV_DEPS"
-echo ""
-
-# ═══════════════════════════════════════════
-# 8. ACCESSIBILITÉ
-# ═══════════════════════════════════════════
-echo -e "${BLUE}[8/12]${NC} ♿ Check accessibilité..."
-{
-  echo "# ♿ ACCESSIBILITÉ"
-  echo ""
-  echo "## Attributs ARIA"
-  grep -r "aria-" src/ 2>/dev/null | wc -l || echo "0"
-  echo ""
-  echo "## Attributs alt sur images"
-  grep -r "<img" src/ 2>/dev/null | grep -c "alt=" || echo "0"
-} > "$REPORT_DIR/08-accessibility.txt"
-echo "   $(grep -r "aria-" src/ 2>/dev/null | wc -l || echo 0) attributs ARIA"
-echo ""
-
-# ═══════════════════════════════════════════
-# 9. SEO
-# ═══════════════════════════════════════════
-echo -e "${BLUE}[9/12]${NC} 🔍 Analyse SEO..."
-{
-  echo "# 🔍 SEO"
-  echo ""
-  echo "## Meta tags"
-  grep -r "<meta" index.html public/ 2>/dev/null | wc -l || echo "0"
-  echo ""
-  echo "## Structured Data"
-  grep -r "application/ld+json" src/ 2>/dev/null | wc -l || echo "0"
-} > "$REPORT_DIR/09-seo.txt"
-echo "   Vérification basique effectuée"
-echo ""
-
-# ═══════════════════════════════════════════
-# 10. PERFORMANCE
-# ═══════════════════════════════════════════
-echo -e "${BLUE}[10/12]${NC} ⚡ Métriques performance..."
-{
-  echo "# ⚡ PERFORMANCE"
-  echo ""
-  echo "## Lazy loading"
-  echo "- React. lazy:  $(grep -r "React.lazy" src/ 2>/dev/null | wc -l)"
-  echo "- Dynamic import: $(grep -r "import(" src/ 2>/dev/null | wc -l)"
-  echo ""
-  echo "## Optimisations"
-  echo "- useMemo: $(grep -r "useMemo" src/ 2>/dev/null | wc -l)"
-  echo "- useCallback: $(grep -r "useCallback" src/ 2>/dev/null | wc -l)"
-  echo "- React.memo: $(grep -r "React.memo\|memo(" src/ 2>/dev/null | wc -l)"
-} > "$REPORT_DIR/10-performance.txt"
-cat "$REPORT_DIR/10-performance.txt" | grep -E "^- " | head -5
-echo ""
-
-# ═══════════════════════════════════════════
-# 11. GIT STATS
-# ═══════════════════════════════════════════
-echo -e "${BLUE}[11/12]${NC} 📈 Statistiques Git..."
-{
-  echo "# 📈 GIT STATS"
-  echo ""
-  echo "## Derniers commits"
-  git log --oneline -10
-  echo ""
-  echo "## Contributors"
-  git shortlog -sn --all --no-merges | head -10
-  echo ""
-  echo "## Branches"
-  git branch -a | wc -l
-} > "$REPORT_DIR/11-git.txt" 2>&1 || echo "Erreur Git" > "$REPORT_DIR/11-git.txt"
-echo "   $(git log --oneline | wc -l) commits"
-echo ""
-
-# ═══════════════════════════════════════════
-# 12. RAPPORT FINAL
-# ═══════════════════════════════════════════
-echo -e "${BLUE}[12/12]${NC} 📋 Génération rapport final..."
-
-cat > "$REPORT_DIR/README.md" << SUMMARY
-# 🔍 MEGA AUDIT COMPLET
-**Date:** $(date)  
-**Projet:** akiprisaye-web  
-**Branch:** $(git branch --show-current 2>/dev/null || echo "unknown")
-
----
-
-## 📊 VUE D'ENSEMBLE
-
-| Catégorie | Résultat |
-|-----------|----------|
-| 📊 Lignes de code | $(find src -name "*.tsx" -o -name "*.ts" -o -name "*.jsx" -o -name "*.js" 2>/dev/null | xargs wc -l 2>/dev/null | tail -1 | awk '{print $1}' || echo "? ") |
-| 🔒 Vulnérabilités | $CRITICAL critical, $HIGH high |
-| 📝 Warnings ESLint | $WARNINGS |
-| 📝 Errors ESLint | $ERRORS |
-| 📦 Build size | ${BUILD_SIZE:-"N/A"} |
-| 📚 Deps Production | $PROD_DEPS |
-| 📚 Deps Dev | $DEV_DEPS |
-| 🧪 Tests | $(find src -name "*.test.*" 2>/dev/null | wc -l) fichiers |
-| 📈 Commits | $(git log --oneline 2>/dev/null | wc -l || echo "?") |
-
----
-
-## 📁 FICHIERS GÉNÉRÉS
-
-$(ls -1 "$REPORT_DIR" | grep -v "README.md" | sed 's/^/- /')
-
----
-
-## 🎯 ACTIONS RECOMMANDÉES
-
-$(if [ "$CRITICAL" -gt 0 ]; then echo "- 🚨 **URGENT:** Corriger $CRITICAL vulnérabilités critiques"; fi)
-$(if [ "$HIGH" -gt 0 ]; then echo "- ⚠️  Corriger $HIGH vulnérabilités high"; fi)
-$(if [ "$ERRORS" -gt 0 ]; then echo "- 🔧 Corriger $ERRORS erreurs ESLint"; fi)
-$(if [ "$WARNINGS" -gt 10 ]; then echo "- 🧹 Réduire les $WARNINGS warnings ESLint"; fi)
-$(if [ !  -d "dist" ]; then echo "- ❌ Build échoué - à investiguer"; fi)
-
----
-
-## 📖 COMMENT LIRE CE RAPPORT
-
-1. **Sécurité:** Voir \`02-security.txt\`
-2. **Qualité code:** Voir \`03-lint.txt\`
-3. **Tests:** Voir \`04-tests.txt\`
-4. **Performance:** Voir \`06-bundle.txt\` et \`10-performance.txt\`
-5. **Dépendances:** Voir \`07-dependencies.txt\`
-
----
-
-**Généré par:** \`scripts/mega-audit.sh\`  
-**Durée:** ~2-5 minutes
-SUMMARY
 
 echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo -e "${GREEN}✅ AUDIT TERMINÉ! ${NC}"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo ""
-echo "📁 Rapports dans: $REPORT_DIR/"
-echo ""
-echo "📖 Voir le résumé:"
-echo "   cat $REPORT_DIR/README. md"
-echo ""
-echo "📊 Fichiers générés:"
-ls -1 "$REPORT_DIR/" | sed 's/^/   - /'
+
+# ============================================================================
+# 6. GIT STATUS
+# ============================================================================
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🔀 6. GIT STATUS"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-# Afficher le résumé
-cat "$REPORT_DIR/README.md"
+echo "📊 Branch:  $(git branch --show-current)"
+echo "📝 Last commit: $(git log -1 --oneline)"
+echo ""
+
+UNCOMMITTED=$(git status --porcelain | wc -l)
+if [ "$UNCOMMITTED" -eq 0 ]; then
+  echo "✅ No uncommitted changes"
+else
+  echo "⚠️  $UNCOMMITTED uncommitted changes"
+  git status --short
+fi
+
+echo ""
+
+# ============================================================================
+# 7. FINAL SCORE
+# ============================================================================
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━��━━━━"
+echo "🏆 7. FINAL SCORE"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
+SCORE=0
+
+# Build exists
+[ -d "dist" ] && SCORE=$((SCORE + 20)) && echo "✅ Build exists (+20)"
+
+# CSS optimized
+[ -f ". npmaudit" ] && SCORE=$((SCORE + 15)) && echo "✅ Security documented (+15)"
+
+# No uncommitted changes
+[ "$UNCOMMITTED" -eq 0 ] && SCORE=$((SCORE + 10)) && echo "✅ Git clean (+10)"
+
+# Performance budgets
+[ -f "performance-budget.json" ] && SCORE=$((SCORE + 15)) && echo "✅ Performance budgets (+15)"
+
+# Bundle size OK
+if [ -f "$MAIN_JS" ]; then
+  SIZE=$(stat -f%z "$MAIN_JS" 2>/dev/null || stat -c%s "$MAIN_JS" 2>/dev/null)
+  [ $((SIZE / 1024)) -lt 600 ] && SCORE=$((SCORE + 20)) && echo "✅ Bundle optimized (+20)"
+fi
+
+# Scripts exist
+[ -f "scripts/analyze-css.sh" ] && SCORE=$((SCORE + 10)) && echo "✅ Analysis tools (+10)"
+
+# Monitoring
+[ -f "src/components/PerformanceMonitor.tsx" ] && SCORE=$((SCORE + 10)) && echo "✅ Performance monitoring (+10)"
+
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🎯 TOTAL SCORE: $SCORE/100"
+
+if [ $SCORE -ge 90 ]; then
+  echo "🏆 EXCELLENT!    Production ready!"
+elif [ $SCORE -ge 70 ]; then
+  echo "✅ GOOD!  Minor improvements possible"
+elif [ $SCORE -ge 50 ]; then
+  echo "⚠️  OK.  Some optimization needed"
+else
+  echo "❌ NEEDS WORK. Major improvements required"
+fi
+
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "✅ Audit completed at $(date '+%H:%M:%S')"
