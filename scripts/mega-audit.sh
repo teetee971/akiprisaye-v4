@@ -67,7 +67,7 @@ echo "🔒 3. SECURITY CHECK"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-if [ -f ". npmaudit" ]; then
+if [ -f ".npmaudit" ]; then
   echo "✅ Security documentation found"
   grep -A 3 "## Current Status" .npmaudit || echo "Documented vulnerabilities"
 else
@@ -176,7 +176,7 @@ SCORE=0
 [ -d "dist" ] && SCORE=$((SCORE + 20)) && echo "✅ Build exists (+20)"
 
 # CSS optimized
-[ -f ". npmaudit" ] && SCORE=$((SCORE + 15)) && echo "✅ Security documented (+15)"
+[ -f ".npmaudit" ] && SCORE=$((SCORE + 15)) && echo "✅ Security documented (+15)"
 
 # No uncommitted changes
 [ "$UNCOMMITTED" -eq 0 ] && SCORE=$((SCORE + 10)) && echo "✅ Git clean (+10)"
