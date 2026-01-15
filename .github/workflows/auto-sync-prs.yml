@@ -1,0 +1,33 @@
+name: Auto-sync PRs with main
+
+on:
+  push:
+    branches: 
+      - main
+  schedule: 
+    - cron: '0 */6 * * *'  # Toutes les 6h
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name:  Sync open PRs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Lister toutes les PRs ouvertes
+          gh pr list --state open --json number,headRefName --jq '.[] | "\(.number) \(.headRefName)"' | while read pr_number branch; do
+            echo "Syncing PR #$pr_number ($branch) with main..."
+            
+            # Checkout la branche
+            git fetch origin "$branch"
+            git checkout "$branch"
+            
+            # Tenter de merger main
+            git merge origin/main --no-edit || {
+              echo "⚠️ Conflict detected in PR #$pr_number"
+              gh pr comment "$pr_number" --body "⚠️ **Merge conflict detected! ** Please update your branch with \`main\`."
+            }
+          done
