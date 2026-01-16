@@ -17,19 +17,6 @@ export default function Presse() {
   });
 
   const printPress = () => {
-import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
-
-export default function Presse() {
-  const today = useMemo(() => {
-    return new Intl.DateTimeFormat('fr-FR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    }).format(new Date());
-  }, []);
-
-  const handlePrint = () => {
     window.print();
   };
 
