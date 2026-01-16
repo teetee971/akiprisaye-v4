@@ -63,6 +63,12 @@ export default function HomeV5() {
       setStats(JSON.parse(savedStats));
     }
 
+    // Update cached dimensions on resize
+    const handleResize = () => {
+      windowHeight = window.innerHeight;
+      windowWidth = window.innerWidth;
+    };
+
     // Cache window dimensions
     let windowHeight = window.innerHeight;
     let windowWidth = window.innerWidth;
@@ -86,12 +92,6 @@ export default function HomeV5() {
         
         ticking = true;
       }
-    };
-
-    // Update cached dimensions on resize
-    const handleResize = () => {
-      windowHeight = window.innerHeight;
-      windowWidth = window.innerWidth;
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });

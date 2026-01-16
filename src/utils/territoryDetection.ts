@@ -32,12 +32,22 @@ export async function detectTerritory(): Promise<string> {
       return territory;
     }
   } catch (e) {
-    console.log('Geolocation failed, trying IP detection');
+    const errorMsg = e instanceof GeolocationPositionError 
+      ? ['Permission denied', 'Position unavailable', 'Timeout'][e.code - 1]
+      : 'Unknown error';
+    console.log(`Geolocation failed (${errorMsg}), trying IP detection`);
   }
 
-  // 3. Fallback: IP geolocation
+  // 3. Fallback: IP geolocation with retry logic
   try {
-    const response = await fetch('https://ipapi.co/json/');
+    const response = await fetch('https://ipapi.co/json/', {
+      signal: AbortSignal.timeout(8000)
+    });
+    
+    if (!response.ok) {
+      throw new Error(`IP API returned ${response.status}`);
+    }
+    
     const data = await response.json();
     const territory = mapCountryCodeToTerritory(data.country_code, data.region);
     if (territory) {
@@ -46,7 +56,7 @@ export async function detectTerritory(): Promise<string> {
       return territory;
     }
   } catch (e) {
-    console.log('IP geolocation failed');
+    console.warn('IP geolocation failed:', e instanceof Error ? e.message : 'Unknown error');
   }
 
   // 4. Default fallback

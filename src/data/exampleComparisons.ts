@@ -112,7 +112,8 @@ export function getRandomComparison(): PriceComparison {
  */
 export function getComparisonOfDay(): PriceComparison {
   const today = new Date();
-  const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000);
+  const startOfYear = new Date(today.getFullYear(), 0, 1);
+  const dayOfYear = Math.floor((today.getTime() - startOfYear.getTime()) / 86400000);
   const index = dayOfYear % exampleComparisons.length;
   return exampleComparisons[index];
 }
