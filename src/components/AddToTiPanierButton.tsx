@@ -2,14 +2,16 @@
 import React, { useState } from 'react'
 import { useTiPanier } from '../hooks/useTiPanier'
 import type { PublicProduct } from '../services/eanPublicCatalog'
+import { useToast } from '../hooks/useToast'
 
 type AddToTiPanierButtonProps = {
   product: PublicProduct
 }
 
 export default function AddToTiPanierButton({ product }: AddToTiPanierButtonProps) {
-  const { addItem } = useTiPanier()
+  const { addItem, removeItem } = useTiPanier()
   const [added, setAdded] = useState(false)
+  const toast = useToast()
 
   const handleAdd = () => {
     const latestPrice = product.observedPrices?.[product.observedPrices.length - 1]
@@ -28,6 +30,17 @@ export default function AddToTiPanierButton({ product }: AddToTiPanierButtonProp
     })
 
     setAdded(true)
+    
+    // Show undoable toast
+    toast.undoable('🛒 Ajouté au ti-panier', {
+      onUndo: () => {
+        removeItem(product.ean)
+        setAdded(false)
+        toast.success('Article retiré')
+      },
+      duration: 5000,
+    })
+    
     setTimeout(() => setAdded(false), 2000)
   }
 

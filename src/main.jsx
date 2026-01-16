@@ -12,6 +12,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import NotFound from './pages/NotFound';
 import { PerformanceMonitor } from './components/PerformanceMonitor';
+import { ToastProvider } from './components/Toast/ToastProvider';
 
 // Lazy loading error handler to prevent black screens
 function lazyWithRetry(componentImport) {
@@ -222,6 +223,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             </Suspense>
           </BrowserRouter>
         </AuthProvider>
+        <ToastProvider />
       </ThemeProvider>
     </ErrorBoundary>
   </React.StrictMode>,

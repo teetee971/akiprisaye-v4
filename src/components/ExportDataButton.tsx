@@ -5,6 +5,7 @@
 import React, { useState } from 'react'
 import type { PriceObservation } from '../types/priceObservation'
 import { exportToCSV, exportToJSON, exportToText, getSanitizedFilename } from '../utils/exportData'
+import { useToast } from '../hooks/useToast'
 
 type ExportFormat = 'csv' | 'json' | 'txt'
 
@@ -17,6 +18,7 @@ type ExportDataButtonProps = {
 export default function ExportDataButton({ observations, disabled = false, label = 'Exporter les données' }: ExportDataButtonProps) {
   const [showMenu, setShowMenu] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const toast = useToast()
 
   // Feature flag check
   const isFeatureEnabled = import.meta.env.VITE_FEATURE_DATA_EXPORT === 'true'
@@ -27,33 +29,48 @@ export default function ExportDataButton({ observations, disabled = false, label
 
   const handleExport = async (format: ExportFormat) => {
     if (observations.length === 0) {
-      alert('Aucune donnée à exporter')
+      toast.warning('Aucune donnée à exporter')
       return
     }
 
     setExporting(true)
     setShowMenu(false)
 
-    try {
-      const filename = getSanitizedFilename('observations-prix', format)
+    const exportPromise = new Promise<void>((resolve, reject) => {
+      try {
+        const filename = getSanitizedFilename('observations-prix', format)
 
-      switch (format) {
-        case 'csv':
-          exportToCSV(observations, filename)
-          break
-        case 'json':
-          exportToJSON(observations, filename)
-          break
-        case 'txt':
-          exportToText(observations, filename)
-          break
+        switch (format) {
+          case 'csv':
+            exportToCSV(observations, filename)
+            break
+          case 'json':
+            exportToJSON(observations, filename)
+            break
+          case 'txt':
+            exportToText(observations, filename)
+            break
+        }
+
+        // Small delay to show feedback
+        setTimeout(() => resolve(), 500)
+      } catch (error) {
+        console.error('Export error:', error)
+        reject(error)
       }
+    })
 
-      // Small delay to show feedback
-      await new Promise(resolve => setTimeout(resolve, 500))
-    } catch (error) {
-      console.error('Export error:', error)
-      alert('Erreur lors de l\'export des données')
+    toast.promise(
+      exportPromise,
+      {
+        loading: `Export ${format.toUpperCase()} en cours...`,
+        success: `✅ Export ${format.toUpperCase()} réussi!`,
+        error: `❌ Erreur lors de l'export`,
+      }
+    )
+
+    try {
+      await exportPromise
     } finally {
       setExporting(false)
     }
