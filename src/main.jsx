@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import './styles/globals.css';
 import './styles/civic-glass.css';
 import './styles/glass.css';
@@ -160,6 +161,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <AuthProvider>
           <BrowserRouter>
             <Suspense fallback={<LoadingFallback />}>
+              <Analytics />
               <Routes>
                 <Route path='/' element={<Layout />}>
                   <Route index element={<Home />} />
