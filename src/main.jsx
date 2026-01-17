@@ -156,7 +156,7 @@ if (import.meta.env.PROD) {
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
-    <PerformanceMonitor />
+      <PerformanceMonitor />
       <ThemeProvider>
         <AuthProvider>
           <BrowserRouter>
@@ -210,17 +210,13 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='observatoire' element={<Observatoire />} />
                   <Route path='observatoire/methodologie' element={<ObservatoryMethodology />} />
                   <Route path='comparateur-citoyen' element={<ComparateurCitoyen />} />
-                  
                   {/* Mission M-B - Multi-territory comparison */}
                   <Route path='comparateur/comparer' element={<ComparaisonPage />} />
-                  
                   {/* New simplified pages for automatic generation */}
                   <Route path='comparer' element={<CompareSimple />} />
                   <Route path='tarifs' element={<Pricing />} />
-                  
                   {/* PR #1 - Assistant + FAQ étendue (v1.6.0) */}
                   <Route path='faq' element={<Faq />} />
-                  
                   <Route path='*' element={<NotFound />} />
                 </Route>
               </Routes>
