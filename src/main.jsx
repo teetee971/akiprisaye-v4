@@ -217,14 +217,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='tarifs' element={<Pricing />} />
                   {/* PR #1 - Assistant + FAQ étendue (v1.6.0) */}
                   <Route path='faq' element={<Faq />} />
-                  <Route path='*' element={<NotFound />} />
-                </Route>
-              </Routes>
-            </Suspense>
-          </BrowserRouter>
-        </AuthProvider>
-        <ToastProvider />
-      </ThemeProvider>
-    </ErrorBoundary>
-  </React.StrictMode>,
-);
+*
+
