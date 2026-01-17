@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import ComparateurTable from '../components/comparateur/ComparateurTable';
 import ComparateurFilters from '../components/comparateur/ComparateurFilters';
+import ErrorState from '../components/comparateur/ErrorState';
+import DataInfo from '../components/comparateur/DataInfo';
 
 // Type pour les données de l'observatoire
 type ObservatoireData = {
@@ -25,40 +27,99 @@ export default function ComparateurCitoyen() {
   const [data, setData] = useState<ObservatoireData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<string>('');
   const [selectedProduct, setSelectedProduct] = useState<string>('');
   const [selectedCommune, setSelectedCommune] = useState<string>('');
   const [snapshot, setSnapshot] = useState<ObservatoireSnapshot | null>(null);
 
-  // Charger le snapshot le plus récent
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        // Charger le snapshot le plus récent (2026-02)
-        const response = await fetch('/data/observatoire/guadeloupe_2026-02.json');
-        
-        if (!response.ok) {
-          throw new Error('Impossible de charger les données');
-        }
-        
-        const jsonData: ObservatoireSnapshot = await response.json();
-        setSnapshot(jsonData);
-        setData(jsonData.donnees || []);
-        
-        // Sélectionner le premier produit par défaut
-        if (jsonData.donnees && jsonData.donnees.length > 0) {
-          setSelectedProduct(jsonData.donnees[0].ean);
-        }
-      } catch (err) {
-        console.error('Erreur chargement données:', err);
-        setError('Impossible de charger les données de l\'observatoire');
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Liste de fichiers à essayer dans l'ordre (du plus récent au plus ancien)
+  const dataFiles = [
+    '/data/observatoire/guadeloupe_2026-02.json',
+    '/data/observatoire/guadeloupe_2026-01.json',
+    '/data/observatoire/hexagone_2026-01.json',
+  ];
 
-    loadData();
+  // Charger le snapshot le plus récent avec système de fallback
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      setDebugInfo('');
+
+      let lastError: Error | null = null;
+      let successfulFile: string | null = null;
+
+      // Essayer chaque fichier dans l'ordre
+      for (const file of dataFiles) {
+        try {
+          const response = await fetch(file);
+          
+          if (!response.ok) {
+            // Messages d'erreur spécifiques selon le statut HTTP
+            if (response.status === 404) {
+              lastError = new Error(`Fichier ${file} introuvable (404).`);
+            } else if (response.status === 500) {
+              lastError = new Error(`Erreur serveur (500) lors du chargement de ${file}.`);
+            } else if (response.status >= 400 && response.status < 500) {
+              lastError = new Error(`Erreur client ${response.status}: ${response.statusText}`);
+            } else if (response.status >= 500) {
+              lastError = new Error(`Erreur serveur ${response.status}: ${response.statusText}`);
+            } else {
+              lastError = new Error(`Erreur ${response.status}: ${response.statusText}`);
+            }
+            continue; // Essayer le fichier suivant
+          }
+          
+          const jsonData: ObservatoireSnapshot = await response.json();
+          
+          // Valider la structure des données
+          if (!jsonData.donnees || !Array.isArray(jsonData.donnees)) {
+            lastError = new Error(`Structure de données invalide dans ${file}`);
+            continue;
+          }
+
+          // Succès ! Utiliser ces données
+          setSnapshot(jsonData);
+          setData(jsonData.donnees);
+          successfulFile = file;
+          
+          // Sélectionner le premier produit par défaut
+          if (jsonData.donnees.length > 0) {
+            setSelectedProduct(jsonData.donnees[0].ean);
+          }
+
+          // Données chargées avec succès, sortir de la boucle
+          break;
+        } catch (err) {
+          lastError = err instanceof Error ? err : new Error(String(err));
+          continue; // Essayer le fichier suivant
+        }
+      }
+
+      // Si aucun fichier n'a été chargé avec succès
+      if (!successfulFile) {
+        const errorMessage = 'Impossible de charger les données de l\'observatoire. Tous les fichiers de données sont indisponibles.';
+        const debugDetails = `Fichiers tentés: ${dataFiles.join(', ')}\nDernière erreur: ${lastError?.message || 'Inconnue'}`;
+        
+        setError(errorMessage);
+        setDebugInfo(debugDetails);
+        console.error('Erreur chargement données:', lastError);
+      }
+    } catch (err) {
+      const errorMessage = 'Une erreur inattendue s\'est produite lors du chargement des données.';
+      const debugDetails = err instanceof Error ? err.message : String(err);
+      
+      console.error('Erreur chargement données:', err);
+      setError(errorMessage);
+      setDebugInfo(debugDetails);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   // Obtenir la liste des produits uniques
   const getUniqueProducts = () => {
@@ -134,8 +195,18 @@ export default function ComparateurCitoyen() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Data Info Banner */}
+        {snapshot && !loading && !error && (
+          <DataInfo
+            territoire={snapshot.territoire}
+            dateSnapshot={snapshot.date_snapshot}
+            source={snapshot.source}
+            qualite={snapshot.qualite}
+          />
+        )}
+
         {/* Info Banner */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-l-4 border-blue-500 rounded-xl p-6 mb-6 shadow-md">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-l-4 border-blue-500 rounded-xl p-6 mt-6 mb-6 shadow-md">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
               ℹ️
@@ -148,15 +219,6 @@ export default function ComparateurCitoyen() {
                 Sélectionnez un produit pour comparer les prix entre les différentes enseignes.
                 Les prix les plus bas sont marqués en vert 🟢, les plus élevés en rouge 🔴.
               </p>
-              {snapshot && (
-                <p className="text-xs text-blue-700 dark:text-blue-300">
-                  Données du {new Date(snapshot.date_snapshot).toLocaleDateString('fr-FR', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  })} • Source : {snapshot.source}
-                </p>
-              )}
             </div>
           </div>
         </div>
@@ -175,13 +237,12 @@ export default function ComparateurCitoyen() {
         )}
 
         {/* Error State */}
-        {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">⚠️</span>
-              <p className="text-red-700 dark:text-red-400 text-sm font-medium">{error}</p>
-            </div>
-          </div>
+        {error && !loading && (
+          <ErrorState 
+            error={error} 
+            onRetry={loadData}
+            debugInfo={debugInfo}
+          />
         )}
 
         {/* Filters and Table */}
