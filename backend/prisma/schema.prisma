@@ -10,105 +10,316 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// --- Toutes les définitions existantes de pasted2.txt ---
-// ... (COLLE ici le contenu intégral de pasted2.txt ci-dessus)
+/// Utilisateur de l'application (administrateurs, gestionnaires)
+model User {
+  id          String           @id @default(uuid())
+  email       String           @unique @db.VarChar(255)
+  passwordHash String          @map("password_hash") @db.VarChar(255)
+  name        String           @db.VarChar(255)
+  role        UserRole         @default(USER)
+  isActive    Boolean          @default(true) @map("is_active")
+  lastLogin   DateTime?        @map("last_login")
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+  stripeCustomerId String?     @unique @map("stripe_customer_id") @db.VarChar(255)
+  refreshTokens RefreshToken[]
+  auditLogs   AuditLog[]
+  chatProfile ChatUserProfile?
+  @@index([email])
+  @@index([isActive])
+  @@index([role])
+  @@index([stripeCustomerId])
+  @@map("users")
+}
 
-// ==================== AJOUTS POUR RÉSOUDRE LES ERREURS TYPESCRIPT PRISMA ====================
-
-// Modèle ApiKey pour l'authentification API
-model ApiKey {
+model RefreshToken {
   id        String   @id @default(uuid())
-  key       String   @unique
-  userId    String
+  tokenHash String   @unique @map("token_hash") @db.VarChar(64)
+  userId    String   @map("user_id")
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  status    ApiKeyStatus @default(ACTIVE)
-  expiresAt DateTime?
+  expiresAt DateTime @map("expires_at")
+  isRevoked Boolean  @default(false) @map("is_revoked")
+  createdAt DateTime @default(now()) @map("created_at")
+  @@index([userId])
+  @@index([tokenHash])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+enum UserRole {
+  USER
+  ANALYSTE
+  ENSEIGNE
+  INSTITUTION
+  SUPER_ADMIN
+}
+
+model LegalEntity {
+  id        String   @id @default(uuid())
+  siren     String   @unique @db.VarChar(9)
+  siret     String   @unique @db.VarChar(14)
+  name      String   @db.VarChar(255)
+  status    EntityStatus @default(ACTIVE)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  brands    Brand[]
+  verifications CompanyVerification[]
+  @@index([siren])
+  @@index([siret])
+  @@index([status])
+  @@map("legal_entities")
+}
+
+enum EntityStatus {
+  ACTIVE
+  CEASED
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  userRole  UserRole @map("user_role")
+  action    String   @db.VarChar(100)
+  entity    String?  @db.VarChar(100)
+  entityId  String?  @map("entity_id") @db.VarChar(255)
+  result    AuditResult @default(SUCCESS)
+  message   String?  @db.Text
+  ip        String?  @db.VarChar(45)
+  userAgent String?  @map("user_agent") @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  @@index([userId])
+  @@index([userRole])
+  @@index([action])
+  @@index([entity])
+  @@index([entityId])
+  @@index([result])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+enum AuditResult {
+  SUCCESS
+  FAILURE
+  DENIED
+}
+
+/// Marketplace & Produits/Stores
+model Brand {
+  id        String   @id @default(uuid())
+  name      String   @db.VarChar(255)
+  legalEntityId String  @map("legal_entity_id")
+  legalEntity   LegalEntity @relation(fields: [legalEntityId], references: [id], onDelete: Restrict)
+  status    BrandStatus @default(PENDING)
+  subscriptionPlan SubscriptionPlan @default(BASIC) @map("subscription_plan")
+  logoUrl   String?  @map("logo_url") @db.VarChar(500)
+  description String? @db.Text
+  website   String?  @db.VarChar(500)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  stores    Store[]
+  products  Product[]
+  subscriptions Subscription[]
+  @@index([legalEntityId])
+  @@index([status])
+  @@index([subscriptionPlan])
+  @@map("brands")
+}
+
+enum BrandStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+}
+
+model Store {
+  id        String   @id @default(uuid())
+  brandId   String   @map("brand_id")
+  brand     Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  name      String   @db.VarChar(255)
+  address   String   @db.VarChar(500)
+  postalCode String  @map("postal_code") @db.VarChar(10)
+  city      String   @db.VarChar(255)
+  territory Territory
+  latitude  Float?   @db.DoublePrecision
+  longitude Float?   @db.DoublePrecision
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  prices    Price[]
+  @@index([brandId])
+  @@index([territory])
+  @@index([city])
+  @@index([isActive])
+  @@map("stores")
+}
+
+enum Territory {
+  FRANCE_HEXAGONALE
+  DOM
+  COM
+}
+
+model Product {
+  id        String   @id @default(uuid())
+  brandId   String   @map("brand_id")
+  brand     Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  name      String   @db.VarChar(255)
+  category  String   @db.VarChar(100)
+  barcode   String?  @db.VarChar(50)
+  description String? @db.Text
+  imageUrl  String?  @map("image_url") @db.VarChar(500)
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  prices    Price[]
+  predictions PricePrediction[]
+  @@index([brandId])
+  @@index([category])
+  @@index([barcode])
+  @@index([isActive])
+  @@map("products")
+}
+
+model Price {
+  id        String   @id @default(uuid())
+  productId String   @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  storeId   String   @map("store_id")
+  store     Store    @relation(fields: [storeId], references: [id], onDelete: Restrict)
+  price     Int
+  currency  String   @default("EUR") @db.VarChar(3)
+  source    PriceSource @default(MANUAL)
+  effectiveDate DateTime @map("effective_date")
+  createdAt DateTime @default(now()) @map("created_at")
+  @@index([productId])
+  @@index([storeId])
+  @@index([effectiveDate])
+  @@index([createdAt])
+  @@map("prices")
+}
+
+enum PriceSource {
+  MANUAL
+  API
+  INSTITUTION
+}
+
+model PricePrediction {
+  id        String   @id @default(uuid())
+  productId String   @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  territory Territory
+  currentPrice Int    @map("current_price")
+  predictedPrice Int  @map("predicted_price")
+  confidenceScore Float @map("confidence_score") @db.DoublePrecision
+  modelVersion String @map("model_version") @db.VarChar(50)
+  horizonDays Int    @map("horizon_days")
+  createdAt DateTime @default(now()) @map("created_at")
+  @@index([productId])
+  @@index([territory])
+  @@index([createdAt])
+  @@map("price_predictions")
+}
+
+// Abonnements & Invoicing
+model Subscription {
+  id        String   @id @default(uuid())
+  brandId   String   @map("brand_id")
+  brand     Brand    @relation(fields: [brandId], references: [id], onDelete: Restrict)
+  plan      SubscriptionPlan
+  price     Int
+  billingCycle String @map("billing_cycle") @db.VarChar(20)
+  status    SubscriptionStatus @default(ACTIVE)
+  startedAt DateTime @map("started_at")
+  endsAt    DateTime? @map("ends_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  invoices  Invoice[]
+  @@index([brandId])
+  @@index([plan])
+  @@index([status])
+  @@map("subscriptions")
+}
+
+enum SubscriptionPlan {
+  BASIC
+  PRO
+  INSTITUTION
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  SUSPENDED
+  EXPIRED
+}
+
+model Invoice {
+  id        String   @id @default(uuid())
+  subscriptionId String @map("subscription_id")
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Restrict)
+  amount    Int
+  currency  String   @default("EUR") @db.VarChar(3)
+  status    InvoiceStatus @default(PENDING)
+  invoiceNumber String @unique @map("invoice_number") @db.VarChar(50)
+  issuedAt  DateTime @map("issued_at")
+  dueAt     DateTime @map("due_at")
+  paidAt    DateTime? @map("paid_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  @@index([subscriptionId])
+  @@index([status])
+  @@index([issuedAt])
+  @@map("invoices")
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  CANCELLED
+  OVERDUE
+}
+
+// ===== AJOUTS POUR RÉSOUDRE LES ERREURS TYPESCRIPT PRISMA =====
+
+model ApiKey {
+  id          String         @id @default(uuid())
+  key         String         @unique
+  userId      String
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status      ApiKeyStatus   @default(ACTIVE)
+  expiresAt   DateTime?
   permissions ApiPermission[]
-  createdAt DateTime @default(now())
+  createdAt   DateTime       @default(now())
   @@index([key])
   @@index([userId])
   @@map("api_keys")
 }
 
-// Enum du statut d'API Key
 enum ApiKeyStatus {
   ACTIVE
   REVOKED
   EXPIRED
 }
 
-// Modèle Permission API (granularité des accès)
 model ApiPermission {
-  id      String @id @default(uuid())
-  name    String @unique
+  id       String  @id @default(uuid())
+  name     String  @unique
   apiKeyId String
-  apiKey  ApiKey @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
-  // Ajoute ici plus de granularité permissions si nécessaire
+  apiKey   ApiKey  @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
   @@index([name])
   @@index([apiKeyId])
   @@map("api_permissions")
 }
 
-// Enum SubscriptionTier (utilisable dans TS)
 enum SubscriptionTier {
   BASIC
   PRO
   INSTITUTION
 }
 
-// ------------------- FIN AJOUTS POUR ERREURS IMPORT -------------------
-
-// NOTE :
-// - Si tu utilises dans ton code TypeScript d'autres modèles
-//   (par exemple ApiKeyStatus, ApiPermission, SubscriptionTier, etc.),
-//   ils sont à présent définis ci-dessus.
-// - Vérifie que le nom/structure des champs correspond bien à l'usage
-//   dans ton backend. N'hésite pas à adapter/compléter selon tes vrais besoins.
-
-// === Procédure à suivre ===
-// 1. Mets à jour ce fichier avec ce bloc d'ajouts à la fin ou à l'endroit logique.
-// 2. Lance :
-//    npx prisma generate
-//    npm run build
-// 3. Tes erreurs de type 'Module "@prisma/client" has no exported member' (ApiKey, ApiPermission, SubscriptionTier)
-//    seront résolues !
 //
-// Si tu as besoin de modèles spécifiques ou d'autres enums, indique-moi lesquels,
-// je complète le fichier pour tes besoins métiers.
+// ========== Ajoute ici les autres modèles/enums de ta logique métier au besoin ==========
+//
 
-model ApiKey {
-  id        String   @id @default(uuid())
-  key       String   @unique
-  userId    String
-  // Remplace 'User' par le modèle qui correspond chez toi
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  status    ApiKeyStatus @default(ACTIVE)
-  expiresAt DateTime?
-  permissions ApiPermission[]
-  createdAt DateTime @default(now())
-  @@index([key])
-  @@index([userId])
-  @@map("api_keys")
-}
-
-enum ApiKeyStatus {
-  ACTIVE
-  REVOKED
-  EXPIRED
-}
-
-model ApiPermission {
-  id      String @id @default(uuid())
-  name    String @unique
-  apiKeyId String
-  apiKey  ApiKey @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
-  @@index([name])
-  @@index([apiKeyId])
-  @@map("api_permissions")
-}
-
-enum SubscriptionTier {
-  BASIC
-  PRO
-  INSTITUTION
-}
+// Fin du schema.
