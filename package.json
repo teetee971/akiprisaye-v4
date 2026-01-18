@@ -35,7 +35,7 @@
     "android:dev": "npm run build && cap sync android && cap open android",
     "audit:full": "bash scripts/mega-audit.sh",
     "optimize": "bash scripts/super-optimize.sh",
-    "lighthouse: mobile": "lighthouse http://localhost:4173 --preset=mobile --view",
+    "lighthouse:mobile": "lighthouse http://localhost:4173 --preset=mobile --view",
     "lighthouse:desktop": "lighthouse http://localhost:4173 --preset=desktop --view"
   },
   "dependencies": {
@@ -91,7 +91,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.26",
     "jsdom": "^27.1.0",
-    "lighthouse": "^13.0.1",
+    "lighthouse": "^12.0.0",
     "prettier": "^3.3.3",
     "tailwindcss": "^4.1.17",
     "terser": "^5.44.1",
@@ -107,5 +107,9 @@
   "type": "module",
   "engines": {
     "node": ">=20.19.0"
+  },
+  "overrides": {
+    "tar": "^6.2.2",
+    "tmp": "^0.2.3"
   }
 }
