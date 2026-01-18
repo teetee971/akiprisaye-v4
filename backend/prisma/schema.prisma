@@ -75,3 +75,40 @@ enum SubscriptionTier {
 //
 // Si tu as besoin de modèles spécifiques ou d'autres enums, indique-moi lesquels,
 // je complète le fichier pour tes besoins métiers.
+
+model ApiKey {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  userId    String
+  // Remplace 'User' par le modèle qui correspond chez toi
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    ApiKeyStatus @default(ACTIVE)
+  expiresAt DateTime?
+  permissions ApiPermission[]
+  createdAt DateTime @default(now())
+  @@index([key])
+  @@index([userId])
+  @@map("api_keys")
+}
+
+enum ApiKeyStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+}
+
+model ApiPermission {
+  id      String @id @default(uuid())
+  name    String @unique
+  apiKeyId String
+  apiKey  ApiKey @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+  @@index([name])
+  @@index([apiKeyId])
+  @@map("api_permissions")
+}
+
+enum SubscriptionTier {
+  BASIC
+  PRO
+  INSTITUTION
+}
