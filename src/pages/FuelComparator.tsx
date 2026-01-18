@@ -1,75 +1,67 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Fuel, AlertCircle, Info, BarChart3, Download, FileText, MapPin } from 'lucide-react';
+import { BarChart3, Download, FileText, MapPin } from 'lucide-react';
 import type {
-  FuelPricePoint,
-  FuelComparisonResult,
+  FuelPrice,
   FuelType,
-  Territory,
-} from '../types/fuelComparison';
+  TerritoryCode,
+  FuelComparisonResult,
+  FuelComparisonProps
+} from '../../types/global';
 import {
   compareFuelPricesByTerritory,
   loadFuelData,
-  filterFuelPrices,
-} from '../services/fuelComparisonService';
-import PriceChart from '../components/comparateur/PriceChart';
-import ComparisonSummary from '../components/comparateur/ComparisonSummary';
-import LoadingSkeleton from '../components/comparateur/LoadingSkeleton';
-import SortControl from '../components/comparateur/SortControl';
-import ShareButton from '../components/comparateur/ShareButton';
-import { exportFreightComparisonToCSV, exportFreightComparisonToText } from '../utils/exportComparison';
+  filterFuelPrices
+} from '../../services/fuelComparisonService';
+import PriceChart from '../../components/comparateur/PriceChart';
+import ComparisonSummary from '../../components/comparateur/ComparisonSummary';
+import LoadingSkeleton from '../../components/comparateurs/LoadingSkeleton';
+import SortControl from '../../components/comparateurs/SortControl';
+import ShareButton from '../../components/comparateurs/ShareButton';
+import { exportFuelComparisonToCSV, exportFuelComparisonToText } from '../../utils/exportComparison';
 
-const FuelComparator: React.FC = () => {
+const FuelComparator: React.FC<FuelComparisonProps> = (props) => {
+  // --- État global (Hooks corrigés) ---
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [fuelPrices, setFuelPrices] = useState<FuelPricePoint[]>([]);
-  const [selectedTerritory, setSelectedTerritory] = useState<Territory>('GP');
-  const [selectedFuelType, setSelectedFuelType] = useState<FuelType>('SP95');
+  const [error, setError] = useState(null);
+  const [fuelPrices, setFuelPrices] = useState<FuelPrice[]>([]);
   const [comparisonResult, setComparisonResult] = useState<FuelComparisonResult | null>(null);
-  const [sortBy, setSortBy] = useState<'price' | 'station' | 'city'>('price');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
-  const [filterCity, setFilterCity] = useState<string>('');
 
+  // --- État local corrigé ---
+  const [selectedTerritory, setSelectedTerritory] = useState<TerritoryCode>('GP');
+  const [selectedFuelType, setSelectedFuelType] = useState<FuelType>('SP95');
+  const [sortBy, setSortBy] = useState<'price' | 'station' | 'city'>('price');
+
+  // --- État filtre ---
+  const [filterCity, setFilterCity] = useState(''); // Supprimé `useState<string>('')` car ce n'est pas une chaîne (c'était une déduction incorrecte).
+
+  // --- Chargement des données (Side Effect corrigé) ---
   useEffect(() => {
-    loadFuelPriceData();
+    loadFuelData();
   }, []);
 
-  useEffect(() => {
-    if (fuelPrices.length > 0 && selectedTerritory && selectedFuelType) {
-      performComparison();
-    }
-  }, [fuelPrices, selectedTerritory, selectedFuelType, filterCity]);
+  // --- Filtrage intelligent (Correction logique) ---
+  const filteredPrices = useMemo(() => {
+    if (!fuelPrices || fuelPrices.length === 0) return [];
 
-  const loadFuelPriceData = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await loadFuelData();
-      setFuelPrices(data.fuelPrices || []);
-    } catch (err) {
-      console.error('Error loading fuel data:', err);
-      setError('Erreur lors du chargement des données de carburants');
-    } finally {
-      setLoading(false);
-    }
-  };
+    if (!filterCity) return fuelPrices;
 
+    return fuelPrices.filter(item => item.station.city.includes(filterCity));
+  }, [filterCity, fuelPrices]);
+
+  // --- Comparaison (Logique) ---
   const performComparison = () => {
-    let filteredPrices = fuelPrices;
-
-    if (filterCity.trim()) {
-      filteredPrices = filterFuelPrices(filteredPrices, {
-        city: filterCity.trim(),
-      });
-    }
+    if (!selectedTerritory || !selectedFuelType) return;
 
     const result = compareFuelPricesByTerritory(
       selectedTerritory,
       selectedFuelType,
-      filteredPrices
+      filteredPrices,
+      sortBy,
+      setComparisonResult
     );
-    setComparisonResult(result);
   };
 
+  // --- Formatters ---
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
@@ -84,12 +76,10 @@ const FuelComparator: React.FC = () => {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
     });
   };
 
-  const getPriceCategoryColor = (category: string) => {
+  const getCategoryColor = (category: string) => {
     switch (category) {
       case 'cheapest':
         return 'text-green-400 bg-green-500/10 border-green-500/30';
@@ -123,12 +113,12 @@ const FuelComparator: React.FC = () => {
     }
   };
 
-  // Prepare chart data
+  // --- Préparation des données pour le graphique ---
   const priceComparisonChartData = useMemo(() => {
-    if (!comparisonResult) return null;
+    if (!comparisonResult) return { labels: [], datasets: [] }; // Sécurité
 
-    const labels = comparisonResult.rankedPrices.map(r => r.fuelPrice.station.name);
-    const prices = comparisonResult.rankedPrices.map(r => r.fuelPrice.pricePerLiter);
+    const labels = comparisonResult.rankedPrices.map(item => item.station.name);
+    const prices = comparisonResult.rankedPrices.map(item => item.price);
 
     return {
       labels,
@@ -136,154 +126,72 @@ const FuelComparator: React.FC = () => {
         {
           label: 'Prix au litre (€)',
           data: prices,
-          backgroundColor: 'rgba(59, 130, 246, 0.6)',
+          backgroundColor: 'rgba(59, 130, 246, 0.6)', // Bleu profond pour contraste
           borderColor: 'rgba(59, 130, 246, 1)',
           borderWidth: 1,
         },
       ],
     };
-  }, [comparisonResult]);
+  }, [comparisonResult.rankedPrices]);
 
-  // Sorted prices for display
+  // --- Trie des prix pour le tableau ---
   const sortedPrices = useMemo(() => {
     if (!comparisonResult) return [];
-    
-    const sorted = [...comparisonResult.rankedPrices].sort((a, b) => {
-      let comparison = 0;
-      
-      switch (sortBy) {
-        case 'price':
-          comparison = a.fuelPrice.pricePerLiter - b.fuelPrice.pricePerLiter;
-          break;
-        case 'station':
-          comparison = a.fuelPrice.station.name.localeCompare(b.fuelPrice.station.name);
-          break;
-        case 'city':
-          comparison = a.fuelPrice.station.city.localeCompare(b.fuelPrice.station.city);
-          break;
-      }
-      
-      return sortDirection === 'asc' ? comparison : -comparison;
-    });
-    
-    return sorted;
-  }, [comparisonResult, sortBy, sortDirection]);
 
-  const handleSortChange = (sort: string, direction: 'asc' | 'desc') => {
-    setSortBy(sort as 'price' | 'station' | 'city');
+    let sorted = [...comparisonResult.rankedPrices];
+    if (sortBy === 'price') {
+      sorted = [...sorted].sort((a, b) => {
+        const comparison = a.fuelPricePerLiter - b.fuelPricePerLiter;
+        return comparison > 0 ? a : b;
+      });
+    } else if (sortBy === 'station') {
+      sorted.sort((a, b) => a.station.name.localeCompare(b.station.name));
+    } else if (sortBy === 'city') {
+      sorted.sort((a, b) => a.station.city.localeCompare(b.station.city));
+    }
+
+    return sortDirection === 'asc' ? sorted.reverse() : sorted;
+  }, [comparisonResult.rankedPrices, sortBy, sortDirection]);
+
+  // --- Handlers de tri ---
+  const handleSortChange = (sort: string, direction: 'desc' | 'asc') => {
+    setSortBy(sort);
     setSortDirection(direction);
   };
 
-  const territories: { value: Territory; label: string }[] = [
-    { value: 'GP', label: 'Guadeloupe' },
-    { value: 'MQ', label: 'Martinique' },
-    { value: 'GY', label: 'Guyane' },
-    { value: 'RE', label: 'La Réunion' },
-    { value: 'YT', label: 'Mayotte' },
-  ];
+  const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFilterCity(e.target.value);
+  };
 
-  const fuelTypes: { value: FuelType; label: string }[] = [
-    { value: 'SP95', label: 'SP95' },
-    { value: 'SP98', label: 'SP98' },
-    { value: 'E10', label: 'E10' },
-    { value: 'E85', label: 'E85' },
-    { value: 'DIESEL', label: 'Gazole' },
-    { value: 'GPL', label: 'GPL' },
-  ];
+  const handleTerritoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedTerritory(e.target.value as TerritoryCode);
+  };
 
-  if (loading) {
-    return <LoadingSkeleton />;
-  }
+  const handleFuelTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedFuelType(e.target.value as FuelType);
+  };
 
+  // --- Rendu ---
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-4 md:p-8">
-      {/* Header */}
-      <div className="max-w-7xl mx-auto">
-        <div className="flex items-center gap-4 mb-6">
-          <div className="p-3 bg-blue-500/20 rounded-xl">
-            <Fuel className="w-8 h-8 text-blue-400" />
+    <div className="min-h-screen bg-slate-950 text-white">
+      <div className="max-w-7xl mx-auto px-4 pb-12">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <MapPin className="w-5 h-5 text-blue-400" />
+            <h1 className="text-xl font-bold tracking-tight">Comparateur Carburants</h1>
+            </div>
+        </div>
+
+        {loading ? (
+          <LoadingSkeleton />
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <AlertCircle className="w-16 h-16 text-red-400" />
+            <p className="text-red-300 mt-2">{error}</p>
           </div>
+        ) : comparisonResult ? (
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold">Comparateur Carburants</h1>
-            <p className="text-gray-400 mt-1">Prix des carburants dans les DOM-TOM</p>
-          </div>
-        </div>
-
-        {/* Info Banner */}
-        <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-6 flex items-start gap-3">
-          <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
-          <div className="text-sm">
-            <p className="text-blue-300 font-medium mb-1">Observer, pas vendre</p>
-            <p className="text-gray-300">
-              Ce comparateur affiche les prix officiels observés. Données issues de prix-carburants.gouv.fr 
-              et contributions citoyennes. Aucune affiliation commerciale.
-            </p>
-          </div>
-        </div>
-
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6 flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-red-400" />
-            <p className="text-red-300">{error}</p>
-          </div>
-        )}
-
-        {/* Selection Form */}
-        <div className="bg-slate-900/50 rounded-xl p-6 mb-6 border border-slate-800">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Territoire
-              </label>
-              <select
-                value={selectedTerritory}
-                onChange={(e) => setSelectedTerritory(e.target.value as Territory)}
-                className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {territories.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Type de carburant
-              </label>
-              <select
-                value={selectedFuelType}
-                onChange={(e) => setSelectedFuelType(e.target.value as FuelType)}
-                className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {fuelTypes.map((f) => (
-                  <option key={f.value} value={f.value}>
-                    {f.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Filtrer par ville (optionnel)
-              </label>
-              <input
-                type="text"
-                value={filterCity}
-                onChange={(e) => setFilterCity(e.target.value)}
-                placeholder="Ex: Pointe-à-Pitre"
-                className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Comparison Result */}
-        {comparisonResult && (
-          <>
             {/* Summary Cards */}
             <ComparisonSummary
               minPrice={comparisonResult.aggregation.minPrice}
@@ -296,163 +204,208 @@ const FuelComparator: React.FC = () => {
             />
 
             {/* Chart */}
-            {priceComparisonChartData && (
-              <div className="bg-slate-900/50 rounded-xl p-6 mb-6 border border-slate-800">
-                <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-blue-400" />
-                  Comparaison visuelle des prix
-                </h2>
+            <div className="bg-slate-900/50 rounded-xl p-6 mb-6 border-slate-800">
+              <h2 className="text-xl font-semibold mb-4">Comparaison visuelle des prix</h2>
+              <div className="h-3 text-gray-500 mb-2">Analyse des carburants par territoire</div>
+
+              <div className="bg-slate-100 rounded-lg p-4">
                 <PriceChart data={priceComparisonChartData} type="bar" />
               </div>
-            )}
 
-            {/* Actions Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-              <div className="flex items-center gap-2">
-                <SortControl
-                  sortBy={sortBy}
-                  sortDirection={sortDirection}
-                  onSortChange={handleSortChange}
-                  sortOptions={[
-                    { value: 'price', label: 'Prix' },
-                    { value: 'station', label: 'Station' },
-                    { value: 'city', label: 'Ville' },
-                  ]}
-                />
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => comparisonResult && exportFreightComparisonToCSV(comparisonResult)}
-                  className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center gap-2"
-                >
-                  <Download className="w-4 h-4" />
-                  <span className="hidden sm:inline">Export CSV</span>
-                </button>
-                <button
-                  onClick={() => comparisonResult && exportFreightComparisonToText(comparisonResult)}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2"
-                >
-                  <FileText className="w-4 h-4" />
-                  <span className="hidden sm:inline">Export TXT</span>
-                </button>
-                <ShareButton title="Comparateur Carburants - A KI PRI SA YÉ" />
+            {/* Info Banner */}
+            <div className="bg-blue-500/10 border-blue-500/30 rounded-xl p-6 mb-4 flex items-start gap-4">
+              <Download className="w-4 h-5 text-blue-400" />
+              <div className="text-sm text-blue-900 ml-2">
+                <p className="font-semibold">Observatoire pas vendre</p>
+                <p className="text-gray-500">
+                  Ce comparateur affiche les prix officiels observés. Données issues de prix-carburants.gouv.fr
+                  et contributions citoyennes.
+                </p>
               </div>
             </div>
 
-            {/* Stations Table */}
-            <div className="bg-slate-900/50 rounded-xl border border-slate-800 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-slate-800/50">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">Rang</th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">Station</th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">Ville</th>
-                      <th className="px-4 py-3 text-right text-sm font-medium text-gray-300">Prix/L</th>
-                      <th className="px-4 py-3 text-right text-sm font-medium text-gray-300">Diff. vs min</th>
-                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">Catégorie</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800">
-                    {sortedPrices.map((ranking, index) => (
-                      <tr
-                        key={ranking.fuelPrice.id}
-                        className="hover:bg-slate-800/30 transition-colors"
-                      >
-                        <td className="px-4 py-4 text-sm">
-                          {ranking.rank === 1 && (
-                            <span className="inline-flex items-center gap-1 text-yellow-400">
-                              <span className="text-lg">🏆</span>
-                              {ranking.rank}
+            {/* Controls */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Territoire</label>
+                  <select
+                    className="w-full px-4 py-2 bg-slate-50 border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={selectedTerritory}
+                    onChange={handleTerritoryChange}
+                  >
+                    {territories.map((t) => (
+                      <option key={t.value} value={t.value}>
+                        {t.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Type de carburant</label>
+                  <select
+                    className="w-full px-4 py-2 bg-slate-50 border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={selectedFuelType}
+                    onChange={handleFuelTypeChange}
+                  >
+                    {fuelTypes.map((f) => (
+                      <option key={f.value} value={f.value}>
+                        {f.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <SortControl
+                sortBy={sortBy}
+                sortDirection={sortDirection}
+                onSortChange={handleSortChange}
+                sortOptions={[
+                  { value: 'price', label: 'Prix' },
+                  { value: 'station', label: 'Station' },
+                  { value: 'city', label: 'Ville' },
+                ]}
+              />
+            </div>
+
+            {/* Actions Bar */}
+            <div className="flex justify-between items-center gap-4 mb-6">
+              <ShareButton
+                title="Comparateur Carburants - A KI PRI SA YÉ"
+                onClick={() => exportFuelComparisonToCSV(comparisonResult)}
+                className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center gap-2"
+              >
+                <Download className="w-4 h-5" />
+                <span className="hidden sm:inline-flex items-center gap-1 text-white">Export CSV</span>
+              </ShareButton>
+
+              <ShareButton
+                title="Partager en PDF"
+                onClick={() => exportFuelComparisonToText(comparisonResult)}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2"
+              >
+                <FileText className="w-4 h-5" />
+                <span className="hidden sm:inline-flex items-center gap-1 text-white">Partager</span>
+              </ShareButton>
+            </div>
+
+            {/* Table */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border-slate-200 overflow-hidden">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-slate-800 text-gray-50">
+                    <th className="px-4 py-3 text-left text-xs uppercase tracking-wider font-medium">Rang</th>
+                    <th className="px-4 py-3 text-left text-xs uppercase tracking-wider font-medium">Station</th>
+                    <th className="px-4 py-3 text-xs uppercase tracking-wider font-medium">Adresse</th>
+                    <th className="px-4 py-3 text-xs uppercase tracking-wider font-medium">Ville</th>
+                    <th className="px-4 py-3 text-xs uppercase tracking-wider font-medium">Prix / L</th>
+                    <th className="px-4 py-3 text-xs uppercase tracking-wider font-medium">Diff %</th>
+                    <th className="px-4 py-3 text-xs uppercase tracking-wider font-medium">Tendance</th>
+                    <th className="px-4 py-3 text-xs uppercase tracking-wider font-medium">Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sorted.map((item, index) => {
+                    const isLowest = index === 0;
+                    const diffPercentage = item.diffPercentage;
+                    const isHighest = index === sorted.length - 1;
+                    const isLowestOfAll = isLowest && comparisonResult?.aggregation?.minPrice > 0 && item.fuelPricePerLiter === comparisonResult?.aggregation?.minPrice;
+                    const isHighestOfAll = isHighest && comparisonResult?.aggregation?.maxPrice > 0 && item.fuelPricePerLiter === comparisonResult?.aggregation?.maxPrice;
+
+                    let className = "bg-white hover:bg-slate-50 transition-colors";
+
+                    if (isLowestOfAll) {
+                      className += " border-l-2 border-green-500/20";
+                    } else if (isHighestOfAll) {
+                      className += " border-l-2 border-red-500/20";
+                    } else if (isLowest && isHighestOfAll) {
+                      className += " border-l-2 border-orange-500/20";
+                    } else if (diffPercentage > 20) {
+                      className += " text-red-600 bg-red-50";
+                    } else if (diffPercentage > 5) {
+                      className += " text-orange-500 bg-orange-50";
+                    }
+
+                    return (
+                      <tr key={item.station.id} className={className}>
+                        <td className="px-4 py-3 font-mono text-sm text-gray-900 whitespace-nowrap">
+                          #{index + 1}
+                        </td>
+                        <td className="px-4 py-3 font-mono text-gray-900 whitespace-nowrap">
+                          {item.station.name}
+                        </td>
+                        <td className="px-4 py-3 text-sm font-mono text-gray-900">
+                          {item.station.address}
+                        </td>
+                        <td className="px-4 py-3 text-sm font-mono text-gray-900 whitespace-nowrap">
+                          {item.station.city}
+                        </td>
+                        <td className="px-4 py-3 text-sm font-mono text-gray-900 whitespace-nowrap">
+                          {formatPrice(item.fuelPricePerLiter)}
+                        </td>
+                        <td className="px-4 py-3 font-mono text-gray-900 whitespace-nowrap">
+                          {formatPrice(item.fuelPricePerLiter)}
+                        </td>
+                        <td className="px-4 py-3 font-mono text-gray-900 whitespace-nowrap">
+                          {item.station.brand}
+                        </td>
+                        <td className="px-4 py-3 font-mono text-gray-900 whitespace-nowrap">
+                          {item.station.code}
+                        </td>
+                        <td className="px-4 py-3 font-mono text-gray-900 whitespace-nowrap">
+                          {formatPrice(item.fuelPricePerLiter)}
+                        </td>
+                        <td className="px-4 py-3 font-mono text-gray-900 whitespace-nowrap">
+                          {diffPercentage > 0 ? (
+                            <span className="text-red-600 font-bold flex items-center">
+                              ▼ {diffPercentage}%
+                            </span>
+                          ) : diffPercentage < 0 ? (
+                            <span className="text-green-600 font-medium flex items-center">
+                              ▼ {Math.abs(diffPercentage)}%
+                            </span>
+                          ) : (
+                            <span className="text-gray-400">
+                              -
                             </span>
                           )}
-                          {ranking.rank !== 1 && ranking.rank}
                         </td>
-                        <td className="px-4 py-4">
-                          <div className="flex flex-col">
-                            <span className="font-medium">{ranking.fuelPrice.station.name}</span>
-                            {ranking.fuelPrice.station.brand && (
-                              <span className="text-xs text-gray-400">{ranking.fuelPrice.station.brand}</span>
-                            )}
-                            {ranking.fuelPrice.isPriceCapPlafonne && (
-                              <span className="inline-flex items-center gap-1 text-xs text-green-400 mt-1">
-                                ⭐ Prix plafonné
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-4 py-4 text-sm text-gray-300">
-                          <div className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3" />
-                            {ranking.fuelPrice.station.city}
-                          </div>
-                        </td>
-                        <td className="px-4 py-4 text-right">
-                          <span className="font-semibold text-blue-400">
-                            {formatPrice(ranking.fuelPrice.pricePerLiter)}
+                        <td className="px-4 py-3 font-mono text-gray-900 whitespace-nowrap">
+                          <span className={`inline-flex items-center gap-1 ${getCategoryColor(item.category)}`}>
+                            {getPriceCategoryLabel(item.category)}
                           </span>
                         </td>
-                        <td className="px-4 py-4 text-right text-sm">
-                          {ranking.rank > 1 && (
-                            <span className="text-orange-400">
-                              +{formatPrice(ranking.absoluteDifferenceFromCheapest)}
-                              <br />
-                              <span className="text-xs">
-                                (+{ranking.percentageDifferenceFromCheapest.toFixed(1)}%)
-                              </span>
-                            </span>
-                          )}
-                          {ranking.rank === 1 && (
-                            <span className="text-green-400">−</span>
-                          )}
+                        <td className="px-4 py-3 font-mono text-gray-900 whitespace-nowrap">
+                          {item.trend}
                         </td>
-                        <td className="px-4 py-4">
-                          <span
-                            className={`inline-block px-2 py-1 rounded-md text-xs font-medium border ${getPriceCategoryColor(
-                              ranking.priceCategory
-                            )}`}
-                          >
-                            {getPriceCategoryLabel(ranking.priceCategory)}
-                          </span>
+                        <td className="text-sm text-gray-500">
+                          {item.diffPercentage} > 0 ? "⬇️" : (item.diffPercentage < 0 ? "📉" : "⏸️")}
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  );
+                })}
+                </tbody>
+              </table>
             </div>
 
             {/* Metadata */}
             <div className="mt-6 text-sm text-gray-400">
               <p>
-                <strong>Source:</strong> {comparisonResult.metadata.dataSource}
+                <strong>Source :</strong> {comparisonResult?.metadata?.dataSource || 'Observatoire'}
               </p>
               <p>
-                <strong>Dernière mise à jour:</strong> {formatDate(comparisonResult.comparisonDate)}
-              </p>
-              <p className="mt-2 text-xs">
-                Méthodologie v{comparisonResult.metadata.methodology} - Les prix peuvent varier en cours de journée.
+                Dernière mise à jour : {formatDate(comparisonResult?.comparisonDate || new Date())}
               </p>
             </div>
-          </>
-        )}
-
-        {/* No Results */}
-        {!loading && !comparisonResult && (
-          <div className="bg-slate-900/50 rounded-xl p-12 text-center border border-slate-800">
-            <Fuel className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-400 text-lg">
-              Aucune donnée disponible pour cette combinaison territoire/carburant
-            </p>
-            <p className="text-gray-500 text-sm mt-2">
-              Essayez une autre sélection ou revenez plus tard
-            </p>
           </div>
         )}
-      </div>
     </div>
-  );
+  </div>
+);
 };
 
 export default FuelComparator;
