@@ -211,6 +211,7 @@ const FuelComparator: React.FC<FuelComparisonProps> = (props) => {
               <div className="bg-slate-100 rounded-lg p-4">
                 <PriceChart data={priceComparisonChartData} type="bar" />
               </div>
+            </div>
 
             {/* Info Banner */}
             <div className="bg-blue-500/10 border-blue-500/30 rounded-xl p-6 mb-4 flex items-start gap-4">
