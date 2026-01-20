@@ -1,4 +1,6 @@
+import { useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useProductSearch } from '../hooks/useProductSearch';
 import styles from './RechercheHub.module.css';
 
 const suggestedQueries = [
@@ -14,6 +16,11 @@ const destinations = [
     to: '/comparateur',
   },
   {
+    title: 'Prix observés',
+    description: 'Consulter les prix observés et leurs sources par territoire.',
+    to: '/recherche-prix-observes',
+  },
+  {
     title: 'Recherche produit',
     description: 'Accéder à la recherche produit existante.',
     to: '/comparateur-formats',
@@ -26,6 +33,50 @@ const destinations = [
 ];
 
 export default function RechercheHub() {
+  const [query, setQuery] = useState('');
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const { results, loading, error, hasQuery } = useProductSearch(query);
+  const currencyFormatter = useMemo(
+    () =>
+      new Intl.NumberFormat('fr-FR', {
+        style: 'currency',
+        currency: 'EUR',
+        maximumFractionDigits: 2,
+      }),
+    [],
+  );
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setQuery(suggestion);
+    inputRef.current?.focus();
+  };
+
+  const formatPrice = (price?: number, range?: [number, number]) => {
+    if (price !== undefined) {
+      return currencyFormatter.format(price);
+    }
+    if (range) {
+      return `${currencyFormatter.format(range[0])} – ${currencyFormatter.format(range[1])}`;
+    }
+    return 'Prix indisponible';
+  };
+
+  const formatSource = (source: string, region?: string) => {
+    const base =
+      source === 'openfoodfacts'
+        ? 'Open Food Facts'
+        : source === 'datagouv'
+          ? 'Data.gouv.fr'
+          : 'Estimation données publiques';
+    return region ? `${base} (${region})` : base;
+  };
+
+  const formatUpdatedAt = (value: string) =>
+    new Date(value).toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: 'short',
+    });
+
   return (
     // ⚠️ A11y contract – do not alter without accessibility review.
     // Focus initial volontaire sur le champ de recherche; ordre de tabulation: champ → suggestions → destinations.
@@ -51,6 +102,9 @@ export default function RechercheHub() {
           placeholder="Produit, enseigne ou comparateur"
           autoComplete="off"
           autoFocus
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          ref={inputRef}
         />
         <div className={styles.suggestions}>
           {suggestedQueries.map((suggestion) => (
@@ -58,10 +112,66 @@ export default function RechercheHub() {
               key={suggestion}
               type="button"
               className={styles.suggestion}
+              onClick={() => handleSuggestionClick(suggestion)}
             >
               {suggestion}
             </button>
           ))}
+        </div>
+
+        <div
+          className={styles.results}
+          aria-live="polite"
+          aria-atomic="true"
+          aria-label="Résultats de recherche"
+        >
+          {loading && <p className={styles.resultMessage}>Recherche en cours...</p>}
+          {!loading && error && (
+            <p className={styles.resultMessage} role="alert">
+              {error} Les résultats peuvent être limités.
+            </p>
+          )}
+          {!loading && !error && hasQuery && results.length === 0 && (
+            <p className={styles.resultMessage}>
+              Aucun résultat pour l’instant. Essayez un autre libellé.
+            </p>
+          )}
+          {!loading && results.length > 0 && (
+            <ul className={styles.resultList}>
+              {results.map((product) => (
+                <li key={product.id} className={styles.resultItem}>
+                  <button
+                    type="button"
+                    className={styles.resultCard}
+                    aria-disabled="true"
+                    aria-describedby={`${product.id}-hint`}
+                  >
+                    <span className={styles.resultTitle}>{product.name}</span>
+                    <span className={styles.resultMeta}>
+                      {[product.brand, product.store, product.location]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </span>
+                    <span className={styles.resultPrice}>
+                      {formatPrice(product.price, product.priceRange)}
+                    </span>
+                    <span className={styles.resultUpdated}>
+                      {product.price
+                        ? 'Prix observé'
+                        : product.priceRange
+                          ? 'Prix estimé'
+                          : 'Infos produit'}{' '}
+                      – {formatSource(product.source, product.region)} – mis à jour le{' '}
+                      {formatUpdatedAt(product.lastUpdated)}
+                    </span>
+                  </button>
+                  <span id={`${product.id}-hint`} className={styles.srOnly}>
+                    Détails indisponibles pour le moment.
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </section>
 
@@ -83,8 +193,8 @@ export default function RechercheHub() {
 
       <section className={styles.note} aria-label="Transparence">
         <p>
-          Cette page ne réalise aucun calcul ni collecte de données. Elle sert uniquement
-          à orienter vers les modules existants.
+          Cette page propose une recherche unifiée avec des données publiques externes,
+          sans collecte de données personnelles ni appel direct depuis l’interface.
         </p>
       </section>
     </main>
