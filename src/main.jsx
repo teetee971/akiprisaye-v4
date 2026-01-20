@@ -6,12 +6,10 @@ import './styles/globals.css';
 import './styles/civic-glass.css';
 import './styles/glass.css';
 import './styles/mobile-fixes.css';
-import Home from './pages/Home';
 import Layout from './components/Layout';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
-import NotFound from './pages/NotFound';
 import { PerformanceMonitor } from './components/PerformanceMonitor';
 import { ToastProvider } from './components/Toast/ToastProvider';
 
@@ -94,6 +92,8 @@ const TerritoryScanner = lazyWithRetry(() => import('./pages/TerritoryScanner'))
 const TerritoryComparateurs = lazyWithRetry(() => import('./pages/TerritoryComparateurs'));
 const ComingSoon = lazyWithRetry(() => import('./pages/ComingSoon'));
 const Settings = lazy(() => import('./pages/Settings'));
+const Home = lazyWithRetry(() => import('./pages/Home'));
+const NotFound = lazyWithRetry(() => import('./pages/NotFound'));
 
 // New simplified pages for automatic generation
 const HomeSimple = lazyWithRetry(() => import('./pages/Home.tsx'));

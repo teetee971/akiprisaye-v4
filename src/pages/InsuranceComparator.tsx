@@ -12,7 +12,7 @@ import {
   loadInsuranceData,
   filterInsurances,
 } from '../services/insuranceComparisonService';
-import PriceChart from '../components/comparateur/PriceChart';
+import PriceChart from '../components/comparateur/LazyPriceChart';
 import ComparisonSummary from '../components/comparateur/ComparisonSummary';
 import LoadingSkeleton from '../components/comparateur/LoadingSkeleton';
 import SortControl from '../components/comparateur/SortControl';

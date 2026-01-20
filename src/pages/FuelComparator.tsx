@@ -12,7 +12,7 @@ import {
   loadFuelData,
   filterFuelPrices
 } from '../../services/fuelComparisonService';
-import PriceChart from '../../components/comparateur/PriceChart';
+import PriceChart from '../../components/comparateur/LazyPriceChart';
 import ComparisonSummary from '../../components/comparateur/ComparisonSummary';
 import LoadingSkeleton from '../../components/comparateurs/LoadingSkeleton';
 import SortControl from '../../components/comparateurs/SortControl';

@@ -53,6 +53,7 @@ export default defineConfig({
   },
   
   build: {
+    cssCodeSplit: true,
     chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
@@ -65,6 +66,9 @@ export default defineConfig({
           
           // Séparer Chart.js
           'vendor-chart': ['chart.js', 'react-chartjs-2'],
+
+          // Séparer Recharts
+          'vendor-recharts': ['recharts'],
           
           // Séparer lucide-icons
           'vendor-icons': ['lucide-react'],

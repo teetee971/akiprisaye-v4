@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 // eslint-disable-next-line no-unused-vars
 import ThemeToggle from './ThemeToggle';
 import { useAuth } from '../context/AuthContext';
+import { prefetchRoute } from '../utils/prefetchRoutes';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -243,6 +244,8 @@ export default function Header() {
                 className={`text-white/90 hover:text-white hover:bg-[color:var(--glass-bg)] px-3 py-2 rounded-lg transition-all ${
                   isActiveRoute('/comparateur') ? 'bg-[color:var(--glass-bg)] text-white font-semibold' : ''
                 }`}
+                onMouseEnter={() => prefetchRoute('/comparateur')}
+                onFocus={() => prefetchRoute('/comparateur')}
               >
                 Comparer
               </Link>
@@ -259,6 +262,8 @@ export default function Header() {
                 className={`text-white/90 hover:text-white hover:bg-[color:var(--glass-bg)] px-3 py-2 rounded-lg transition-all ${
                   isActiveRoute('/ocr') ? 'bg-[color:var(--glass-bg)] text-white font-semibold' : ''
                 }`}
+                onMouseEnter={() => prefetchRoute('/scanner')}
+                onFocus={() => prefetchRoute('/scanner')}
               >
                 OCR & Scan
               </Link>
@@ -275,6 +280,8 @@ export default function Header() {
                 className={`text-white/90 hover:text-white hover:bg-[color:var(--glass-bg)] px-3 py-2 rounded-lg transition-all ${
                   isActiveRoute('/alertes') ? 'bg-[color:var(--glass-bg)] text-white font-semibold' : ''
                 }`}
+                onMouseEnter={() => prefetchRoute('/alertes')}
+                onFocus={() => prefetchRoute('/alertes')}
               >
                 Alertes
               </Link>
@@ -283,6 +290,8 @@ export default function Header() {
                 className={`text-white/90 hover:text-white hover:bg-[color:var(--glass-bg)] px-3 py-2 rounded-lg transition-all ${
                   isActiveRoute('/mon-compte') ? 'bg-[color:var(--glass-bg)] text-white font-semibold' : ''
                 }`}
+                onMouseEnter={() => prefetchRoute('/mon-compte')}
+                onFocus={() => prefetchRoute('/mon-compte')}
               >
                 Mon Compte
               </Link>
@@ -292,6 +301,8 @@ export default function Header() {
                   isActiveRoute('/parametres') ? 'bg-[color:var(--glass-bg)] text-white font-semibold' : ''
                 }`}
                 title="Paramètres"
+                onMouseEnter={() => prefetchRoute('/parametres')}
+                onFocus={() => prefetchRoute('/parametres')}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
