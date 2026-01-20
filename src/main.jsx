@@ -107,6 +107,7 @@ const ComparateurCitoyen = lazyWithRetry(() => import('./pages/ComparateurCitoye
 
 // Mission M-B - Multi-territory price comparison
 const ComparaisonPage = lazyWithRetry(() => import('./pages/ComparaisonPage'));
+const RechercheHub = lazyWithRetry(() => import('./pages/RechercheHub'));
 
 // Loading component
 function LoadingFallback() {
@@ -222,6 +223,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                   <Route path='comparateur/comparer' element={<ComparaisonPage />} />
                   {/* New simplified pages for automatic generation */}
                   <Route path='comparer' element={<CompareSimple />} />
+                  <Route path='recherche' element={<RechercheHub />} />
                   <Route path='tarifs' element={<ComingSoon title="Tarifs" />} />
                   {/* PR #1 - Assistant + FAQ étendue (v1.6.0) */}
                   <Route path='faq' element={<Faq />} />

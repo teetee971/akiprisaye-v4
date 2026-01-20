@@ -1,0 +1,142 @@
+.page {
+  min-height: 100vh;
+  padding: 1.5rem 1rem 2.5rem;
+  background: transparent;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.kicker {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(var(--text-muted), 0.85);
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: rgb(var(--text-main));
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: rgba(var(--text-muted), 0.9);
+  margin: 0;
+}
+
+.searchSection {
+  background: rgba(var(--bg-secondary), 0.8);
+  border: 1px solid rgba(var(--border-glass), 0.35);
+  border-radius: 14px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.label {
+  font-size: 0.85rem;
+  color: rgba(var(--text-muted), 0.9);
+}
+
+.input {
+  border-radius: 12px;
+  border: 1px solid rgba(var(--border-glass), 0.5);
+  padding: 0.75rem 0.9rem;
+  background: rgba(var(--bg-main), 0.9);
+  color: rgb(var(--text-main));
+  font-size: 0.95rem;
+}
+
+.input:focus {
+  outline: none;
+  border-color: rgba(var(--accent-primary), 0.5);
+  box-shadow: 0 0 0 3px rgba(var(--accent-primary), 0.1);
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.suggestion {
+  font-size: 0.75rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(var(--bg-main), 0.7);
+  border: 1px solid rgba(var(--border-glass), 0.35);
+  color: rgba(var(--text-muted), 0.9);
+}
+
+.destinations {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card {
+  border-radius: 14px;
+  border: 1px solid rgba(var(--border-glass), 0.35);
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: rgba(var(--bg-secondary), 0.75);
+  color: inherit;
+  text-decoration: none;
+}
+
+.cardTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.35rem;
+}
+
+.cardDescription {
+  font-size: 0.85rem;
+  color: rgba(var(--text-muted), 0.9);
+  margin: 0;
+}
+
+.cardAction {
+  font-size: 0.8rem;
+  color: rgba(var(--text-muted), 0.9);
+  border: 1px solid rgba(var(--border-glass), 0.4);
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  white-space: nowrap;
+}
+
+.note {
+  font-size: 0.8rem;
+  color: rgba(var(--text-muted), 0.85);
+  border-top: 1px solid rgba(var(--border-glass), 0.3);
+  padding-top: 1rem;
+}
+
+@media (min-width: 768px) {
+  .page {
+    padding: 2rem 2.5rem 3rem;
+  }
+
+  .title {
+    font-size: 1.8rem;
+  }
+
+  .destinations {
+    gap: 1rem;
+  }
+}
