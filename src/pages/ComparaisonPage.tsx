@@ -58,10 +58,49 @@ export default function ComparaisonPage() {
     setProduct({
       id: productId,
       name: 'Produit de démonstration',
-      brand: 'Source multiple',
+      brand: 'Sources multiples',
       category: 'Consommation courante',
     });
   }, [productId]);
+
+  /* ---------------------------------- */
+  /* Global safety guard                */
+  /* ---------------------------------- */
+
+  const isStatsValid =
+    stats !== null &&
+    Number.isFinite(stats.min) &&
+    Number.isFinite(stats.max) &&
+    Number.isFinite(stats.average) &&
+    Number.isFinite(stats.range);
+
+  const isDataValid =
+    Array.isArray(comparisonData) &&
+    comparisonData.length > 0 &&
+    product !== null &&
+    isStatsValid;
+
+  if (!loading && !isDataValid) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-200">
+        <div className="max-w-md text-center space-y-4">
+          <h2 className="text-xl font-semibold">
+            Comparateur temporairement indisponible
+          </h2>
+          <p className="text-slate-400 text-sm">
+            Les données nécessaires à la comparaison ne sont pas encore disponibles
+            pour ce produit ou ces territoires.
+          </p>
+          <a
+            href="/"
+            className="inline-block px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm"
+          >
+            Retour à l’accueil
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   /* ---------------------------------- */
   /* Render                             */
@@ -124,21 +163,8 @@ export default function ComparaisonPage() {
           </div>
         )}
 
-        {/* Empty */}
-        {!loading && comparisonData.length === 0 && (
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-8 text-center">
-            <h3 className="text-xl font-semibold text-white mb-2">
-              Aucune donnée disponible
-            </h3>
-            <p className="text-slate-400">
-              Aucun prix trouvé pour ce produit
-              dans les territoires sélectionnés.
-            </p>
-          </div>
-        )}
-
         {/* Data */}
-        {!loading && comparisonData.length > 0 && (
+        {!loading && isDataValid && (
           <>
             <BestPriceHighlight territoryPrices={comparisonData} />
 
@@ -152,20 +178,18 @@ export default function ComparaisonPage() {
               type="bar"
             />
 
-            {/* Stats SAFE */}
-            {stats && (
-              <section className="space-y-4">
-                <h3 className="text-2xl font-bold text-white">
-                  Statistiques
-                </h3>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <StatCard label="Min" value={`${stats.min.toFixed(2)} €`} icon="⬇️" />
-                  <StatCard label="Max" value={`${stats.max.toFixed(2)} €`} icon="⬆️" />
-                  <StatCard label="Moyenne" value={`${stats.average.toFixed(2)} €`} icon="📊" />
-                  <StatCard label="Écart" value={`${stats.range.toFixed(2)} €`} icon="📏" />
-                </div>
-              </section>
-            )}
+            {/* Stats */}
+            <section className="space-y-4">
+              <h3 className="text-2xl font-bold text-white">
+                Statistiques
+              </h3>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <StatCard label="Min" value={`${stats.min.toFixed(2)} €`} icon="⬇️" />
+                <StatCard label="Max" value={`${stats.max.toFixed(2)} €`} icon="⬆️" />
+                <StatCard label="Moyenne" value={`${stats.average.toFixed(2)} €`} icon="📊" />
+                <StatCard label="Écart" value={`${stats.range.toFixed(2)} €`} icon="📏" />
+              </div>
+            </section>
 
             {/* Methodology */}
             <div className="bg-blue-900/20 border border-blue-800/40 rounded-xl p-4 text-sm text-slate-300">
