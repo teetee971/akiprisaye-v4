@@ -2,7 +2,23 @@ import { useEffect, useRef, useState } from 'react';
 import { loadDomIndexesForMonth } from '../services/domMapTimelineService';
 import DomMapSvg from './DomMapSvg';
 
-const MONTHS = ['2025-11', '2025-12', '2026-01'];
+const TIMELINE = [
+  {
+    month: '2025-11',
+    comment:
+      "Fin 2025 : les écarts de prix restent élevés dans les DOM, avec une pression marquée sur l'alimentaire importé.",
+  },
+  {
+    month: '2025-12',
+    comment:
+      "Décembre 2025 : les fêtes accentuent les surcoûts, notamment en Guadeloupe et en Martinique.",
+  },
+  {
+    month: '2026-01',
+    comment:
+      "Début 2026 : légère stabilisation observée, mais les prix restent structurellement plus élevés qu'en métropole.",
+  },
+];
 
 export default function DomMapTimeline() {
   const [step, setStep] = useState(0);
@@ -11,11 +27,11 @@ export default function DomMapTimeline() {
 
   const timerRef = useRef<number | null>(null);
 
-  // Chargement des données à chaque pas
+  // Chargement des données
   useEffect(() => {
     let alive = true;
 
-    loadDomIndexesForMonth(MONTHS[step]).then((data) => {
+    loadDomIndexesForMonth(TIMELINE[step].month).then((data) => {
       if (!alive) return;
 
       const map: Record<string, number> = {};
@@ -39,8 +55,8 @@ export default function DomMapTimeline() {
     }
 
     timerRef.current = window.setInterval(() => {
-      setStep((prev) => (prev + 1) % MONTHS.length);
-    }, 1600);
+      setStep((prev) => (prev + 1) % TIMELINE.length);
+    }, 1800);
 
     return () => {
       if (timerRef.current) {
@@ -51,10 +67,11 @@ export default function DomMapTimeline() {
   }, [playing]);
 
   return (
-    <div className="bg-black/30 border border-white/10 rounded-xl p-4">
-      <div className="flex items-center justify-between mb-2">
+    <div className="bg-black/30 border border-white/10 rounded-xl p-4 space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <h2 className="font-semibold">
-          Carte du surcoût — {MONTHS[step]}
+          Carte du surcoût — {TIMELINE[step].month}
         </h2>
 
         <button
@@ -65,18 +82,25 @@ export default function DomMapTimeline() {
         </button>
       </div>
 
+      {/* Carte */}
       <DomMapSvg values={values} />
 
+      {/* Commentaire synchronisé */}
+      <div className="bg-white/5 border border-white/10 rounded-lg p-3 text-sm leading-relaxed">
+        {TIMELINE[step].comment}
+      </div>
+
+      {/* Slider */}
       <input
         type="range"
         min={0}
-        max={MONTHS.length - 1}
+        max={TIMELINE.length - 1}
         value={step}
         onChange={(e) => {
           setStep(Number(e.target.value));
           setPlaying(false);
         }}
-        className="w-full mt-4"
+        className="w-full"
       />
     </div>
   );
