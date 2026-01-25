@@ -4,7 +4,8 @@
  * Centralized service for managing and accessing company data.
  * Supports lookup by any identifier: SIRET, SIREN, VAT, or internal ID.
  *
- * Key principle: ONE identifier is enough to retrieve full company information.
+ * Key principle:
+ * ONE identifier is enough to retrieve full company information.
  */
 
 import type { Company, CompanyLookupCriteria } from '../types/company';
@@ -17,21 +18,19 @@ import {
   normalizeVat,
 } from '../utils/companyValidation';
 
-/**
- * In-memory company registry
- */
+/* -------------------------------------------------------------------------- */
+/* REGISTRIES                                                                  */
+/* -------------------------------------------------------------------------- */
+
 const companyRegistry: Map<string, Company> = new Map();
+const siretIndex: Map<string, string> = new Map();
+const sirenIndex: Map<string, Set<string>> = new Map();
+const vatIndex: Map<string, string> = new Map();
 
-/**
- * Indexes
- */
-const siretIndex: Map<string, string> = new Map();          // SIRET -> companyId
-const sirenIndex: Map<string, Set<string>> = new Map();     // SIREN -> Set<companyId>
-const vatIndex: Map<string, string> = new Map();            // VAT -> companyId
+/* -------------------------------------------------------------------------- */
+/* REGISTRATION                                                                */
+/* -------------------------------------------------------------------------- */
 
-/**
- * Register a company
- */
 export function registerCompany(company: Company): void {
   companyRegistry.set(company.id, company);
 
@@ -45,9 +44,10 @@ export function registerCompany(company: Company): void {
   if (company.sirenCode) {
     const siren = normalizeSiren(company.sirenCode);
     if (siren) {
-      const ids = sirenIndex.get(siren) ?? new Set<string>();
-      ids.add(company.id);
-      sirenIndex.set(siren, ids);
+      if (!sirenIndex.has(siren)) {
+        sirenIndex.set(siren, new Set());
+      }
+      sirenIndex.get(siren)!.add(company.id);
     }
   }
 
@@ -59,20 +59,22 @@ export function registerCompany(company: Company): void {
   }
 }
 
-/**
- * Lookups
- */
+/* -------------------------------------------------------------------------- */
+/* LOOKUPS                                                                     */
+/* -------------------------------------------------------------------------- */
+
 export function getCompanyById(id: string): Company | null {
   return companyRegistry.get(id) ?? null;
 }
 
 export function getCompanyBySiret(siretCode: string): Company | null {
   if (!isValidSiret(siretCode)) return null;
+
   const siret = normalizeSiret(siretCode);
   if (!siret) return null;
 
-  const id = siretIndex.get(siret);
-  return id ? companyRegistry.get(id) ?? null : null;
+  const companyId = siretIndex.get(siret);
+  return companyId ? companyRegistry.get(companyId) ?? null : null;
 }
 
 export function getCompaniesBySiren(sirenCode: string): Company[] {
@@ -86,7 +88,7 @@ export function getCompaniesBySiren(sirenCode: string): Company[] {
 
   return Array.from(ids)
     .map(id => companyRegistry.get(id))
-    .filter((c): c is Company => Boolean(c));
+    .filter((c): c is Company => c !== undefined);
 }
 
 export function getCompanyByVat(vatCode: string): Company | null {
@@ -95,61 +97,81 @@ export function getCompanyByVat(vatCode: string): Company | null {
   const vat = normalizeVat(vatCode);
   if (!vat) return null;
 
-  const id = vatIndex.get(vat);
-  return id ? companyRegistry.get(id) ?? null : null;
+  const companyId = vatIndex.get(vat);
+  return companyId ? companyRegistry.get(companyId) ?? null : null;
 }
 
-/**
- * Unified lookup
- */
+/* -------------------------------------------------------------------------- */
+/* UNIFIED LOOKUP                                                              */
+/* -------------------------------------------------------------------------- */
+
 export function getCompany(identifier: string): Company | null {
   if (!identifier) return null;
 
   return (
-    getCompanyById(identifier) ||
-    getCompanyBySiret(identifier) ||
-    getCompanyByVat(identifier) ||
-    getCompaniesBySiren(identifier)[0] ||
+    getCompanyById(identifier) ??
+    getCompanyBySiret(identifier) ??
+    getCompanyByVat(identifier) ??
+    getCompaniesBySiren(identifier)[0] ??
     null
   );
 }
 
-/**
- * Search
- */
+/* -------------------------------------------------------------------------- */
+/* SEARCH                                                                      */
+/* -------------------------------------------------------------------------- */
+
 export function searchCompanies(
   criteria: CompanyLookupCriteria
 ): Company[] {
-  const results: Company[] = [];
-
-  for (const company of Array.from(companyRegistry.values())) {
-    let match = true;
-
-    if (criteria.legalName) {
-      const q = criteria.legalName.toLowerCase();
-      match =
-        company.legalName.toLowerCase().includes(q) ||
-        company.tradeName?.toLowerCase().includes(q) === true;
-    }
-
-    if (criteria.territory && match) {
-      match =
-        company.headOffice.department
-          .toLowerCase()
-          .includes(criteria.territory.toLowerCase());
-    }
-
-    if (match) {
-      results.push(company);
-    }
+  if (criteria.internalId) {
+    const c = getCompanyById(criteria.internalId);
+    return c ? [c] : [];
   }
 
-  return results;
+  if (criteria.siretCode) {
+    const c = getCompanyBySiret(criteria.siretCode);
+    return c ? [c] : [];
+  }
+
+  if (criteria.sirenCode) {
+    return getCompaniesBySiren(criteria.sirenCode);
+  }
+
+  if (criteria.vatCode) {
+    const c = getCompanyByVat(criteria.vatCode);
+    return c ? [c] : [];
+  }
+
+  return Array.from(companyRegistry.values()).filter(company => {
+    if (
+      criteria.legalName &&
+      !company.legalName
+        .toLowerCase()
+        .includes(criteria.legalName.toLowerCase())
+    ) {
+      return false;
+    }
+
+    if (criteria.territory) {
+      return (
+        company.headOffice.department
+          .toLowerCase()
+          .includes(criteria.territory.toLowerCase()) ||
+        company.headOffice.city
+          .toLowerCase()
+          .includes(criteria.territory.toLowerCase())
+      );
+    }
+
+    return true;
+  });
 }
 
-/**
- * Utilities
- */
+/* -------------------------------------------------------------------------- */
+/* HELPERS                                                                     */
+/* -------------------------------------------------------------------------- */
+
 export function getAllCompanies(): Company[] {
   return Array.from(companyRegistry.values());
 }
