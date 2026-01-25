@@ -5,11 +5,15 @@ import multer from 'multer';
 import admin from 'firebase-admin';
 
 // ===============================
-// INIT APP & FIREBASE
+// INIT EXPRESS APP
 // ===============================
 const app = express();
 app.use(cors());
+app.use(express.json());
 
+// ===============================
+// INIT FIREBASE (SAFE)
+// ===============================
 if (!admin.apps.length) {
   admin.initializeApp();
 }
@@ -18,7 +22,7 @@ const db = admin.firestore();
 const bucket = admin.storage().bucket();
 
 // ===============================
-// UPLOAD CONFIG (mémoire)
+// UPLOAD CONFIG (MEMORY)
 // ===============================
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -44,21 +48,32 @@ app.post(
       const { store, date, territory } = req.body;
 
       if (!file) {
-        return res.status(400).json({ error: 'Aucun fichier reçu' });
+        return res.status(400).json({
+          success: false,
+          error: 'Aucun fichier reçu'
+        });
       }
 
       // ===============================
-      // 1️⃣ STOCKAGE DU FICHIER
+      // 1️⃣ NORMALISATION DES DONNÉES
       // ===============================
       const safeTerritory = territory || 'unknown';
+      const safeStore = store || null;
+      const safeDate = date || null;
       const timestamp = Date.now();
 
+      // ===============================
+      // 2️⃣ STOCKAGE DU FICHIER (STORAGE)
+      // ===============================
       const filePath = `tickets/${safeTerritory}/${timestamp}_${file.originalname}`;
       const storageFile = bucket.file(filePath);
 
       await storageFile.save(file.buffer, {
         contentType: file.mimetype,
-        resumable: false
+        resumable: false,
+        metadata: {
+          cacheControl: 'public,max-age=31536000'
+        }
       });
 
       const [downloadUrl] = await storageFile.getSignedUrl({
@@ -67,12 +82,12 @@ app.post(
       });
 
       // ===============================
-      // 2️⃣ MÉTADONNÉES FIRESTORE
+      // 3️⃣ MÉTADONNÉES FIRESTORE
       // ===============================
       const ticketDoc = {
         territory: safeTerritory,
-        store: store || null,
-        date: date || null,
+        store: safeStore,
+        date: safeDate,
 
         file: {
           path: filePath,
@@ -82,19 +97,22 @@ app.post(
           size: file.size
         },
 
-        status: 'received',          // received | processed | verified
+        status: 'received',          // received | ocr_pending | processed | verified
         source: 'citizen',
         verified: false,
 
-        linkedPrices: [],             // futur OCR / validation
+        linkedPrices: [],             // futur OCR / validation humaine
+        confidenceScore: null,        // futur OCR
+
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        processedAt: null
+        processedAt: null,
+        verifiedAt: null
       };
 
       const docRef = await db.collection('tickets').add(ticketDoc);
 
       // ===============================
-      // 3️⃣ RÉPONSE API
+      // 4️⃣ RÉPONSE API
       // ===============================
       return res.json({
         success: true,
@@ -104,12 +122,16 @@ app.post(
       });
 
     } catch (error) {
-      console.error('Erreur upload-ticket:', error);
+      console.error('❌ Erreur upload-ticket:', error);
       return res.status(500).json({
+        success: false,
         error: 'Erreur serveur lors de l’upload du ticket'
       });
     }
   }
 );
 
+// ===============================
+// EXPORT APP (Firebase Functions)
+// ===============================
 export default app;
