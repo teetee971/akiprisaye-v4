@@ -56,12 +56,27 @@ export class AntiCrisisBasketService {
   ): AntiCrisisProduct[] {
     if (!observations.length) return [];
 
+    /* ============================================================
+     * 🔒 FILTRAGE STRICT PAR TERRITOIRE (CRITIQUE)
+     * ============================================================
+     */
+    const scopedObservations = observations.filter(
+      o =>
+        o.storeId.includes(territory) ||
+        o.storeName.includes(territory)
+    );
+
+    if (!scopedObservations.length) return [];
+
     const minObs = options.minObservations ?? 5;
     const minCheapestRate = options.minCheapestRate ?? 70;
     const now = Date.now();
 
     // Séparation par produit
-    const byProduct = this.groupBy(observations, o => o.productId);
+    const byProduct = this.groupBy(
+      scopedObservations,
+      o => o.productId
+    );
 
     const results: AntiCrisisProduct[] = [];
 
@@ -92,20 +107,28 @@ export class AntiCrisisBasketService {
         };
       });
 
-      // Filtre données insuffisantes
+      // ❌ Données insuffisantes
       if (storeStats.every(s => s.observations < minObs)) continue;
 
-      // Filtre observation récente (< 90 jours)
-      if (storeStats.every(s => now - s.lastDate > 90 * 86400000)) continue;
+      // ❌ Pas d’observation récente (> 90 jours)
+      if (
+        storeStats.every(
+          s => now - s.lastDate > 90 * 86400000
+        )
+      )
+        continue;
 
-      // Classement des magasins par prix moyen
+      // Classement par prix moyen
       storeStats.sort((a, b) => a.avgPrice - b.avgPrice);
 
       const cheapest = storeStats[0];
       const second = storeStats[1];
       if (!second) continue;
 
-      // Calcul cheapestRate
+      /* ============================================================
+       * Calcul du taux "moins cher"
+       * ============================================================
+       */
       let cheapestWins = 0;
       let totalDays = 0;
 
@@ -116,7 +139,10 @@ export class AntiCrisisBasketService {
           .map(s => s.prices[i])
           .filter(p => p !== undefined);
 
-        if (others.length && cheapestPrice < Math.min(...others)) {
+        if (
+          others.length &&
+          cheapestPrice < Math.min(...others)
+        ) {
           cheapestWins++;
         }
         totalDays++;
@@ -128,8 +154,9 @@ export class AntiCrisisBasketService {
 
       if (cheapestRate < minCheapestRate) continue;
 
-      // Stabilité (coefficient de variation)
-      if (this.coeffVariation(cheapest.prices) > 0.15) continue;
+      // ❌ Instabilité (promotion, huile, etc.)
+      if (this.coeffVariation(cheapest.prices) > 0.15)
+        continue;
 
       results.push({
         productId: cheapest.store.productId,
@@ -143,11 +170,13 @@ export class AntiCrisisBasketService {
         ),
         cheapestRate,
         observations: cheapest.observations,
-        lastObservedAt: new Date(cheapest.lastDate).toISOString()
+        lastObservedAt: new Date(
+          cheapest.lastDate
+        ).toISOString()
       });
     }
 
-    // Tri final
+    // Tri final par prix croissant
     return results.sort((a, b) => a.avgPrice - b.avgPrice);
   }
 
