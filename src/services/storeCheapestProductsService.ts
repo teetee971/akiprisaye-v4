@@ -30,35 +30,34 @@ export interface CheapestProductResult {
 }
 
 /**
- * Return the cheapest product per store for a given territory
+ * Return the cheapest product for each store in a given territory
  */
-export function getCheapestProductsByTerritory(
+export function getStoreCheapestProducts(
   territory: Territory
 ): CheapestProductResult[] {
   const stores: Store[] = SEED_STORES.filter(
     (store: Store) => store.territory === territory
   );
 
+  const products = SEED_PRODUCTS as readonly Product[];
+
   const results: CheapestProductResult[] = [];
 
   for (const store of stores) {
-    let cheapest:
-      | CheapestProductResult
-      | null = null;
+    let cheapest: CheapestProductResult | null = null;
 
-    for (const product of SEED_PRODUCTS as Product[]) {
+    for (const product of products) {
       const priceEntry = product.prices.find(
-        (p: ProductPrice) =>
-          p.storeId === store.id &&
-          p.territory === territory
+        (price: ProductPrice) =>
+          price.storeId === store.id &&
+          price.territory === territory
       );
 
-      if (!priceEntry) continue;
+      if (!priceEntry) {
+        continue;
+      }
 
-      if (
-        !cheapest ||
-        priceEntry.price < cheapest.price
-      ) {
+      if (!cheapest || priceEntry.price < cheapest.price) {
         cheapest = {
           productId: product.id,
           productName: product.name,
