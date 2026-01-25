@@ -1,24 +1,18 @@
-import { defineConfig } from 'vitest/config';
-import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  plugins: [react()],
   test: {
-    environment: 'jsdom',
+    environment: "jsdom",
+
+    // ⛔ AUCUN setupFiles
+    // ⛔ AUCUN setup.ts
+    // ⛔ AUCUN frontend/
+
     globals: false,
 
-    // 🔒 Chemin ABSOLU (anti-monorepo / anti-Termux)
-    setupFiles: [
-      resolve(__dirname, 'test/setup.ts'),
-    ],
-
-    exclude: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/backend/**',
-      '**/.{idea,git,cache,output,temp}/**',
-      '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
+    include: [
+      "src/**/*.test.{ts,tsx,js,jsx}",
+      "frontend/src/**/*.test.{ts,tsx,js,jsx}",
     ],
   },
 });
