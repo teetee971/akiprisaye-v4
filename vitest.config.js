@@ -4,13 +4,7 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: false,
-
-    // ⛔ AUCUN setupFiles
-    // ⛔ AUCUN setup.ts
-    // ⛔ AUCUN frontend/
-
-    include: [
-      "src/**/*.{test,spec}.{ts,tsx,js,jsx}"
-    ],
+    setupFiles: ["./src/test/setup.ts"],
+    include: ["src/**/*.{test,spec}.{ts,tsx,js,jsx}"],
   },
 });
