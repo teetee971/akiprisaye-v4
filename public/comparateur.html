@@ -17,6 +17,7 @@
     h1 {
       font-size: 1.4rem;
       margin-bottom: 12px;
+      text-align: center;
     }
 
     .card {
@@ -28,49 +29,34 @@
       margin: 0 auto;
     }
 
-    label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-
-    input {
+    input, button {
       width: 100%;
       padding: 12px;
       font-size: 1rem;
       border-radius: 6px;
-      border: 1px solid #ccc;
       margin-bottom: 12px;
     }
 
+    input {
+      border: 1px solid #ccc;
+    }
+
     button {
-      width: 100%;
-      padding: 12px;
-      font-size: 1rem;
       border: none;
-      border-radius: 6px;
       background: #0066cc;
       color: #fff;
       font-weight: 600;
       cursor: pointer;
     }
 
-    button:disabled {
-      background: #aaa;
-    }
-
-    .results {
-      margin-top: 16px;
-    }
-
     .price {
-      padding: 10px;
-      border-radius: 6px;
-      margin-bottom: 8px;
-      background: #f1f1f1;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 10px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      background: #f1f1f1;
     }
 
     .cheapest {
@@ -79,9 +65,15 @@
       font-weight: 700;
     }
 
+    .diff {
+      font-size: 0.85rem;
+      color: #555;
+    }
+
     .error {
       color: #c62828;
       margin-top: 12px;
+      text-align: center;
     }
 
     footer {
@@ -95,92 +87,71 @@
 
 <body>
 
-  <div class="card">
-    <h1>Comparer les prix</h1>
+<div class="card">
+  <h1>Comparer les prix</h1>
 
-    <label for="query">Produit</label>
-    <input
-      id="query"
-      type="text"
-      placeholder="Ex : riz, lait, huile…"
-    />
+  <input id="query" placeholder="Ex : riz 1kg" />
+  <button id="btn">Comparer</button>
 
-    <button id="btn">Comparer</button>
+  <div id="error" class="error"></div>
+  <div id="results"></div>
+</div>
 
-    <div id="error" class="error"></div>
-    <div id="results" class="results"></div>
-  </div>
-
-  <footer>
-    Données indicatives – A KI PRI SA YÉ
-  </footer>
+<footer>
+  Données indicatives – A KI PRI SA YÉ
+</footer>
 
 <script>
-  const btn = document.getElementById('btn');
-  const input = document.getElementById('query');
-  const resultsDiv = document.getElementById('results');
-  const errorDiv = document.getElementById('error');
+const btn = document.getElementById('btn');
+const input = document.getElementById('query');
+const results = document.getElementById('results');
+const error = document.getElementById('error');
 
-  async function fetchPrices(query) {
-    const response = await fetch('/data/prices.json');
-    if (!response.ok) {
-      throw new Error('Impossible de charger les données');
-    }
+btn.addEventListener('click', async () => {
+  results.innerHTML = '';
+  error.textContent = '';
 
-    const data = await response.json();
-    const q = query.toLowerCase();
-
-    return data
-      .filter(item =>
-        item.productLabel.toLowerCase().includes(q)
-      )
-      .map(item => ({
-        storeName: item.source || 'Source terrain',
-        price: item.price
-      }));
+  const query = input.value.toLowerCase().trim();
+  if (!query) {
+    error.textContent = 'Veuillez saisir un produit.';
+    return;
   }
 
-  btn.addEventListener('click', async () => {
-    const query = input.value.trim();
-    resultsDiv.innerHTML = '';
-    errorDiv.textContent = '';
+  try {
+    const res = await fetch('/data/prices.json');
+    const data = await res.json();
 
-    if (!query) {
-      errorDiv.textContent = 'Veuillez saisir un produit.';
+    const matches = data.filter(p =>
+      p.productLabel.toLowerCase().includes(query)
+    );
+
+    if (matches.length === 0) {
+      error.textContent = 'Aucun prix trouvé.';
       return;
     }
 
-    btn.disabled = true;
-    btn.textContent = 'Recherche…';
+    const sorted = matches.sort((a, b) => a.price - b.price);
+    const minPrice = sorted[0].price;
 
-    try {
-      const prices = await fetchPrices(query);
+    sorted.forEach(p => {
+      const div = document.createElement('div');
+      const diff = (p.price - minPrice).toFixed(2);
 
-      if (prices.length === 0) {
-        errorDiv.textContent = 'Aucun prix trouvé.';
-        return;
-      }
+      div.className = 'price' + (p.price === minPrice ? ' cheapest' : '');
+      div.innerHTML = `
+        <span>${p.storeName}</span>
+        <span>
+          ${p.price.toFixed(2)} €
+          ${diff > 0 ? `<div class="diff">+${diff} €</div>` : ''}
+        </span>
+      `;
+      results.appendChild(div);
+    });
 
-      prices.sort((a, b) => a.price - b.price);
-      const cheapestPrice = prices[0].price;
-
-      prices.forEach(p => {
-        const div = document.createElement('div');
-        div.className = 'price' + (p.price === cheapestPrice ? ' cheapest' : '');
-        div.innerHTML = `
-          <span>${p.storeName}</span>
-          <span>${p.price.toFixed(2)} €</span>
-        `;
-        resultsDiv.appendChild(div);
-      });
-
-    } catch (err) {
-      errorDiv.textContent = 'Erreur lors du chargement des données.';
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Comparer';
-    }
-  });
+  } catch (e) {
+    error.textContent = 'Erreur de chargement des données.';
+  }
+});
 </script>
 
 </body>
