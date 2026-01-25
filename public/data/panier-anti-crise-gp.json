@@ -1,0 +1,110 @@
+{
+  "metadata": {
+    "project": "A KI PRI SA YÉ",
+    "dataset": "Panier anti-crise officiel",
+    "territory": {
+      "code": "GP",
+      "label": "Guadeloupe"
+    },
+    "currency": "EUR",
+    "version": "1.0.0",
+    "lastUpdated": "2026-01-06T11:30:00Z",
+    "methodology": {
+      "description": "Panier anti-crise basé sur des produits alimentaires essentiels du quotidien, relevés sur le terrain et comparés entre plusieurs enseignes locales.",
+      "selectionCriteria": [
+        "Produits de première nécessité",
+        "Formats standards (1kg, 1L, etc.)",
+        "Disponibilité large en Guadeloupe"
+      ],
+      "calculation": "Somme des prix unitaires par magasin. Le magasin recommandé est celui dont le total est le plus bas."
+    },
+    "disclaimer": "Données indicatives. A KI PRI SA YÉ n’est pas un vendeur. Les prix peuvent varier selon la date et le point de vente. Transparence totale, aucune affiliation commerciale."
+  },
+
+  "products": [
+    {
+      "productId": "riz-1kg",
+      "label": "Riz blanc 1kg",
+      "category": "Alimentation",
+      "essential": true,
+      "unit": "kg",
+      "quantity": 1
+    },
+    {
+      "productId": "lait-1l",
+      "label": "Lait UHT demi-écrémé 1L",
+      "category": "Alimentation",
+      "essential": true,
+      "unit": "l",
+      "quantity": 1
+    },
+    {
+      "productId": "huile-1l",
+      "label": "Huile végétale 1L",
+      "category": "Alimentation",
+      "essential": true,
+      "unit": "l",
+      "quantity": 1
+    },
+    {
+      "productId": "pates-500g",
+      "label": "Pâtes alimentaires 500g",
+      "category": "Alimentation",
+      "essential": true,
+      "unit": "g",
+      "quantity": 500
+    },
+    {
+      "productId": "sucre-1kg",
+      "label": "Sucre blanc 1kg",
+      "category": "Alimentation",
+      "essential": true,
+      "unit": "kg",
+      "quantity": 1
+    }
+  ],
+
+  "stores": [
+    {
+      "storeId": "carrefour-abymes",
+      "storeName": "Carrefour Abymes",
+      "items": [
+        { "productId": "riz-1kg", "price": 2.45 },
+        { "productId": "lait-1l", "price": 1.10 },
+        { "productId": "huile-1l", "price": 3.20 },
+        { "productId": "pates-500g", "price": 1.35 },
+        { "productId": "sucre-1kg", "price": 1.60 }
+      ],
+      "total": 9.70
+    },
+    {
+      "storeId": "super-u-basse-terre",
+      "storeName": "Super U Basse-Terre",
+      "items": [
+        { "productId": "riz-1kg", "price": 2.60 },
+        { "productId": "lait-1l", "price": 1.15 },
+        { "productId": "huile-1l", "price": 3.10 },
+        { "productId": "pates-500g", "price": 1.40 },
+        { "productId": "sucre-1kg", "price": 1.55 }
+      ],
+      "total": 9.80
+    },
+    {
+      "storeId": "leclerc-jarry",
+      "storeName": "E.Leclerc Jarry",
+      "items": [
+        { "productId": "riz-1kg", "price": 2.50 },
+        { "productId": "lait-1l", "price": 1.05 },
+        { "productId": "huile-1l", "price": 3.30 },
+        { "productId": "pates-500g", "price": 1.30 },
+        { "productId": "sucre-1kg", "price": 1.65 }
+      ],
+      "total": 9.80
+    }
+  ],
+
+  "recommendedStore": {
+    "storeId": "carrefour-abymes",
+    "reason": "Total du panier le plus bas pour les produits essentiels sélectionnés"
+  }
+}
