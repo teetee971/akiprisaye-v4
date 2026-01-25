@@ -1,79 +1,154 @@
 /* ============================================================
  * AntiCrisisBasketService
- * Implémentation conforme aux tests Vitest
+ * Implémentation STRICTEMENT conforme aux tests Vitest
  * ============================================================
  */
 
 export interface PriceObservation {
+  date: Date;
+  price: number;
+  storeId: string;
+  storeName: string;
   productId: string;
   productName: string;
-  territory: string;
-  storeId: string;
-  price: number;
-  observedAt: string;
+  category: string;
+  source: string;
 }
 
 export interface AntiCrisisProduct {
   productId: string;
   productName: string;
-  territory: string;
+  category: string;
   storeId: string;
+  storeName: string;
   avgPrice: number;
   avgDeltaVsSecond: number;
   cheapestRate: number;
   observations: number;
+  lastObservedAt: string;
+}
+
+export interface AntiCrisisOptions {
+  minObservations?: number;
+  minCheapestRate?: number;
 }
 
 export class AntiCrisisBasketService {
-  /**
-   * Point d’entrée principal
+  private static instance: AntiCrisisBasketService;
+
+  static getInstance(): AntiCrisisBasketService {
+    if (!this.instance) {
+      this.instance = new AntiCrisisBasketService();
+    }
+    return this.instance;
+  }
+
+  private constructor() {}
+
+  /* ============================================================
+   * API PRINCIPALE
+   * ============================================================
    */
-  buildAntiCrisisBasket(
-    observations: PriceObservation[]
+  getAntiCrisisBasket(
+    territory: string,
+    observations: PriceObservation[],
+    options: AntiCrisisOptions = {}
   ): AntiCrisisProduct[] {
-    if (!observations || observations.length === 0) return [];
+    if (!observations.length) return [];
 
-    // 1️⃣ Grouper par territoire
-    const byTerritory = this.groupBy(observations, o => o.territory);
+    const minObs = options.minObservations ?? 5;
+    const minCheapestRate = options.minCheapestRate ?? 70;
+    const now = Date.now();
 
-    const baskets: AntiCrisisProduct[] = [];
+    // Séparation par produit
+    const byProduct = this.groupBy(observations, o => o.productId);
 
-    Object.entries(byTerritory).forEach(([territory, territoryObs]) => {
-      // 2️⃣ Grouper par produit
-      const byProduct = this.groupBy(territoryObs, o => o.productId);
+    const results: AntiCrisisProduct[] = [];
 
-      Object.values(byProduct).forEach(productObs => {
-        // 3️⃣ Exclure produits instables (huile, etc.)
-        if (this.isExcludedProduct(productObs[0].productId)) return;
+    for (const productObs of Object.values(byProduct)) {
+      // Séparation par magasin
+      const byStore = this.groupBy(productObs, o => o.storeId);
 
-        // 4️⃣ Stabilité minimale (12 observations = 12 mois)
-        if (productObs.length < 12) return;
+      const storeStats = Object.values(byStore).map(storeObs => {
+        const byDay = this.groupBy(
+          storeObs,
+          o => o.date.toISOString().slice(0, 10)
+        );
 
-        // 5️⃣ Calculs statistiques
-        const prices = productObs.map(o => o.price);
-        const avgPrice = this.average(prices);
+        const dailyPrices = Object.values(byDay).map(
+          day => day[0].price
+        );
 
-        const sorted = [...prices].sort((a, b) => a - b);
-        const deltaVsSecond =
-          sorted.length >= 2 ? sorted[1] - sorted[0] : 0;
+        const lastDate = Math.max(
+          ...storeObs.map(o => o.date.getTime())
+        );
 
-        // 6️⃣ Filtre anti-crise
-        if (deltaVsSecond > avgPrice * 0.2) return;
-
-        baskets.push({
-          productId: productObs[0].productId,
-          productName: productObs[0].productName,
-          territory,
-          storeId: productObs[0].storeId,
-          avgPrice: Number(avgPrice.toFixed(2)),
-          avgDeltaVsSecond: Number(deltaVsSecond.toFixed(2)),
-          cheapestRate: 100,
-          observations: productObs.length
-        });
+        return {
+          store: storeObs[0],
+          observations: dailyPrices.length,
+          avgPrice: this.avg(dailyPrices),
+          prices: dailyPrices,
+          lastDate
+        };
       });
-    });
 
-    return baskets;
+      // Filtre données insuffisantes
+      if (storeStats.every(s => s.observations < minObs)) continue;
+
+      // Filtre observation récente (< 90 jours)
+      if (storeStats.every(s => now - s.lastDate > 90 * 86400000)) continue;
+
+      // Classement des magasins par prix moyen
+      storeStats.sort((a, b) => a.avgPrice - b.avgPrice);
+
+      const cheapest = storeStats[0];
+      const second = storeStats[1];
+      if (!second) continue;
+
+      // Calcul cheapestRate
+      let cheapestWins = 0;
+      let totalDays = 0;
+
+      for (let i = 0; i < cheapest.prices.length; i++) {
+        const cheapestPrice = cheapest.prices[i];
+        const others = storeStats
+          .slice(1)
+          .map(s => s.prices[i])
+          .filter(p => p !== undefined);
+
+        if (others.length && cheapestPrice < Math.min(...others)) {
+          cheapestWins++;
+        }
+        totalDays++;
+      }
+
+      const cheapestRate = Math.round(
+        (cheapestWins / totalDays) * 100
+      );
+
+      if (cheapestRate < minCheapestRate) continue;
+
+      // Stabilité (coefficient de variation)
+      if (this.coeffVariation(cheapest.prices) > 0.15) continue;
+
+      results.push({
+        productId: cheapest.store.productId,
+        productName: cheapest.store.productName,
+        category: cheapest.store.category,
+        storeId: cheapest.store.storeId,
+        storeName: cheapest.store.storeName,
+        avgPrice: Number(cheapest.avgPrice.toFixed(2)),
+        avgDeltaVsSecond: Number(
+          (second.avgPrice - cheapest.avgPrice).toFixed(2)
+        ),
+        cheapestRate,
+        observations: cheapest.observations,
+        lastObservedAt: new Date(cheapest.lastDate).toISOString()
+      });
+    }
+
+    // Tri final
+    return results.sort((a, b) => a.avgPrice - b.avgPrice);
   }
 
   /* ============================================================
@@ -87,25 +162,21 @@ export class AntiCrisisBasketService {
   ): Record<string, T[]> {
     return array.reduce<Record<string, T[]>>((acc, item) => {
       const key = keyFn(item);
-      if (!acc[key]) acc[key] = [];
+      acc[key] ||= [];
       acc[key].push(item);
       return acc;
     }, {});
   }
 
-  private average(values: number[]): number {
-    if (values.length === 0) return 0;
+  private avg(values: number[]): number {
     return values.reduce((a, b) => a + b, 0) / values.length;
   }
 
-  private isExcludedProduct(productId: string): boolean {
-    // Produits volontairement exclus (tests)
-    const excluded = [
-      'p_oil_1l',
-      'p_oil',
-      'huile',
-      'oil'
-    ];
-    return excluded.some(e => productId.toLowerCase().includes(e));
+  private coeffVariation(values: number[]): number {
+    const mean = this.avg(values);
+    const variance =
+      values.reduce((s, v) => s + (v - mean) ** 2, 0) /
+      values.length;
+    return Math.sqrt(variance) / mean;
   }
 }
