@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>A KI PRI SA YÉ — Panier anti-crise</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --bg: #0f1115;
+      --card: #161a22;
+      --text: #eaeaf0;
+      --muted: #9aa0b3;
+      --accent: #4ade80;
+      --danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      padding: 16px;
+      text-align: center;
+      border-bottom: 1px solid #222;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    main {
+      padding: 16px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 1.1rem;
+    }
+
+    .product-list li {
+      margin: 6px 0;
+      font-size: 0.95rem;
+    }
+
+    .store {
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      background: #1c2130;
+    }
+
+    .store.recommended {
+      border-left: 4px solid var(--accent);
+      background: #172a21;
+    }
+
+    .store-title {
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .total {
+      font-size: 1.05rem;
+      margin-top: 6px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    #error {
+      display: none;
+      background: #2a1616;
+      color: var(--danger);
+      padding: 12px;
+      border-radius: 8px;
+      margin: 16px;
+      text-align: center;
+    }
+
+    footer {
+      text-align: center;
+      padding: 16px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1 id="project-name">A KI PRI SA YÉ</h1>
+    <p id="project-mission">Chargement…</p>
+  </header>
+
+  <div id="error"></div>
+
+  <main id="app">
+    <div class="card">
+      Chargement des données…
+    </div>
+  </main>
+
+  <footer>
+    Données indicatives — Initiative citoyenne
+  </footer>
+
+  <script>
+    const DATA_URL = '/data/mega-panier-anti-crise.json';
+
+    const app = document.getElementById('app');
+    const errorBox = document.getElementById('error');
+    const projectName = document.getElementById('project-name');
+    const projectMission = document.getElementById('project-mission');
+
+    function showError(message) {
+      errorBox.textContent = message;
+      errorBox.style.display = 'block';
+    }
+
+    async function loadData() {
+      try {
+        const res = await fetch(DATA_URL);
+        if (!res.ok) throw new Error('Erreur HTTP ' + res.status);
+
+        const data = await res.json();
+
+        if (!data.meta || !data.baskets || !data.stores) {
+          throw new Error('Structure JSON invalide');
+        }
+
+        render(data);
+      } catch (err) {
+        console.error(err);
+        showError(
+          "Impossible de charger les données. Vérifiez votre connexion ou réessayez plus tard."
+        );
+        app.innerHTML = '';
+      }
+    }
+
+    function render(data) {
+      app.innerHTML = '';
+
+      // Meta
+      projectName.textContent = data.meta.project?.name || 'A KI PRI SA YÉ';
+      projectMission.textContent =
+        data.meta.project?.mission || '';
+
+      const basket = data.baskets[0];
+
+      // Panier
+      const basketCard = document.createElement('div');
+      basketCard.className = 'card';
+      basketCard.innerHTML = `
+        <h2>${basket.label}</h2>
+        <ul class="product-list">
+          ${basket.products.map(pid => {
+            const p = data.products.find(x => x.productId === pid);
+            return `<li>${p ? p.label : pid}</li>`;
+          }).join('')}
+        </ul>
+      `;
+      app.appendChild(basketCard);
+
+      // Totaux par magasin
+      const storesCard = document.createElement('div');
+      storesCard.className = 'card';
+      storesCard.innerHTML = `<h2>Comparaison des magasins</h2>`;
+
+      const recommendedId = basket.recommendedStore?.storeId;
+
+      basket.totalsByStore.forEach(entry => {
+        const store = data.stores.find(s => s.storeId === entry.storeId);
+
+        const div = document.createElement('div');
+        div.className = 'store' + (entry.storeId === recommendedId ? ' recommended' : '');
+
+        div.innerHTML = `
+          <div class="store-title">
+            ${store ? store.storeName : entry.storeId}
+          </div>
+          <div class="total">
+            Total panier : ${entry.total.toFixed(2)} €
+          </div>
+          ${
+            entry.storeId === recommendedId
+              ? `<div class="muted">Magasin recommandé</div>`
+              : ''
+          }
+        `;
+
+        storesCard.appendChild(div);
+      });
+
+      app.appendChild(storesCard);
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
