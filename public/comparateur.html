@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Comparateur de prix – A KI PRI SA YÉ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 16px;
+      color: #222;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 12px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-bottom: 12px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      background: #0066cc;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: #aaa;
+    }
+
+    .results {
+      margin-top: 16px;
+    }
+
+    .price {
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      background: #f1f1f1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cheapest {
+      background: #e6f7e6;
+      border-left: 4px solid #2e7d32;
+      font-weight: 700;
+    }
+
+    .error {
+      color: #c62828;
+      margin-top: 12px;
+    }
+
+    footer {
+      margin-top: 16px;
+      font-size: 0.85rem;
+      color: #666;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h1>Comparer les prix</h1>
+
+    <label for="query">Produit</label>
+    <input
+      id="query"
+      type="text"
+      placeholder="Ex: riz 1kg, lait, huile..."
+    />
+
+    <button id="btn">Comparer</button>
+
+    <div id="error" class="error"></div>
+    <div id="results" class="results"></div>
+  </div>
+
+  <footer>
+    Données indicatives – A KI PRI SA YÉ
+  </footer>
+
+<script>
+  const btn = document.getElementById('btn');
+  const input = document.getElementById('query');
+  const resultsDiv = document.getElementById('results');
+  const errorDiv = document.getElementById('error');
+
+  btn.addEventListener('click', async () => {
+    const query = input.value.trim();
+    resultsDiv.innerHTML = '';
+    errorDiv.textContent = '';
+
+    if (!query) {
+      errorDiv.textContent = 'Veuillez saisir un produit.';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Recherche…';
+
+    try {
+      // 👉 ENDPOINT À AJUSTER SI BESOIN
+      const response = await fetch(
+        `/api/prices/search?query=${encodeURIComponent(query)}&territory=971`
+      );
+
+      if (!response.ok) {
+        throw new Error('Erreur serveur');
+      }
+
+      const data = await response.json();
+
+      if (!data || !data.prices || data.prices.length === 0) {
+        errorDiv.textContent = 'Aucun prix trouvé.';
+        return;
+      }
+
+      const prices = data.prices.sort((a, b) => a.price - b.price);
+      const cheapestPrice = prices[0].price;
+
+      prices.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'price' + (p.price === cheapestPrice ? ' cheapest' : '');
+        div.innerHTML = `
+          <span>${p.storeName || 'Magasin'}</span>
+          <span>${p.price.toFixed(2)} €</span>
+        `;
+        resultsDiv.appendChild(div);
+      });
+
+    } catch (err) {
+      errorDiv.textContent = 'Impossible de récupérer les données.';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Comparer';
+    }
+  });
+</script>
+
+</body>
+</html>
