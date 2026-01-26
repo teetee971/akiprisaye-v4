@@ -1,24 +1,39 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Tesseract from "tesseract.js";
 
 const OcrScanner: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
-  const [text, setText] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [text, setText] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [progress, setProgress] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
+
+  // Nettoyage mémoire de l’URL blob
+  useEffect(() => {
+    return () => {
+      if (image) {
+        URL.revokeObjectURL(image);
+      }
+    };
+  }, [image]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (!file.type.startsWith("image/")) {
+      setError("Format de fichier non supporté");
+      return;
+    }
+
     setImage(URL.createObjectURL(file));
     setText("");
+    setProgress(0);
     setError(null);
   };
 
   const runOcr = async () => {
-    if (!image) return;
+    if (!image || loading) return;
 
     setLoading(true);
     setProgress(0);
@@ -27,15 +42,15 @@ const OcrScanner: React.FC = () => {
     try {
       const result = await Tesseract.recognize(image, "fra", {
         logger: (m) => {
-          if (m.status === "recognizing text" && m.progress) {
+          if (m.status === "recognizing text" && typeof m.progress === "number") {
             setProgress(Math.round(m.progress * 100));
           }
         },
       });
 
-      setText(result.data.text || "");
+      setText(result.data.text?.trim() || "");
     } catch (err) {
-      console.error(err);
+      console.error("[OCR]", err);
       setError("Erreur lors de l’analyse OCR");
     } finally {
       setLoading(false);
@@ -46,28 +61,51 @@ const OcrScanner: React.FC = () => {
     <main style={styles.main}>
       <h1 style={styles.title}>Analyse de ticket / facture</h1>
 
+      <p style={styles.subtitle}>
+        Prenez une photo ou importez une image pour extraire le texte.
+      </p>
+
       <input
         type="file"
         accept="image/*"
         capture="environment"
         onChange={handleFileChange}
+        style={styles.input}
       />
 
       {image && (
-        <img src={image} alt="Ticket" style={styles.preview} />
+        <img
+          src={image}
+          alt="Aperçu du ticket"
+          style={styles.preview}
+        />
       )}
 
       {image && (
-        <button onClick={runOcr} disabled={loading} style={styles.button}>
+        <button
+          onClick={runOcr}
+          disabled={loading}
+          style={styles.button}
+        >
           {loading ? "Analyse en cours…" : "Lancer l’OCR"}
         </button>
       )}
 
-      {loading && <p>Analyse : {progress}%</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {loading && (
+        <p style={styles.progress}>
+          Analyse : {progress} %
+        </p>
+      )}
+
+      {error && (
+        <p style={styles.error}>{error}</p>
+      )}
 
       {text && (
-        <pre style={styles.pre}>{text}</pre>
+        <section style={styles.result}>
+          <h2>Texte extrait</h2>
+          <pre style={styles.pre}>{text}</pre>
+        </section>
       )}
     </main>
   );
@@ -75,10 +113,63 @@ const OcrScanner: React.FC = () => {
 
 export default OcrScanner;
 
-const styles = {
-  main: { padding: 24, color: "#f1f5f9" },
-  title: { marginBottom: 16 },
-  preview: { width: "100%", maxHeight: 300, marginTop: 16 },
-  button: { marginTop: 12, padding: "8px 14px" },
-  pre: { marginTop: 16, whiteSpace: "pre-wrap" },
+/* ===================== */
+/* Styles inline sûrs    */
+/* ===================== */
+
+const styles: Record<string, React.CSSProperties> = {
+  main: {
+    padding: 24,
+    maxWidth: 720,
+    margin: "0 auto",
+    color: "#f1f5f9",
+  },
+  title: {
+    fontSize: "1.6rem",
+    marginBottom: 8,
+  },
+  subtitle: {
+    opacity: 0.85,
+    marginBottom: 16,
+  },
+  input: {
+    marginBottom: 16,
+  },
+  preview: {
+    width: "100%",
+    maxHeight: 320,
+    objectFit: "contain",
+    borderRadius: 8,
+    marginBottom: 16,
+    background: "#020617",
+  },
+  button: {
+    padding: "10px 16px",
+    borderRadius: 8,
+    border: "none",
+    background: "#22c55e",
+    color: "#022c22",
+    fontWeight: 600,
+    cursor: "pointer",
+    marginBottom: 12,
+  },
+  progress: {
+    fontSize: "0.9rem",
+    opacity: 0.9,
+  },
+  error: {
+    color: "#f87171",
+    marginTop: 12,
+  },
+  result: {
+    marginTop: 24,
+    background: "#020617",
+    padding: 16,
+    borderRadius: 8,
+  },
+  pre: {
+    whiteSpace: "pre-wrap",
+    fontSize: "0.85rem",
+    lineHeight: 1.4,
+  },
 };
