@@ -2,180 +2,49 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>A KI PRI SA YÉ — Panier anti-crise</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>A KI PRI SA YÉ – Panier anti-crise</title>
+  <meta name="description" content="Comparateur citoyen contre la vie chère"/>
   <style>
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      margin: 0;
-      background: #0f1115;
-      color: #eaeaea;
-    }
-
-    header {
-      padding: 16px;
-      text-align: center;
-      background: #161a22;
-      border-bottom: 1px solid #222;
-    }
-
-    h1 {
-      font-size: 1.3rem;
-      margin: 0;
-    }
-
-    main {
-      padding: 16px;
-      max-width: 820px;
-      margin: auto;
-    }
-
-    .card {
-      background: #161a22;
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 14px;
-      border: 1px solid #222;
-    }
-
-    .store {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .price {
-      font-weight: 700;
-      font-size: 1.1rem;
-    }
-
-    .badge {
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-
-    .best {
-      background: #1f7a1f;
-      color: #fff;
-    }
-
-    .muted {
-      color: #aaa;
-      font-size: 0.85rem;
-    }
-
-    .error {
-      color: #ff6b6b;
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    footer {
-      text-align: center;
-      padding: 12px;
-      font-size: 0.8rem;
-      color: #777;
-    }
+    body { font-family: system-ui; background:#f7f7f7; margin:0; padding:16px }
+    .card { background:white; border-radius:12px; padding:16px; max-width:700px; margin:auto }
+    .store { margin:10px 0; padding:10px; border-radius:8px; background:#eee }
+    .best { background:#e6f7e6; font-weight:bold; border-left:4px solid #2e7d32 }
+    h1 { text-align:center }
   </style>
 </head>
 
 <body>
-
-<header>
-  <h1>Panier anti-crise — Guadeloupe</h1>
-</header>
-
-<main id="app">
-  <div class="muted">Chargement des données…</div>
-</main>
-
-<footer>
-  Données citoyennes — A KI PRI SA YÉ
-</footer>
+  <div class="card">
+    <h1>Panier anti-crise</h1>
+    <div id="content">Chargement des données…</div>
+  </div>
 
 <script>
-(async function () {
-  const app = document.getElementById('app');
+fetch("/data/mega-panier-anti-crise.json")
+  .then(r => r.json())
+  .then(data => {
+    const basket = data.baskets?.[0];
+    const stores = data.stores || [];
+    if (!basket) throw "Aucun panier";
 
-  try {
-    const res = await fetch('/data/mega-panier-anti-crise.json');
-    if (!res.ok) throw new Error('JSON non accessible');
+    let html = "";
+    const min = Math.min(...stores.map(s => s.total || Infinity));
 
-    const data = await res.json();
-
-    const basket =
-      Object.values(data.basketProfiles || {})[0];
-
-    if (!basket) {
-      throw new Error('Aucun panier trouvé');
-    }
-
-    const magasins = data.magasins || {};
-    const produits = basket.produits || {};
-
-    // Calcul des totaux
-    const totals = Object.values(magasins).map(store => {
-      let total = 0;
-
-      Object.keys(produits).forEach(pid => {
-        const qte = produits[pid];
-        const price = store.prix?.[pid];
-        if (typeof price === 'number') {
-          total += price * qte;
-        }
-      });
-
-      return {
-        ...store,
-        total: Number(total.toFixed(2))
-      };
+    stores.forEach(s => {
+      html += `
+        <div class="store ${s.total === min ? "best" : ""}">
+          ${s.storeName} — ${s.total?.toFixed(2)} €
+        </div>`;
     });
 
-    totals.sort((a, b) => a.total - b.total);
-    const minTotal = totals[0]?.total;
-
-    app.innerHTML = '';
-
-    totals.forEach(store => {
-      const div = document.createElement('div');
-      div.className = 'card';
-
-      div.innerHTML = `
-        <div class="store">
-          <div>
-            <strong>${store.nom}</strong><br />
-            <span class="muted">${store.lieu}</span>
-          </div>
-          <div>
-            <div class="price">${store.total.toFixed(2)} €</div>
-            ${
-              store.total === minTotal
-                ? '<div class="badge best">Moins cher</div>'
-                : ''
-            }
-          </div>
-        </div>
-      `;
-
-      app.appendChild(div);
-    });
-
-  } catch (err) {
+    document.getElementById("content").innerHTML = html;
+  })
+  .catch(err => {
+    document.getElementById("content").innerHTML =
+      "<b>Erreur de chargement des données</b>";
     console.error(err);
-    app.innerHTML = `
-      <div class="error">
-        Impossible d’afficher le panier.<br />
-        Données indisponibles ou invalides.
-      </div>
-    `;
-  }
-})();
+  });
 </script>
-
 </body>
 </html>
