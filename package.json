@@ -1,6 +1,6 @@
 {
   "name": "aki-chat-ia-local",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "type": "module",
   "engines": {
     "node": ">=20.19.0"
@@ -18,7 +18,8 @@
     "lint:ci": "eslint . --max-warnings=0",
     "audit:ci": "npm audit --audit-level=moderate",
     "ci:strict": "npm run typecheck:ci && npm run lint:ci && npm run build:ci && npm run test:ci && npm run audit:ci",
-    "ci:full": "npm run ci:strict"
+    "ci:full": "npm run ci:strict",
+    "postinstall": "node -e \"try { require('chromedriver') } catch(e) { console.log('Chromedriver skipped on unsupported platform') }\""
   },
   "dependencies": {
     "@openfoodfacts/openfoodfacts-nodejs": "^2.0.0-alpha.19",
@@ -71,11 +72,15 @@
     "eslint-plugin-react-refresh": "^0.4.26",
     "jsdom": "^27.1.0",
     "prettier": "^3.3.3",
+    "rollup-plugin-visualizer": "^5.12.0",
     "tailwindcss": "^4.1.17",
     "terser": "^5.44.1",
     "typescript": "^5.9.3",
     "vite": "^5.4.8",
     "vite-plugin-static-copy": "^1.0.6",
     "vitest": "^1.6.0"
+  },
+  "optionalDependencies": {
+    "chromedriver": "^144.0.0"
   }
 }
