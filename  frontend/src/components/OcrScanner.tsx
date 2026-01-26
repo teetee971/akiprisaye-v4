@@ -1,19 +1,93 @@
 import React, { useEffect, useState } from "react";
 import Tesseract from "tesseract.js";
 
+/* ===================== */
+/* Types                 */
+/* ===================== */
+
+type ExtractedData = {
+  prices: number[];
+  date: string | null;
+  store: string | null;
+};
+
+/* ===================== */
+/* Extraction déterministe */
+/* ===================== */
+
+function extractTicketData(rawText: string): ExtractedData {
+  const normalized = rawText
+    .replace(/\s+/g, " ")
+    .replace(/€/g, "€ ")
+    .toUpperCase();
+
+  /* ---------- PRIX ---------- */
+  const priceRegex =
+    /(\d{1,3}(?:[.,]\d{3})*[.,]\d{2})\s?€/g;
+
+  const prices: number[] = [];
+  let match: RegExpExecArray | null;
+
+  while ((match = priceRegex.exec(normalized)) !== null) {
+    const value = parseFloat(
+      match[1].replace(/\./g, "").replace(",", ".")
+    );
+    if (!isNaN(value)) prices.push(value);
+  }
+
+  /* ---------- DATE ---------- */
+  const dateRegex =
+    /(\d{2}[\/.-]\d{2}[\/.-]\d{2,4})/;
+  const dateMatch = normalized.match(dateRegex);
+  const date = dateMatch ? dateMatch[1] : null;
+
+  /* ---------- MAGASIN ---------- */
+  const lines = rawText
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .slice(0, 6);
+
+  const blacklist = [
+    "MERCI",
+    "TOTAL",
+    "FACTURE",
+    "TICKET",
+    "CARTE",
+    "CB",
+    "TVA",
+  ];
+
+  const store =
+    lines.find(
+      (line) =>
+        line === line.toUpperCase() &&
+        !blacklist.some((b) => line.includes(b))
+    ) || null;
+
+  return {
+    prices,
+    date,
+    store,
+  };
+}
+
+/* ===================== */
+/* Composant principal   */
+/* ===================== */
+
 const OcrScanner: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
   const [text, setText] = useState<string>("");
+  const [extracted, setExtracted] = useState<ExtractedData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
 
-  // Nettoyage mémoire de l’URL blob
+  /* Nettoyage mémoire URL blob */
   useEffect(() => {
     return () => {
-      if (image) {
-        URL.revokeObjectURL(image);
-      }
+      if (image) URL.revokeObjectURL(image);
     };
   }, [image]);
 
@@ -28,6 +102,7 @@ const OcrScanner: React.FC = () => {
 
     setImage(URL.createObjectURL(file));
     setText("");
+    setExtracted(null);
     setProgress(0);
     setError(null);
   };
@@ -42,13 +117,22 @@ const OcrScanner: React.FC = () => {
     try {
       const result = await Tesseract.recognize(image, "fra", {
         logger: (m) => {
-          if (m.status === "recognizing text" && typeof m.progress === "number") {
+          if (
+            m.status === "recognizing text" &&
+            typeof m.progress === "number"
+          ) {
             setProgress(Math.round(m.progress * 100));
           }
         },
       });
 
-      setText(result.data.text?.trim() || "");
+      const ocrText = result.data.text?.trim() || "";
+      setText(ocrText);
+
+      const data = extractTicketData(ocrText);
+      setExtracted(data);
+
+      console.info("[OCR] Extraction réussie", data);
     } catch (err) {
       console.error("[OCR]", err);
       setError("Erreur lors de l’analyse OCR");
@@ -62,7 +146,8 @@ const OcrScanner: React.FC = () => {
       <h1 style={styles.title}>Analyse de ticket / facture</h1>
 
       <p style={styles.subtitle}>
-        Prenez une photo ou importez une image pour extraire le texte.
+        Importez un ticket ou une facture pour extraire automatiquement
+        les informations clés.
       </p>
 
       <input
@@ -97,13 +182,41 @@ const OcrScanner: React.FC = () => {
         </p>
       )}
 
-      {error && (
-        <p style={styles.error}>{error}</p>
+      {error && <p style={styles.error}>{error}</p>}
+
+      {extracted && (
+        <section style={styles.result}>
+          <h2>Données détectées</h2>
+
+          <p>
+            <strong>Magasin :</strong>{" "}
+            {extracted.store || "Non détecté"}
+          </p>
+
+          <p>
+            <strong>Date :</strong>{" "}
+            {extracted.date || "Non détectée"}
+          </p>
+
+          <p>
+            <strong>Prix détectés :</strong>
+          </p>
+
+          {extracted.prices.length > 0 ? (
+            <ul>
+              {extracted.prices.map((p, i) => (
+                <li key={i}>{p.toFixed(2)} €</li>
+              ))}
+            </ul>
+          ) : (
+            <p>Aucun prix détecté</p>
+          )}
+        </section>
       )}
 
       {text && (
         <section style={styles.result}>
-          <h2>Texte extrait</h2>
+          <h2>Texte OCR brut</h2>
           <pre style={styles.pre}>{text}</pre>
         </section>
       )}
