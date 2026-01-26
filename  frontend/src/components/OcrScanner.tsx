@@ -1,79 +1,27 @@
 import React, { useEffect, useState } from "react";
-import { recognizeImage } from "../ocr/loadTesseract";
+import { recognizeImage } from "../../ocr/loadTesseract";
 
-/* ===================== */
-/* Types                 */
-/* ===================== */
-
-type ExtractedData = {
-  prices: number[];
-  date: string | null;
-  store: string | null;
-};
-
-/* ===================== */
-/* Extraction déterministe */
-/* ===================== */
-
-function extractTicketData(rawText: string): ExtractedData {
-  const normalized = rawText
-    .replace(/\s+/g, " ")
-    .replace(/€/g, "€ ")
-    .toUpperCase();
-
-  /* ---------- PRIX ---------- */
-  const priceRegex = /(\d{1,3}(?:[.,]\d{3})*[.,]\d{2})\s?€/g;
-
-  const prices: number[] = [];
-  let match: RegExpExecArray | null;
-
-  while ((match = priceRegex.exec(normalized)) !== null) {
-    const value = parseFloat(match[1].replace(/\./g, "").replace(",", "."));
-    if (!isNaN(value)) prices.push(value);
-  }
-
-  /* ---------- DATE ---------- */
-  const dateRegex = /(\d{2}[\/.-]\d{2}[\/.-]\d{2,4})/;
-  const dateMatch = normalized.match(dateRegex);
-  const date = dateMatch ? dateMatch[1] : null;
-
-  /* ---------- MAGASIN ---------- */
-  const lines = rawText
-    .split("\n")
-    .map((l) => l.trim())
-    .filter(Boolean)
-    .slice(0, 6);
-
-  const blacklist = ["MERCI", "TOTAL", "FACTURE", "TICKET", "CARTE", "CB", "TVA"];
-
-  const store =
-    lines.find(
-      (line) => line === line.toUpperCase() && !blacklist.some((b) => line.includes(b))
-    ) || null;
-
-  return {
-    prices,
-    date,
-    store,
-  };
-}
-
-/* ===================== */
-/* Composant principal   */
-/* ===================== */
-
-const OcrScanner: React.FC = () => {
+/**
+ * OCRScanner
+ * - Scan OCR local (Tesseract.js) loaded on demand
+ * - Gestion progrès
+ * - Gestion erreurs
+ * - Nettoyage mémoire (blob URL)
+ * - Styles inline sûrs (aucun CSS externe requis)
+ */
+const OCRScanner: React.FC = () => {
   const [image, setImage] = useState<string | null>(null);
   const [text, setText] = useState<string>("");
-  const [extracted, setExtracted] = useState<ExtractedData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
 
-  /* Nettoyage mémoire URL blob */
+  /* Nettoyage mémoire de l’URL blob */
   useEffect(() => {
     return () => {
-      if (image) URL.revokeObjectURL(image);
+      if (image) {
+        URL.revokeObjectURL(image);
+      }
     };
   }, [image]);
 
@@ -82,13 +30,12 @@ const OcrScanner: React.FC = () => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setError("Format de fichier non supporté");
+      setError("Format de fichier non supporté (image uniquement)");
       return;
     }
 
     setImage(URL.createObjectURL(file));
     setText("");
-    setExtracted(null);
     setProgress(0);
     setError(null);
   };
@@ -101,21 +48,16 @@ const OcrScanner: React.FC = () => {
     setError(null);
 
     try {
-      // utilise le loader lazy (import dynamique) : recognizeImage téléchargera tesseract/wasm/traineddata à la demande
+      // Lazy-load tesseract and its assets only when needed
       const result = await recognizeImage(image, "fra", (m) => {
         if (m.status === "recognizing text" && typeof m.progress === "number") {
           setProgress(Math.round(m.progress * 100));
         }
       });
 
-      // recognizeImage retourne `data` (objet de tesseract) depuis le worker
-      const ocrText = (result && (result as any).text ? (result as any).text.trim() : "") || "";
-      setText(ocrText);
-
-      const data = extractTicketData(ocrText);
-      setExtracted(data);
-
-      console.info("[OCR] Extraction réussie", data);
+      // recognizeImage retourne l'objet 'data' de Tesseract (data.text)
+      const extractedText = result && (result as any).text ? (result as any).text.trim() : "";
+      setText(extractedText);
     } catch (err) {
       console.error("[OCR]", err);
       setError("Erreur lors de l’analyse OCR");
@@ -128,24 +70,22 @@ const OcrScanner: React.FC = () => {
     <main style={styles.main}>
       <h1 style={styles.title}>Analyse de ticket / facture</h1>
 
-      <p style={styles.subtitle}>
-        Importez un ticket ou une facture pour extraire automatiquement les informations clés.
-      </p>
+      <p style={styles.subtitle}>Prenez une photo ou importez une image pour extraire le texte.</p>
 
-      <input
-        type="file"
-        accept="image/*"
-        capture="environment"
-        onChange={handleFileChange}
-        style={styles.input}
-      />
+      <input type="file" accept="image/*" capture="environment" onChange={handleFileChange} style={styles.input} />
+
+      {image && <img src={image} alt="Aperçu du ticket" style={styles.preview} />}
 
       {image && (
-        <img src={image} alt="Aperçu du ticket" style={styles.preview} />
-      )}
-
-      {image && (
-        <button onClick={runOcr} disabled={loading} style={styles.button}>
+        <button
+          onClick={runOcr}
+          disabled={loading}
+          style={{
+            ...styles.button,
+            opacity: loading ? 0.7 : 1,
+            cursor: loading ? "not-allowed" : "pointer",
+          }}
+        >
           {loading ? "Analyse en cours…" : "Lancer l’OCR"}
         </button>
       )}
@@ -154,37 +94,9 @@ const OcrScanner: React.FC = () => {
 
       {error && <p style={styles.error}>{error}</p>}
 
-      {extracted && (
-        <section style={styles.result}>
-          <h2>Données détectées</h2>
-
-          <p>
-            <strong>Magasin :</strong> {extracted.store || "Non détecté"}
-          </p>
-
-          <p>
-            <strong>Date :</strong> {extracted.date || "Non détectée"}
-          </p>
-
-          <p>
-            <strong>Prix détectés :</strong>
-          </p>
-
-          {extracted.prices.length > 0 ? (
-            <ul>
-              {extracted.prices.map((p, i) => (
-                <li key={i}>{p.toFixed(2)} €</li>
-              ))}
-            </ul>
-          ) : (
-            <p>Aucun prix détecté</p>
-          )}
-        </section>
-      )}
-
       {text && (
         <section style={styles.result}>
-          <h2>Texte OCR brut</h2>
+          <h2 style={styles.resultTitle}>Texte extrait</h2>
           <pre style={styles.pre}>{text}</pre>
         </section>
       )}
@@ -192,7 +104,7 @@ const OcrScanner: React.FC = () => {
   );
 };
 
-export default OcrScanner;
+export default OCRScanner;
 
 /* ===================== */
 /* Styles inline sûrs    */
@@ -247,6 +159,9 @@ const styles: Record<string, React.CSSProperties> = {
     background: "#020617",
     padding: 16,
     borderRadius: 8,
+  },
+  resultTitle: {
+    marginBottom: 8,
   },
   pre: {
     whiteSpace: "pre-wrap",
