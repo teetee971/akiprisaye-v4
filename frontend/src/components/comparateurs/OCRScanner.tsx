@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import Tesseract from "tesseract.js";
+import { recognizeImage } from "../../ocr/loadTesseract";
 
 /**
  * OCRScanner
- * - Scan OCR local (Tesseract.js)
+ * - Scan OCR local (Tesseract.js) loaded on demand
  * - Gestion progrès
  * - Gestion erreurs
  * - Nettoyage mémoire (blob URL)
@@ -48,18 +48,16 @@ const OCRScanner: React.FC = () => {
     setError(null);
 
     try {
-      const result = await Tesseract.recognize(image, "fra", {
-        logger: (m) => {
-          if (
-            m.status === "recognizing text" &&
-            typeof m.progress === "number"
-          ) {
-            setProgress(Math.round(m.progress * 100));
-          }
-        },
+      // Lazy-load tesseract and its assets only when needed
+      const result = await recognizeImage(image, "fra", (m) => {
+        if (m.status === "recognizing text" && typeof m.progress === "number") {
+          setProgress(Math.round(m.progress * 100));
+        }
       });
 
-      setText(result.data.text?.trim() || "");
+      // recognizeImage retourne l'objet 'data' de Tesseract (data.text)
+      const extractedText = result && (result as any).text ? (result as any).text.trim() : "";
+      setText(extractedText);
     } catch (err) {
       console.error("[OCR]", err);
       setError("Erreur lors de l’analyse OCR");
@@ -72,25 +70,11 @@ const OCRScanner: React.FC = () => {
     <main style={styles.main}>
       <h1 style={styles.title}>Analyse de ticket / facture</h1>
 
-      <p style={styles.subtitle}>
-        Prenez une photo ou importez une image pour extraire le texte.
-      </p>
+      <p style={styles.subtitle}>Prenez une photo ou importez une image pour extraire le texte.</p>
 
-      <input
-        type="file"
-        accept="image/*"
-        capture="environment"
-        onChange={handleFileChange}
-        style={styles.input}
-      />
+      <input type="file" accept="image/*" capture="environment" onChange={handleFileChange} style={styles.input} />
 
-      {image && (
-        <img
-          src={image}
-          alt="Aperçu du ticket"
-          style={styles.preview}
-        />
-      )}
+      {image && <img src={image} alt="Aperçu du ticket" style={styles.preview} />}
 
       {image && (
         <button
@@ -106,13 +90,9 @@ const OCRScanner: React.FC = () => {
         </button>
       )}
 
-      {loading && (
-        <p style={styles.progress}>Analyse : {progress} %</p>
-      )}
+      {loading && <p style={styles.progress}>Analyse : {progress} %</p>}
 
-      {error && (
-        <p style={styles.error}>{error}</p>
-      )}
+      {error && <p style={styles.error}>{error}</p>}
 
       {text && (
         <section style={styles.result}>
@@ -163,6 +143,7 @@ const styles: Record<string, React.CSSProperties> = {
     background: "#22c55e",
     color: "#022c22",
     fontWeight: 600,
+    cursor: "pointer",
     marginBottom: 12,
   },
   progress: {
@@ -181,7 +162,6 @@ const styles: Record<string, React.CSSProperties> = {
   },
   resultTitle: {
     marginBottom: 8,
-    fontSize: "1.1rem",
   },
   pre: {
     whiteSpace: "pre-wrap",
