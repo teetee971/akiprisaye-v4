@@ -166,3 +166,6 @@ ChatGPT*.png
 lighthouse-results.json
 build.log
 t
+
+audit.json
+package-lock.json
