@@ -1,54 +1,84 @@
-import { useState } from "react";
-import { runOcr } from "../ocr/useOcr";
+import React, { useState } from "react";
+import Tesseract from "tesseract.js";
 
-export default function OcrScanner() {
+const OcrScanner: React.FC = () => {
+  const [image, setImage] = useState<string | null>(null);
   const [text, setText] = useState("");
-  const [progress, setProgress] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
-  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setLoading(true);
+    setImage(URL.createObjectURL(file));
     setText("");
+    setError(null);
+  };
+
+  const runOcr = async () => {
+    if (!image) return;
+
+    setLoading(true);
     setProgress(0);
+    setError(null);
 
     try {
-      const result = await runOcr(file, setProgress);
-      setText(result);
+      const result = await Tesseract.recognize(image, "fra", {
+        logger: (m) => {
+          if (m.status === "recognizing text" && m.progress) {
+            setProgress(Math.round(m.progress * 100));
+          }
+        },
+      });
+
+      setText(result.data.text || "");
     } catch (err) {
-      setText("Erreur OCR");
+      console.error(err);
+      setError("Erreur lors de l’analyse OCR");
     } finally {
       setLoading(false);
-      setProgress(null);
     }
-  }
+  };
 
   return (
-    <div style={{ maxWidth: 640, margin: "0 auto" }}>
+    <main style={styles.main}>
+      <h1 style={styles.title}>Analyse de ticket / facture</h1>
+
       <input
         type="file"
         accept="image/*"
-        onChange={handleFile}
-        disabled={loading}
+        capture="environment"
+        onChange={handleFileChange}
       />
 
-      {progress !== null && <p>Analyse : {progress}%</p>}
+      {image && (
+        <img src={image} alt="Ticket" style={styles.preview} />
+      )}
+
+      {image && (
+        <button onClick={runOcr} disabled={loading} style={styles.button}>
+          {loading ? "Analyse en cours…" : "Lancer l’OCR"}
+        </button>
+      )}
+
+      {loading && <p>Analyse : {progress}%</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
       {text && (
-        <pre
-          style={{
-            marginTop: 16,
-            whiteSpace: "pre-wrap",
-            background: "#020617",
-            padding: 12,
-            borderRadius: 8,
-          }}
-        >
-          {text}
-        </pre>
+        <pre style={styles.pre}>{text}</pre>
       )}
-    </div>
+    </main>
   );
-}
+};
+
+export default OcrScanner;
+
+const styles = {
+  main: { padding: 24, color: "#f1f5f9" },
+  title: { marginBottom: 16 },
+  preview: { width: "100%", maxHeight: 300, marginTop: 16 },
+  button: { marginTop: 12, padding: "8px 14px" },
+  pre: { marginTop: 16, whiteSpace: "pre-wrap" },
+};
