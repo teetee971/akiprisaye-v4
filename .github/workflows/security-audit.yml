@@ -1,0 +1,53 @@
+name: Security Audit Guard
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  security-audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Ensure SECURITY_AUDIT.md exists
+        run: |
+          if [ ! -f SECURITY_AUDIT.md ]; then
+            echo "❌ SECURITY_AUDIT.md is missing"
+            exit 1
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies (lockfile only)
+        run: npm install --package-lock-only
+
+      - name: Run npm audit (JSON)
+        run: npm audit --json > audit.json || true
+
+      - name: Check for new HIGH vulnerabilities
+        run: |
+          HIGH_COUNT=$(node -e "
+            const a=require('./audit.json');
+            const v=a.vulnerabilities||{};
+            let c=0;
+            for (const k in v) {
+              if (v[k].severity === 'high') c++;
+            }
+            console.log(c);
+          ")
+
+          echo \"High vulnerabilities: $HIGH_COUNT\"
+
+          if [ \"$HIGH_COUNT\" -gt 0 ]; then
+            echo \"⚠️ High vulnerabilities detected.\"
+            echo \"Ensure SECURITY_AUDIT.md documents and justifies them.\"
+            exit 1
+          fi
