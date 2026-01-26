@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Tesseract from "tesseract.js";
+import { recognizeImage } from "../ocr/loadTesseract";
 import { extractPrices } from "../utils/extractPrices";
 
 export default function OcrPage() {
@@ -13,7 +13,6 @@ export default function OcrPage() {
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setImage(URL.createObjectURL(file));
     setText("");
     setPricesData(null);
@@ -28,15 +27,14 @@ export default function OcrPage() {
     setError(null);
 
     try {
-      const result = await Tesseract.recognize(image, "fra", {
-        logger: (m) => {
-          if (m.status === "recognizing text" && m.progress) {
-            setProgress(Math.round(m.progress * 100));
-          }
-        },
+      // Lazy-load tesseract & data on demand
+      const result = await recognizeImage(image, "fra", (m) => {
+        if (m.status === "recognizing text" && m.progress) {
+          setProgress(Math.round(m.progress * 100));
+        }
       });
 
-      const extractedText = result.data.text || "";
+      const extractedText = result && result.text ? result.text : "";
       setText(extractedText);
 
       const extractedPrices = extractPrices(extractedText);
@@ -52,21 +50,11 @@ export default function OcrPage() {
   return (
     <main style={styles.main}>
       <h1 style={styles.title}>Analyse de ticket / facture</h1>
-      <p style={styles.subtitle}>
-        Prenez une photo ou importez un ticket pour analyser automatiquement les prix.
-      </p>
+      <p style={styles.subtitle}>Prenez une photo ou importez un ticket pour analyser automatiquement les prix.</p>
 
-      <input
-        type="file"
-        accept="image/*"
-        capture="environment"
-        onChange={handleFileChange}
-        style={styles.input}
-      />
+      <input type="file" accept="image/*" capture="environment" onChange={handleFileChange} style={styles.input} />
 
-      {image && (
-        <img src={image} alt="Ticket" style={styles.preview} />
-      )}
+      {image && <img src={image} alt="Ticket" style={styles.preview} />}
 
       {image && (
         <button onClick={runOcr} disabled={loading} style={styles.button}>
@@ -74,13 +62,9 @@ export default function OcrPage() {
         </button>
       )}
 
-      {loading && (
-        <p style={styles.progress}>Analyse : {progress}%</p>
-      )}
+      {loading && <p style={styles.progress}>Analyse : {progress}%</p>}
 
-      {error && (
-        <p style={styles.error}>{error}</p>
-      )}
+      {error && <p style={styles.error}>{error}</p>}
 
       {text && (
         <section style={styles.result}>
@@ -93,9 +77,7 @@ export default function OcrPage() {
         <section style={styles.result}>
           <h2>Analyse des prix</h2>
 
-          {pricesData.prices.length === 0 && (
-            <p style={{ opacity: 0.8 }}>Aucun prix détecté automatiquement.</p>
-          )}
+          {pricesData.prices.length === 0 && <p style={{ opacity: 0.8 }}>Aucun prix détecté automatiquement.</p>}
 
           {pricesData.prices.map((p, i) => (
             <div key={i} style={styles.row}>
@@ -108,11 +90,7 @@ export default function OcrPage() {
 
           <div style={styles.row}>
             <strong>Total détecté</strong>
-            <strong>
-              {pricesData.total
-                ? `${pricesData.total.toFixed(2)} €`
-                : "Non détecté"}
-            </strong>
+            <strong>{pricesData.total ? `${pricesData.total.toFixed(2)} €` : "Non détecté"}</strong>
           </div>
         </section>
       )}
@@ -182,11 +160,10 @@ const styles = {
   row: {
     display: "flex",
     justifyContent: "space-between",
-    marginBottom: 6,
-    fontSize: "0.95rem",
+    marginTop: 8,
   },
   hr: {
     margin: "12px 0",
-    opacity: 0.2,
+    borderColor: "#2d3748",
   },
 };
