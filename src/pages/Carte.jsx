@@ -1,6 +1,29 @@
-import { useEffect, useState, useMemo } from 'react';
+# applique la correction
+
+nano src/components/PressureHeatmapDOM.tsx
+# vérifie / corrige les imports
+
+git add src/pages/Carte.jsx src/components/PressureHeatmapDOM.tsx
+git commit -m "fix(map): remove useMap and align react-leaflet v4 compatibility"
+git pushimport { useEffect, useState, useMemo } from 'react';
 import L from 'leaflet';
-import { useMap } from 'react-leaflet';
+import { MapContainer, TileLayer } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+
+export default function Carte() {
+  return (
+    <MapContainer
+      center={[16.25, -61.55]}
+      zoom={10}
+      style={{ height: "100vh", width: "100%" }}
+    >
+      <TileLayer
+        attribution="&copy; OpenStreetMap contributors"
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+    </MapContainer>
+  );
+}
 import 'leaflet.markercluster';
 import { getStoresByTerritory } from '../services/mapService';
 import { getActiveTerritories, TERRITORIES } from '../constants/territories';
@@ -481,7 +504,7 @@ export default function Carte() {
       // mapService now returns a Promise, so we need to handle it
       getStoresByTerritory(territoryObj.name)
         .then(stores => {
-          setStores(stores);
+        u  setStores(stores);
         })
         .catch(error => {
           console.error('Error loading stores:', error);
