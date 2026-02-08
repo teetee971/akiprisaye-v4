@@ -324,159 +324,7 @@ export const SEED_COMPANIES: Company[] = [
     source: 'REGISTRE_ENTREPRISES',
   },
 
-  // Auchan Retail France
-  {
-    id: 'company-auchan',
-    siretCode: '41040946000015',
-    sirenCode: '410409460',
-    vatCode: 'FR89410409460',
-    legalName: 'Auchan Retail France SA',
-    tradeName: 'Auchan',
-    activityStatus: 'ACTIVE',
-    creationDate: '1961-01-01',
-    headOffice: {
-      streetNumber: '40',
-      streetName: 'Avenue de Flandre',
-      city: 'Croix',
-      department: '59',
-      postalCode: '59170',
-      country: 'France',
-    },
-    geoLocation: {
-      latitude: 50.6792,
-      longitude: 3.1517,
-    },
-    lastUpdate: '2026-02-08T00:00:00Z',
-    source: 'REGISTRE_ENTREPRISES',
-  },
-
-  // Lidl France
-  {
-    id: 'company-lidl',
-    siretCode: '34326262200018',
-    sirenCode: '343262622',
-    vatCode: 'FR80343262622',
-    legalName: 'Lidl SNC',
-    tradeName: 'Lidl',
-    activityStatus: 'ACTIVE',
-    creationDate: '1988-01-01',
-    headOffice: {
-      streetNumber: '1',
-      streetName: 'Place du Marché',
-      city: 'Strasbourg',
-      department: '67',
-      postalCode: '67000',
-      country: 'France',
-    },
-    geoLocation: {
-      latitude: 48.5734,
-      longitude: 7.7521,
-    },
-    lastUpdate: '2026-02-08T00:00:00Z',
-    source: 'REGISTRE_ENTREPRISES',
-  },
-
-  // Picard Surgelés
-  {
-    id: 'company-picard',
-    siretCode: '78493968800015',
-    sirenCode: '784939688',
-    vatCode: 'FR35784939688',
-    legalName: 'Picard Surgelés SAS',
-    tradeName: 'Picard',
-    activityStatus: 'ACTIVE',
-    creationDate: '1906-01-01',
-    headOffice: {
-      streetNumber: '17',
-      streetName: 'Rue de la Vanne',
-      city: 'Fontainebleau',
-      department: '77',
-      postalCode: '77300',
-      country: 'France',
-    },
-    geoLocation: {
-      latitude: 48.4084,
-      longitude: 2.7019,
-    },
-    lastUpdate: '2026-02-08T00:00:00Z',
-    source: 'REGISTRE_ENTREPRISES',
-  },
-
-  // Thiriet Distribution
-  {
-    id: 'company-thiriet',
-    siretCode: '37846394600015',
-    sirenCode: '378463946',
-    vatCode: 'FR26378463946',
-    legalName: 'Thiriet Distribution SAS',
-    tradeName: 'Thiriet',
-    activityStatus: 'ACTIVE',
-    creationDate: '1966-01-01',
-    headOffice: {
-      streetNumber: 'Zone',
-      streetName: 'Industrielle Sud',
-      city: 'Saint-Dizier',
-      department: '52',
-      postalCode: '52100',
-      country: 'France',
-    },
-    geoLocation: {
-      latitude: 48.6390,
-      longitude: 4.9460,
-    },
-    lastUpdate: '2026-02-08T00:00:00Z',
-    source: 'REGISTRE_ENTREPRISES',
-  },
-
-  // Primantilles (local Guadeloupe)
-  {
-    id: 'company-primantilles',
-    siretCode: 'LOCAL_GP_00100001',
-    sirenCode: 'LOCAL_GP_001',
-    legalName: 'Primantilles SARL',
-    tradeName: 'Primantilles',
-    activityStatus: 'ACTIVE',
-    creationDate: '1995-01-01',
-    headOffice: {
-      streetNumber: 'Zone',
-      streetName: 'Industrielle de Jarry',
-      city: 'Baie-Mahault',
-      department: '971',
-      postalCode: '97122',
-      country: 'France',
-    },
-    geoLocation: {
-      latitude: 16.2676,
-      longitude: -61.5252,
-    },
-    lastUpdate: '2026-02-08T00:00:00Z',
-    source: 'LOCAL_REGISTRY',
-  },
-
-  // Beraca (local Guadeloupe/Saint-Martin)
-  {
-    id: 'company-beraca',
-    siretCode: 'LOCAL_GP_00200001',
-    sirenCode: 'LOCAL_GP_002',
-    legalName: 'Beraca Distribution',
-    tradeName: 'Beraca',
-    activityStatus: 'ACTIVE',
-    creationDate: '1990-01-01',
-    headOffice: {
-      streetNumber: 'Centre',
-      streetName: 'Commercial Grand-Case',
-      city: 'Grand-Case',
-      department: '971',
-      postalCode: '97150',
-      country: 'France',
-    },
-    geoLocation: {
-      latitude: 18.1013,
-      longitude: -63.0535,
-    },
-    lastUpdate: '2026-02-08T00:00:00Z',
-    source: 'LOCAL_REGISTRY',
-  },
+  // Casino Group
   {
     id: 'company-casino',
     siretCode: '55490656100015',
@@ -501,7 +349,9 @@ export const SEED_COMPANIES: Company[] = [
     lastUpdate: '2026-02-07T12:00:00Z',
     source: 'REGISTRE_ENTREPRISES',
   },
-{
+
+  // Ecomax - Local retail chain in DOM-TOM
+  {
     id: 'company-ecomax',
     siretCode: '37890123400015',
     sirenCode: '378901234',
@@ -525,7 +375,9 @@ export const SEED_COMPANIES: Company[] = [
     lastUpdate: '2026-02-07T12:00:00Z',
     source: 'REGISTRE_ENTREPRISES',
   },
-{
+
+  // Cora - Major hypermarket chain
+  {
     id: 'company-cora',
     siretCode: '37557019000015',
     sirenCode: '375570190',
@@ -549,7 +401,9 @@ export const SEED_COMPANIES: Company[] = [
     lastUpdate: '2026-02-07T12:00:00Z',
     source: 'REGISTRE_ENTREPRISES',
   },
-{
+
+  // 8 à Huit (Groupe Casino)
+  {
     id: 'company-8ahuit',
     siretCode: '38901234500015',
     sirenCode: '389012345',
@@ -573,7 +427,9 @@ export const SEED_COMPANIES: Company[] = [
     lastUpdate: '2026-02-07T12:00:00Z',
     source: 'REGISTRE_ENTREPRISES',
   },
-{
+
+  // Simply Market (Groupe Auchan)
+  {
     id: 'company-simply-market',
     siretCode: '39012345600015',
     sirenCode: '390123456',
@@ -597,7 +453,35 @@ export const SEED_COMPANIES: Company[] = [
     lastUpdate: '2026-02-07T12:00:00Z',
     source: 'REGISTRE_ENTREPRISES',
   },
-{
+
+  // Auchan
+  {
+    id: 'company-auchan',
+    siretCode: '38890005700015',
+    sirenCode: '388900057',
+    vatCode: 'FR05388900057',
+    legalName: 'Auchan Hypermarché',
+    tradeName: 'Auchan',
+    activityStatus: 'ACTIVE',
+    creationDate: '1961-01-01',
+    headOffice: {
+      streetNumber: '200',
+      streetName: 'Avenue de la Voie Lactée',
+      city: 'Villeneuve-d\'Ascq',
+      department: '59',
+      postalCode: '59650',
+      country: 'France',
+    },
+    geoLocation: {
+      latitude: 50.6292,
+      longitude: 3.1385,
+    },
+    lastUpdate: '2026-02-07T12:00:00Z',
+    source: 'REGISTRE_ENTREPRISES',
+  },
+
+  // Score - Local retail chain in La Réunion and Mayotte
+  {
     id: 'company-score',
     siretCode: '40123456700015',
     sirenCode: '401234567',
@@ -621,7 +505,9 @@ export const SEED_COMPANIES: Company[] = [
     lastUpdate: '2026-02-07T12:00:00Z',
     source: 'REGISTRE_ENTREPRISES',
   },
-{
+
+  // Jumbo - Retail chain in DOM-TOM
+  {
     id: 'company-jumbo',
     siretCode: '41234567800015',
     sirenCode: '412345678',
@@ -645,7 +531,9 @@ export const SEED_COMPANIES: Company[] = [
     lastUpdate: '2026-02-07T12:00:00Z',
     source: 'REGISTRE_ENTREPRISES',
   },
-{
+
+  // Shopi - Local retail chain in Mayotte
+  {
     id: 'company-shopi',
     siretCode: '42345678900015',
     sirenCode: '423456789',
@@ -669,7 +557,9 @@ export const SEED_COMPANIES: Company[] = [
     lastUpdate: '2026-02-07T12:00:00Z',
     source: 'REGISTRE_ENTREPRISES',
   },
-{
+
+  // AMC - Local retail chain in Saint-Barthélemy
+  {
     id: 'company-amc',
     siretCode: '43456789000015',
     sirenCode: '434567890',
@@ -693,7 +583,9 @@ export const SEED_COMPANIES: Company[] = [
     lastUpdate: '2026-02-07T12:00:00Z',
     source: 'REGISTRE_ENTREPRISES',
   },
-{
+
+  // Vival (Système U)
+  {
     id: 'company-vival',
     siretCode: '44567890100015',
     sirenCode: '445678901',
@@ -717,7 +609,9 @@ export const SEED_COMPANIES: Company[] = [
     lastUpdate: '2026-02-07T12:00:00Z',
     source: 'REGISTRE_ENTREPRISES',
   },
-{
+
+  // Euromarché
+  {
     id: 'company-euromarche',
     siretCode: '45678901200015',
     sirenCode: '456789012',
@@ -741,7 +635,9 @@ export const SEED_COMPANIES: Company[] = [
     lastUpdate: '2026-02-07T12:00:00Z',
     source: 'REGISTRE_ENTREPRISES',
   },
-{
+
+  // Mr. Bricolage
+  {
     id: 'company-mr-bricolage',
     siretCode: '46789012300015',
     sirenCode: '467890123',
@@ -765,7 +661,9 @@ export const SEED_COMPANIES: Company[] = [
     lastUpdate: '2026-02-07T12:00:00Z',
     source: 'REGISTRE_ENTREPRISES',
   },
-{
+
+  // Bricopro
+  {
     id: 'company-bricopro',
     siretCode: '47890123400015',
     sirenCode: '478901234',
@@ -789,7 +687,9 @@ export const SEED_COMPANIES: Company[] = [
     lastUpdate: '2026-02-07T12:00:00Z',
     source: 'REGISTRE_ENTREPRISES',
   },
-{
+
+  // Bricomarché
+  {
     id: 'company-bricomarche',
     siretCode: '48901234500015',
     sirenCode: '489012345',
@@ -813,7 +713,9 @@ export const SEED_COMPANIES: Company[] = [
     lastUpdate: '2026-02-07T12:00:00Z',
     source: 'REGISTRE_ENTREPRISES',
   },
-{
+
+  // Darty
+  {
     id: 'company-darty',
     siretCode: '54205011100015',
     sirenCode: '542050111',
@@ -837,7 +739,9 @@ export const SEED_COMPANIES: Company[] = [
     lastUpdate: '2026-02-07T12:00:00Z',
     source: 'REGISTRE_ENTREPRISES',
   },
-{
+
+  // BUT
+  {
     id: 'company-but',
     siretCode: '30825551100015',
     sirenCode: '308255511',
@@ -861,7 +765,9 @@ export const SEED_COMPANIES: Company[] = [
     lastUpdate: '2026-02-07T12:00:00Z',
     source: 'REGISTRE_ENTREPRISES',
   },
-{
+
+  // Décathlon
+  {
     id: 'company-decathlon',
     siretCode: '30621894700015',
     sirenCode: '306218947',
@@ -885,7 +791,9 @@ export const SEED_COMPANIES: Company[] = [
     lastUpdate: '2026-02-07T12:00:00Z',
     source: 'REGISTRE_ENTREPRISES',
   },
-{
+
+  // Intersport
+  {
     id: 'company-intersport',
     siretCode: '31234567800015',
     sirenCode: '312345678',
@@ -908,7 +816,7 @@ export const SEED_COMPANIES: Company[] = [
     },
     lastUpdate: '2026-02-07T12:00:00Z',
     source: 'REGISTRE_ENTREPRISES',
-  }
+  },
 ];
 
 /**

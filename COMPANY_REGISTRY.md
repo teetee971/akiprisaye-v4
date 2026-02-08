@@ -52,7 +52,7 @@ interface Company {
 
 ## Registered Companies
 
-The application includes 36 companies in the seed data, covering all major retail chains operating in French overseas territories:
+The application includes 31 companies in the seed data, covering all major retail chains operating in French overseas territories:
 
 ### National Retail Chains
 - **Carrefour** (Carrefour Hypermarchés SAS) - Major hypermarket chain
@@ -60,8 +60,7 @@ The application includes 36 companies in the seed data, covering all major retai
 - **E.Leclerc** (Association des Centres Distributeurs E.Leclerc) - Major hypermarket chain
 - **Intermarché** (Groupement Les Mousquetaires) - Supermarket chain
 - **Leader Price** (Leader Price Distribution France) - Discount chain
-- **Auchan** (Auchan Retail France SA) - Hypermarket chain
-- **Lidl** (Lidl SNC) - Discount chain
+- **Auchan** (Auchan Hypermarché) - Hypermarket chain
 - **Casino** (Casino Guichard-Perrachon) - Supermarket chain
 - **Simply Market** (Simply Market Distribution) - Supermarket chain
 
@@ -86,12 +85,6 @@ The application includes 36 companies in the seed data, covering all major retai
 - **Groupe Hayot-Sodiprav** - Retail group in Martinique
 - **Groupe Loret** - Automotive and mobility group
 - **Sucreries de Bourbon** - Agro-food industry in La Réunion
-- **Primantilles** (Primantilles SARL) - Local supermarket chain in Guadeloupe
-- **Beraca** (Beraca Distribution) - Local supermarket chain in Guadeloupe and Saint-Martin
-
-### Frozen Foods
-- **Picard** (Picard Surgelés SAS) - Frozen food specialist
-- **Thiriet** (Thiriet Distribution SAS) - Frozen food home delivery
 
 ### DIY & Home Improvement
 - **Mr. Bricolage** (Mr. Bricolage SA) - DIY chain
