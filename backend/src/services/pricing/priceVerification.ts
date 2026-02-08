@@ -1,214 +1,267 @@
 /**
  * Price Verification Service
- * Handles community verification and disputes of prices
+ * 
+ * Handles community verification workflow:
+ * - CONFIRM: User confirms the price is correct
+ * - DISPUTE: User disputes the price and suggests correction
+ * - UPDATE: Admin updates verification status
  */
 
-import { PrismaClient, VerificationAction, VerificationStatus } from '@prisma/client';
-import { calculateConfidenceScore } from './confidenceCalculator.js';
+import { PrismaClient, VerificationStatus, PriceSource } from '@prisma/client';
+import { getFullConfidenceScore } from './confidenceCalculator.js';
 
 const prisma = new PrismaClient();
 
-export interface VerifyPriceRequest {
+export interface VerificationData {
   priceId: string;
   userId: string;
-  action: VerificationAction;
+  status: VerificationStatus;
   comment?: string;
+  proofUrl?: string;
+  suggestedPrice?: number;
+  suggestedSource?: PriceSource;
 }
 
-export interface VerifyPriceResponse {
+export interface VerificationResult {
   success: boolean;
-  message: string;
-  newConfidenceScore: number;
-  verificationStatus: VerificationStatus;
+  verificationId?: string;
+  updatedConfidence?: number;
+  error?: string;
 }
 
 /**
- * Get historical prices for recalculation
+ * Check if user already verified this price
+ * @param priceId - Price ID
+ * @param userId - User ID
+ * @returns Existing verification if found
  */
-async function getHistoricalPricesForPrice(priceId: string): Promise<number[]> {
+async function checkExistingVerification(priceId: string, userId: string) {
+  return await prisma.priceVerification.findFirst({
+    where: {
+      priceId,
+      userId,
+    },
+  });
+}
+
+/**
+ * Get verification statistics for a price
+ * @param priceId - Price ID
+ * @returns Counts of confirmations and disputes
+ */
+async function getVerificationStats(priceId: string) {
+  const verifications = await prisma.priceVerification.findMany({
+    where: {
+      priceId,
+    },
+    select: {
+      status: true,
+    },
+  });
+
+  const confirmations = verifications.filter(v => v.status === 'CONFIRMED').length;
+  const disputes = verifications.filter(v => v.status === 'DISPUTED').length;
+
+  return { confirmations, disputes };
+}
+
+/**
+ * Recalculate confidence score after verification
+ * @param priceId - Price ID
+ */
+async function recalculateConfidence(priceId: string) {
   const price = await prisma.productPrice.findUnique({
     where: { id: priceId },
-    select: { productId: true, storeId: true },
+    include: {
+      verifications: true,
+    },
   });
-  
-  if (!price) return [];
-  
-  const historical = await prisma.productPrice.findMany({
+
+  if (!price) return;
+
+  // Get historical prices
+  const historicalPrices = await prisma.productPrice.findMany({
     where: {
       productId: price.productId,
       storeId: price.storeId,
       isActive: true,
       id: { not: priceId },
     },
-    orderBy: {
-      observedAt: 'desc',
-    },
+    orderBy: { createdAt: 'desc' },
     take: 10,
-    select: {
-      price: true,
-    },
+    select: { price: true },
   });
-  
-  return historical.map((p) => p.price);
-}
 
-/**
- * Recalculate confidence score after verification
- */
-async function recalculateConfidence(priceId: string): Promise<number> {
-  const price = await prisma.productPrice.findUnique({
-    where: { id: priceId },
-    include: {
-      verifications: true,
-    },
-  });
-  
-  if (!price) return 0;
-  
-  const historicalPrices = await getHistoricalPricesForPrice(priceId);
-  
-  const confidenceData = calculateConfidenceScore({
-    observedAt: price.observedAt,
+  const stats = await getVerificationStats(priceId);
+
+  const confidence = getFullConfidenceScore({
+    createdAt: price.createdAt,
     source: price.source,
-    verificationCount: price.verificationCount,
-    price: price.price,
-    historicalPrices,
+    confirmationCount: stats.confirmations,
+    disputeCount: stats.disputes,
+    currentPrice: price.price,
+    historicalPrices: historicalPrices.map(p => p.price),
   });
-  
-  // Update the price with new confidence score
+
+  // Update price with new confidence scores
   await prisma.productPrice.update({
     where: { id: priceId },
     data: {
-      confidenceScore: confidenceData.score,
-      confidenceFactors: confidenceData.factors as any,
+      confidenceScore: confidence.total,
+      recencyScore: confidence.recency,
+      sourceScore: confidence.sourceReliability,
+      verificationScore: confidence.verificationCount,
+      consistencyScore: confidence.consistency,
+      verifiedAt: stats.confirmations > 0 ? new Date() : null,
     },
   });
-  
-  return confidenceData.score;
+
+  return confidence.total;
 }
 
 /**
- * Determine verification status based on verifications
+ * Submit a verification for a price
+ * @param data - Verification data
+ * @returns Result of verification
  */
-function determineVerificationStatus(
-  confirmCount: number,
-  disputeCount: number
-): VerificationStatus {
-  if (disputeCount >= 3) return 'DISPUTED';
-  if (confirmCount >= 2) return 'VERIFIED';
-  return 'UNVERIFIED';
-}
+export async function verifyPrice(
+  data: VerificationData
+): Promise<VerificationResult> {
+  try {
+    // Validate price exists
+    const price = await prisma.productPrice.findUnique({
+      where: { id: data.priceId },
+    });
 
-/**
- * Verify or dispute a price
- */
-export async function verifyPrice(request: VerifyPriceRequest): Promise<VerifyPriceResponse> {
-  // Check if price exists
-  const price = await prisma.productPrice.findUnique({
-    where: { id: request.priceId },
-    include: {
-      verifications: true,
-    },
-  });
-  
-  if (!price) {
+    if (!price) {
+      return {
+        success: false,
+        error: 'Price not found',
+      };
+    }
+
+    if (!price.isActive) {
+      return {
+        success: false,
+        error: 'Price is no longer active',
+      };
+    }
+
+    // Check for existing verification
+    const existing = await checkExistingVerification(data.priceId, data.userId);
+    if (existing) {
+      return {
+        success: false,
+        error: 'You have already verified this price',
+      };
+    }
+
+    // Validate suggested price if disputing
+    if (data.status === 'DISPUTED' && data.suggestedPrice) {
+      if (data.suggestedPrice <= 0) {
+        return {
+          success: false,
+          error: 'Suggested price must be positive',
+        };
+      }
+    }
+
+    // Create verification
+    const verification = await prisma.priceVerification.create({
+      data: {
+        priceId: data.priceId,
+        userId: data.userId,
+        status: data.status,
+        comment: data.comment,
+        proofUrl: data.proofUrl,
+        suggestedPrice: data.suggestedPrice,
+        suggestedSource: data.suggestedSource,
+      },
+    });
+
+    // Recalculate confidence score
+    const updatedConfidence = await recalculateConfidence(data.priceId);
+
+    return {
+      success: true,
+      verificationId: verification.id,
+      updatedConfidence,
+    };
+  } catch (error) {
+    console.error('Error verifying price:', error);
     return {
       success: false,
-      message: 'Prix introuvable',
-      newConfidenceScore: 0,
-      verificationStatus: 'UNVERIFIED',
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
     };
   }
-  
-  // Check if user already verified this price
-  const existingVerification = price.verifications.find(
-    (v) => v.userId === request.userId
-  );
-  
-  if (existingVerification) {
-    return {
-      success: false,
-      message: 'Vous avez déjà vérifié ce prix',
-      newConfidenceScore: price.confidenceScore,
-      verificationStatus: price.verificationStatus,
-    };
-  }
-  
-  // Create verification record
-  await prisma.priceVerification.create({
-    data: {
-      priceId: request.priceId,
-      userId: request.userId,
-      action: request.action,
-      comment: request.comment,
-    },
-  });
-  
-  // Count confirmations and disputes
-  const allVerifications = await prisma.priceVerification.findMany({
-    where: { priceId: request.priceId },
-  });
-  
-  const confirmCount = allVerifications.filter((v) => v.action === 'CONFIRM').length;
-  const disputeCount = allVerifications.filter((v) => v.action === 'DISPUTE').length;
-  
-  // Determine new verification status
-  const newStatus = determineVerificationStatus(confirmCount, disputeCount);
-  
-  // Update price
-  await prisma.productPrice.update({
-    where: { id: request.priceId },
-    data: {
-      verificationCount: confirmCount,
-      verificationStatus: newStatus,
-      lastVerifiedAt: new Date(),
-    },
-  });
-  
-  // Recalculate confidence score
-  const newConfidenceScore = await recalculateConfidence(request.priceId);
-  
-  let message: string;
-  if (request.action === 'CONFIRM') {
-    message = 'Merci pour votre confirmation !';
-  } else if (request.action === 'DISPUTE') {
-    message = 'Contestation enregistrée, le prix sera vérifié';
-  } else {
-    message = 'Mise à jour enregistrée';
-  }
-  
-  return {
-    success: true,
-    message,
-    newConfidenceScore,
-    verificationStatus: newStatus,
-  };
 }
 
 /**
- * Get verification statistics for a price
+ * Get all verifications for a price
+ * @param priceId - Price ID
+ * @returns Array of verifications with user info
  */
-export async function getPriceVerificationStats(priceId: string) {
+export async function getVerifications(priceId: string) {
   const verifications = await prisma.priceVerification.findMany({
-    where: { priceId },
-    select: {
-      action: true,
-      createdAt: true,
+    where: {
+      priceId,
+    },
+    orderBy: {
+      createdAt: 'desc',
     },
   });
+
+  return verifications;
+}
+
+/**
+ * Get verification statistics
+ * @param priceId - Price ID
+ * @returns Statistics about verifications
+ */
+export async function getVerificationSummary(priceId: string) {
+  const stats = await getVerificationStats(priceId);
   
-  const confirms = verifications.filter((v) => v.action === 'CONFIRM').length;
-  const disputes = verifications.filter((v) => v.action === 'DISPUTE').length;
-  const updates = verifications.filter((v) => v.action === 'UPDATE').length;
-  
+  const total = stats.confirmations + stats.disputes;
+  const confirmationRate = total > 0 ? (stats.confirmations / total) * 100 : 0;
+
   return {
-    total: verifications.length,
-    confirms,
-    disputes,
-    updates,
-    verifications: verifications.map((v) => ({
-      action: v.action,
-      date: v.createdAt,
-    })),
+    totalVerifications: total,
+    confirmations: stats.confirmations,
+    disputes: stats.disputes,
+    confirmationRate,
   };
+}
+
+/**
+ * Update verification status (admin only)
+ * @param verificationId - Verification ID
+ * @param newStatus - New status
+ * @returns Update result
+ */
+export async function updateVerificationStatus(
+  verificationId: string,
+  newStatus: VerificationStatus
+): Promise<VerificationResult> {
+  try {
+    const verification = await prisma.priceVerification.update({
+      where: { id: verificationId },
+      data: { status: newStatus },
+    });
+
+    // Recalculate confidence after status change
+    const updatedConfidence = await recalculateConfidence(verification.priceId);
+
+    return {
+      success: true,
+      verificationId: verification.id,
+      updatedConfidence,
+    };
+  } catch (error) {
+    console.error('Error updating verification:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+    };
+  }
 }

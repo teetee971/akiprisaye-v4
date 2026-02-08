@@ -1,64 +1,56 @@
 /**
  * usePriceHistory Hook
- * React hook for fetching and managing price history
+ * 
+ * Fetch price history with loading states
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
-export interface PriceHistoryEntry {
+interface PriceDataPoint {
+  date: Date | string;
   price: number;
-  observedAt: string;
-  source: string;
-  change: number;
-  changeType: 'increase' | 'decrease' | 'stable';
   confidenceScore: number;
+  source: string;
 }
 
-export interface PriceStatistics {
+interface PriceHistoryStats {
+  currentPrice?: number;
+  averagePrice: number;
   minPrice: number;
   maxPrice: number;
-  avgPrice: number;
-  currentPrice: number;
   priceRange: number;
   volatility: number;
-}
-
-export interface PriceHistoryData {
-  productId: string;
-  storeId: string;
-  history: PriceHistoryEntry[];
-  statistics: PriceStatistics;
+  trendDirection: 'UP' | 'DOWN' | 'STABLE';
+  trendPercentage: number;
+  dataPoints: number;
 }
 
 interface UsePriceHistoryResult {
-  data: PriceHistoryData | null;
-  loading: boolean;
+  history: PriceDataPoint[];
+  stats: PriceHistoryStats | null;
+  isLoading: boolean;
   error: string | null;
-  refetch: () => void;
+  refetch: () => Promise<void>;
 }
 
 export function usePriceHistory(
   productId: string,
   storeId: string,
-  limit: number = 50
+  days: number = 90,
+  minConfidence: number = 0
 ): UsePriceHistoryResult {
-  const [data, setData] = useState<PriceHistoryData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [history, setHistory] = useState<PriceDataPoint[]>([]);
+  const [stats, setStats] = useState<PriceHistoryStats | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchHistory = useCallback(async () => {
-    if (!productId || !storeId) {
-      setError('Product ID and Store ID are required');
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
+  const fetchHistory = async () => {
+    setIsLoading(true);
     setError(null);
 
     try {
       const response = await fetch(
-        `/api/prices/history/${productId}?storeId=${storeId}&limit=${limit}`
+        `/api/prices/history/${productId}?storeId=${storeId}&days=${days}&minConfidence=${minConfidence}`
       );
 
       if (!response.ok) {
@@ -66,21 +58,32 @@ export function usePriceHistory(
       }
 
       const result = await response.json();
-      setData(result);
+
+      if (result.success) {
+        setHistory(result.data);
+        setStats(result.stats);
+      } else {
+        throw new Error(result.error || 'Failed to fetch price history');
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch price history');
+      console.error('Error fetching price history:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error occurred');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  }, [productId, storeId, limit]);
+  };
 
   useEffect(() => {
-    fetchHistory();
-  }, [fetchHistory]);
+    if (productId && storeId) {
+      fetchHistory();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productId, storeId, days, minConfidence]);
 
   return {
-    data,
-    loading,
+    history,
+    stats,
+    isLoading,
     error,
     refetch: fetchHistory,
   };

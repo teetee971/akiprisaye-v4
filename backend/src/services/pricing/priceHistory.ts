@@ -1,220 +1,360 @@
 /**
  * Price History Service
- * Manages historical price data and trends
+ * 
+ * Provides statistical analysis and volatility tracking for price history
  */
 
-import { PrismaClient, PriceSource } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export interface PriceHistoryEntry {
-  price: number;
-  observedAt: string;
-  source: PriceSource;
-  change: number;
-  changeType: 'increase' | 'decrease' | 'stable';
-  confidenceScore: number;
-}
-
-export interface PriceHistoryResponse {
+export interface PriceHistoryStats {
   productId: string;
   storeId: string;
-  history: PriceHistoryEntry[];
-  statistics: {
-    minPrice: number;
-    maxPrice: number;
-    avgPrice: number;
-    currentPrice: number;
-    priceRange: number;
-    volatility: number;
+  currentPrice?: number;
+  averagePrice: number;
+  minPrice: number;
+  maxPrice: number;
+  priceRange: number;
+  volatility: number; // Standard deviation
+  trendDirection: 'UP' | 'DOWN' | 'STABLE';
+  trendPercentage: number;
+  dataPoints: number;
+  firstRecordedDate: Date;
+  lastRecordedDate: Date;
+}
+
+export interface PriceDataPoint {
+  date: Date;
+  price: number;
+  confidenceScore: number;
+  source: string;
+}
+
+/**
+ * Calculate standard deviation for volatility
+ */
+function calculateStandardDeviation(values: number[]): number {
+  if (values.length === 0) return 0;
+  
+  const avg = values.reduce((sum, val) => sum + val, 0) / values.length;
+  const squaredDiffs = values.map(val => Math.pow(val - avg, 2));
+  const variance = squaredDiffs.reduce((sum, val) => sum + val, 0) / values.length;
+  
+  return Math.sqrt(variance);
+}
+
+/**
+ * Determine price trend
+ */
+function analyzeTrend(prices: number[]): {
+  direction: 'UP' | 'DOWN' | 'STABLE';
+  percentage: number;
+} {
+  if (prices.length < 2) {
+    return { direction: 'STABLE', percentage: 0 };
+  }
+
+  // Simple linear regression
+  const n = prices.length;
+  const xSum = (n * (n - 1)) / 2; // Sum of 0,1,2,...,n-1
+  const ySum = prices.reduce((sum, p) => sum + p, 0);
+  const xySum = prices.reduce((sum, p, i) => sum + i * p, 0);
+  const xxSum = (n * (n - 1) * (2 * n - 1)) / 6;
+
+  const slope = (n * xySum - xSum * ySum) / (n * xxSum - xSum * xSum);
+  const firstPrice = prices[0];
+  const lastPrice = prices[prices.length - 1];
+  
+  const changePercentage = ((lastPrice - firstPrice) / firstPrice) * 100;
+
+  let direction: 'UP' | 'DOWN' | 'STABLE';
+  if (Math.abs(changePercentage) < 3) {
+    direction = 'STABLE';
+  } else if (slope > 0) {
+    direction = 'UP';
+  } else {
+    direction = 'DOWN';
+  }
+
+  return {
+    direction,
+    percentage: changePercentage,
   };
 }
 
 /**
- * Calculate price change percentage
+ * Get price history statistics for a product at a store
+ * @param productId - Product ID
+ * @param storeId - Store ID
+ * @param days - Number of days to analyze (default: 90)
+ * @returns Statistical analysis of price history
  */
-function calculateChange(current: number, previous: number): number {
-  if (previous === 0) return 0;
-  return ((current - previous) / previous) * 100;
+export async function getPriceHistoryStats(
+  productId: string,
+  storeId: string,
+  days: number = 90
+): Promise<PriceHistoryStats | null> {
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - days);
+
+  const prices = await prisma.productPrice.findMany({
+    where: {
+      productId,
+      storeId,
+      isActive: true,
+      createdAt: {
+        gte: cutoffDate,
+      },
+    },
+    orderBy: {
+      createdAt: 'asc',
+    },
+  });
+
+  if (prices.length === 0) {
+    return null;
+  }
+
+  const priceValues = prices.map(p => p.price);
+  const minPrice = Math.min(...priceValues);
+  const maxPrice = Math.max(...priceValues);
+  const averagePrice = priceValues.reduce((sum, p) => sum + p, 0) / priceValues.length;
+  const volatility = calculateStandardDeviation(priceValues);
+  const trend = analyzeTrend(priceValues);
+
+  return {
+    productId,
+    storeId,
+    currentPrice: prices[prices.length - 1].price,
+    averagePrice,
+    minPrice,
+    maxPrice,
+    priceRange: maxPrice - minPrice,
+    volatility,
+    trendDirection: trend.direction,
+    trendPercentage: trend.percentage,
+    dataPoints: prices.length,
+    firstRecordedDate: prices[0].createdAt,
+    lastRecordedDate: prices[prices.length - 1].createdAt,
+  };
 }
 
 /**
- * Determine change type
- */
-function getChangeType(change: number): 'increase' | 'decrease' | 'stable' {
-  if (Math.abs(change) < 0.5) return 'stable'; // Less than 0.5% is considered stable
-  return change > 0 ? 'increase' : 'decrease';
-}
-
-/**
- * Calculate price volatility (standard deviation)
- */
-function calculateVolatility(prices: number[]): number {
-  if (prices.length < 2) return 0;
-  
-  const mean = prices.reduce((sum, p) => sum + p, 0) / prices.length;
-  const squaredDiffs = prices.map((p) => Math.pow(p - mean, 2));
-  const variance = squaredDiffs.reduce((sum, d) => sum + d, 0) / prices.length;
-  const stdDev = Math.sqrt(variance);
-  
-  return (stdDev / mean) * 100; // Coefficient of variation as percentage
-}
-
-/**
- * Get price history for a product at a specific store
+ * Get detailed price history data points
+ * @param productId - Product ID
+ * @param storeId - Store ID
+ * @param days - Number of days to retrieve
+ * @param minConfidence - Minimum confidence score filter
+ * @returns Array of price data points
  */
 export async function getPriceHistory(
   productId: string,
   storeId: string,
-  limit: number = 50
-): Promise<PriceHistoryResponse> {
+  days: number = 90,
+  minConfidence: number = 0
+): Promise<PriceDataPoint[]> {
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - days);
+
   const prices = await prisma.productPrice.findMany({
     where: {
       productId,
       storeId,
       isActive: true,
-      verificationStatus: { not: 'DISPUTED' },
+      confidenceScore: {
+        gte: minConfidence,
+      },
+      createdAt: {
+        gte: cutoffDate,
+      },
     },
     orderBy: {
-      observedAt: 'desc',
-    },
-    take: limit,
-    select: {
-      price: true,
-      observedAt: true,
-      source: true,
-      confidenceScore: true,
+      createdAt: 'asc',
     },
   });
-  
-  if (prices.length === 0) {
-    return {
+
+  return prices.map(p => ({
+    date: p.createdAt,
+    price: p.price,
+    confidenceScore: p.confidenceScore,
+    source: p.source,
+  }));
+}
+
+/**
+ * Get aggregated price history across all stores for a product
+ * @param productId - Product ID
+ * @param days - Number of days to analyze
+ * @returns Statistics grouped by store
+ */
+export async function getAggregatedPriceHistory(
+  productId: string,
+  days: number = 90
+) {
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - days);
+
+  const prices = await prisma.productPrice.findMany({
+    where: {
       productId,
-      storeId,
-      history: [],
-      statistics: {
-        minPrice: 0,
-        maxPrice: 0,
-        avgPrice: 0,
-        currentPrice: 0,
-        priceRange: 0,
-        volatility: 0,
+      isActive: true,
+      createdAt: {
+        gte: cutoffDate,
       },
-    };
-  }
-  
-  // Build history with changes
-  const history: PriceHistoryEntry[] = [];
-  for (let i = 0; i < prices.length; i++) {
-    const current = prices[i];
-    const previous = i < prices.length - 1 ? prices[i + 1] : null;
-    
-    const change = previous ? calculateChange(current.price, previous.price) : 0;
-    
-    history.push({
-      price: current.price,
-      observedAt: current.observedAt.toISOString(),
-      source: current.source,
-      change,
-      changeType: getChangeType(change),
-      confidenceScore: current.confidenceScore,
-    });
-  }
-  
-  // Calculate statistics
-  const priceValues = prices.map((p) => p.price);
-  const minPrice = Math.min(...priceValues);
-  const maxPrice = Math.max(...priceValues);
-  const avgPrice = priceValues.reduce((sum, p) => sum + p, 0) / priceValues.length;
-  const currentPrice = prices[0].price;
-  const priceRange = maxPrice - minPrice;
-  const volatility = calculateVolatility(priceValues);
-  
+    },
+    orderBy: {
+      createdAt: 'asc',
+    },
+  });
+
+  // Group by store
+  const byStore = prices.reduce((acc, price) => {
+    if (!acc[price.storeId]) {
+      acc[price.storeId] = [];
+    }
+    acc[price.storeId].push(price);
+    return acc;
+  }, {} as Record<string, typeof prices>);
+
+  // Calculate stats for each store
+  const storeStats = await Promise.all(
+    Object.entries(byStore).map(async ([storeId, storePrices]) => {
+      const priceValues = storePrices.map(p => p.price);
+      const currentPrice = storePrices[storePrices.length - 1].price;
+      const avgPrice = priceValues.reduce((sum, p) => sum + p, 0) / priceValues.length;
+
+      return {
+        storeId,
+        currentPrice,
+        averagePrice: avgPrice,
+        minPrice: Math.min(...priceValues),
+        maxPrice: Math.max(...priceValues),
+        dataPoints: storePrices.length,
+      };
+    })
+  );
+
+  // Overall stats
+  const allPrices = prices.map(p => p.price);
+  const overallAvg = allPrices.reduce((sum, p) => sum + p, 0) / allPrices.length;
+
   return {
     productId,
-    storeId,
-    history,
-    statistics: {
-      minPrice,
-      maxPrice,
-      avgPrice,
-      currentPrice,
-      priceRange,
-      volatility,
-    },
+    overallAverage: overallAvg,
+    overallMin: Math.min(...allPrices),
+    overallMax: Math.max(...allPrices),
+    storeCount: Object.keys(byStore).length,
+    totalDataPoints: prices.length,
+    stores: storeStats,
   };
 }
 
 /**
- * Get aggregated price history across multiple stores
+ * Get price comparison across stores for a product
+ * @param productId - Product ID
+ * @returns Current prices at each store, sorted by price
  */
-export async function getAggregatedPriceHistory(
-  productId: string,
-  period: '7d' | '30d' | '90d' | '1y' = '30d'
-): Promise<{ date: string; avgPrice: number; minPrice: number; maxPrice: number; count: number }[]> {
-  const daysMap = { '7d': 7, '30d': 30, '90d': 90, '1y': 365 };
-  const days = daysMap[period];
-  
-  const since = new Date();
-  since.setDate(since.getDate() - days);
-  
+export async function getPriceComparison(productId: string) {
+  // Get most recent price for each store
   const prices = await prisma.productPrice.findMany({
     where: {
       productId,
-      observedAt: { gte: since },
       isActive: true,
-      verificationStatus: { not: 'DISPUTED' },
-    },
-    select: {
-      price: true,
-      observedAt: true,
+      isFresh: true, // Only fresh prices
     },
     orderBy: {
-      observedAt: 'asc',
+      createdAt: 'desc',
     },
   });
-  
-  // Group by day
-  const grouped = new Map<string, number[]>();
+
+  // Get unique stores with their latest price
+  const storeLatestPrices = new Map<string, typeof prices[0]>();
   
   for (const price of prices) {
-    const date = price.observedAt.toISOString().split('T')[0];
-    if (!grouped.has(date)) {
-      grouped.set(date, []);
+    if (!storeLatestPrices.has(price.storeId)) {
+      storeLatestPrices.set(price.storeId, price);
     }
-    grouped.get(date)!.push(price.price);
   }
-  
-  // Calculate daily statistics
-  const result: { date: string; avgPrice: number; minPrice: number; maxPrice: number; count: number }[] = [];
-  
-  for (const [date, dayPrices] of grouped.entries()) {
-    result.push({
-      date,
-      avgPrice: dayPrices.reduce((sum, p) => sum + p, 0) / dayPrices.length,
-      minPrice: Math.min(...dayPrices),
-      maxPrice: Math.max(...dayPrices),
-      count: dayPrices.length,
-    });
-  }
-  
-  return result.sort((a, b) => a.date.localeCompare(b.date));
+
+  // Convert to array and sort by price
+  const comparison = Array.from(storeLatestPrices.values())
+    .map(p => ({
+      storeId: p.storeId,
+      price: p.price,
+      confidenceScore: p.confidenceScore,
+      updatedAt: p.createdAt,
+      source: p.source,
+    }))
+    .sort((a, b) => a.price - b.price);
+
+  const lowestPrice = comparison[0]?.price || 0;
+  const highestPrice = comparison[comparison.length - 1]?.price || 0;
+  const avgPrice = comparison.reduce((sum, p) => sum + p.price, 0) / comparison.length;
+
+  return {
+    productId,
+    lowestPrice,
+    highestPrice,
+    averagePrice: avgPrice,
+    priceRange: highestPrice - lowestPrice,
+    storeCount: comparison.length,
+    stores: comparison,
+  };
 }
 
 /**
- * Compare price history between stores
+ * Track price volatility over time
+ * @param productId - Product ID
+ * @param storeId - Store ID
+ * @param days - Analysis period
+ * @returns Volatility metrics
  */
-export async function comparePriceHistory(
+export async function trackVolatility(
   productId: string,
-  storeIds: string[],
-  days: number = 30
-): Promise<Map<string, PriceHistoryResponse>> {
-  const results = new Map<string, PriceHistoryResponse>();
-  
-  for (const storeId of storeIds) {
-    const history = await getPriceHistory(productId, storeId, days);
-    results.set(storeId, history);
+  storeId: string,
+  days: number = 90
+) {
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - days);
+
+  const prices = await prisma.productPrice.findMany({
+    where: {
+      productId,
+      storeId,
+      isActive: true,
+      createdAt: {
+        gte: cutoffDate,
+      },
+    },
+    orderBy: {
+      createdAt: 'asc',
+    },
+  });
+
+  if (prices.length < 2) {
+    return {
+      volatilityScore: 0,
+      isStable: true,
+      riskLevel: 'LOW' as const,
+    };
   }
-  
-  return results;
+
+  const priceValues = prices.map(p => p.price);
+  const volatility = calculateStandardDeviation(priceValues);
+  const avgPrice = priceValues.reduce((sum, p) => sum + p, 0) / priceValues.length;
+  const volatilityPercentage = (volatility / avgPrice) * 100;
+
+  let riskLevel: 'LOW' | 'MEDIUM' | 'HIGH';
+  if (volatilityPercentage < 5) riskLevel = 'LOW';
+  else if (volatilityPercentage < 15) riskLevel = 'MEDIUM';
+  else riskLevel = 'HIGH';
+
+  return {
+    volatilityScore: volatility,
+    volatilityPercentage,
+    isStable: volatilityPercentage < 10,
+    riskLevel,
+    priceSwings: Math.max(...priceValues) - Math.min(...priceValues),
+  };
 }

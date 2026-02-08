@@ -1,116 +1,127 @@
 /**
- * Freshness Indicator Component
- * Shows how recent the price data is
+ * FreshnessIndicator Component
+ * 
+ * Time-based status indicator for price data freshness
  */
 
 import React from 'react';
 
-export interface FreshnessIndicatorProps {
-  observedAt: string;
-  status?: 'fresh' | 'recent' | 'stale' | 'outdated';
+export type FreshnessStatus = 'FRESH' | 'RECENT' | 'STALE' | 'OUTDATED';
+
+interface FreshnessIndicatorProps {
+  createdAt: Date | string;
+  status?: FreshnessStatus;
+  showIcon?: boolean;
   showLabel?: boolean;
+  size?: 'sm' | 'md' | 'lg';
 }
 
-const calculateDaysSince = (dateString: string): number => {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffTime = Math.abs(now.getTime() - date.getTime());
-  return Math.floor(diffTime / (1000 * 60 * 60 * 24));
-};
-
-const getFreshnessStatus = (daysSince: number): 'fresh' | 'recent' | 'stale' | 'outdated' => {
-  if (daysSince <= 7) return 'fresh';
-  if (daysSince <= 30) return 'recent';
-  if (daysSince <= 60) return 'stale';
-  return 'outdated';
-};
-
-const getStatusConfig = (status: 'fresh' | 'recent' | 'stale' | 'outdated') => {
-  const configs = {
-    fresh: {
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
-      borderColor: 'border-green-200',
-      label: 'Très récent',
-      icon: '🟢',
-    },
-    recent: {
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
-      borderColor: 'border-blue-200',
-      label: 'Récent',
-      icon: '🔵',
-    },
-    stale: {
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-50',
-      borderColor: 'border-orange-200',
-      label: 'Ancien',
-      icon: '🟠',
-    },
-    outdated: {
-      color: 'text-red-600',
-      bgColor: 'bg-red-50',
-      borderColor: 'border-red-200',
-      label: 'Périmé',
-      icon: '🔴',
-    },
-  };
-  return configs[status];
-};
-
 const FreshnessIndicator: React.FC<FreshnessIndicatorProps> = ({
-  observedAt,
-  status: propStatus,
+  createdAt,
+  status,
+  showIcon = true,
   showLabel = true,
+  size = 'md',
 }) => {
-  const daysSince = calculateDaysSince(observedAt);
-  const status = propStatus || getFreshnessStatus(daysSince);
-  const config = getStatusConfig(status);
+  const date = typeof createdAt === 'string' ? new Date(createdAt) : createdAt;
+  const freshnessStatus = status || calculateFreshnessStatus(date);
 
-  const observedDate = new Date(observedAt);
-  const formattedDate = observedDate.toLocaleDateString('fr-FR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-
-  const getTimeAgoText = (days: number): string => {
-    if (days === 0) return "Aujourd'hui";
-    if (days === 1) return 'Hier';
-    if (days < 7) return `Il y a ${days} jours`;
-    if (days < 30) {
-      const weeks = Math.floor(days / 7);
-      return `Il y a ${weeks} semaine${weeks > 1 ? 's' : ''}`;
+  // Get status configuration
+  const getStatusConfig = () => {
+    switch (freshnessStatus) {
+      case 'FRESH':
+        return {
+          color: 'text-green-700 bg-green-50 border-green-200',
+          icon: '✓',
+          label: 'Frais',
+          description: 'Moins de 7 jours',
+        };
+      case 'RECENT':
+        return {
+          color: 'text-blue-700 bg-blue-50 border-blue-200',
+          icon: '●',
+          label: 'Récent',
+          description: '7-14 jours',
+        };
+      case 'STALE':
+        return {
+          color: 'text-yellow-700 bg-yellow-50 border-yellow-200',
+          icon: '◐',
+          label: 'Ancien',
+          description: '14-30 jours',
+        };
+      case 'OUTDATED':
+        return {
+          color: 'text-red-700 bg-red-50 border-red-200',
+          icon: '!',
+          label: 'Obsolète',
+          description: 'Plus de 30 jours',
+        };
     }
-    if (days < 365) {
-      const months = Math.floor(days / 30);
-      return `Il y a ${months} mois`;
-    }
-    const years = Math.floor(days / 365);
-    return `Il y a ${years} an${years > 1 ? 's' : ''}`;
   };
+
+  const config = getStatusConfig();
+
+  // Size classes
+  const sizeClasses = {
+    sm: 'text-xs px-2 py-1',
+    md: 'text-sm px-2.5 py-1',
+    lg: 'text-base px-3 py-1.5',
+  };
+
+  // Format time ago
+  const timeAgo = getTimeAgo(date);
 
   return (
     <div
-      className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border ${config.bgColor} ${config.borderColor}`}
-      title={`Observé le ${formattedDate}`}
+      className={`inline-flex items-center gap-1.5 rounded-md border ${config.color} ${sizeClasses[size]} font-medium`}
+      role="status"
+      aria-label={`Fraîcheur: ${config.label}`}
+      title={`${config.description} - ${timeAgo}`}
     >
-      <span className="text-lg" role="img" aria-hidden="true">
-        {config.icon}
-      </span>
-      <div className="flex flex-col">
-        {showLabel && (
-          <span className={`text-xs font-medium ${config.color}`}>
-            {config.label}
-          </span>
-        )}
-        <span className={`text-sm ${config.color}`}>
-          {getTimeAgoText(daysSince)}
-        </span>
-      </div>
+      {showIcon && <span className="font-bold">{config.icon}</span>}
+      {showLabel && <span>{config.label}</span>}
+      <span className="opacity-70 text-xs">({timeAgo})</span>
     </div>
   );
 };
+
+/**
+ * Calculate freshness status based on age
+ */
+function calculateFreshnessStatus(date: Date): FreshnessStatus {
+  const now = new Date();
+  const ageInDays = (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24);
+
+  if (ageInDays < 7) return 'FRESH';
+  if (ageInDays < 14) return 'RECENT';
+  if (ageInDays < 30) return 'STALE';
+  return 'OUTDATED';
+}
+
+/**
+ * Get human-readable time ago string
+ */
+function getTimeAgo(date: Date): string {
+  const now = new Date();
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (seconds < 60) return `${seconds}s`;
+  
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}min`;
+  
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h`;
+  
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}j`;
+  
+  const weeks = Math.floor(days / 7);
+  if (weeks < 4) return `${weeks}sem`;
+  
+  const months = Math.floor(days / 30);
+  return `${months}mois`;
+}
 
 export default FreshnessIndicator;

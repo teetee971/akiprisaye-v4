@@ -109,6 +109,22 @@ enum ChallengeType {
   SPECIAL
 }
 
+/// Verified Pricing System Enums
+enum PriceSource {
+  USER_SUBMISSION
+  STORE_OFFICIAL
+  RECEIPT_SCAN
+  API_INTEGRATION
+  COMMUNITY_VERIFIED
+  ADMIN_OVERRIDE
+}
+
+enum VerificationStatus {
+  PENDING
+  CONFIRMED
+  DISPUTED
+  REJECTED
+  EXPIRED
 enum ProductSource {
   MANUAL
   OCR

@@ -1,103 +1,94 @@
 /**
  * usePriceSubmission Hook
- * React hook for submitting new prices
+ * 
+ * Submit prices with error handling
  */
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 
-export type PriceSource =
-  | 'OCR_TICKET'
-  | 'OFFICIAL_API'
-  | 'OPEN_PRICES'
-  | 'MANUAL_ENTRY'
-  | 'CROWDSOURCED'
-  | 'SCRAPING_AUTHORIZED';
+type PriceSource = 'USER_SUBMISSION' | 'RECEIPT_SCAN' | 'STORE_OFFICIAL' | 'API_INTEGRATION' | 'COMMUNITY_VERIFIED' | 'ADMIN_OVERRIDE';
 
-export interface SubmitPriceRequest {
+export interface PriceSubmissionData {
   productId: string;
   storeId: string;
   price: number;
-  observedAt: string;
+  currency?: string;
   source: PriceSource;
-  reportedBy?: string;
-  proof?: {
-    type: 'receipt_image' | 'screenshot' | 'none';
-    url?: string;
-  };
+  submittedBy?: string;
+  proofUrl?: string;
 }
 
-export interface SubmitPriceResponse {
-  id: string;
-  status: 'accepted' | 'pending_review' | 'rejected';
-  confidenceScore: number;
-  message: string;
-  duplicateOf?: string;
+export interface SubmissionResult {
+  success: boolean;
+  priceId?: string;
+  confidenceScore?: number;
+  hasAnomalies?: boolean;
+  anomalies?: Array<{
+    type: string;
+    severity: string;
+    description: string;
+  }>;
+  error?: string;
+  isDuplicate?: boolean;
+  existingPriceId?: string;
 }
 
 interface UsePriceSubmissionResult {
-  submitPrice: (request: SubmitPriceRequest) => Promise<SubmitPriceResponse | null>;
-  loading: boolean;
+  submitPrice: (data: PriceSubmissionData) => Promise<SubmissionResult>;
+  isSubmitting: boolean;
+  lastResult: SubmissionResult | null;
   error: string | null;
-  success: boolean;
-  response: SubmitPriceResponse | null;
-  reset: () => void;
 }
 
 export function usePriceSubmission(): UsePriceSubmissionResult {
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [lastResult, setLastResult] = useState<SubmissionResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-  const [response, setResponse] = useState<SubmitPriceResponse | null>(null);
 
-  const submitPrice = useCallback(
-    async (request: SubmitPriceRequest): Promise<SubmitPriceResponse | null> => {
-      setLoading(true);
-      setError(null);
-      setSuccess(false);
-      setResponse(null);
-
-      try {
-        const res = await fetch('/api/prices', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(request),
-        });
-
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.message || 'Failed to submit price');
-        }
-
-        const result = await res.json();
-        setSuccess(true);
-        setResponse(result);
-        return result;
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-        setError(errorMessage);
-        return null;
-      } finally {
-        setLoading(false);
-      }
-    },
-    []
-  );
-
-  const reset = useCallback(() => {
-    setLoading(false);
+  const submitPrice = async (data: PriceSubmissionData): Promise<SubmissionResult> => {
+    setIsSubmitting(true);
     setError(null);
-    setSuccess(false);
-    setResponse(null);
-  }, []);
+
+    try {
+      const response = await fetch('/api/prices', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setError(result.error || 'Failed to submit price');
+        setLastResult(result);
+        return result;
+      }
+
+      setLastResult(result);
+      return result;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      console.error('Error submitting price:', err);
+      setError(errorMessage);
+      
+      const errorResult: SubmissionResult = {
+        success: false,
+        error: errorMessage,
+      };
+      setLastResult(errorResult);
+      
+      return errorResult;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return {
     submitPrice,
-    loading,
+    isSubmitting,
+    lastResult,
     error,
-    success,
-    response,
-    reset,
   };
 }

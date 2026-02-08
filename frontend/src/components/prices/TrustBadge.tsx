@@ -1,123 +1,88 @@
 /**
- * Trust Badge Component
- * Displays confidence score for verified prices
+ * TrustBadge Component
+ * 
+ * Visual confidence display with color coding based on confidence score
  */
 
 import React from 'react';
 
-export interface TrustBadgeProps {
-  score: number; // 0-100
-  verificationCount: number;
-  lastUpdate: string;
-  compact?: boolean;
+interface TrustBadgeProps {
+  confidenceScore: number; // 0-100
+  grade?: 'A' | 'B' | 'C' | 'D' | 'F';
+  size?: 'sm' | 'md' | 'lg';
+  showLabel?: boolean;
 }
 
-const getScoreColor = (score: number): string => {
-  if (score >= 80) return 'bg-green-500';
-  if (score >= 60) return 'bg-blue-500';
-  if (score >= 40) return 'bg-yellow-500';
-  if (score >= 20) return 'bg-orange-500';
-  return 'bg-red-500';
-};
-
-const getScoreLabel = (score: number): string => {
-  if (score >= 80) return 'Très fiable';
-  if (score >= 60) return 'Fiable';
-  if (score >= 40) return 'Modéré';
-  if (score >= 20) return 'À vérifier';
-  return 'Non vérifié';
-};
-
 const TrustBadge: React.FC<TrustBadgeProps> = ({
-  score,
-  verificationCount,
-  lastUpdate,
-  compact = false,
+  confidenceScore,
+  grade,
+  size = 'md',
+  showLabel = true,
 }) => {
-  const colorClass = getScoreColor(score);
-  const label = getScoreLabel(score);
-  const lastUpdateDate = new Date(lastUpdate);
-  const formattedDate = lastUpdateDate.toLocaleDateString('fr-FR', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
+  // Determine color based on score
+  const getColorClasses = (): string => {
+    if (confidenceScore >= 85) {
+      return 'bg-green-100 text-green-800 border-green-300';
+    } else if (confidenceScore >= 70) {
+      return 'bg-blue-100 text-blue-800 border-blue-300';
+    } else if (confidenceScore >= 55) {
+      return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+    } else if (confidenceScore >= 40) {
+      return 'bg-orange-100 text-orange-800 border-orange-300';
+    } else {
+      return 'bg-red-100 text-red-800 border-red-300';
+    }
+  };
 
-  if (compact) {
-    return (
-      <div
-        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-white ${colorClass}`}
-        title={`Score de confiance: ${score}/100 - ${label}`}
-      >
-        <svg
-          className="w-3 h-3"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-          aria-hidden="true"
-        >
-          <path
-            fillRule="evenodd"
-            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-            clipRule="evenodd"
-          />
-        </svg>
-        <span>{score}%</span>
-      </div>
-    );
-  }
+  // Get trust level text
+  const getTrustLevel = (): string => {
+    if (confidenceScore >= 85) return 'Excellent';
+    if (confidenceScore >= 70) return 'Bon';
+    if (confidenceScore >= 55) return 'Acceptable';
+    if (confidenceScore >= 40) return 'Faible';
+    return 'Non fiable';
+  };
+
+  // Size classes
+  const sizeClasses = {
+    sm: 'text-xs px-2 py-1',
+    md: 'text-sm px-3 py-1.5',
+    lg: 'text-base px-4 py-2',
+  };
+
+  // Grade display if provided
+  const displayGrade = grade || getGradeFromScore(confidenceScore);
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-semibold text-gray-700">Confiance</h3>
-        <div className={`px-3 py-1 rounded-full text-white text-xs font-medium ${colorClass}`}>
-          {score}/100
-        </div>
-      </div>
-
-      <p className="text-sm text-gray-600 mb-3">{label}</p>
-
-      <div className="space-y-2 text-xs text-gray-500">
-        <div className="flex items-center gap-2">
-          <svg
-            className="w-4 h-4 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <span>
-            {verificationCount} vérification{verificationCount > 1 ? 's' : ''}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <svg
-            className="w-4 h-4 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <span>Mis à jour le {formattedDate}</span>
-        </div>
-      </div>
+    <div
+      className={`inline-flex items-center gap-2 rounded-full border ${getColorClasses()} ${
+        sizeClasses[size]
+      } font-medium`}
+      role="status"
+      aria-label={`Niveau de confiance: ${getTrustLevel()}`}
+    >
+      <span className="font-bold">{displayGrade}</span>
+      <span className="opacity-75">|</span>
+      <span>{Math.round(confidenceScore)}%</span>
+      {showLabel && size !== 'sm' && (
+        <>
+          <span className="opacity-75">-</span>
+          <span>{getTrustLevel()}</span>
+        </>
+      )}
     </div>
   );
 };
+
+/**
+ * Helper function to get grade from score
+ */
+function getGradeFromScore(score: number): 'A' | 'B' | 'C' | 'D' | 'F' {
+  if (score >= 85) return 'A';
+  if (score >= 70) return 'B';
+  if (score >= 55) return 'C';
+  if (score >= 40) return 'D';
+  return 'F';
+}
 
 export default TrustBadge;
