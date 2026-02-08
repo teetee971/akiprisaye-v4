@@ -99,9 +99,6 @@ const ObservatoireTempsReel = React.lazy(() => import('./pages/ObservatoireTemps
 const Transparence = React.lazy(() => import('./pages/Transparence'));
 const SignalerAbus = React.lazy(() => import('./pages/SignalerAbus'));
 
-// i18n Test page (for development/testing)
-const I18nTest = React.lazy(() => import('./pages/I18nTest'));
-
 // Admin Sync Dashboard
 const SyncDashboard = React.lazy(() => import('./pages/admin/sync/SyncDashboard'));
 
@@ -213,8 +210,8 @@ if (!rootElement) {
                     <Route path="transparence" element={<Transparence />} />
                     <Route path="signaler-abus" element={<SignalerAbus />} />
                     
-                    {/* i18n Test (development/testing) */}
-                    <Route path="test-i18n" element={<I18nTest />} />
+                    {/* Admin routes */}
+                    <Route path="admin/sync" element={<SyncDashboard />} />
                     
                     {/* Catch-all route */}
                     <Route path="*" element={<Navigate to="/carte" replace />} />
