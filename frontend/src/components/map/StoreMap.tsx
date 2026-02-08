@@ -9,6 +9,8 @@ import { StoreMapProps, StoreMarker as StoreMarkerType, MapFilters as MapFilters
 import { MAP_CONFIG, getTerritoryConfig } from '../../utils/mapConfig';
 import { calculateDistance } from '../../utils/geoUtils';
 import { getPriceCategory } from '../../utils/priceColors';
+import StoreMarker from './StoreMarker';
+import StorePopup from './StorePopup';
 import MapLegend from './MapLegend';
 import MapFilters from './MapFilters';
 import { PriceHeatmap } from './PriceHeatmap';
@@ -25,7 +27,7 @@ interface MarkerClusterGroupProps {
 function MarkerClusterGroup({
   stores,
   onStoreClick,
-  _selectedStore,
+  selectedStore,
   onGetDirections,
   onViewDetails,
 }: MarkerClusterGroupProps) {

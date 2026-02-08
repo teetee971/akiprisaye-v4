@@ -17,7 +17,7 @@ interface ZoneRankingProps {
 
 export function ZoneRanking({
   stores,
-  userPosition: _userPosition,
+  userPosition,
   limit = 5,
   onStoreClick,
 }: ZoneRankingProps) {

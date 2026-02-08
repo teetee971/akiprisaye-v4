@@ -48,17 +48,17 @@ export function CustomCenterExample() {
 
 // Example 4: Full-featured map with callbacks
 export function FullFeaturedMapExample() {
-  const _handleStoreSelect = (store: StoreMarker) => {
+  const handleStoreSelect = (store: StoreMarker) => {
     console.log('Store selected:', store);
   };
 
-  const _handleGetDirections = (store: StoreMarker) => {
+  const handleGetDirections = (store: StoreMarker) => {
     // Open directions in Google Maps
     const url = `https://www.google.com/maps/dir/?api=1&destination=${store.coordinates.lat},${store.coordinates.lon}`;
     window.open(url, '_blank');
   };
 
-  const _handleViewDetails = (store: StoreMarker) => {
+  const handleViewDetails = (store: StoreMarker) => {
     // Navigate to store details page
     window.location.href = `/store/${store.id}`;
   };

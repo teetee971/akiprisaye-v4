@@ -6,15 +6,6 @@
 import { SEED_STORES } from '../../../../src/data/seedStores.js';
 import { calculatePriceIndex } from './priceIndexCalculator.js';
 
-interface Store {
-  id: string;
-  territory: string;
-  coordinates?: {
-    lat: number;
-    lon: number;
-  };
-}
-
 export interface HeatmapPoint {
   lat: number;
   lon: number;
@@ -34,10 +25,10 @@ export async function generateHeatmap(
   territory?: string
 ): Promise<HeatmapData> {
   // Filter stores by territory if specified
-  let stores: Store[] = SEED_STORES as Store[];
+  let stores = SEED_STORES;
   if (territory) {
     stores = stores.filter(
-      (s: Store) => s.territory.toLowerCase() === territory.toLowerCase()
+      s => s.territory.toLowerCase() === territory.toLowerCase()
     );
   }
 
