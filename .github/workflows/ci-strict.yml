@@ -2,9 +2,9 @@ name: CI Strict (Zero Warning)
 
 on:
   pull_request:
-    branches: [ "main", "production" ]
+    branches: ["main", "production"]
   push:
-    branches: [ "main", "production" ]
+    branches: ["main", "production"]
 
 permissions:
   contents: read
@@ -15,6 +15,10 @@ jobs:
   ci-strict:
     name: Strict CI – Zero Warnings Allowed
     runs-on: ubuntu-latest
+
+    env:
+      PLAYWRIGHT_BASE_URL: https://akiprisaye-web.pages.dev
+      PLAYWRIGHT_USE_LOCAL_SERVER: '0'
 
     steps:
       - name: Checkout code
@@ -42,10 +46,6 @@ jobs:
             ./scripts/audit-repo.sh --strict
           fi
 
-      # -----------------------------
-      # STRICT CHECKS (BLOCKING ONLY ON main / production)
-      # -----------------------------
-
       - name: TypeScript strict check
         working-directory: frontend
         run: npm run typecheck:ci
@@ -61,7 +61,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Base SHA: PR -> base.sha, Push -> before
           BASE_SHA="${{ github.event.pull_request.base.sha || github.event.before }}"
           if [ -z "${BASE_SHA}" ]; then
             BASE_SHA="$(git rev-parse HEAD~1)"
@@ -70,7 +69,6 @@ jobs:
           echo "Base SHA: ${BASE_SHA}"
           echo "Head SHA: $(git rev-parse HEAD)"
 
-          # Added lines only, excluding diff headers. Match whole word 'any' only.
           DIFF_LINES="$(git diff -U0 "${BASE_SHA}..HEAD" -- '*.ts' '*.tsx' \
             | grep -E '^\+' \
             | grep -vE '^\+\+\+' \
@@ -80,7 +78,6 @@ jobs:
             echo "⚠️ New occurrences of word 'any' detected in added lines:"
             echo "${DIFF_LINES}"
 
-            # Block only on push to main/production (not on PR)
             if [ "${{ github.event_name }}" != "pull_request" ]; then
               echo "❌ Blocking on push (main/production)."
               exit 1
@@ -138,10 +135,6 @@ jobs:
         run: npm run audit:ci
         continue-on-error: ${{ github.event_name == 'pull_request' }}
 
-      # -----------------------------
-      # NON-BLOCKING QUALITY GATES
-      # -----------------------------
-
       - name: Accessibility testing (axe-core WCAG)
         id: axe
         working-directory: frontend
@@ -156,6 +149,26 @@ jobs:
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
 
+      - name: Install Playwright browsers (official action)
+        uses: microsoft/playwright-github-action@v1
+        with:
+          working-directory: frontend
+
+      - name: Production UX audit (PR report-only)
+        if: github.event_name == 'pull_request'
+        working-directory: frontend
+        env:
+          UX_AUDIT_STRICT: '0'
+        run: npm run e2e
+        continue-on-error: true
+
+      - name: Production UX audit (push strict)
+        if: github.event_name == 'push'
+        working-directory: frontend
+        env:
+          UX_AUDIT_STRICT: '1'
+        run: npm run e2e
+
       - name: Extract Lighthouse report URL
         if: always()
         id: lhci-url
@@ -167,10 +180,6 @@ jobs:
           else
             echo "report_url=Not available" >> "$GITHUB_OUTPUT"
           fi
-
-      # -----------------------------
-      # PR COMMENT (INFORMATION ONLY)
-      # -----------------------------
 
       - name: Comment PR with quality report
         if: github.event_name == 'pull_request'
@@ -190,6 +199,7 @@ jobs:
               '- Audit sécurité (npm)',
               '- Accessibilité (WCAG 2.1 AA)',
               '- Lighthouse (Performance, A11y, Best Practices, SEO)',
+              '- UX audit Playwright + axe-core (production, report-only en PR)',
               '',
               '**Standards cibles (post-V1) :**',
               '- Performance ≥ 85',
@@ -211,10 +221,6 @@ jobs:
               body
             });
 
-      # -----------------------------
-      # ARTIFACTS (DEBUG / AUDIT)
-      # -----------------------------
-
       - name: Upload accessibility report
         if: always()
         uses: actions/upload-artifact@v4
@@ -229,4 +235,28 @@ jobs:
         with:
           name: lighthouse-results
           path: frontend/.lighthouseci
+          retention-days: 30
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: frontend/playwright-report
+          retention-days: 30
+
+      - name: Upload Playwright test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: frontend/test-results
+          retention-days: 30
+
+      - name: Upload UX axe report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ux-axe-report
+          path: frontend/ux-axe-report.txt
           retention-days: 30
