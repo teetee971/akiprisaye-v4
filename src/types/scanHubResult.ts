@@ -17,6 +17,20 @@ export interface ScanData {
   sourcesUsed?: string[];
   warnings?: string[];
   territoryMessage?: string;
+  selectedTerritories?: string[];
+  territoryMode?: 'ALL' | 'CUSTOM';
+  priceObservations?: PriceObservationSnapshot[];
+}
+
+export interface PriceObservationSnapshot {
+  source?: string;
+  price: number;
+  pricePerUnit?: number;
+  currency: 'EUR';
+  unit?: 'unit' | 'kg' | 'l';
+  territory?: string;
+  observedAt?: string;
+  normalizedLabel?: string;
 }
 
 export interface PriceInterval {

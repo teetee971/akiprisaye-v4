@@ -7,7 +7,7 @@ import { useFavorites, type FavoriteItem } from '../hooks/useFavorites';
 import { useSearchHistory, type SearchHistoryEntry, type SearchHistoryType } from '../hooks/useSearchHistory';
 import { searchProductPrices } from '../services/priceSearch/priceSearch.service';
 import type { PriceSearchResult, TerritoryCode } from '../services/priceSearch/price.types';
-import type { ScanData, ScanHubResult } from '../types/scanHubResult';
+import type { PriceObservationSnapshot, ScanData, ScanHubResult } from '../types/scanHubResult';
 import { safeLocalStorage } from '../utils/safeLocalStorage';
 
 const TERRITORIES: { code: TerritoryCode; label: string }[] = [
@@ -21,6 +21,43 @@ const TERRITORIES: { code: TerritoryCode; label: string }[] = [
   { code: 'bl', label: 'Saint-Barthélemy' },
   { code: 'mf', label: 'Saint-Martin' },
 ];
+
+const ALL_TERRITORIES = 'ALL';
+
+function getMedian(values: number[]): number | null {
+  if (values.length === 0) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  if (sorted.length % 2 === 0) {
+    return Number(((sorted[middle - 1] + sorted[middle]) / 2).toFixed(2));
+  }
+  return Number(sorted[middle].toFixed(2));
+}
+
+function getObservationComparablePrice(observation: PriceObservationSnapshot): number {
+  return observation.pricePerUnit ?? observation.price;
+}
+
+function getTerritoryStats(observations: PriceObservationSnapshot[], territory: string) {
+  const values = observations
+    .filter((observation) => observation.territory === territory)
+    .map(getObservationComparablePrice)
+    .filter(Number.isFinite);
+
+  if (values.length === 0) {
+    return null;
+  }
+
+  const median = getMedian(values);
+  if (median === null) {
+    return null;
+  }
+
+  return {
+    count: values.length,
+    median,
+  };
+}
 
 const getTerritoryLabel = (code?: string) =>
   TERRITORIES.find((item) => item.code === code)?.label ?? 'Territoire non précisé';
@@ -288,6 +325,58 @@ export function PriceResults({
   const confidence = result.confidence ?? 0;
   const observations = interval?.priceCount ?? 0;
   const territoryLabel = getTerritoryLabel(result.territory);
+  const selectedTerritories = result.selectedTerritories ?? (result.territory ? [result.territory] : []);
+  const territoryMode = result.territoryMode ?? 'CUSTOM';
+  const priceObservations = result.priceObservations ?? [];
+  const availableComparisonTerritories = Array.from(
+    new Set(
+      priceObservations
+        .map((observation) => observation.territory)
+        .filter((item): item is string => Boolean(item))
+    )
+  );
+  const comparisonTerritories =
+    availableComparisonTerritories.length >= 2
+      ? availableComparisonTerritories
+      : selectedTerritories;
+  const defaultA = comparisonTerritories[0] ?? null;
+  const defaultB = comparisonTerritories.find((territory) => territory !== defaultA) ?? null;
+  const [territoryA, setTerritoryA] = useState<string | null>(defaultA);
+  const [territoryB, setTerritoryB] = useState<string | null>(defaultB);
+
+  useEffect(() => {
+    if (!comparisonTerritories.length) {
+      setTerritoryA(null);
+      setTerritoryB(null);
+      return;
+    }
+
+    setTerritoryA((previous) => {
+      if (previous && comparisonTerritories.includes(previous)) {
+        return previous;
+      }
+      return comparisonTerritories[0];
+    });
+
+    setTerritoryB((previous) => {
+      if (previous && comparisonTerritories.includes(previous) && previous !== territoryA) {
+        return previous;
+      }
+      return comparisonTerritories.find((territory) => territory !== territoryA) ?? null;
+    });
+  }, [comparisonTerritories, territoryA]);
+
+  const statsA = territoryA ? getTerritoryStats(priceObservations, territoryA) : null;
+  const statsB = territoryB ? getTerritoryStats(priceObservations, territoryB) : null;
+  const deltaValue = statsA && statsB ? Number((statsB.median - statsA.median).toFixed(2)) : null;
+  const deltaPct =
+    statsA && statsB && statsA.median !== 0
+      ? Number((((statsB.median - statsA.median) / statsA.median) * 100).toFixed(1))
+      : null;
+  const indexB =
+    statsA && statsB && statsA.median !== 0
+      ? Number(((statsB.median / statsA.median) * 100).toFixed(1))
+      : null;
   const favoriteId = buildProductFavoriteId({
     barcode: searchBarcode,
     query: searchQuery,
@@ -367,11 +456,34 @@ export function PriceResults({
             <p className="text-xs text-slate-500 mt-1">Prix agrégés</p>
           </div>
           <div className="bg-slate-950 rounded-lg p-4">
-            <p className="text-xs text-slate-400">Territoire</p>
-            <p className="text-base font-semibold">{territoryLabel}</p>
-            <p className="text-xs text-slate-500 mt-1">Données locales</p>
+            <p className="text-xs text-slate-400">Territoires</p>
+            <p className="text-base font-semibold">
+              {territoryMode === ALL_TERRITORIES ? 'Tous territoires' : territoryLabel}
+            </p>
+            <p className="text-xs text-slate-500 mt-1">
+              {selectedTerritories.length} zone{selectedTerritories.length > 1 ? 's' : ''} active
+              {selectedTerritories.length > 1 ? 's' : ''}
+            </p>
           </div>
         </div>
+
+        {selectedTerritories.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {territoryMode === ALL_TERRITORIES && (
+              <span className="text-xs px-2.5 py-1 rounded-full border border-emerald-500/40 bg-emerald-500/10 text-emerald-200">
+                Tous territoires
+              </span>
+            )}
+            {selectedTerritories.map((territoryCode) => (
+              <span
+                key={territoryCode}
+                className="text-xs px-2.5 py-1 rounded-full border border-slate-700 bg-slate-900 text-slate-200"
+              >
+                {getTerritoryLabel(territoryCode)}
+              </span>
+            ))}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
           <div className="bg-slate-950 rounded-lg p-4">
@@ -398,6 +510,95 @@ export function PriceResults({
           Sources utilisées : {result.sourcesUsed?.join(', ') || 'Aucune'}
         </div>
       </div>
+
+      {comparisonTerritories.length >= 2 && (
+        <div className="bg-slate-900/70 border border-slate-700 rounded-2xl p-6 space-y-4">
+          <h3 className="text-lg font-semibold text-white">Comparaison territoires (vs)</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <label className="space-y-2 text-sm">
+              <span className="text-slate-300">Territoire A</span>
+              <select
+                value={territoryA ?? ''}
+                onChange={(event) => setTerritoryA(event.target.value || null)}
+                className="w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2 text-white"
+              >
+                {comparisonTerritories.map((territoryCode) => (
+                  <option key={`A-${territoryCode}`} value={territoryCode}>
+                    {getTerritoryLabel(territoryCode)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="space-y-2 text-sm">
+              <span className="text-slate-300">Territoire B</span>
+              <select
+                value={territoryB ?? ''}
+                onChange={(event) => setTerritoryB(event.target.value || null)}
+                className="w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2 text-white"
+              >
+                {comparisonTerritories.map((territoryCode) => (
+                  <option key={`B-${territoryCode}`} value={territoryCode}>
+                    {getTerritoryLabel(territoryCode)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          {statsA && statsB && deltaValue !== null && deltaPct !== null && indexB !== null ? (
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 text-center">
+              <div className="bg-slate-950 rounded-lg p-3">
+                <p className="text-xs text-slate-400">Médiane A</p>
+                <p className="font-semibold text-white">{statsA.median.toFixed(2)}€</p>
+              </div>
+              <div className="bg-slate-950 rounded-lg p-3">
+                <p className="text-xs text-slate-400">Médiane B</p>
+                <p className="font-semibold text-white">{statsB.median.toFixed(2)}€</p>
+              </div>
+              <div className="bg-slate-950 rounded-lg p-3">
+                <p className="text-xs text-slate-400">Écart €</p>
+                <p className="font-semibold text-white">{deltaValue > 0 ? '+' : ''}{deltaValue.toFixed(2)}€</p>
+              </div>
+              <div className="bg-slate-950 rounded-lg p-3">
+                <p className="text-xs text-slate-400">Écart %</p>
+                <p className="font-semibold text-white">{deltaPct > 0 ? '+' : ''}{deltaPct.toFixed(1)}%</p>
+              </div>
+              <div className="bg-slate-950 rounded-lg p-3">
+                <p className="text-xs text-slate-400">Indice base 100</p>
+                <p className="font-semibold text-white">A=100 → B={indexB.toFixed(1)}</p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-slate-400">
+              Données insuffisantes pour calculer les indicateurs A vs B.
+            </p>
+          )}
+        </div>
+      )}
+
+      {priceObservations.length > 0 && (
+        <div className="bg-slate-900/70 border border-slate-700 rounded-2xl p-6 space-y-3">
+          <h3 className="text-sm font-semibold text-slate-200">Observations détaillées</h3>
+          <div className="space-y-2">
+            {priceObservations.slice(0, 12).map((observation, index) => (
+              <div
+                key={`${observation.source ?? 'source'}-${observation.observedAt ?? index}`}
+                className="rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 flex items-center justify-between gap-3"
+              >
+                <div className="text-sm text-slate-200">{observation.normalizedLabel ?? `${observation.price.toFixed(2)}€`}</div>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">
+                    {observation.source ?? 'source inconnue'}
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-200 border border-blue-500/30">
+                    {getTerritoryLabel(observation.territory)}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {result.warnings && result.warnings.length > 0 && (
         <div className="bg-slate-900/70 border border-slate-700 rounded-2xl p-6 space-y-2">
@@ -472,6 +673,75 @@ export function PriceSearchResults({
   }
 }
 
+function aggregatePriceSearchResults(
+  responses: PriceSearchResult[],
+  territories: TerritoryCode[],
+  mode: 'ALL' | 'CUSTOM',
+): ScanHubResult {
+  const normalizedObservations: PriceObservationSnapshot[] = responses.flatMap((response, index) =>
+    response.observations.map((observation) => ({
+      source: observation.source,
+      price: observation.price,
+      pricePerUnit: observation.pricePerUnit,
+      currency: observation.currency,
+      unit: observation.unit,
+      territory: observation.territory ?? territories[index],
+      observedAt: observation.observedAt,
+      normalizedLabel: observation.normalizedLabel,
+    }))
+  );
+
+  const observations =
+    mode === 'ALL'
+      ? normalizedObservations
+      : normalizedObservations.filter((observation) =>
+          observation.territory ? territories.includes(observation.territory as TerritoryCode) : false
+        );
+
+  if (observations.length === 0) {
+    return {
+      status: 'NO_DATA',
+      reason: 'Données insuffisantes pour établir une fourchette de prix fiable.',
+    };
+  }
+
+  const values = observations.map(getObservationComparablePrice);
+  const interval = {
+    min: Number(Math.min(...values).toFixed(2)),
+    median: getMedian(values),
+    max: Number(Math.max(...values).toFixed(2)),
+    currency: 'EUR' as const,
+    priceCount: values.length,
+  };
+
+  const confidence = Math.round(
+    responses.reduce((sum, response) => sum + response.confidence, 0) / responses.length
+  );
+  const warnings = Array.from(new Set(responses.flatMap((response) => response.warnings)));
+  const sources = Array.from(new Set(responses.flatMap((response) => response.sourcesUsed)));
+  const territory = mode === 'ALL' ? 'fr' : territories[0];
+  const productName = responses.map((response) => response.productName).find(Boolean);
+  const territoryMessage =
+    mode === 'ALL'
+      ? 'Comparaison multi-territoires active. Les prix affichés peuvent combiner plusieurs zones.'
+      : responses.map((response) => response.metadata.territoryMessage).find(Boolean);
+
+  const data: ScanData = {
+    productName,
+    prices: [interval],
+    territory,
+    confidence,
+    sourcesUsed: sources,
+    warnings,
+    territoryMessage,
+    selectedTerritories: territories,
+    territoryMode: mode,
+    priceObservations: observations,
+  };
+
+  return warnings.length > 0 ? { status: 'PARTIAL', data } : { status: 'OK', data };
+}
+
 export default function RechercheProduits() {
   const params = useMemo(
     () => new URLSearchParams(typeof window === 'undefined' ? '' : window.location.search),
@@ -482,7 +752,8 @@ export default function RechercheProduits() {
   const { favorites, removeFavorite } = useFavorites();
   const [query, setQuery] = useState(params.get('q') ?? '');
   const [barcode, setBarcode] = useState(params.get('ean') ?? '');
-  const [territory, setTerritory] = useState<TerritoryCode>('fr');
+  const [territoriesMode, setTerritoriesMode] = useState<'ALL' | 'CUSTOM'>('CUSTOM');
+  const [selectedTerritories, setSelectedTerritories] = useState<TerritoryCode[]>(['fr']);
   const [result, setResult] = useState<ScanHubResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -500,15 +771,24 @@ export default function RechercheProduits() {
   const buildCacheKey = useCallback((input?: {
     query?: string;
     barcode?: string;
-    territory?: TerritoryCode;
+    territories?: TerritoryCode[];
+    mode?: 'ALL' | 'CUSTOM';
   }) => {
     const normalizedQuery = (input?.query ?? query).trim().toLowerCase();
     const normalizedBarcode = (input?.barcode ?? barcode).trim();
-    const normalizedTerritory = input?.territory ?? territory;
-    return `scanhub:price-search:${normalizedTerritory}:${normalizedBarcode || 'no-barcode'}:${normalizedQuery || 'no-query'}`;
-  }, [barcode, query, territory]);
+    const mode = input?.mode ?? territoriesMode;
+    const territories = input?.territories ?? selectedTerritories;
+    const normalizedTerritories =
+      mode === 'ALL' ? ALL_TERRITORIES : [...territories].sort().join(',') || 'none';
+    return `scanhub:price-search:${mode}:${normalizedTerritories}:${normalizedBarcode || 'no-barcode'}:${normalizedQuery || 'no-query'}`;
+  }, [barcode, query, selectedTerritories, territoriesMode]);
 
-  const readCache = useCallback((input?: { query?: string; barcode?: string; territory?: TerritoryCode }) => {
+  const readCache = useCallback((input?: {
+    query?: string;
+    barcode?: string;
+    territories?: TerritoryCode[];
+    mode?: 'ALL' | 'CUSTOM';
+  }) => {
     const key = buildCacheKey(input);
     const raw = safeLocalStorage.getItem(key);
     if (!raw) return null;
@@ -521,7 +801,12 @@ export default function RechercheProduits() {
   }, [buildCacheKey]);
 
   const writeCache = useCallback(
-    (payload: ScanHubResult, input?: { query?: string; barcode?: string; territory?: TerritoryCode }) => {
+    (payload: ScanHubResult, input?: {
+      query?: string;
+      barcode?: string;
+      territories?: TerritoryCode[];
+      mode?: 'ALL' | 'CUSTOM';
+    }) => {
       const key = buildCacheKey(input);
       const cachedPayload = JSON.stringify({
         cachedAt: new Date().toISOString(),
@@ -535,14 +820,22 @@ export default function RechercheProduits() {
   const runSearch = useCallback(async (input?: {
     query?: string;
     barcode?: string;
-    territory?: TerritoryCode;
+    territories?: TerritoryCode[];
+    mode?: 'ALL' | 'CUSTOM';
     source?: SearchHistoryType;
     label?: string;
     recordHistory?: boolean;
   }) => {
     const nextQuery = input?.query ?? query;
     const nextBarcode = input?.barcode ?? barcode;
-    const nextTerritory = input?.territory ?? territory;
+    const nextMode = input?.mode ?? territoriesMode;
+    const nextTerritories = input?.territories ?? selectedTerritories;
+    const territoriesToSearch =
+      nextMode === 'ALL'
+        ? TERRITORIES.map((territory) => territory.code)
+        : nextTerritories.length > 0
+          ? nextTerritories
+          : ['fr'];
     const trimmedQuery = nextQuery.trim();
     const trimmedBarcode = nextBarcode.trim();
     const hasInput = Boolean(trimmedQuery || trimmedBarcode);
@@ -558,7 +851,8 @@ export default function RechercheProduits() {
 
     setQuery(nextQuery);
     setBarcode(nextBarcode);
-    setTerritory(nextTerritory);
+    setTerritoriesMode(nextMode);
+    setSelectedTerritories(territoriesToSearch);
 
     setLoading(true);
     setError(null);
@@ -566,21 +860,30 @@ export default function RechercheProduits() {
     setCachedAt(null);
 
     try {
-      const response = await searchProductPrices({
-        barcode: trimmedBarcode || undefined,
-        query: trimmedQuery || undefined,
-        territory: nextTerritory,
-      });
-      const mapped = mapPriceSearchResult(response);
+      const responses = await Promise.all(
+        territoriesToSearch.map((territory) =>
+          searchProductPrices({
+            barcode: trimmedBarcode || undefined,
+            query: trimmedQuery || undefined,
+            territory,
+          })
+        )
+      );
+      const mapped = aggregatePriceSearchResults(responses, territoriesToSearch, nextMode);
       setResult(mapped);
-      writeCache(mapped, { query: trimmedQuery, barcode: trimmedBarcode, territory: nextTerritory });
+      writeCache(mapped, {
+        query: trimmedQuery,
+        barcode: trimmedBarcode,
+        territories: territoriesToSearch,
+        mode: nextMode,
+      });
     } catch (err: any) {
       console.error('Price search error:', err);
       setError('Impossible de récupérer les prix pour le moment.');
     } finally {
       setLoading(false);
     }
-  }, [addEntry, barcode, query, territory, writeCache]);
+  }, [addEntry, barcode, query, selectedTerritories, territoriesMode, writeCache]);
 
   const handleSearch = useCallback(async () => {
     const searchType = barcode.trim() ? 'barcode' : 'text';
@@ -594,20 +897,22 @@ export default function RechercheProduits() {
     if (!barcode.trim() && !query.trim()) {
       return;
     }
-    const cached = readCache({ query, barcode, territory });
+    const cached = readCache({ query, barcode, territories: selectedTerritories, mode: territoriesMode });
     if (cached?.payload) {
       setResult(cached.payload);
       setCachedAt(cached.cachedAt);
     }
     void runSearch({ source: barcode.trim() ? 'barcode' : 'text', recordHistory: false });
     setHasAutoSearched(true);
-  }, [barcode, query, hasAutoSearched, readCache, runSearch, territory]);
+  }, [barcode, query, hasAutoSearched, readCache, runSearch, selectedTerritories, territoriesMode]);
 
   const handleReset = () => {
     setResult(null);
     setError(null);
     setQuery('');
     setBarcode('');
+    setTerritoriesMode('CUSTOM');
+    setSelectedTerritories(['fr']);
     setCachedAt(null);
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -705,21 +1010,48 @@ export default function RechercheProduits() {
               />
             </label>
           </div>
-          <label className="space-y-2 text-sm">
-            <span className="text-slate-300">Territoire</span>
-            <select
-              value={territory}
-              onChange={(event) => setTerritory(event.target.value as TerritoryCode)}
-              className="w-full rounded-lg bg-slate-950 border border-slate-700 px-3 py-2 text-white"
-              aria-label="Territoire"
-            >
-              {TERRITORIES.map((item) => (
-                <option key={item.code} value={item.code}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <fieldset className="space-y-3 text-sm">
+            <legend className="text-slate-300">Territoires</legend>
+            <label className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm">
+              <input
+                type="checkbox"
+                checked={territoriesMode === 'ALL'}
+                onChange={(event) => {
+                  setTerritoriesMode(event.target.checked ? 'ALL' : 'CUSTOM');
+                }}
+                className="rounded border-slate-600 bg-slate-900"
+              />
+              <span>Tous territoires</span>
+            </label>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {TERRITORIES.map((item) => {
+                const checked = selectedTerritories.includes(item.code);
+                return (
+                  <label
+                    key={item.code}
+                    className="flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => {
+                        setTerritoriesMode('CUSTOM');
+                        setSelectedTerritories((previous) => {
+                          if (previous.includes(item.code)) {
+                            const next = previous.filter((code) => code !== item.code);
+                            return next.length > 0 ? next : ['fr'];
+                          }
+                          return [...previous, item.code];
+                        });
+                      }}
+                      className="rounded border-slate-600 bg-slate-900"
+                    />
+                    <span className="truncate">{item.label}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
           <div className="flex flex-col md:flex-row gap-3">
             <button
               type="submit"
@@ -821,26 +1153,4 @@ export default function RechercheProduits() {
       </div>
     </div>
   );
-}
-
-function mapPriceSearchResult(input: PriceSearchResult): ScanHubResult {
-  if (input.status === 'NO_DATA') {
-    return { status: 'NO_DATA', reason: input.warnings?.[0] };
-  }
-  if (input.status === 'UNAVAILABLE') {
-    return { status: 'UNAVAILABLE', service: 'prix-reels' };
-  }
-  const data: ScanData = {
-    productName: input.productName,
-    prices: input.intervals,
-    territory: input.territory,
-    confidence: input.confidence,
-    sourcesUsed: input.sourcesUsed,
-    warnings: input.warnings,
-    territoryMessage: input.metadata.territoryMessage,
-  };
-  if (input.status === 'PARTIAL') {
-    return { status: 'PARTIAL', data };
-  }
-  return { status: 'OK', data };
 }
