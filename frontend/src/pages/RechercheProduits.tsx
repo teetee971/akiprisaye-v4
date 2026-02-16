@@ -10,6 +10,8 @@ import { searchProductPrices } from '../services/priceSearch/priceSearch.service
 import type { PriceSearchResult, TerritoryCode } from '../services/priceSearch/price.types';
 import type { ScanData, ScanHubResult } from '../types/scanHubResult';
 import type { ProductCard } from '../types/productCard';
+import { TipsPanel } from '../features/tips/ui/TipsPanel';
+import type { TipContext } from '../features/tips';
 import { getProductImageFallback } from '../utils/productImageFallback';
 import { safeLocalStorage } from '../utils/safeLocalStorage';
 
@@ -475,6 +477,28 @@ export function PriceResults({
       .join(' ');
   }, [filteredObservations]);
 
+  const tipsContext = useMemo<TipContext>(() => {
+    const normalizedQuery = searchQuery?.trim();
+    const normalizedProductName = result.productName?.trim();
+
+    return {
+      territory: result.territory,
+      category: normalizedProductName,
+      query: normalizedQuery,
+      price: latestObservation?.price,
+      interval: priceSummary
+        ? {
+            min: priceSummary.min,
+            median: priceSummary.median,
+            max: priceSummary.max,
+          }
+        : undefined,
+      currency: 'EUR',
+      unit: 'unit',
+      month: new Date().getMonth() + 1,
+    };
+  }, [latestObservation?.price, priceSummary, result.productName, result.territory, searchQuery]);
+
   return (
     <section className="space-y-4">
       <div className="bg-slate-900/70 border border-slate-700 rounded-2xl p-6 space-y-3">
@@ -647,6 +671,8 @@ export function PriceResults({
                 />
               </svg>
             )}
+
+            <TipsPanel ctx={tipsContext} />
           </div>
         )}
 
