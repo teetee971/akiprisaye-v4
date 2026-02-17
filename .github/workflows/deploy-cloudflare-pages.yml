@@ -98,7 +98,8 @@ jobs:
         run: |
           ls -la frontend/dist
           test -f frontend/dist/index.html
-          test -f frontend/dist/404.html
+          test -f frontend/dist/_redirects
+          test ! -f frontend/dist/404.html
 
       - name: Verify routing files if present
         shell: bash
@@ -153,10 +154,15 @@ jobs:
             else
               echo "- dist/index.html: ❌"
             fi
-            if [ -f frontend/dist/404.html ]; then
-              echo "- dist/404.html: ✅"
+            if [ -f frontend/dist/_redirects ]; then
+              echo "- dist/_redirects: ✅"
             else
-              echo "- dist/404.html: ❌"
+              echo "- dist/_redirects: ❌"
+            fi
+            if [ ! -f frontend/dist/404.html ]; then
+              echo "- dist/404.html absent: ✅"
+            else
+              echo "- dist/404.html absent: ❌"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -198,8 +204,8 @@ jobs:
 
           index_status="❌"
           [ -f frontend/dist/index.html ] && index_status="✅"
-          page404_status="❌"
-          [ -f frontend/dist/404.html ] && page404_status="✅"
+          page404_status="✅"
+          [ -f frontend/dist/404.html ] && page404_status="❌"
           redirects_status="❌"
           [ -f frontend/dist/_redirects ] && redirects_status="✅"
           headers_status="❌"
@@ -222,7 +228,7 @@ jobs:
             echo ""
             echo "### Dist checklist"
             echo "- index.html: ${index_status}"
-            echo "- 404.html: ${page404_status}"
+            echo "- 404.html absent: ${page404_status}"
             echo "- _redirects: ${redirects_status}"
             echo "- _headers: ${headers_status}"
             echo "- _routes.json: ${routes_status}"
@@ -305,8 +311,8 @@ jobs:
 
           index_status="❌"
           [ -f frontend/dist/index.html ] && index_status="✅"
-          page404_status="❌"
-          [ -f frontend/dist/404.html ] && page404_status="✅"
+          page404_status="✅"
+          [ -f frontend/dist/404.html ] && page404_status="❌"
           redirects_status="❌"
           [ -f frontend/dist/_redirects ] && redirects_status="✅"
           headers_status="❌"
@@ -329,7 +335,7 @@ jobs:
             echo ""
             echo "### Dist checklist"
             echo "- index.html: ${index_status}"
-            echo "- 404.html: ${page404_status}"
+            echo "- 404.html absent: ${page404_status}"
             echo "- _redirects: ${redirects_status}"
             echo "- _headers: ${headers_status}"
             echo "- _routes.json: ${routes_status}"

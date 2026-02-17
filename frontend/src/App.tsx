@@ -247,10 +247,21 @@ export default function App() {
                       {/* Auth routes */}
                       <Route path="login" element={<Login />} />
                       <Route path="connexion" element={<Login />} />
+                      <Route path="auth/login" element={<Navigate to="/login" replace />} />
+                      <Route path="signin" element={<Navigate to="/login" replace />} />
+
                       <Route path="inscription" element={<Inscription />} />
+                      <Route path="auth/register" element={<Navigate to="/inscription" replace />} />
+                      <Route path="signup" element={<Navigate to="/inscription" replace />} />
+
                       <Route path="reset-password" element={<ResetPassword />} />
+                      <Route path="auth/reset-password" element={<Navigate to="/reset-password" replace />} />
+                      <Route path="forgot-password" element={<Navigate to="/reset-password" replace />} />
+
                       <Route path="auth" element={<AuthHub />} />
                       <Route path="mon-compte" element={<RequireAuth><MonCompte /></RequireAuth>} />
+                      <Route path="moncompte" element={<Navigate to="/mon-compte" replace />} />
+                      <Route path="account" element={<Navigate to="/mon-compte" replace />} />
                       
                       {/* Pricing & Subscription */}
                       <Route path="pricing" element={<Pricing />} />
