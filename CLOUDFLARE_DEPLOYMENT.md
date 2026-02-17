@@ -16,7 +16,7 @@ Aucune variable d'environnement spéciale n'est requise pour le build basique.
 
 ## SPA Routing (Single Page Application)
 
-Le site utilise React Router pour la navigation côté client. Pour que les routes SPA fonctionnent correctement (accès direct et rafraîchissement), deux mécanismes sont en place :
+Le site utilise React Router pour la navigation côté client. Pour que les routes SPA fonctionnent correctement (accès direct et rafraîchissement), le fallback doit renvoyer `index.html` avec un statut HTTP `200`.
 
 ### 1. Fichier `_redirects`
 
@@ -27,11 +27,11 @@ Le fichier `frontend/public/_redirects` contient :
 
 Ce fichier indique à Cloudflare Pages de servir `index.html` pour toutes les routes, permettant à React Router de gérer la navigation. Le fichier est automatiquement copié dans `frontend/dist/` lors du build.
 
-### 2. Fichier `404.html` fallback
+### 2. Important : ne pas générer `404.html` dans `frontend/dist/`
 
-Le fichier `frontend/public/404.html` est une page fallback simple qui s'affiche uniquement si le mécanisme `_redirects` échoue. Il affiche un message invitant l'utilisateur à retourner à l'accueil. Le fichier est copié dans `frontend/dist/` lors du build.
+Cloudflare Pages gère mieux le fallback SPA quand le build ne force pas un `404.html` top-level. Une copie `index.html -> 404.html` peut faire répondre les routes profondes en HTTP `404` (même si l'application React s'affiche), ce qui casse les tests de santé, le SEO et le partage de liens.
 
-**Note:** Le fichier `404.html` à la racine du dépôt (`/404.html`) est utilisé par d'autres services d'hébergement (comme GitHub Pages) et n'est pas déployé sur Cloudflare Pages, qui utilise uniquement le contenu de `frontend/dist/`.
+➡️ Le script de build doit rester `vite build` (sans copie vers `dist/404.html`).
 
 **Comportement attendu :**
 - ✅ Accès direct à `/comparateur` → Charge l'application React et affiche le comparateur
@@ -86,11 +86,11 @@ frontend/dist/
 ### Si les routes SPA ne fonctionnent pas (404 statique) :
 1. Vérifier que le fichier `frontend/dist/_redirects` existe après le build
 2. Vérifier son contenu : `/* /index.html 200`
-3. Vérifier que le fichier `frontend/dist/404.html` existe après le build
+3. Vérifier que le build n'ajoute pas de `frontend/dist/404.html` forcé
 4. Attendre quelques minutes après le déploiement (propagation CDN)
 5. Vider le cache du navigateur et réessayer
 
 ### Si le rafraîchissement de page ne fonctionne pas :
-1. Vérifier que les fichiers `frontend/dist/_redirects` et `frontend/dist/404.html` sont déployés
+1. Vérifier que le fichier `frontend/dist/_redirects` est déployé
 2. Vérifier dans les Developer Tools → Network que `/index.html` est bien servi avec un code 200
 3. Consulter les logs Cloudflare Pages pour voir quelle ressource est servie

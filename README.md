@@ -1023,7 +1023,17 @@ Si vous utilisez une CSP stricte, autoriser les endpoints Firebase Auth dans `co
 
 Et, si `signInWithPopup` est bloqué selon votre politique, autoriser les domaines Google/Firebase nécessaires pour la popup.
 
-### 4) Checklist de test manuel Auth
+### 4) Routage SPA Cloudflare Pages (important)
+
+Pour éviter les `404` sur les routes React (`/login`, `/mon-compte`, etc.), conserver le fallback SPA dans `frontend/public/_redirects` :
+
+```
+/* /index.html 200
+```
+
+Et **ne pas** générer un `404.html` top-level dans `frontend/dist/` (pas de copie `index.html -> 404.html` dans le script de build), sinon les deep-links peuvent répondre en HTTP 404.
+
+### 5) Checklist de test manuel Auth
 
 - [ ] Création de compte Email/Mot de passe OK
 - [ ] Connexion Email/Mot de passe OK
