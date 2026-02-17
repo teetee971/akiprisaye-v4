@@ -16,6 +16,7 @@ export default defineConfig({
       'src/test/storeSelection.test.ts',
       'src/test/promosService.test.ts',
       'src/test/freemium.test.ts',
+      'src/test/cloudflareRouting.test.ts',
       'scripts/verify-pages-api.test.ts',
     ],
   },
