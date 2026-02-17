@@ -1,139 +1,384 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Camera, FileText, Barcode } from 'lucide-react';
-import { GlassCard } from '../components/ui/glass-card';
-import ReceiptScanner from '../components/ReceiptScanner';
-import ScanOCR from './ScanOCR';
+import { BrowserMultiFormatReader } from '@zxing/browser';
+import { useNavigate } from 'react-router-dom';
 
-type ScanMode = 'barcode' | 'ocr' | 'ticket';
+type ScanStatus =
+  | 'idle'
+  | 'permissionDenied'
+  | 'cameraNotFound'
+  | 'scanning'
+  | 'notDetectedTimeout'
+  | 'success'
+  | 'errorNetwork'
+  | 'notFound';
+
+type ScannerControls = {
+  stop: () => void;
+  switchTorch?: (on: boolean) => Promise<void>;
+};
+
+const EAN_REGEX = /^[0-9]{8,14}$/;
+const SCAN_TIMEOUT_MS = 10_000;
+const SUCCESS_LOCK_MS = 1_500;
 
 export default function ScannerHub() {
-  const [mode, setMode] = useState<ScanMode>('barcode');
-  
+  const navigate = useNavigate();
+
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const readerRef = useRef<BrowserMultiFormatReader | null>(null);
+  const controlsRef = useRef<ScannerControls | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const timeoutRef = useRef<number | null>(null);
+  const successLockRef = useRef<number | null>(null);
+
+  const [status, setStatus] = useState<ScanStatus>('idle');
+  const [lastDetectedCode, setLastDetectedCode] = useState<string | null>(null);
+  const [stableCounter, setStableCounter] = useState(0);
+  const [manualInputVisible, setManualInputVisible] = useState(false);
+  const [manualEAN, setManualEAN] = useState('');
+  const [manualError, setManualError] = useState<string | null>(null);
+  const [torchSupported, setTorchSupported] = useState(false);
+  const [torchEnabled, setTorchEnabled] = useState(false);
+  const [successOverlayVisible, setSuccessOverlayVisible] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+
+  const stopCamera = useCallback(() => {
+    controlsRef.current?.stop();
+    controlsRef.current = null;
+
+    if (timeoutRef.current !== null) {
+      window.clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    const stream = streamRef.current ?? (videoRef.current?.srcObject instanceof MediaStream ? videoRef.current.srcObject : null);
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+
+    setIsScanning(false);
+    setTorchEnabled(false);
+    setTorchSupported(false);
+  }, []);
+
+  const canFinalize = () => successLockRef.current === null;
+
+  const finalizeScan = useCallback(
+    (rawCode: string) => {
+      if (!canFinalize()) {
+        return;
+      }
+
+      const code = rawCode.replace(/\D/g, '');
+      if (!EAN_REGEX.test(code)) {
+        setStatus('notFound');
+        return;
+      }
+
+      successLockRef.current = window.setTimeout(() => {
+        successLockRef.current = null;
+      }, SUCCESS_LOCK_MS);
+
+      if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        navigator.vibrate(200);
+      }
+
+      setStatus('success');
+      setSuccessOverlayVisible(true);
+      stopCamera();
+
+      window.setTimeout(() => {
+        navigate(`/product/${code}`);
+      }, SUCCESS_LOCK_MS);
+    },
+    [navigate, stopCamera]
+  );
+
+  const detectTorchSupport = useCallback(() => {
+    const stream = streamRef.current;
+    if (!stream) {
+      setTorchSupported(false);
+      return;
+    }
+
+    const [track] = stream.getVideoTracks();
+    if (!track || typeof track.getCapabilities !== 'function') {
+      setTorchSupported(false);
+      return;
+    }
+
+    const capabilities = track.getCapabilities() as { torch?: boolean };
+    setTorchSupported(Boolean(capabilities.torch));
+  }, []);
+
+  const resetForNewScan = useCallback(() => {
+    setLastDetectedCode(null);
+    setStableCounter(0);
+    setManualError(null);
+    setSuccessOverlayVisible(false);
+    if (status !== 'permissionDenied' && status !== 'cameraNotFound') {
+      setStatus('idle');
+    }
+  }, [status]);
+
+  const startCamera = useCallback(async () => {
+    stopCamera();
+    resetForNewScan();
+    setManualInputVisible(false);
+
+    if (!videoRef.current || !navigator.mediaDevices?.getUserMedia) {
+      setStatus('cameraNotFound');
+      return;
+    }
+
+    try {
+      if (!readerRef.current) {
+        readerRef.current = new BrowserMultiFormatReader();
+      }
+
+      setStatus('scanning');
+      setIsScanning(true);
+
+      const controls = await readerRef.current.decodeFromConstraints(
+        {
+          video: { facingMode: { ideal: 'environment' } },
+          audio: false,
+        },
+        videoRef.current,
+        (result) => {
+          const text = result?.getText()?.trim();
+          if (!text || !canFinalize()) {
+            return;
+          }
+
+          setLastDetectedCode((previousCode) => {
+            if (previousCode === text) {
+              setStableCounter((previousCounter) => {
+                const nextCounter = previousCounter + 1;
+                if (nextCounter >= 2) {
+                  finalizeScan(text);
+                }
+                return nextCounter;
+              });
+              return previousCode;
+            }
+
+            setStableCounter(1);
+            return text;
+          });
+        }
+      );
+
+      controlsRef.current = controls as ScannerControls;
+
+      const media = videoRef.current.srcObject;
+      if (media instanceof MediaStream) {
+        streamRef.current = media;
+        detectTorchSupport();
+      }
+
+      timeoutRef.current = window.setTimeout(() => {
+        if (canFinalize()) {
+          stopCamera();
+          setStatus('notDetectedTimeout');
+          setManualInputVisible(true);
+        }
+      }, SCAN_TIMEOUT_MS);
+    } catch (error) {
+      stopCamera();
+      const message = error instanceof Error ? error.message : '';
+
+      if (/permission|denied|notallowed/i.test(message)) {
+        setStatus('permissionDenied');
+        setManualInputVisible(true);
+        return;
+      }
+
+      if (/notfound|overconstrained|devices/i.test(message)) {
+        setStatus('cameraNotFound');
+        setManualInputVisible(true);
+        return;
+      }
+
+      setStatus('errorNetwork');
+      setManualInputVisible(true);
+    }
+  }, [detectTorchSupport, finalizeScan, resetForNewScan, stopCamera]);
+
+  const handleManualSearch = useCallback(() => {
+    const normalized = manualEAN.replace(/\D/g, '');
+
+    if (!EAN_REGEX.test(normalized)) {
+      setManualError('Code EAN invalide. Entrez 8 à 14 chiffres.');
+      return;
+    }
+
+    setManualError(null);
+    finalizeScan(normalized);
+  }, [finalizeScan, manualEAN]);
+
+  const toggleTorch = useCallback(async () => {
+    const controls = controlsRef.current;
+    if (!controls || typeof controls.switchTorch !== 'function' || !torchSupported) {
+      return;
+    }
+
+    const nextState = !torchEnabled;
+    await controls.switchTorch(nextState);
+    setTorchEnabled(nextState);
+  }, [torchEnabled, torchSupported]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopCamera();
+      }
+    };
+
+    const handlePageHide = () => {
+      stopCamera();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('pagehide', handlePageHide);
+
+    return () => {
+      stopCamera();
+
+      if (successLockRef.current !== null) {
+        window.clearTimeout(successLockRef.current);
+        successLockRef.current = null;
+      }
+
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('pagehide', handlePageHide);
+    };
+  }, [stopCamera]);
+
   return (
     <>
       <Helmet>
         <title>Scanner - A KI PRI SA YÉ</title>
-        <meta name="description" content="Scanner de produits : code-barres, OCR texte, et tickets de caisse" />
       </Helmet>
-      
-      <div className="min-h-screen bg-slate-950 p-4 pt-24">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-3">
-              📷 Scanner de produits
-            </h1>
-            <p className="text-gray-400 text-lg">
-              Scannez vos produits pour comparer les prix instantanément
-            </p>
-          </div>
-          
-          {/* Mode Selector */}
-          <GlassCard className="mb-6 p-3">
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                onClick={() => setMode('barcode')}
-                className={`flex flex-col items-center gap-2 px-4 py-4 rounded-xl font-semibold transition-all ${
-                  mode === 'barcode'
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-                    : 'bg-slate-800/50 text-gray-400 hover:bg-slate-700 hover:text-gray-300'
-                }`}
-                aria-label="Sélectionner le mode code-barres"
-                aria-pressed={mode === 'barcode'}
-              >
-                <Barcode className="w-6 h-6" />
-                <span className="text-sm">Code-barres</span>
-              </button>
-              <button
-                onClick={() => setMode('ocr')}
-                className={`flex flex-col items-center gap-2 px-4 py-4 rounded-xl font-semibold transition-all ${
-                  mode === 'ocr'
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-                    : 'bg-slate-800/50 text-gray-400 hover:bg-slate-700 hover:text-gray-300'
-                }`}
-                aria-label="Sélectionner le mode OCR texte"
-                aria-pressed={mode === 'ocr'}
-              >
-                <FileText className="w-6 h-6" />
-                <span className="text-sm">OCR Texte</span>
-              </button>
-              <button
-                onClick={() => setMode('ticket')}
-                className={`flex flex-col items-center gap-2 px-4 py-4 rounded-xl font-semibold transition-all ${
-                  mode === 'ticket'
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-                    : 'bg-slate-800/50 text-gray-400 hover:bg-slate-700 hover:text-gray-300'
-                }`}
-                aria-label="Sélectionner le mode ticket de caisse"
-                aria-pressed={mode === 'ticket'}
-              >
-                <Camera className="w-6 h-6" />
-                <span className="text-sm">Ticket</span>
-              </button>
-            </div>
-          </GlassCard>
-          
-          {/* Dynamic Content */}
-          <div>
-            {mode === 'barcode' && (
-              <GlassCard>
-                <h2 className="text-xl font-semibold text-white mb-4">
-                  Scanner un code-barres
-                </h2>
-                <p className="text-gray-400 mb-6">
-                  Positionnez le code-barres devant votre caméra
-                </p>
-                <div className="bg-slate-900/50 rounded-xl p-4">
-                  <p className="text-gray-500 text-center py-8">
-                    Le scanner de code-barres s'affichera ici
-                  </p>
-                  {/* BarcodeScanner will be integrated here in the actual implementation */}
-                </div>
-              </GlassCard>
-            )}
-            
-            {mode === 'ocr' && (
-              <div className="-mt-6">
-                <ScanOCR />
+
+      <main className="min-h-screen bg-slate-950 p-4 pt-24 text-white">
+        <section className="mx-auto w-full max-w-2xl rounded-2xl border border-slate-800 bg-slate-900 p-4">
+          <h1 className="mb-3 text-2xl font-semibold">Scanner un code-barres</h1>
+
+          <div className="relative overflow-hidden rounded-xl border border-slate-700 bg-black">
+            <video
+              ref={videoRef}
+              playsInline
+              muted
+              autoPlay
+              className="aspect-video w-full"
+              aria-label="Caméra de scan"
+            />
+
+            {successOverlayVisible && (
+              <div className="absolute inset-0 flex items-center justify-center bg-emerald-600/80 text-xl font-semibold">
+                Succès
               </div>
             )}
-            
-            {mode === 'ticket' && (
-              <GlassCard>
-                <h2 className="text-xl font-semibold text-white mb-4">
-                  Scanner un ticket de caisse
-                </h2>
-                <p className="text-gray-400 mb-6">
-                  Prenez une photo de votre ticket pour extraire les informations
-                </p>
-                <ReceiptScanner />
-              </GlassCard>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => void startCamera()}
+              className="rounded-lg bg-blue-600 px-5 py-3 text-base font-semibold hover:bg-blue-700"
+            >
+              Activer la caméra
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                stopCamera();
+                setManualInputVisible(true);
+              }}
+              className="rounded-lg border border-slate-500 px-5 py-3 text-base font-semibold"
+            >
+              Saisir manuellement
+            </button>
+
+            {torchSupported && isScanning && (
+              <button
+                type="button"
+                onClick={() => void toggleTorch()}
+                className="rounded-lg border border-amber-400 px-5 py-3 text-base font-semibold text-amber-100"
+              >
+                {torchEnabled ? 'Lampe: ON' : 'Lampe'}
+              </button>
             )}
           </div>
-          
-          {/* Info Section */}
-          <GlassCard className="mt-6">
-            <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-              <span>💡</span>
-              <span>Conseils d'utilisation</span>
-            </h3>
-            <ul className="space-y-2 text-gray-400 text-sm">
-              <li className="flex items-start gap-2">
-                <span className="text-blue-400 mt-0.5">•</span>
-                <span>Assurez-vous d'avoir un bon éclairage</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-blue-400 mt-0.5">•</span>
-                <span>Tenez votre appareil stable pendant le scan</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-blue-400 mt-0.5">•</span>
-                <span>Pour les tickets, cadrez bien l'ensemble du document</span>
-              </li>
-            </ul>
-          </GlassCard>
-        </div>
-      </div>
+
+          <div className="mt-4 space-y-1 text-sm text-slate-300">
+            <p>État: {status}</p>
+            <p>Dernier code: {lastDetectedCode ?? '—'}</p>
+            <p>Validation stable: {stableCounter}/2</p>
+          </div>
+
+          {status === 'permissionDenied' && (
+            <p className="mt-3 rounded-lg border border-red-700 bg-red-500/10 p-3 text-sm text-red-200">
+              Permission caméra refusée. Utilisez la saisie manuelle.
+            </p>
+          )}
+
+          {status === 'cameraNotFound' && (
+            <p className="mt-3 rounded-lg border border-red-700 bg-red-500/10 p-3 text-sm text-red-200">
+              Caméra introuvable ou indisponible.
+            </p>
+          )}
+
+          {status === 'notDetectedTimeout' && (
+            <p className="mt-3 rounded-lg border border-amber-700 bg-amber-500/10 p-3 text-sm text-amber-200">
+              Aucun code détecté après 10 secondes. Vous pouvez saisir le code EAN.
+            </p>
+          )}
+
+          {(status === 'errorNetwork' || status === 'notFound') && (
+            <p className="mt-3 rounded-lg border border-red-700 bg-red-500/10 p-3 text-sm text-red-200">
+              Erreur pendant le scan. Passez par la saisie manuelle.
+            </p>
+          )}
+
+          {manualInputVisible && (
+            <div className="mt-4 rounded-xl border border-slate-700 p-3">
+              <label htmlFor="manual-ean" className="mb-2 block text-sm font-medium">
+                Code EAN (8 à 14 chiffres)
+              </label>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <input
+                  id="manual-ean"
+                  value={manualEAN}
+                  onChange={(event) => {
+                    setManualEAN(event.target.value.replace(/\D/g, ''));
+                    setManualError(null);
+                  }}
+                  inputMode="numeric"
+                  className="flex-1 rounded-lg border border-slate-600 bg-slate-950 px-3 py-3"
+                  placeholder="3017620422003"
+                />
+                <button
+                  type="button"
+                  onClick={handleManualSearch}
+                  className="rounded-lg bg-emerald-600 px-5 py-3 text-base font-semibold hover:bg-emerald-700"
+                >
+                  Rechercher
+                </button>
+              </div>
+              {manualError && <p className="mt-2 text-sm text-red-300">{manualError}</p>}
+            </div>
+          )}
+        </section>
+      </main>
     </>
   );
 }

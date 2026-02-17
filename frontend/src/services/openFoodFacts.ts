@@ -26,11 +26,36 @@ type OffApiProduct = {
   image_url?: unknown;
   quantity?: unknown;
   categories_tags?: unknown;
+  nutriscore_grade?: unknown;
+  nova_group?: unknown;
+  ecoscore_grade?: unknown;
+  nutriments?: unknown;
+  ingredients_text?: unknown;
+  allergens?: unknown;
 };
 
 type OffApiResponse = {
   status?: unknown;
   product?: OffApiProduct;
+};
+
+export type OffProductUiModel = {
+  barcode: string;
+  name?: string;
+  brand?: string;
+  image?: string;
+  quantity?: string;
+  nutriScore?: string;
+  nova?: number;
+  ecoScore?: string;
+  nutriments: {
+    kcal?: number;
+    sugars?: number;
+    fat?: number;
+    salt?: number;
+  };
+  ingredients?: string;
+  allergens?: string;
 };
 
 function getOffBaseUrl(): string {
@@ -188,6 +213,136 @@ export async function fetchOffProductByBarcode(
     if (timeout) {
       window.clearTimeout(timeout);
     }
+  }
+}
+
+const OFF_PRODUCT_FIELDS = [
+  'product_name',
+  'brands',
+  'image_url',
+  'nutriscore_grade',
+  'nova_group',
+  'nutriments',
+  'ingredients_text',
+  'allergens',
+  'quantity',
+  'ecoscore_grade',
+].join(',');
+
+function safeNumber(value: unknown): number | undefined {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    const parsed = Number.parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+
+  return undefined;
+}
+
+function mapToUiModel(barcode: string, product: OffApiProduct): OffProductUiModel {
+  const nutriments = typeof product.nutriments === 'object' && product.nutriments !== null
+    ? product.nutriments as Record<string, unknown>
+    : {};
+
+  return {
+    barcode,
+    name: safeString(product.product_name),
+    brand: safeString(product.brands),
+    image: safeString(product.image_url),
+    quantity: safeString(product.quantity),
+    nutriScore: safeString(product.nutriscore_grade)?.toUpperCase(),
+    nova: safeNumber(product.nova_group),
+    ecoScore: safeString(product.ecoscore_grade)?.toUpperCase(),
+    nutriments: {
+      kcal: safeNumber(nutriments['energy-kcal_100g']),
+      sugars: safeNumber(nutriments.sugars_100g),
+      fat: safeNumber(nutriments.fat_100g),
+      salt: safeNumber(nutriments.salt_100g),
+    },
+    ingredients: safeString(product.ingredients_text),
+    allergens: safeString(product.allergens),
+  };
+}
+
+export async function fetchOffProductDetails(
+  barcode: string,
+  opts?: { signal?: AbortSignal }
+): Promise<OffProductResult & { ui?: OffProductUiModel }> {
+  const invalid = validateBarcode(barcode);
+  if (invalid) {
+    return invalid;
+  }
+
+  try {
+    const response = await fetch(
+      `${getOffBaseUrl()}/api/v2/product/${encodeURIComponent(barcode)}.json?fields=${OFF_PRODUCT_FIELDS}`,
+      {
+        method: 'GET',
+        signal: opts?.signal,
+        headers: {
+          Accept: 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      return {
+        status: response.status === 404 ? 'NOT_FOUND' : 'ERROR',
+        barcode,
+        error: {
+          message: `Erreur Open Food Facts (${response.status})`,
+          code: 'HTTP_ERROR',
+        },
+      };
+    }
+
+    const payload = (await response.json()) as OffApiResponse;
+
+    if (payload.status === 0 || !payload.product) {
+      return {
+        status: 'NOT_FOUND',
+        barcode,
+      };
+    }
+
+    if (payload.status !== 1) {
+      return {
+        status: 'ERROR',
+        barcode,
+        error: {
+          message: 'Réponse Open Food Facts invalide',
+          code: 'INVALID_RESPONSE',
+        },
+      };
+    }
+
+    return {
+      status: 'OK',
+      barcode,
+      ui: mapToUiModel(barcode, payload.product),
+      product: {
+        name: safeString(payload.product.product_name),
+        brands: safeString(payload.product.brands),
+        imageUrl: safeString(payload.product.image_url),
+        quantity: safeString(payload.product.quantity),
+      },
+    };
+  } catch (error: unknown) {
+    const errorName = error instanceof Error ? error.name : '';
+    const isAbortError = errorName === 'AbortError';
+    return {
+      status: 'ERROR',
+      barcode,
+      error: {
+        message: isAbortError
+          ? 'Délai dépassé lors de la requête Open Food Facts'
+          : 'Erreur réseau lors de la requête Open Food Facts',
+        code: isAbortError ? 'TIMEOUT' : 'NETWORK_ERROR',
+      },
+    };
   }
 }
 
