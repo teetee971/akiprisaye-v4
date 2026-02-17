@@ -513,6 +513,29 @@ Rollback possible
 **URL officielle :**  
 👉 [https://akiprisaye-web.pages.dev](https://akiprisaye-web.pages.dev)
 
+### Routing SPA (Cloudflare Pages)
+
+- Cloudflare Pages applique son fallback SPA natif **uniquement s'il n'existe pas de `404.html` top-level** dans le répertoire publié (`frontend/dist`).
+- Le build frontend ne doit donc pas générer `dist/404.html` (ne pas copier `index.html` vers `404.html`).
+- Le fallback explicite est défini via `frontend/public/_redirects` :
+
+```txt
+# SPA fallback
+/* /index.html 200
+```
+
+Validation rapide en production (ne pas tester `/_redirects`, ce fichier est parsé par Pages et non servi tel quel) :
+
+```bash
+curl -I https://akiprisaye-web.pages.dev/
+curl -I https://akiprisaye-web.pages.dev/login
+curl -I https://akiprisaye-web.pages.dev/mon-compte
+curl -I https://akiprisaye-web.pages.dev/reset-password
+curl -I https://akiprisaye-web.pages.dev/inscription
+```
+
+Toutes ces routes doivent répondre `HTTP 200` et charger l'application SPA.
+
 ---
 
 ## 🚀 Démarrage Rapide
@@ -1032,4 +1055,3 @@ Et, si `signInWithPopup` est bloqué selon votre politique, autoriser les domain
 - [ ] Refresh page conserve la session utilisateur
 - [ ] Route protégée (`/mon-compte`) redirige vers `/login` si non connecté
 - [ ] En cas d'erreur `auth/unauthorized-domain`, ajouter le domaine courant dans Firebase > Authorized domains
-

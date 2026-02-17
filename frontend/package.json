@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && cp dist/index.html dist/404.html",
+    "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint src --ext .ts,.tsx,.js,.jsx --cache --cache-location .eslintcache",
     "lint:full": "npm run lint -- --no-cache",
@@ -25,7 +25,8 @@
     "e2e:report": "playwright show-report",
     "verify:pages-api": "node scripts/verify-pages-api.mjs",
     "verify:placeholder-routing": "npm run build && node scripts/verify-placeholder-routing.mjs",
-    "verify:redirects-order": "node scripts/verify-redirects-order.mjs"
+    "verify:redirects-order": "node scripts/verify-redirects-order.mjs",
+    "test:spa": "npm run build && node scripts/test-spa.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
