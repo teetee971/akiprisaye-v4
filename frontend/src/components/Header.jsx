@@ -43,12 +43,14 @@ export default function Header() {
   // Sécurité Auth
   let user = null;
   let isAuthenticated = false;
+  let signOutAction = null;
 
   if (useAuthSafe) {
     try {
       const auth = useAuthSafe();
       user = auth?.user ?? null;
       isAuthenticated = Boolean(user);
+      signOutAction = auth?.signOutUser ?? null;
     } catch {
       user = null;
       isAuthenticated = false;
@@ -95,9 +97,20 @@ export default function Header() {
 
         {/* Auth (safe) */}
         {isAuthenticated ? (
-          <span className="text-sm text-gray-400">
-            Bonjour {user?.displayName ?? 'Utilisateur'}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-gray-400">
+              Bonjour {user?.displayName ?? 'Utilisateur'}
+            </span>
+            {signOutAction ? (
+              <button
+                type="button"
+                onClick={() => signOutAction()}
+                className="text-sm text-gray-300 hover:text-white"
+              >
+                Se déconnecter
+              </button>
+            ) : null}
+          </div>
         ) : (
           <span className="text-sm text-gray-500">Invité</span>
         )}

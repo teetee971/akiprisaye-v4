@@ -7,6 +7,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { doc, setDoc } from "firebase/firestore";
 import { db, firebaseError } from "@/lib/firebase";
 import { PasswordInput } from "@/components/PasswordInput";
+import { FIREBASE_UNAVAILABLE_MESSAGE } from "@/lib/authMessages";
 
 const DEFAULT_USER_PLAN = "free";
 const PLAN_LABELS: Record<string, { title: string; description: string }> = {
@@ -43,7 +44,7 @@ export default function Inscription() {
 
     // Check if Firebase is available
     if (firebaseError || !auth) {
-      setError("Service d'authentification non disponible. Veuillez contacter l'administrateur.");
+      setError(FIREBASE_UNAVAILABLE_MESSAGE);
       return;
     }
 

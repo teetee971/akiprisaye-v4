@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { sendPasswordResetEmail } from "firebase/auth";
 import { auth, firebaseError } from "@/lib/firebase";
 import { Link } from "react-router-dom";
+import { FIREBASE_UNAVAILABLE_MESSAGE } from "@/lib/authMessages";
 
 export default function ResetPassword() {
   const [email, setEmail] = useState("");
@@ -13,7 +14,7 @@ export default function ResetPassword() {
 
   useEffect(() => {
     if (firebaseError) {
-      setError("Service d'authentification non disponible. Veuillez contacter l'administrateur.");
+      setError(FIREBASE_UNAVAILABLE_MESSAGE);
     }
   }, []);
 
@@ -23,7 +24,7 @@ export default function ResetPassword() {
     setSuccess(false);
 
     if (firebaseError || !auth) {
-      setError("Service d'authentification non disponible. Veuillez contacter l'administrateur.");
+      setError(FIREBASE_UNAVAILABLE_MESSAGE);
       return;
     }
 

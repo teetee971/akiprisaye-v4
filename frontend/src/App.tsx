@@ -16,6 +16,7 @@ import OnboardingAutoStart from './components/OnboardingAutoStart';
 import HelpButton from './components/HelpButton';
 import AnalyticsTracker from './components/analytics/AnalyticsTracker';
 import { StoreSelectionProvider } from './context/StoreSelectionContext';
+import RequireAuth from './components/auth/RequireAuth';
 import { logDebug } from './utils/logger';
 
 // Lazy-loaded pages - Main routes
@@ -249,7 +250,7 @@ export default function App() {
                       <Route path="inscription" element={<Inscription />} />
                       <Route path="reset-password" element={<ResetPassword />} />
                       <Route path="auth" element={<AuthHub />} />
-                      <Route path="mon-compte" element={<MonCompte />} />
+                      <Route path="mon-compte" element={<RequireAuth><MonCompte /></RequireAuth>} />
                       
                       {/* Pricing & Subscription */}
                       <Route path="pricing" element={<Pricing />} />

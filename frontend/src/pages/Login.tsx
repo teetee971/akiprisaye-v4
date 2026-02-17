@@ -1,67 +1,118 @@
-/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any */
-// src/pages/Login.tsx
-import { useState, useEffect } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth, firebaseError } from "@/lib/firebase";
-import { useNavigate, Link, useSearchParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+
+import { firebaseError, missingCriticalEnvKeys } from "@/lib/firebase";
+import { FIREBASE_UNAVAILABLE_MESSAGE } from "@/lib/authMessages";
+import { useAuth } from "@/context/AuthContext";
+
+type AuthMode = "login" | "signup";
 
 export default function Login() {
+  const [mode, setMode] = useState<AuthMode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [busyAction, setBusyAction] = useState<"email" | "google" | null>(null);
+
+  const { signInEmailPassword, signUpEmailPassword, signInGooglePopup } = useAuth();
+
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  const firebaseHealthy = !firebaseError && missingCriticalEnvKeys.length === 0;
+  const showFirebaseStatus = import.meta.env.DEV || Boolean(firebaseError);
+
   useEffect(() => {
     if (firebaseError) {
-      setError("Service d'authentification non disponible. Veuillez contacter l'administrateur.");
+      setError(FIREBASE_UNAVAILABLE_MESSAGE);
     }
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-
-    if (firebaseError || !auth) {
-      setError("Service d'authentification non disponible. Veuillez contacter l'administrateur.");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      const nextParam = searchParams.get("next");
-      // Prevent open redirect: must start with / but not with //
-      const safeNext = nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//") ? nextParam : null;
-      navigate(safeNext || "/mon-compte");
-    } catch (err: any) {
-      setError(getErrorMessage(err));
-    } finally {
-      setLoading(false);
-    }
+  const getSafeNext = () => {
+    const nextParam = searchParams.get("next");
+    return nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//")
+      ? nextParam
+      : "/mon-compte";
   };
 
-  const getErrorMessage = (err: any): string => {
-    const code = err?.code || "";
+  const getErrorMessage = (err: unknown): string => {
+    const code = typeof err === "object" && err && "code" in err ? String(err.code) : "";
+    const message = typeof err === "object" && err && "message" in err ? String(err.message) : null;
 
     switch (code) {
       case "auth/user-not-found":
         return "Aucun compte trouvé avec cet email.";
       case "auth/wrong-password":
         return "Mot de passe incorrect.";
+      case "auth/email-already-in-use":
+        return "Cet email est déjà utilisé.";
       case "auth/invalid-email":
         return "Email invalide.";
+      case "auth/popup-closed-by-user":
+        return "Connexion Google annulée.";
+      case "auth/unauthorized-domain":
+        return "Domaine non autorisé. Ajoutez ce domaine dans Firebase Authentication > Authorized domains.";
       case "auth/too-many-requests":
         return "Trop de tentatives. Réessayez plus tard.";
       case "auth/invalid-credential":
         return "Email ou mot de passe incorrect.";
       default:
-        return err?.message || "Une erreur est survenue. Réessayez.";
+        return message || "Une erreur est survenue. Réessayez.";
     }
   };
+
+  const handleEmailSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (firebaseError) {
+      setError(FIREBASE_UNAVAILABLE_MESSAGE);
+      return;
+    }
+
+    if (!email || !password) {
+      setError("Email et mot de passe requis.");
+      return;
+    }
+
+    setBusyAction("email");
+
+    try {
+      if (mode === "signup") {
+        await signUpEmailPassword(email, password);
+      } else {
+        await signInEmailPassword(email, password);
+      }
+
+      navigate(getSafeNext());
+    } catch (err: unknown) {
+      setError(getErrorMessage(err));
+    } finally {
+      setBusyAction(null);
+    }
+  };
+
+  const handleGoogle = async () => {
+    setError(null);
+
+    if (firebaseError) {
+      setError(FIREBASE_UNAVAILABLE_MESSAGE);
+      return;
+    }
+
+    setBusyAction("google");
+
+    try {
+      await signInGooglePopup();
+      navigate(getSafeNext());
+    } catch (err: unknown) {
+      setError(getErrorMessage(err));
+    } finally {
+      setBusyAction(null);
+    }
+  };
+
+  const loading = busyAction !== null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-4">
@@ -70,14 +121,22 @@ export default function Login() {
 
         {error && (
           <div className="mb-4 p-3 bg-red-900/30 border border-red-700 rounded-lg text-red-200 text-sm">
-            <div className="flex items-start gap-2">
-              <span className="flex-shrink-0">❌</span>
-              <span>{error}</span>
-            </div>
+            <span>{error}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <button
+          type="button"
+          onClick={handleGoogle}
+          disabled={loading}
+          className="w-full p-3 mb-4 bg-slate-800 hover:bg-slate-700 rounded-lg font-medium transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed text-white border border-gray-700"
+        >
+          {busyAction === "google" ? "Connexion Google en cours…" : "Continuer avec Google"}
+        </button>
+
+        <div className="text-center text-gray-400 text-sm mb-4">ou</div>
+
+        <form onSubmit={handleEmailSubmit} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
               Adresse e-mail
@@ -90,6 +149,7 @@ export default function Login() {
               className="w-full p-3 rounded-lg bg-slate-800 text-white border border-gray-700 focus:border-blue-500 focus:outline-none"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
             />
           </div>
 
@@ -100,12 +160,13 @@ export default function Login() {
             <input
               id="password"
               type="password"
-              placeholder="Minimum 6 caractères"
+              placeholder={mode === "signup" ? "Minimum 6 caractères" : "Votre mot de passe"}
               required
               minLength={6}
               className="w-full p-3 rounded-lg bg-slate-800 text-white border border-gray-700 focus:border-blue-500 focus:outline-none"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete={mode === "signup" ? "new-password" : "current-password"}
             />
           </div>
 
@@ -114,11 +175,28 @@ export default function Login() {
             className="w-full p-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed text-white"
             disabled={loading}
           >
-            {loading ? "Connexion en cours…" : "Se connecter"}
+            {busyAction === "email"
+              ? mode === "signup"
+                ? "Création du compte…"
+                : "Connexion en cours…"
+              : mode === "signup"
+                ? "Créer un compte"
+                : "Se connecter"}
           </button>
         </form>
 
         <div className="mt-4 text-center">
+          <button
+            type="button"
+            onClick={() => setMode((current) => (current === "login" ? "signup" : "login"))}
+            className="text-sm text-blue-400 hover:text-blue-300 hover:underline"
+            disabled={loading}
+          >
+            {mode === "login" ? "Créer un compte" : "J’ai déjà un compte"}
+          </button>
+        </div>
+
+        <div className="mt-2 text-center">
           <Link
             to="/reset-password"
             className="text-sm text-blue-400 hover:text-blue-300 hover:underline"
@@ -127,23 +205,20 @@ export default function Login() {
           </Link>
         </div>
 
-        <div className="mt-6 text-center">
-          <p className="text-gray-400 text-sm">
-            Pas encore de compte ?{" "}
-            <Link
-              to="/inscription"
-              className="text-blue-400 hover:text-blue-300 hover:underline font-medium"
-            >
-              Créer un compte
-            </Link>
-          </p>
-        </div>
-
-        <div className="mt-6 p-3 bg-blue-900/20 border border-blue-700/30 rounded-lg">
-          <p className="text-blue-200 text-xs text-center">
-            🔒 Service citoyen gratuit et sécurisé
-          </p>
-        </div>
+        {showFirebaseStatus && (
+          <div className="mt-6 p-3 bg-slate-800/70 border border-slate-700 rounded-lg text-xs">
+            {firebaseHealthy ? (
+              <p className="text-emerald-300 text-center">Firebase OK</p>
+            ) : (
+              <div className="text-amber-300">
+                <p className="font-semibold">Firebase missing env at build time</p>
+                {missingCriticalEnvKeys.length > 0 && (
+                  <p className="mt-1 break-words">Clés manquantes : {missingCriticalEnvKeys.join(", ")}</p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

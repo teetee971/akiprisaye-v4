@@ -983,3 +983,53 @@ Pour toute question ou problème, consultez d'abord le [NAVIGATION_GUIDE.md](NAV
 3. **Détail produit** : depuis un résultat, ouvrir `/p/:id` et vérifier les cartes min/médiane/max.
 4. **Free quota connecté** : se connecter puis effectuer 20 recherches, vérifier blocage à la 21e.
 5. **Feature Pro** : cliquer Export / Alertes / Insights complets, vérifier modal “Fonction Pro”.
+
+## Configuration Auth (Firebase + Cloudflare Pages)
+
+### 1) Variables d'environnement (local + Cloudflare Pages)
+
+Créer un fichier `frontend/.env` (ou `.env.local`) en partant de `frontend/.env.example` :
+
+```bash
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_PROJECT_ID=
+VITE_FIREBASE_STORAGE_BUCKET=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_APP_ID=
+VITE_FIREBASE_MEASUREMENT_ID=
+VITE_ADMIN_EMAILS=
+```
+
+Sur Cloudflare Pages, définir les mêmes variables dans **Settings > Environment variables** pour les environnements **Production** et **Preview**.
+
+### 2) Firebase Console (Authentication)
+
+Dans Firebase Console > Authentication > Sign-in method :
+- Activer **Email/Password**
+- Activer **Google**
+
+Dans Firebase Console > Authentication > Settings > Authorized domains :
+- Ajouter `localhost` (dev)
+- Ajouter votre domaine Pages `*.pages.dev` (ou le domaine exact du projet)
+- Ajouter le domaine custom si applicable
+
+### 3) Vérification CSP
+
+Si vous utilisez une CSP stricte, autoriser les endpoints Firebase Auth dans `connect-src` :
+- `https://identitytoolkit.googleapis.com`
+- `https://securetoken.googleapis.com`
+- `https://www.googleapis.com`
+
+Et, si `signInWithPopup` est bloqué selon votre politique, autoriser les domaines Google/Firebase nécessaires pour la popup.
+
+### 4) Checklist de test manuel Auth
+
+- [ ] Création de compte Email/Mot de passe OK
+- [ ] Connexion Email/Mot de passe OK
+- [ ] Connexion Google popup OK
+- [ ] Déconnexion OK
+- [ ] Refresh page conserve la session utilisateur
+- [ ] Route protégée (`/mon-compte`) redirige vers `/login` si non connecté
+- [ ] En cas d'erreur `auth/unauthorized-domain`, ajouter le domaine courant dans Firebase > Authorized domains
+
