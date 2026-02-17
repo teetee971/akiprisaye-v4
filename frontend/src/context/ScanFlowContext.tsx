@@ -176,6 +176,12 @@ export function ScanFlowProvider({ children }: ScanFlowProviderProps) {
   );
 }
 
+
+export function useOptionalScanFlow(): ScanFlowContextType | null {
+  const context = useContext(ScanFlowContext);
+  return context ?? null;
+}
+
 /**
  * Hook pour utiliser le contexte de flux de scan
  * @throws Error si utilisé en dehors du provider

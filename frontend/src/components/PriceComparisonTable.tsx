@@ -13,14 +13,6 @@ export default function PriceComparisonTable({
   observations,
   groupedByStore,
 }: PriceComparisonTableProps) {
-  if (observations.length === 0) {
-    return (
-      <div className="text-center py-8 text-white/60">
-        Aucune observation disponible pour ce produit.
-      </div>
-    )
-  }
-
   const getTimestamp = (value: string) => {
     const parsed = new Date(value)
     return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime()
@@ -84,6 +76,14 @@ export default function PriceComparisonTable({
       persistWatchedPrices(next)
       return next
     })
+  }
+
+  if (observations.length === 0) {
+    return (
+      <div className="text-center py-8 text-white/60">
+        Aucune observation disponible pour ce produit.
+      </div>
+    )
   }
 
   return (

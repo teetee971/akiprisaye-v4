@@ -1,74 +1,24 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-
-/**
- * Header sécurisé :
- * - Aucun crash si AuthContext absent
- * - Aucun crash si Router pas encore monté
- * - Aucun accès direct non protégé à window / localStorage
- * - Compatible ErrorBoundary
- */
-
-// Import optionnels protégés
-let useAuthSafe = null;
-try {
-  ({ useAuth: useAuthSafe } = await import('../context/AuthContext'));
-} catch {
-  useAuthSafe = null;
-}
-
-let ThemeToggleSafe = null;
-try {
-  ({ default: ThemeToggleSafe } = await import('./ThemeToggle'));
-} catch {
-  ThemeToggleSafe = null;
-}
-
-let LanguageSelectorSafe = null;
-try {
-  ({ LanguageSelector: LanguageSelectorSafe } = await import('./i18n/LanguageSelector'));
-} catch {
-  LanguageSelectorSafe = null;
-}
+import { useAuth } from '../context/AuthContext';
+import ThemeToggle from './ThemeToggle';
+import { LanguageSelector } from './i18n/LanguageSelector';
 
 export default function Header() {
-  // Sécurité Router
-  let location = null;
-  try {
-    location = useLocation();
-  } catch {
-    location = { pathname: '/' };
-  }
-
-  // Sécurité Auth
-  let user = null;
-  let isAuthenticated = false;
-  let signOutAction = null;
-
-  if (useAuthSafe) {
-    try {
-      const auth = useAuthSafe();
-      user = auth?.user ?? null;
-      isAuthenticated = Boolean(user);
-      signOutAction = auth?.signOutUser ?? null;
-    } catch {
-      user = null;
-      isAuthenticated = false;
-    }
-  }
+  const location = useLocation();
+  const auth = useAuth();
+  const user = auth?.user ?? null;
+  const isAuthenticated = Boolean(user);
+  const signOutAction = auth?.signOutUser ?? null;
 
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Empêche tout rendu prématuré
     setMounted(true);
   }, []);
 
   if (!mounted) {
-    // Rendu neutre ultra-safe
-    return (
-      <header className="w-full h-14 bg-transparent" aria-hidden="true" />
-    );
+    return <header className="w-full h-14 bg-transparent" aria-hidden="true" />;
   }
 
   const isActive = (path) =>
@@ -76,12 +26,10 @@ export default function Header() {
 
   return (
     <header className="w-full flex items-center justify-between px-4 py-3 border-b border-white/10 bg-black/40 backdrop-blur">
-      {/* Logo */}
       <Link to="/" className="text-white font-bold text-lg">
         A KI PRI SA YÉ
       </Link>
 
-      {/* Navigation */}
       <nav className="flex items-center gap-4">
         <Link to="/" className={isActive('/')}>
           Accueil
@@ -95,7 +43,6 @@ export default function Header() {
           Paramètres
         </Link>
 
-        {/* Auth (safe) */}
         {isAuthenticated ? (
           <div className="flex items-center gap-3">
             <span className="text-sm text-gray-400">
@@ -115,11 +62,8 @@ export default function Header() {
           <span className="text-sm text-gray-500">Invité</span>
         )}
 
-        {/* Theme toggle (safe) */}
-        {ThemeToggleSafe ? <ThemeToggleSafe /> : null}
-
-        {/* Language selector (safe) */}
-        {LanguageSelectorSafe ? <LanguageSelectorSafe variant="compact" /> : null}
+        <ThemeToggle />
+        <LanguageSelector variant="compact" />
       </nav>
     </header>
   );

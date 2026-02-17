@@ -5,7 +5,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useEANScanner } from '../hooks/useEANScanner'
 import { useEANResolver } from '../hooks/useEANResolver'
 import { useScanHistory } from '../hooks/useScanHistory'
-import { useScanFlow } from '../context/ScanFlowContext'
+import { useOptionalScanFlow } from '../context/ScanFlowContext'
 import { validateEAN, getAllProducts } from '../services/eanPublicCatalog'
 import { runOCR, GENERIC_OCR_ERROR } from '../services/ocrService'
 import { extractProductHints, fuzzySearchProducts } from '../services/textProductRecognition'
@@ -37,7 +37,7 @@ export default function ScanEAN() {
   const scanner = useEANScanner()
   const resolver = useEANResolver()
   const { history, addToHistory, removeFromHistory, clearHistory } = useScanHistory()
-  const scanFlow = isUnifiedFlow ? useScanFlow() : null
+  const scanFlow = useOptionalScanFlow()
   
   // Cache product catalog to avoid repeated calls
   const productCatalog = React.useMemo(() => getAllProducts().map(p => ({ label: p.name, ean: p.ean })), [])

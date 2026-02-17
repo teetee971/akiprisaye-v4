@@ -20,6 +20,8 @@ export default function StoreComparisonTable({
 }: StoreComparisonTableProps) {
   const [toastMessage, setToastMessage] = useState<string | null>(null)
 
+  const { isFavorite, toggleFavorite } = useFavorites()
+
   if (!comparisons || comparisons.length === 0) {
     return (
       <GlassCard>
@@ -35,7 +37,6 @@ export default function StoreComparisonTable({
     const sign = pct > 0 ? '+' : ''
     return sign + pct.toFixed(1) + '%'
   }
-  const { isFavorite, toggleFavorite } = useFavorites()
   const showToast = (message: string) => {
     setToastMessage(message)
     window.setTimeout(() => setToastMessage(null), 1400)

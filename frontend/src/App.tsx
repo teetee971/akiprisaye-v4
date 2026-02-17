@@ -35,7 +35,7 @@ const StoreDetail = lazyPage(() => import('./pages/admin/stores/StoreDetail'));
 const ProductList = lazyPage(() => import('./pages/admin/products/ProductList').then(m => ({ default: m.ProductList })));
 const ProductForm = lazyPage(() => import('./pages/admin/products/ProductForm').then(m => ({ default: m.ProductForm })));
 const ProductDetail = lazyPage(() => import('./pages/admin/products/ProductDetail').then(m => ({ default: m.ProductDetail })));
-const ImportPage = lazyPage(() => import('./pages/admin/import/ImportPage'));
+const ImportPage = lazyPage(() => import('./pages/admin/import/ImportPage').then(m => ({ default: m.ImportPage })));
 const ObservatoireHub = lazyPage(() => import('./pages/ObservatoireHub'));
 const Methodologie = lazyPage(() => import('./pages/Methodologie'));
 const Faq = lazyPage(() => import('./pages/Faq'));
@@ -247,6 +247,7 @@ export default function App() {
                       {/* Auth routes */}
                       <Route path="login" element={<Login />} />
                       <Route path="connexion" element={<Login />} />
+                      <Route path="Login" element={<Navigate to="/login" replace />} />
                       <Route path="auth/login" element={<Navigate to="/login" replace />} />
                       <Route path="signin" element={<Navigate to="/login" replace />} />
 

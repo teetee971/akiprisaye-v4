@@ -34,6 +34,7 @@ describe('Cloudflare SPA routing config', () => {
     const appSource = readFileSync(appPath, 'utf8');
 
     const expectedAliases = [
+      ['Login', '/login'],
       ['auth/login', '/login'],
       ['signin', '/login'],
       ['auth/register', '/inscription'],
