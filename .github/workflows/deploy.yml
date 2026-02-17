@@ -1,3 +1,4 @@
+# NOTE: manual-only to avoid duplicate Cloudflare deployments. Primary workflow: deploy-cloudflare-pages.yml
 name: Deploy to Cloudflare Pages
 
 on:
