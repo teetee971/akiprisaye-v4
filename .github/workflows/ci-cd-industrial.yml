@@ -1,14 +1,7 @@
+# NOTE: manual-only to avoid duplicate Cloudflare deployments. Primary workflow: deploy-cloudflare-pages.yml
 name: 🚀 CI/CD Pipeline Industriel
 
 on:
-  push:
-    branches:
-      - main
-    tags:
-      - '*'
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:

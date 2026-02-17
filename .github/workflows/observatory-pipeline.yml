@@ -1,24 +1,8 @@
+# NOTE: manual-only to avoid duplicate Cloudflare deployments. Primary workflow: deploy-cloudflare-pages.yml
 name: A KI PRI SA YÉ - Observatoire Pipeline
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'data/**'
-      - 'scripts/**'
-      - 'backend/**'
-      - '.github/workflows/observatory-pipeline.yml'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'data/**'
-      - 'scripts/**'
-      - 'backend/**'
-      - '.github/workflows/observatory-pipeline.yml'
   workflow_dispatch:
-  schedule:
-    # Exécution mensuelle pour vérification régulière (1er du mois à 3h)
-    - cron: '0 3 1 * *'
 
 env:
   NODE_VERSION: '20'
