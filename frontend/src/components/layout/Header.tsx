@@ -1,0 +1,55 @@
+import { Menu, X } from 'lucide-react';
+import { useState } from 'react';
+import { Link, NavLink } from 'react-router-dom';
+
+const links = [
+  { to: '/search', label: 'Recherche' },
+  { to: '/scan', label: 'Scan' },
+  { to: '/observatoire', label: 'Observatoire' },
+  { to: '/faq', label: 'FAQ' },
+  { to: '/methodologie', label: 'Méthodologie' },
+  { to: '/privacy', label: 'Privacy' },
+  { to: '/contact', label: 'Contact' },
+];
+
+export default function Header() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/95 backdrop-blur">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+        <Link to="/" className="flex items-center" aria-label="Accueil">
+          <img src="/logo-akiprisaye.svg" alt="A KI PRI SA YÉ" className="h-8 w-auto" />
+        </Link>
+        <button
+          type="button"
+          onClick={() => setOpen((value) => !value)}
+          className="rounded-lg border border-slate-700 p-2 text-slate-100"
+          aria-label={open ? 'Fermer le menu' : 'Ouvrir le menu'}
+        >
+          {open ? <X size={18} /> : <Menu size={18} />}
+        </button>
+      </div>
+
+      {open && (
+        <nav className="border-t border-slate-800 bg-slate-900 px-4 py-2">
+          <ul className="space-y-1">
+            {links.map((link) => (
+              <li key={link.to}>
+                <NavLink
+                  to={link.to}
+                  onClick={() => setOpen(false)}
+                  className={({ isActive }) =>
+                    `block rounded-lg px-3 py-2 text-sm ${isActive ? 'bg-slate-800 text-white' : 'text-slate-200'}`
+                  }
+                >
+                  {link.label}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
+    </header>
+  );
+}
