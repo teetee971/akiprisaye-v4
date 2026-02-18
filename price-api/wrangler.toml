@@ -5,6 +5,7 @@ workers_dev = true
 
 [vars]
 ALLOWED_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173"
+CASHIER_HASH_SALT = "CHANGE_ME_LONG_RANDOM"
 
 [[d1_databases]]
 binding = "PRICE_DB"

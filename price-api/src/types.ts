@@ -12,7 +12,20 @@ export interface Env {
   PRICE_DB: D1Database;
   PRICE_ADMIN_TOKEN: string;
   ALLOWED_ORIGINS?: string;
+  CASHIER_HASH_SALT?: string;
   PRICE_IMPORTS: R2Bucket;
+}
+
+export type ReceiptJobStatus = 'created' | 'processing' | 'completed' | 'failed';
+
+export interface ReceiptJobRecord {
+  id: string;
+  status: ReceiptJobStatus;
+  territory: string;
+  createdAt: string;
+  cashierLabelRaw?: string | null;
+  cashierHash?: string | null;
+  cashierOperatorId?: string | null;
 }
 
 export interface ProductRecord {

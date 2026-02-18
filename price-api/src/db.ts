@@ -435,3 +435,18 @@ export async function applySimpleRateLimit(
   await db.prepare('UPDATE rate_limits SET count = count + 1 WHERE key = ?').bind(key).run();
   return true;
 }
+
+export async function updateReceiptJobCashier(
+  db: D1Database,
+  jobId: string,
+  fields: { cashierLabelRaw: string | null; cashierHash: string | null; cashierOperatorId: string | null },
+): Promise<void> {
+  await db
+    .prepare(
+      `UPDATE receipt_jobs
+       SET cashier_label_raw = ?, cashier_hash = ?, cashier_operator_id = ?
+       WHERE id = ?`,
+    )
+    .bind(fields.cashierLabelRaw, fields.cashierHash, fields.cashierOperatorId, jobId)
+    .run();
+}
