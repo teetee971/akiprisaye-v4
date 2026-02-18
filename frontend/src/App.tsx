@@ -21,6 +21,8 @@ import { logDebug } from './utils/logger';
 
 // Lazy-loaded pages - Main routes
 const Home = lazyPage(() => import('./pages/Home'));
+const SearchPage = lazyPage(() => import('./pages/SearchPage'));
+const ScanPage = lazyPage(() => import('./pages/ScanPage'));
 const Carte = lazyPage(() => import('./pages/Carte'));
 const MapPage = lazyPage(() => import('./pages/MapPage'));
 const AdminDashboard = lazyPage(() => import('./pages/AdminDashboard'));
@@ -203,12 +205,14 @@ export default function App() {
                       <Route path="dashboard" element={<AdminDashboard />} />
                       <Route path="home" element={<Home />} />
                       <Route path="comparateur" element={<Comparateur />} />
+                      <Route path="search" element={<SearchPage />} />
                       <Route path="observatoire" element={<ObservatoireHub />} />
                       <Route path="vie-chere" element={<LutteVieChere />} />
                       <Route path="methodologie" element={<Methodologie />} />
                       <Route path="faq" element={<Faq />} />
                       <Route path="contact" element={<Contact />} />
                       <Route path="mentions-legales" element={<MentionsLegales />} />
+                      <Route path="privacy" element={<Transparence />} />
                       
                       {/* Additional feature routes */}
                       <Route path="donnees-publiques" element={<DonneesPubliques />} />
@@ -219,7 +223,7 @@ export default function App() {
                       <Route path="comparateur-citoyen" element={<ComparateurCitoyen />} />
                       
                       {/* Scanner & OCR routes */}
-                      <Route path="scan" element={<ScannerHub />} />
+                      <Route path="scan" element={<ScanPage />} />
                       <Route path="scanner" element={<ScannerHub />} />
                       <Route path="scan-ean" element={<ScanEAN />} />
                       <Route path="analyse-photo-produit" element={<ProductPhotoAnalysis />} />
