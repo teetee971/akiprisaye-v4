@@ -42,6 +42,7 @@ const Methodologie = lazyPage(() => import('./pages/Methodologie'));
 const Faq = lazyPage(() => import('./pages/Faq'));
 const Contact = lazyPage(() => import('./pages/Contact'));
 const MentionsLegales = lazyPage(() => import('./pages/MentionsLegales'));
+const Actualites = lazyPage(() => import('./pages/Actualites'));
 
 // Additional feature pages
 const DonneesPubliques = lazyPage(() => import('./pages/DonneesPubliques'));
@@ -210,6 +211,9 @@ export default function App() {
                       <Route path="methodologie" element={<Methodologie />} />
                       <Route path="faq" element={<Faq />} />
                       <Route path="contact" element={<Contact />} />
+                      <Route path="actualites" element={<Actualites />} />
+                      <Route path="actus" element={<Navigate to="/actualites" replace />} />
+                      <Route path="news" element={<Navigate to="/actualites" replace />} />
                       <Route path="mentions-legales" element={<MentionsLegales />} />
                       <Route path="privacy" element={<Transparence />} />
                       
