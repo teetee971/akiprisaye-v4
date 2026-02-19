@@ -19,7 +19,7 @@ export default function HomePage() {
           <Link to="/search" className="rounded-xl bg-emerald-500 px-4 py-3 text-center font-semibold text-slate-950">
             Rechercher un produit
           </Link>
-          <Link to="/scan?mode=ticket" className="rounded-xl border border-slate-700 px-4 py-3 text-center text-slate-100">
+          <Link to="/scanner?mode=ticket" className="rounded-xl border border-slate-700 px-4 py-3 text-center text-slate-100">
             Scanner un ticket
           </Link>
         </div>

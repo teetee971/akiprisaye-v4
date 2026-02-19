@@ -22,7 +22,6 @@ import { logDebug } from './utils/logger';
 // Lazy-loaded pages - Main routes
 const Home = lazyPage(() => import('./pages/Home'));
 const SearchPage = lazyPage(() => import('./pages/SearchPage'));
-const ScanPage = lazyPage(() => import('./pages/ScanPage'));
 const Carte = lazyPage(() => import('./pages/Carte'));
 const MapPage = lazyPage(() => import('./pages/MapPage'));
 const AdminDashboard = lazyPage(() => import('./pages/AdminDashboard'));
@@ -223,7 +222,7 @@ export default function App() {
                       <Route path="comparateur-citoyen" element={<ComparateurCitoyen />} />
                       
                       {/* Scanner & OCR routes */}
-                      <Route path="scan" element={<ScanPage />} />
+                      <Route path="scan" element={<Navigate to="/scanner" replace />} />
                       <Route path="scanner" element={<ScannerHub />} />
                       <Route path="scan-ean" element={<ScanEAN />} />
                       <Route path="analyse-photo-produit" element={<ProductPhotoAnalysis />} />

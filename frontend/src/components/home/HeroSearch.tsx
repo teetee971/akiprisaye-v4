@@ -43,7 +43,7 @@ export default function HeroSearch() {
 
         <button
           type="button"
-          onClick={() => navigate('/scan?mode=ticket')}
+          onClick={() => navigate('/scanner?mode=ticket')}
           className="text-sm text-slate-200 underline underline-offset-2 hover:text-white"
         >
           Scanner un ticket

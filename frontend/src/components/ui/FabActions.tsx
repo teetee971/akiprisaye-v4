@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 
 const actions = [
   { to: '/search', label: 'Rechercher' },
-  { to: '/scan?mode=ean', label: 'Scanner EAN' },
-  { to: '/scan?mode=ticket', label: 'Scanner ticket' },
+  { to: '/scanner?mode=ean', label: 'Scanner EAN' },
+  { to: '/scanner?mode=ticket', label: 'Scanner ticket' },
   { to: '/faq', label: 'Aide' },
 ];
 
