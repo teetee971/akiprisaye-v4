@@ -1,13 +1,1 @@
-/api/*               /api/:splat              200
-
-/icon-192.png         /icon-192.png           200
-/icon-512.png         /icon-512.png           200
-/manifest.webmanifest /manifest.webmanifest   200
-/service-worker.js    /service-worker.js      200
-/favicon.ico          /favicon.ico            200
-/robots.txt           /robots.txt             200
-/sitemap.xml          /sitemap.xml            200
-
-/assets/*             /assets/:splat          200
-
-/*                    /index.html             200
+/api/*  /api/:splat  200
