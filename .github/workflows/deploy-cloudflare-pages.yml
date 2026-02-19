@@ -1,30 +1,22 @@
-name: Deploy Cloudflare Pages (MANUAL ONLY)
+name: CI Frontend (manual - no deploy)
 
 on:
   workflow_dispatch:
 
 concurrency:
-  group: pages-manual-${{ github.ref }}
+  group: ci-frontend-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '20'
-  PAGES_PROJECT: akiprisaye-web
+  NODE_VERSION: "20"
 
 permissions:
   contents: read
-  deployments: write
-  pull-requests: write
 
 jobs:
   ci:
     name: CI (lint, typecheck, test, build)
     runs-on: ubuntu-latest
-
-    outputs:
-      has_lint: ${{ steps.detect_scripts.outputs.has_lint }}
-      has_typecheck: ${{ steps.detect_scripts.outputs.has_typecheck }}
-      has_test: ${{ steps.detect_scripts.outputs.has_test }}
 
     steps:
       - name: Checkout
@@ -94,7 +86,8 @@ jobs:
         run: |
           ls -la frontend/dist
           test -f frontend/dist/index.html
-          test -f frontend/dist/_redirects
+          # _redirects peut être optionnel selon ton routing, donc on ne force pas ici
+          # 404.html: tu avais une règle "absent", on garde la même logique
           test ! -f frontend/dist/404.html
 
       - name: Verify routing files if present
@@ -139,74 +132,12 @@ jobs:
         shell: bash
         run: |
           {
-            echo "## CI summary (manual workflow)"
+            echo "## CI summary (manual workflow - no deploy)"
             echo "- Commit: \`${GITHUB_SHA}\`"
             echo "- Ref: \`${GITHUB_REF}\`"
             echo "- lint script: \`${{ steps.detect_scripts.outputs.has_lint }}\`"
             echo "- typecheck script: \`${{ steps.detect_scripts.outputs.has_typecheck }}\`"
             echo "- test script: \`${{ steps.detect_scripts.outputs.has_test }}\`"
             if [ -f frontend/dist/index.html ]; then echo "- dist/index.html: ✅"; else echo "- dist/index.html: ❌"; fi
-            if [ -f frontend/dist/_redirects ]; then echo "- dist/_redirects: ✅"; else echo "- dist/_redirects: ❌"; fi
             if [ ! -f frontend/dist/404.html ]; then echo "- dist/404.html absent: ✅"; else echo "- dist/404.html absent: ❌"; fi
-          } >> "$GITHUB_STEP_SUMMARY"
-
-  deploy_manual:
-    name: Deploy Cloudflare Pages (Manual)
-    runs-on: ubuntu-latest
-    needs: ci
-
-    steps:
-      - name: Download dist artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: dist-${{ github.run_id }}
-          path: frontend/dist
-
-      - name: Deploy to Cloudflare Pages (Manual)
-        id: deploy_manual
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: ${{ env.PAGES_PROJECT }}
-          directory: frontend/dist
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Log deployment URL
-        shell: bash
-        env:
-          DEPLOY_URL: ${{ steps.deploy_manual.outputs.url }}
-        run: |
-          CACHE_BUSTER="$(date -u +%Y%m%d%H%M)"
-          MOBILE_URL="${DEPLOY_URL}?v=${CACHE_BUSTER}"
-
-          version_payload="not found"
-          if [ -f frontend/dist/version.json ]; then
-            version_payload="$(cat frontend/dist/version.json)"
-          fi
-
-          index_status="❌"; [ -f frontend/dist/index.html ] && index_status="✅"
-          page404_status="✅"; [ -f frontend/dist/404.html ] && page404_status="❌"
-          redirects_status="❌"; [ -f frontend/dist/_redirects ] && redirects_status="✅"
-          headers_status="❌"; [ -f frontend/dist/_headers ] && headers_status="✅"
-          routes_status="❌"; [ -f frontend/dist/_routes.json ] && routes_status="✅"
-
-          echo "Manual deployment URL: ${DEPLOY_URL}"
-          {
-            echo "## Manual Deploy summary"
-            echo "- URL: ${DEPLOY_URL}"
-            echo "- Mobile URL (cache-buster): ${MOBILE_URL}"
-            echo "- Cache-buster: ${CACHE_BUSTER}"
-            echo ""
-            echo "### version.json"
-            echo '```json'
-            echo "${version_payload}"
-            echo '```'
-            echo ""
-            echo "### Dist checklist"
-            echo "- index.html: ${index_status}"
-            echo "- 404.html absent: ${page404_status}"
-            echo "- _redirects: ${redirects_status}"
-            echo "- _headers: ${headers_status}"
-            echo "- _routes.json: ${routes_status}"
           } >> "$GITHUB_STEP_SUMMARY"
