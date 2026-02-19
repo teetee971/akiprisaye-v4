@@ -88,7 +88,7 @@ export default function ScannerHub() {
 
       <main className="min-h-screen bg-slate-950 p-4 pt-24 text-white">
         <section className="mx-auto w-full max-w-4xl rounded-2xl border border-slate-800 bg-slate-900 p-4">
-          <h1 className="mb-3 text-2xl font-semibold">Scanner un code-barres</h1>
+          <h1 className="mb-3 text-2xl font-semibold">SCANNER V3 DEV TEST</h1>
           <p className="mb-4 text-sm text-slate-300">
             Scan continu actif: caméra en boucle, anti-doublon et ajout rapide au panier.
           </p>
