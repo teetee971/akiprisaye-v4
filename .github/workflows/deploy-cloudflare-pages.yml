@@ -59,27 +59,15 @@ jobs:
         working-directory: frontend
         run: npm run lint
 
-      - name: Lint skipped
-        if: steps.detect_scripts.outputs.has_lint != 'true'
-        run: echo "No lint script found in frontend/package.json, skipping."
-
       - name: Typecheck (if script exists)
         if: steps.detect_scripts.outputs.has_typecheck == 'true'
         working-directory: frontend
         run: npm run typecheck
 
-      - name: Typecheck skipped
-        if: steps.detect_scripts.outputs.has_typecheck != 'true'
-        run: echo "No typecheck script found in frontend/package.json, skipping."
-
       - name: Test (if script exists)
         if: steps.detect_scripts.outputs.has_test == 'true'
         working-directory: frontend
         run: npm run test
-
-      - name: Test skipped
-        if: steps.detect_scripts.outputs.has_test != 'true'
-        run: echo "No test script found in frontend/package.json, skipping."
 
       - name: Inject build id
         run: echo "VITE_APP_BUILD_ID=${GITHUB_SHA}" >> $GITHUB_ENV
@@ -91,43 +79,10 @@ jobs:
       - name: Verify build
         shell: bash
         run: |
-          echo "=== dist listing ==="
-          ls -la frontend/dist || true
-
+          ls -la frontend/dist
           test -f frontend/dist/index.html
           test -f frontend/dist/_redirects
           test ! -f frontend/dist/404.html
-
-      - name: Verify routing files if present
-        shell: bash
-        run: |
-          for file in _redirects _headers _routes.json; do
-            target="frontend/dist/$file"
-            if [ -f "$target" ]; then
-              echo "Found $target"
-              echo "----- $target -----"
-              cat "$target"
-              echo "-------------------"
-            else
-              echo "$target not present (ok)."
-            fi
-          done
-
-      - name: Verify version.json
-        shell: bash
-        run: |
-          if [ -f frontend/dist/version.json ]; then
-            echo "Found frontend/dist/version.json"
-            cat frontend/dist/version.json
-          elif [ -f frontend/version.json ]; then
-            echo "frontend/dist/version.json missing; found frontend/version.json"
-            cat frontend/version.json
-          elif [ -f version.json ]; then
-            echo "frontend/dist/version.json missing; found version.json at repo root"
-            cat version.json
-          else
-            echo "::warning::No version.json found in frontend/dist, frontend/, or repository root."
-          fi
 
       - name: Upload dist artifact
         uses: actions/upload-artifact@v4
@@ -136,22 +91,16 @@ jobs:
           path: frontend/dist
           retention-days: 7
 
-      - name: Report summary
+      - name: Summary
         shell: bash
         run: |
           {
             echo "## Manual CI summary (no deploy)"
             echo "- Commit: \`${GITHUB_SHA}\`"
             echo "- Ref: \`${GITHUB_REF}\`"
-            echo "- lint script: \`${{ steps.detect_scripts.outputs.has_lint }}\`"
-            echo "- typecheck script: \`${{ steps.detect_scripts.outputs.has_typecheck }}\`"
-            echo "- test script: \`${{ steps.detect_scripts.outputs.has_test }}\`"
-
-            if [ -f frontend/dist/index.html ]; then echo "- dist/index.html: ✅"; else echo "- dist/index.html: ❌"; fi
-            if [ -f frontend/dist/_redirects ]; then echo "- dist/_redirects: ✅"; else echo "- dist/_redirects: ❌"; fi
-            if [ ! -f frontend/dist/404.html ]; then echo "- dist/404.html absent: ✅"; else echo "- dist/404.html absent: ❌"; fi
-
+            echo "- lint: \`${{ steps.detect_scripts.outputs.has_lint }}\`"
+            echo "- typecheck: \`${{ steps.detect_scripts.outputs.has_typecheck }}\`"
+            echo "- test: \`${{ steps.detect_scripts.outputs.has_test }}\`"
             echo ""
-            echo "**Note:** This workflow is manual-only and does not deploy Cloudflare Pages."
-            echo "Production deploys must come from the single source of truth workflow (ci-cd-industrial.yml)."
+            echo "**This workflow does not deploy.**"
           } >> "$GITHUB_STEP_SUMMARY"
