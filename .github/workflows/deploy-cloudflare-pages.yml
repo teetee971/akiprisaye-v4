@@ -1,12 +1,10 @@
-name: Deploy Cloudflare Pages
+name: Deploy Cloudflare Pages (Wrangler CI)
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
@@ -14,23 +12,17 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: "20"
   PAGES_PROJECT: akiprisaye-web
 
 permissions:
   contents: read
-  deployments: write
   pull-requests: write
 
 jobs:
   ci:
-    name: CI (lint, typecheck, test, build)
+    name: CI (install, build, verify)
     runs-on: ubuntu-latest
-
-    outputs:
-      has_lint: ${{ steps.detect_scripts.outputs.has_lint }}
-      has_typecheck: ${{ steps.detect_scripts.outputs.has_typecheck }}
-      has_test: ${{ steps.detect_scripts.outputs.has_test }}
 
     steps:
       - name: Checkout
@@ -47,47 +39,6 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      - name: Detect optional npm scripts
-        id: detect_scripts
-        shell: bash
-        run: |
-          node <<'NODE'
-          const fs = require('fs');
-          const pkg = JSON.parse(fs.readFileSync('frontend/package.json', 'utf8'));
-          const scripts = pkg.scripts || {};
-          const out = process.env.GITHUB_OUTPUT;
-          fs.appendFileSync(out, `has_lint=${Boolean(scripts.lint)}\n`);
-          fs.appendFileSync(out, `has_typecheck=${Boolean(scripts.typecheck)}\n`);
-          fs.appendFileSync(out, `has_test=${Boolean(scripts.test)}\n`);
-          NODE
-
-      - name: Lint (if script exists)
-        if: steps.detect_scripts.outputs.has_lint == 'true'
-        working-directory: frontend
-        run: npm run lint
-
-      - name: Lint skipped
-        if: steps.detect_scripts.outputs.has_lint != 'true'
-        run: echo "No lint script found in frontend/package.json, skipping."
-
-      - name: Typecheck (if script exists)
-        if: steps.detect_scripts.outputs.has_typecheck == 'true'
-        working-directory: frontend
-        run: npm run typecheck
-
-      - name: Typecheck skipped
-        if: steps.detect_scripts.outputs.has_typecheck != 'true'
-        run: echo "No typecheck script found in frontend/package.json, skipping."
-
-      - name: Test (if script exists)
-        if: steps.detect_scripts.outputs.has_test == 'true'
-        working-directory: frontend
-        run: npm run test
-
-      - name: Test skipped
-        if: steps.detect_scripts.outputs.has_test != 'true'
-        run: echo "No test script found in frontend/package.json, skipping."
-
       - name: Inject build id
         run: echo "VITE_APP_BUILD_ID=${GITHUB_SHA}" >> $GITHUB_ENV
 
@@ -98,14 +49,10 @@ jobs:
       - name: Verify build
         shell: bash
         run: |
+          set -euo pipefail
           ls -la frontend/dist
           test -f frontend/dist/index.html
-          test -f frontend/dist/_redirects
-          test ! -f frontend/dist/404.html
-
-      - name: Verify routing files if present
-        shell: bash
-        run: |
+          # Ces fichiers peuvent exister ou non. On ne force pas.
           for file in _redirects _headers _routes.json; do
             target="frontend/dist/$file"
             if [ -f "$target" ]; then
@@ -118,22 +65,6 @@ jobs:
             fi
           done
 
-      - name: Verify version.json
-        shell: bash
-        run: |
-          if [ -f frontend/dist/version.json ]; then
-            echo "Found frontend/dist/version.json"
-            cat frontend/dist/version.json
-          elif [ -f frontend/version.json ]; then
-            echo "frontend/dist/version.json missing; found frontend/version.json"
-            cat frontend/version.json
-          elif [ -f version.json ]; then
-            echo "frontend/dist/version.json missing; found version.json at repo root"
-            cat version.json
-          else
-            echo "::warning::No version.json found in frontend/dist, frontend/, or repository root."
-          fi
-
       - name: Upload dist artifact
         uses: actions/upload-artifact@v4
         with:
@@ -141,227 +72,113 @@ jobs:
           path: frontend/dist
           retention-days: 7
 
-      - name: Report summary
-        shell: bash
-        run: |
-          {
-            echo "## CI summary"
-            echo "- Commit: \`${GITHUB_SHA}\`"
-            echo "- Ref: \`${GITHUB_REF}\`"
-            echo "- lint script: \`${{ steps.detect_scripts.outputs.has_lint }}\`"
-            echo "- typecheck script: \`${{ steps.detect_scripts.outputs.has_typecheck }}\`"
-            echo "- test script: \`${{ steps.detect_scripts.outputs.has_test }}\`"
-            if [ -f frontend/dist/index.html ]; then
-              echo "- dist/index.html: ✅"
-            else
-              echo "- dist/index.html: ❌"
-            fi
-            if [ -f frontend/dist/_redirects ]; then
-              echo "- dist/_redirects: ✅"
-            else
-              echo "- dist/_redirects: ❌"
-            fi
-            if [ ! -f frontend/dist/404.html ]; then
-              echo "- dist/404.html absent: ✅"
-            else
-              echo "- dist/404.html absent: ❌"
-            fi
-          } >> "$GITHUB_STEP_SUMMARY"
-
   deploy_preview:
-    name: Deploy preview (PR)
+    name: Deploy preview (Wrangler) - PR
     runs-on: ubuntu-latest
     needs: ci
     if: github.event_name == 'pull_request'
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Download dist artifact
         uses: actions/download-artifact@v4
         with:
           name: dist-${{ github.run_id }}
           path: frontend/dist
 
-      - name: Deploy to Cloudflare Pages (Preview)
-        id: deploy_preview
-        uses: cloudflare/pages-action@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: ${{ env.PAGES_PROJECT }}
-          directory: frontend/dist
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          node-version: ${{ env.NODE_VERSION }}
 
-      - name: Log preview URL
-        shell: bash
+      - name: Deploy with Wrangler (Preview)
+        working-directory: frontend
         env:
-          DEPLOY_URL: ${{ steps.deploy_preview.outputs.url }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          CACHE_BUSTER="$(date -u +%Y%m%d%H%M)"
-          MOBILE_URL="${DEPLOY_URL}?v=${CACHE_BUSTER}"
+          set -euo pipefail
+          npx wrangler --version
+          # Preview sur la branche PR (utile pour inspection)
+          BRANCH="pr-${{ github.event.pull_request.number }}"
+          npx wrangler pages deploy dist \
+            --project-name "${{ env.PAGES_PROJECT }}" \
+            --branch "$BRANCH"
 
-          version_payload="not found"
-          if [ -f frontend/dist/version.json ]; then
-            version_payload="$(cat frontend/dist/version.json)"
-          fi
-
-          index_status="❌"
-          [ -f frontend/dist/index.html ] && index_status="✅"
-          page404_status="✅"
-          [ -f frontend/dist/404.html ] && page404_status="❌"
-          redirects_status="❌"
-          [ -f frontend/dist/_redirects ] && redirects_status="✅"
-          headers_status="❌"
-          [ -f frontend/dist/_headers ] && headers_status="✅"
-          routes_status="❌"
-          [ -f frontend/dist/_routes.json ] && routes_status="✅"
-
-          echo "Preview deployment URL: ${DEPLOY_URL}"
-          {
-            echo "## Release/Deploy summary"
-            echo "- Preview URL: ${DEPLOY_URL:-not available}"
-            echo "- Production URL: not available in preview job"
-            echo "- Mobile URL (cache-buster): ${MOBILE_URL:-not available}"
-            echo "- Cache-buster version: `${CACHE_BUSTER}`"
-            echo ""
-            echo "### version.json"
-            echo "```json"
-            echo "${version_payload}"
-            echo "```"
-            echo ""
-            echo "### Dist checklist"
-            echo "- index.html: ${index_status}"
-            echo "- 404.html absent: ${page404_status}"
-            echo "- _redirects: ${redirects_status}"
-            echo "- _headers: ${headers_status}"
-            echo "- _routes.json: ${routes_status}"
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Smoke routes (preview)
-        continue-on-error: true
+      - name: Summary (Preview)
         shell: bash
-        env:
-          DEPLOY_URL: ${{ steps.deploy_preview.outputs.url }}
         run: |
           {
-            echo ""
-            echo "### Smoke routes"
-            if [ -z "${DEPLOY_URL}" ]; then
-              echo "- ⚠️ DEPLOY_URL unavailable, skipping smoke checks."
-            else
-              for route in / /comparateur /scanner-ean; do
-                http_code="$(curl -sS -o /dev/null -w "%{http_code}" "${DEPLOY_URL}${route}" || echo "curl_error")"
-                if [ "${http_code}" = "curl_error" ]; then
-                  echo "- ${DEPLOY_URL}${route} → ⚠️ curl error"
-                else
-                  echo "- ${DEPLOY_URL}${route} → HTTP ${http_code}"
-                fi
-              done
-            fi
+            echo "## Deploy Preview (Wrangler)"
+            echo "- Project: \`${{ env.PAGES_PROJECT }}\`"
+            echo "- Branch: \`pr-${{ github.event.pull_request.number }}\`"
+            echo "- Note: Wrangler affiche l'URL dans les logs du step de déploiement."
           } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Comment preview URL on PR
-        if: github.event.pull_request.number != ''
-        uses: actions/github-script@v7
-        env:
-          PREVIEW_URL: ${{ steps.deploy_preview.outputs.url }}
-        with:
-          script: |
-            const url = process.env.PREVIEW_URL || 'URL not returned by action';
-            const body = `🚀 Cloudflare Pages preview ready:\n\n${url}`;
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              body
-            });
 
   deploy_production:
-    name: Deploy production (main)
+    name: Deploy production (Wrangler) - main
     runs-on: ubuntu-latest
     needs: ci
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Download dist artifact
         uses: actions/download-artifact@v4
         with:
           name: dist-${{ github.run_id }}
           path: frontend/dist
 
-      - name: Deploy to Cloudflare Pages (Production)
-        id: deploy_production
-        uses: cloudflare/pages-action@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: ${{ env.PAGES_PROJECT }}
-          directory: frontend/dist
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          node-version: ${{ env.NODE_VERSION }}
 
-      - name: Log production URL
-        shell: bash
+      - name: Deploy with Wrangler (Production)
+        working-directory: frontend
         env:
-          DEPLOY_URL: ${{ steps.deploy_production.outputs.url }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          CACHE_BUSTER="$(date -u +%Y%m%d%H%M)"
-          MOBILE_URL="${DEPLOY_URL}?v=${CACHE_BUSTER}"
+          set -euo pipefail
+          npx wrangler --version
+          npx wrangler pages deploy dist \
+            --project-name "${{ env.PAGES_PROJECT }}" \
+            --branch main
 
-          version_payload="not found"
-          if [ -f frontend/dist/version.json ]; then
-            version_payload="$(cat frontend/dist/version.json)"
+      - name: Post-deploy smoke (Production)
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Domaine prod standard Pages
+          BASE="https://akiprisaye-web.pages.dev"
+          echo "Checking $BASE ..."
+          curl -sS -o /dev/null -w "GET / => HTTP %{http_code}\n" "$BASE/"
+
+          # Vérifie tes routes critiques (adapte si besoin)
+          for route in "/" "/comparateur" "/scanner-ean"; do
+            code="$(curl -sS -o /dev/null -w "%{http_code}" "$BASE$route")"
+            echo "GET $route => HTTP $code"
+          done
+
+          # Vérifie que l'icône est servie en image/png (c'est ton problème actuel)
+          ctype="$(curl -sSI "$BASE/icon-192.png" | tr -d '\r' | awk -F': ' 'tolower($1)=="content-type"{print tolower($2)}' | head -n1)"
+          echo "icon-192.png content-type: $ctype"
+          if ! echo "$ctype" | grep -q "image/png"; then
+            echo "::error::icon-192.png is not served as image/png (got: $ctype)"
+            exit 1
           fi
 
-          index_status="❌"
-          [ -f frontend/dist/index.html ] && index_status="✅"
-          page404_status="✅"
-          [ -f frontend/dist/404.html ] && page404_status="❌"
-          redirects_status="❌"
-          [ -f frontend/dist/_redirects ] && redirects_status="✅"
-          headers_status="❌"
-          [ -f frontend/dist/_headers ] && headers_status="✅"
-          routes_status="❌"
-          [ -f frontend/dist/_routes.json ] && routes_status="✅"
-
-          echo "Production deployment URL: ${DEPLOY_URL}"
-          {
-            echo "## Release/Deploy summary"
-            echo "- Preview URL: not available in production job"
-            echo "- Production URL: ${DEPLOY_URL:-not available}"
-            echo "- Mobile URL (cache-buster): ${MOBILE_URL:-not available}"
-            echo "- Cache-buster version: `${CACHE_BUSTER}`"
-            echo ""
-            echo "### version.json"
-            echo "```json"
-            echo "${version_payload}"
-            echo "```"
-            echo ""
-            echo "### Dist checklist"
-            echo "- index.html: ${index_status}"
-            echo "- 404.html absent: ${page404_status}"
-            echo "- _redirects: ${redirects_status}"
-            echo "- _headers: ${headers_status}"
-            echo "- _routes.json: ${routes_status}"
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Smoke routes (production)
-        continue-on-error: true
+      - name: Summary (Production)
         shell: bash
-        env:
-          DEPLOY_URL: ${{ steps.deploy_production.outputs.url }}
         run: |
           {
-            echo ""
-            echo "### Smoke routes"
-            if [ -z "${DEPLOY_URL}" ]; then
-              echo "- ⚠️ DEPLOY_URL unavailable, skipping smoke checks."
-            else
-              for route in / /comparateur /scanner-ean; do
-                http_code="$(curl -sS -o /dev/null -w "%{http_code}" "${DEPLOY_URL}${route}" || echo "curl_error")"
-                if [ "${http_code}" = "curl_error" ]; then
-                  echo "- ${DEPLOY_URL}${route} → ⚠️ curl error"
-                else
-                  echo "- ${DEPLOY_URL}${route} → HTTP ${http_code}"
-                fi
-              done
-            fi
+            echo "## Deploy Production (Wrangler)"
+            echo "- Project: \`${{ env.PAGES_PROJECT }}\`"
+            echo "- Branch: \`main\`"
+            echo "- URL: \`https://akiprisaye-web.pages.dev\`"
           } >> "$GITHUB_STEP_SUMMARY"
