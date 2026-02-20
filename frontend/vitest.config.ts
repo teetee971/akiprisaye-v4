@@ -1,12 +1,14 @@
+// vitest.config.ts
 import { defineConfig } from 'vitest/config';
+import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
 
-    // Chemin robuste (Vitest accepte URL vers fichier)
-    setupFiles: [new URL('./src/test/setup.ts', import.meta.url).pathname],
+    // IMPORTANT: utiliser fileURLToPath (plus fiable que .pathname)
+    setupFiles: [fileURLToPath(new URL('./src/test/setup.ts', import.meta.url))],
 
     environmentOptions: {
       jsdom: { url: 'http://localhost/' },
@@ -32,6 +34,7 @@ export default defineConfig({
 
     testTimeout: 10_000,
     hookTimeout: 10_000,
+
     clearMocks: true,
     restoreMocks: true,
     unstubGlobals: true,
