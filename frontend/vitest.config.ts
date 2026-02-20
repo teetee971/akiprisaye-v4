@@ -5,20 +5,16 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
 
-    // ✅ Fix localStorage/sessionStorage + timers clean state for every test file
+    // IMPORTANT: applique un vrai localStorage + fetch mocks si besoin
     setupFiles: ['src/test/setup.ts'],
 
-    // ✅ Better stability in CI/Termux (avoids flaky parallel side effects)
-    pool: 'threads',
-    maxThreads: 1,
-    minThreads: 1,
+    // évite certains comportements bizarres de jsdom sur mobile/termux
+    environmentOptions: {
+      jsdom: {
+        url: 'http://localhost/',
+      },
+    },
 
-    // ✅ Keep tests deterministic
-    clearMocks: true,
-    restoreMocks: true,
-    mockReset: true,
-
-    // ✅ Your targeted suite
     include: [
       'src/services/openFoodFacts.test.ts',
       'src/services/alertProductImageService.test.ts',
@@ -37,8 +33,12 @@ export default defineConfig({
       'scripts/verify-pages-api.test.ts',
     ],
 
-    // ✅ Optional: reduce noise without hiding real failures
-    // (Uncomment if you want less console spam)
-    // silent: true,
+    // stabilité (utile sur Android/Termux)
+    testTimeout: 10_000,
+    hookTimeout: 10_000,
+    clearMocks: true,
+    restoreMocks: true,
+    unstubGlobals: true,
+    unstubEnvs: true,
   },
 });
