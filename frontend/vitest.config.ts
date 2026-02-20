@@ -6,10 +6,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
 
-    // 1) Exécuté AVANT la création de l'env de test (côté Node)
-    globalSetup: ['./src/test/globalSetup.ts'],
-
-    // 2) Exécuté DANS l'env jsdom (window/globalThis disponibles)
+    // Chargé dans jsdom : installe localStorage/sessionStorage (et reset entre tests)
     setupFiles: ['./src/test/setup.ts'],
 
     environmentOptions: {
@@ -40,9 +37,8 @@ export default defineConfig({
     clearMocks: true,
     restoreMocks: true,
 
-    // IMPORTANT: ne pas “unstub” les globals si setup.ts stub localStorage/fetch/etc.
+    // Important : sinon Vitest peut “unstub” et casser nos storages
     unstubGlobals: false,
-
     unstubEnvs: true,
   },
 });
