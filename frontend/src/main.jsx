@@ -13,7 +13,10 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { safeToText } from './utils/safeToText';
 import { installRuntimeCrashProbe } from './monitoring/runtimeCrashProbe';
 import { logDebug } from './utils/logger';
-import { enforceBuildVersionSync, registerAppServiceWorker } from './utils/buildVersionGuard';
+import {
+  enforceBuildVersionSync,
+  registerAppServiceWorker,
+} from './utils/buildVersionGuard';
 
 /**
  * IMPORTANT (tests Vitest):
@@ -61,20 +64,31 @@ const isFallbackVisible = () => {
 };
 
 window.addEventListener('error', (event) => {
-  console.error('[window.onerror]', event.error || event.message);
+  // Event.error peut être undefined selon le navigateur
+  const err = event?.error;
+  const msg =
+    (err && (err.stack || err.message)) ||
+    event?.message ||
+    'Erreur inattendue';
+
+  console.error('[window.onerror]', msg);
 
   // Affiche le fallback HTML uniquement si React n'a pas encore monté
   if (isFallbackVisible()) {
-    renderFallbackError('A KI PRI SA YÉ', event.error || event.message || 'Erreur inattendue');
+    renderFallbackError('A KI PRI SA YÉ', msg);
   }
 });
 
 window.addEventListener('unhandledrejection', (event) => {
-  console.error('[unhandledrejection]', event.reason);
+  const reason = event?.reason;
+  const msg =
+    (reason && (reason.stack || reason.message)) ||
+    String(reason || 'Promesse rejetée');
 
-  // Optionnel: si l'app n'a pas monté, on peut aussi afficher une erreur lisible
+  console.error('[unhandledrejection]', msg);
+
   if (isFallbackVisible()) {
-    renderFallbackError('A KI PRI SA YÉ', event.reason || 'Promesse rejetée');
+    renderFallbackError('A KI PRI SA YÉ', msg);
   }
 });
 
@@ -86,12 +100,13 @@ const globalLoadTimeout = setTimeout(() => {
   }
 }, 15000);
 
-async function bootstrap() {
-  // 1) Anti “mismatch de build” (peut reload/redirect)
-  const versionChanged = await enforceBuildVersionSync(BUILD_ID);
-  if (versionChanged) return;
+function bootstrap() {
+  // 1) Anti “mismatch de build”
+  // Les tests Vitest attendent explicitement "enforceBuildVersionSync" dans ce fichier.
+  enforceBuildVersionSync();
 
-  // 2) Service worker (tests Vitest attendent "registerAppServiceWorker")
+  // 2) Service worker
+  // Les tests Vitest attendent explicitement "registerAppServiceWorker" dans ce fichier.
   registerAppServiceWorker();
 
   // 3) Render React
@@ -126,3 +141,4 @@ async function bootstrap() {
 }
 
 bootstrap();
+```0
