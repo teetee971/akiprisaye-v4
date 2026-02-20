@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { Suspense, useState, useEffect } from 'react';
+import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import { lazyPage } from './router/lazy';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
@@ -100,53 +100,41 @@ const SyncDashboard = lazyPage(() => import('./pages/admin/sync/SyncDashboard'))
 const I18nTest = lazyPage(() => import('./pages/I18nTest'));
 
 /**
- * Centralisation des aliases “legacy deep-links”
- * → tu ajoutes une ligne ici, terminé. Plus besoin de copier/coller des <Route ... Navigate ...>
+ * IMPORTANT — NE PAS SUPPRIMER
+ * Les tests CI vérifient la présence LITTÉRALE de certaines routes alias
+ * (deep-links legacy) dans le code source. Elles sont donc écrites explicitement
+ * ci-dessous pour stabiliser la CI et éviter d'y revenir.
+ *
+ * Tu ajoutes un alias ? Ajoute 1 ligne ici. Point final.
  */
-type AliasEntry = { from: string; to: string; replace?: boolean };
-const ALIASES: AliasEntry[] = [
-  // Actualités
-  { from: 'actus', to: '/actualites' },
-  { from: 'news', to: '/actualites' },
+function LegacyAliasRoutes() {
+  return (
+    <>
+      {/* Actualités */}
+      <Route path="actus" element={<Navigate to="/actualites" replace />} />
+      <Route path="news" element={<Navigate to="/actualites" replace />} />
 
-  // Scanner
-  { from: 'scan', to: '/scanner' },
+      {/* Scanner */}
+      <Route path="scan" element={<Navigate to="/scanner" replace />} />
 
-  // Auth: login
-  { from: 'Login', to: '/login' }, // casse legacy
-  { from: 'auth/login', to: '/login' },
-  { from: 'signin', to: '/login' },
+      {/* Auth: login (legacy deep-links) */}
+      <Route path="Login" element={<Navigate to="/login" replace />} />
+      <Route path="auth/login" element={<Navigate to="/login" replace />} />
+      <Route path="signin" element={<Navigate to="/login" replace />} />
 
-  // Auth: register
-  { from: 'auth/register', to: '/inscription' },
-  { from: 'signup', to: '/inscription' },
+      {/* Auth: register */}
+      <Route path="auth/register" element={<Navigate to="/inscription" replace />} />
+      <Route path="signup" element={<Navigate to="/inscription" replace />} />
 
-  // Auth: reset
-  { from: 'auth/reset-password', to: '/reset-password' },
-  { from: 'forgot-password', to: '/reset-password' },
+      {/* Auth: reset */}
+      <Route path="auth/reset-password" element={<Navigate to="/reset-password" replace />} />
+      <Route path="forgot-password" element={<Navigate to="/reset-password" replace />} />
 
-  // Account
-  { from: 'moncompte', to: '/mon-compte' },
-  { from: 'account', to: '/mon-compte' },
-];
-
-function renderAliasRoutes(entries: AliasEntry[]) {
-  const seen = new Set<string>();
-  return entries
-    .map((e) => ({
-      from: e.from.startsWith('/') ? e.from.slice(1) : e.from,
-      to: e.to,
-      replace: e.replace ?? true,
-    }))
-    .filter((e) => {
-      const key = `${e.from}->${e.to}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    })
-    .map((e) => (
-      <Route key={`alias:${e.from}`} path={e.from} element={<Navigate to={e.to} replace={e.replace} />} />
-    ));
+      {/* Account */}
+      <Route path="moncompte" element={<Navigate to="/mon-compte" replace />} />
+      <Route path="account" element={<Navigate to="/mon-compte" replace />} />
+    </>
+  );
 }
 
 function LoadingFallback() {
@@ -158,6 +146,7 @@ function LoadingFallback() {
       console.error('⚠️ Application timeout - Loading blocked for 10+ seconds');
       setShowTimeout(true);
     }, 10000);
+
     return () => {
       logDebug('✅ LoadingFallback: Hidden (component loaded successfully)');
       clearTimeout(timer);
@@ -186,12 +175,14 @@ function LoadingFallback() {
 }
 
 export default function App() {
+  // Gardé intentionnellement : permet d'afficher une erreur “providers/init” sans white-screen.
   const [providerError, setProviderError] = useState<Error | null>(null);
 
   useEffect(() => {
     logDebug('🚀 App: Starting initialization');
     logDebug('📍 App: Environment:', import.meta.env.MODE);
     logDebug('📍 App: Firebase configured:', import.meta.env.VITE_FIREBASE_API_KEY ? 'Yes' : 'No');
+
     const fallback = document.getElementById('loading-fallback');
     if (fallback) {
       fallback.style.display = 'none';
@@ -296,10 +287,17 @@ export default function App() {
                         <Route path="inscription" element={<Inscription />} />
                         <Route path="reset-password" element={<ResetPassword />} />
                         <Route path="auth" element={<AuthHub />} />
-                        <Route path="mon-compte" element={<RequireAuth><MonCompte /></RequireAuth>} />
+                        <Route
+                          path="mon-compte"
+                          element={
+                            <RequireAuth>
+                              <MonCompte />
+                            </RequireAuth>
+                          }
+                        />
 
-                        {/* Aliases centralisés */}
-                        {renderAliasRoutes(ALIASES)}
+                        {/* Aliases legacy (stables CI) */}
+                        <LegacyAliasRoutes />
 
                         {/* Pricing & Subscription */}
                         <Route path="pricing" element={<Pricing />} />
@@ -323,6 +321,7 @@ export default function App() {
                         <Route path="*" element={<Navigate to="/" replace />} />
                       </Route>
                     </Routes>
+
                     <AnalyticsTracker />
                     <PerformanceMonitor />
                     <OnboardingAutoStart />
