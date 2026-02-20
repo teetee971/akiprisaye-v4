@@ -5,7 +5,7 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
 
-    // Chemin robuste (Vitest accepte URL vers fichier)
+    // Chemin robuste (compatible ESM + Termux)
     setupFiles: [new URL('./src/test/setup.ts', import.meta.url).pathname],
 
     environmentOptions: {
@@ -32,6 +32,8 @@ export default defineConfig({
 
     testTimeout: 10_000,
     hookTimeout: 10_000,
+
+    // Nettoyage et mocks stables
     clearMocks: true,
     restoreMocks: true,
     unstubGlobals: true,
