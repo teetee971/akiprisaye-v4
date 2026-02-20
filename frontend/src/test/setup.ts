@@ -1,5 +1,5 @@
 // src/test/setup.ts
-import { vi } from 'vitest';
+import { vi, beforeEach, afterEach } from 'vitest';
 
 type AnyObj = Record<string, any>;
 
@@ -40,27 +40,39 @@ function defineOn(obj: AnyObj, name: string, value: any) {
   });
 }
 
-const storage = new MemoryStorage();
+// Un seul storage partagé pour localStorage (cohérence entre globalThis et window)
+const local = new MemoryStorage();
+
+// SessionStorage séparé (comportement proche navigateur)
+const session = new MemoryStorage();
 
 // On force sur globalThis + window (jsdom)
-defineOn(globalThis as AnyObj, 'localStorage', storage);
+defineOn(globalThis as AnyObj, 'localStorage', local);
+defineOn(globalThis as AnyObj, 'sessionStorage', session);
+
 if (typeof window !== 'undefined') {
-  defineOn(window as AnyObj, 'localStorage', storage);
+  defineOn(window as AnyObj, 'localStorage', local);
+  defineOn(window as AnyObj, 'sessionStorage', session);
 }
 
-// Bonus: certains tests utilisent sessionStorage
-defineOn(globalThis as AnyObj, 'sessionStorage', new MemoryStorage());
-if (typeof window !== 'undefined') {
-  defineOn(window as AnyObj, 'sessionStorage', (globalThis as AnyObj).sessionStorage);
-}
-
-// Nettoyage entre tests (optionnel mais utile)
+// Nettoyage entre tests (utile et stable)
 beforeEach(() => {
   (globalThis as AnyObj).localStorage?.clear?.();
   (globalThis as AnyObj).sessionStorage?.clear?.();
 });
 
-// Si tu mocks fetch dans des tests, mieux vaut partir propre
+// Partir propre côté mocks (fetch, timers, spies, etc.)
 afterEach(() => {
   vi.restoreAllMocks();
 });
+
+// Optionnel: réduire le bruit "act(...)" (ne change pas les tests)
+// Décommente si tu veux une sortie CI silencieuse.
+/*
+const originalError = console.error;
+console.error = (...args: any[]) => {
+  const msg = String(args?.[0] ?? '');
+  if (msg.includes('not configured to support act')) return;
+  originalError(...args);
+};
+*/
