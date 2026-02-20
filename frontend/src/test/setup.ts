@@ -1,10 +1,8 @@
 // src/test/setup.ts
 import { vi } from 'vitest';
 
-/**
- * Polyfill localStorage "dur" (au cas où un package l’écrase par un faux objet).
- * Objectif: garantir clear/setItem/getItem/removeItem/length.
- */
+type AnyObj = Record<string, any>;
+
 class MemoryStorage implements Storage {
   private store = new Map<string, string>();
 
@@ -33,32 +31,57 @@ class MemoryStorage implements Storage {
   }
 }
 
-function forceLocalStorage(): void {
-  const ls = new MemoryStorage();
+/**
+ * Sous Termux/Node, on peut avoir un "localStorage" injecté mais incomplet
+ * (ex: warning --localstorage-file). Donc:
+ * 1) si localStorage n'existe pas -> on injecte
+ * 2) si localStorage existe mais méthodes manquantes -> on patch les méthodes
+ * 3) si remplacement impossible (non configurable) -> patch sur l'objet existant
+ */
+function ensureWorkingLocalStorage(target: AnyObj) {
+  const mem = new MemoryStorage();
 
-  // window.localStorage
-  if (typeof window !== 'undefined') {
-    Object.defineProperty(window, 'localStorage', {
-      value: ls,
-      configurable: true,
-      enumerable: true,
-      writable: false,
-    });
+  const existing = target.localStorage;
+  const isValid =
+    existing &&
+    typeof existing.getItem === 'function' &&
+    typeof existing.setItem === 'function' &&
+    typeof existing.removeItem === 'function' &&
+    typeof existing.clear === 'function';
+
+  if (isValid) return;
+
+  // Si on a déjà un objet mais cassé : on le "patch"
+  if (existing && typeof existing === 'object') {
+    if (typeof existing.getItem !== 'function') existing.getItem = mem.getItem.bind(mem);
+    if (typeof existing.setItem !== 'function') existing.setItem = mem.setItem.bind(mem);
+    if (typeof existing.removeItem !== 'function') existing.removeItem = mem.removeItem.bind(mem);
+    if (typeof existing.clear !== 'function') existing.clear = mem.clear.bind(mem);
+    if (typeof existing.key !== 'function') existing.key = mem.key.bind(mem);
+    if (typeof existing.length !== 'number') {
+      Object.defineProperty(existing, 'length', { get: () => mem.length });
+    }
+    return;
   }
 
-  // globalThis.localStorage (certains tests appellent localStorage direct)
-  Object.defineProperty(globalThis, 'localStorage', {
-    value: ls,
-    configurable: true,
-    enumerable: true,
-    writable: false,
-  });
+  // Sinon, on tente de définir proprement
+  try {
+    Object.defineProperty(target, 'localStorage', {
+      value: mem,
+      configurable: true,
+      enumerable: true,
+      writable: true,
+    });
+  } catch {
+    // Dernier recours: assignation directe
+    target.localStorage = mem;
+  }
 }
 
-forceLocalStorage();
+ensureWorkingLocalStorage(globalThis as AnyObj);
+if (typeof window !== 'undefined') ensureWorkingLocalStorage(window as AnyObj);
 
-// Optionnel: limiter le bruit de warnings React act() dans tes logs
-// (ne casse pas les tests, mais rend la sortie plus lisible)
+// (optionnel) réduire le bruit "act(...)"
 const originalWarn = console.warn;
 vi.spyOn(console, 'warn').mockImplementation((...args) => {
   const msg = String(args[0] ?? '');
