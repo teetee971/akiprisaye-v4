@@ -4,9 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-
-    "dev": "cd frontend && npm run dev",
-    "preview": "cd frontend && npm run preview",
+    "dev": "vite",
+    "preview": "vite preview",
 
     "build:frontend": "cd frontend && npm ci --include=dev && npm run build",
     "install:frontend": "cd frontend && npm ci --include=dev",
