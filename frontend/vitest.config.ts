@@ -6,24 +6,20 @@ const here = fileURLToPath(new URL('.', import.meta.url));
 const abs = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 
 export default defineConfig({
-  // Force Vitest/Vite à considérer "frontend/" comme racine,
-  // même si tu lances la commande depuis la racine du repo.
+  // Vitest/Vite considère frontend/ comme racine même si lancé depuis ailleurs
   root: here,
 
   test: {
-    
-    setupFiles: ['src/test/setupTests.ts'],
-environment: 'jsdom',
+    environment: 'jsdom',
     globals: true,
 
-    // IMPORTANT : chemin ABSOLU => plus d'erreur "/@fs/.../akiprisaye-web/src/test/setup.ts"
-    setupFiles: [abs('./src/test/setup.ts')],
+    // ✅ UN SEUL setupFiles (et le bon)
+    setupFiles: [abs('./src/test/setupTests.ts')],
 
     environmentOptions: {
       jsdom: { url: 'http://localhost/' },
     },
 
-    // Tes fichiers de tests ciblés (chemins ABSOLUS => OK quel que soit le cwd)
     include: [
       abs('./src/services/openFoodFacts.test.ts'),
       abs('./src/services/alertProductImageService.test.ts'),
@@ -49,8 +45,6 @@ environment: 'jsdom',
 
     clearMocks: true,
     restoreMocks: true,
-
-    // Important pour éviter des effets de bord (storages / env) :
     unstubGlobals: false,
     unstubEnvs: true,
   },
