@@ -1,70 +1,61 @@
 import { afterEach, vi } from 'vitest';
 
-class MemoryStorage {
-  private store: Record<string, string> = {};
+/**
+ * On utilise l'objet localStorage fourni par JSDOM,
+ * mais on remplace SES MÉTHODES.
+ */
 
-  get length() {
-    return Object.keys(this.store).length;
+const store: Record<string, string> = {};
+
+const mockGetItem = vi.fn((key: string) => {
+  return Object.prototype.hasOwnProperty.call(store, key)
+    ? store[key]
+    : null;
+});
+
+const mockSetItem = vi.fn((key: string, value: string) => {
+  store[key] = String(value);
+});
+
+const mockRemoveItem = vi.fn((key: string) => {
+  delete store[key];
+});
+
+const mockClear = vi.fn(() => {
+  for (const k of Object.keys(store)) {
+    delete store[k];
   }
-
-  key(index: number): string | null {
-    return Object.keys(this.store)[index] ?? null;
-  }
-
-  getItem(key: string): string | null {
-    return Object.prototype.hasOwnProperty.call(this.store, key)
-      ? this.store[key]
-      : null;
-  }
-
-  setItem(key: string, value: string): void {
-    this.store[String(key)] = String(value);
-  }
-
-  removeItem(key: string): void {
-    delete this.store[String(key)];
-  }
-
-  clear(): void {
-    this.store = {};
-  }
-}
-
-const storage = new MemoryStorage();
+});
 
 /**
- * 🔥 Remplacement FORCÉ du localStorage existant
+ * Patch direct des méthodes
+ */
+Object.defineProperty(window, 'localStorage', {
+  value: {
+    getItem: mockGetItem,
+    setItem: mockSetItem,
+    removeItem: mockRemoveItem,
+    clear: mockClear,
+    key: (i: number) => Object.keys(store)[i] ?? null,
+    get length() {
+      return Object.keys(store).length;
+    },
+  },
+  writable: true,
+});
+
+/**
+ * Idem pour accès global direct (sans window.)
  */
 Object.defineProperty(globalThis, 'localStorage', {
-  value: storage,
+  value: window.localStorage,
   writable: true,
-  configurable: true,
 });
-
-Object.defineProperty(globalThis, 'sessionStorage', {
-  value: storage,
-  writable: true,
-  configurable: true,
-});
-
-if (typeof window !== 'undefined') {
-  Object.defineProperty(window, 'localStorage', {
-    value: storage,
-    writable: true,
-    configurable: true,
-  });
-
-  Object.defineProperty(window, 'sessionStorage', {
-    value: storage,
-    writable: true,
-    configurable: true,
-  });
-}
 
 /**
- * Nettoyage automatique
+ * Nettoyage automatique entre tests
  */
 afterEach(() => {
-  storage.clear();
+  mockClear();
   vi.restoreAllMocks();
 });
