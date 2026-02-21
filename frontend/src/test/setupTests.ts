@@ -1,74 +1,63 @@
-// frontend/src/test/setupTests.ts
-import { vi } from 'vitest';
+import { afterEach, vi } from 'vitest';
 
 /**
- * Polyfill localStorage / sessionStorage pour Vitest + JSDOM (Termux)
- * Objectif: avoir setItem/getItem/removeItem/clear/key/length stables.
+ * Storage mock 100% compatible
+ * On remplace complètement localStorage
  */
-function createMemoryStorage() {
-  let store: Record<string, string> = {};
 
-  return {
-    get length() {
-      return Object.keys(store).length;
-    },
-    key(index: number) {
-      const keys = Object.keys(store);
-      return keys[index] ?? null;
-    },
-    getItem(key: string) {
-      return Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null;
-    },
-    setItem(key: string, value: string) {
-      store[String(key)] = String(value);
-    },
-    removeItem(key: string) {
-      delete store[String(key)];
-    },
-    clear() {
-      store = {};
-    },
-  };
+class MemoryStorage {
+  private store: Record<string, string> = {};
+
+  get length() {
+    return Object.keys(this.store).length;
+  }
+
+  key(index: number): string | null {
+    const keys = Object.keys(this.store);
+    return keys[index] ?? null;
+  }
+
+  getItem(key: string): string | null {
+    return Object.prototype.hasOwnProperty.call(this.store, key)
+      ? this.store[key]
+      : null;
+  }
+
+  setItem(key: string, value: string): void {
+    this.store[key] = String(value);
+  }
+
+  removeItem(key: string): void {
+    delete this.store[key];
+  }
+
+  clear(): void {
+    this.store = {};
+  }
 }
 
-const memLocalStorage = createMemoryStorage();
-const memSessionStorage = createMemoryStorage();
+const mockLocalStorage = new MemoryStorage();
+const mockSessionStorage = new MemoryStorage();
 
-// Patch globalThis + window (selon ce que les tests utilisent)
-Object.defineProperty(globalThis, 'localStorage', {
-  value: memLocalStorage,
-  configurable: true,
-});
-Object.defineProperty(globalThis, 'sessionStorage', {
-  value: memSessionStorage,
-  configurable: true,
-});
+/**
+ * ⚠️ IMPORTANT
+ * On force le remplacement total via vi.stubGlobal
+ */
+vi.stubGlobal('localStorage', mockLocalStorage);
+vi.stubGlobal('sessionStorage', mockSessionStorage);
 
 if (typeof window !== 'undefined') {
-  Object.defineProperty(window, 'localStorage', {
-    value: memLocalStorage,
-    configurable: true,
-  });
-  Object.defineProperty(window, 'sessionStorage', {
-    value: memSessionStorage,
-    configurable: true,
-  });
+  // @ts-ignore
+  window.localStorage = mockLocalStorage;
+  // @ts-ignore
+  window.sessionStorage = mockSessionStorage;
 }
 
 /**
- * Optionnel: réduire le bruit "act(...)" si tu veux,
- * sans casser les tests (on ne masque pas les erreurs, juste console).
+ * Nettoyage automatique
  */
-const originalError = console.error;
-console.error = (...args: any[]) => {
-  const msg = String(args?.[0] ?? '');
-  if (msg.includes('not configured to support act')) return;
-  originalError(...args);
-};
-
-// Nettoyage automatique entre tests (utile pour les suites localStorage)
 afterEach(() => {
-  localStorage.clear();
-  sessionStorage.clear();
+  mockLocalStorage.clear();
+  mockSessionStorage.clear();
   vi.restoreAllMocks();
 });
