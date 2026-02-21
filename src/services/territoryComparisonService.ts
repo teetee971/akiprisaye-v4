@@ -7,8 +7,8 @@ export interface TerritoryPriceObservation {
   territory?: TerritoryLike;
   price?: number;
   pricePerUnit?: number;
-  observedAt?: string; // ISO datetime
-  date?: string; // YYYY-MM-DD
+  observedAt?: string;
+  date?: string;
 }
 
 export interface TerritoryAverageMap {
@@ -46,13 +46,9 @@ export function normalizeTerritory(t: TerritoryLike): string | null {
 }
 
 function normalizeDate(obs: TerritoryPriceObservation): string | null {
-  if (typeof obs.date === 'string') {
-    const d = obs.date.trim();
-    if (d) return d;
-  }
-  if (typeof obs.observedAt === 'string') {
-    const ts = obs.observedAt.trim();
-    if (ts) return ts.slice(0, 10); // YYYY-MM-DD
+  if (typeof obs.date === 'string' && obs.date.trim()) return obs.date.trim();
+  if (typeof obs.observedAt === 'string' && obs.observedAt.trim()) {
+    return obs.observedAt.trim().slice(0, 10);
   }
   return null;
 }
@@ -63,62 +59,51 @@ function pickValue(obs: TerritoryPriceObservation): number | null {
   return v;
 }
 
-function ensureScope(scope: any): TerritoryScope {
-  // IMPORTANT: éviter `instanceof Set` (peut échouer selon le contexte Vitest)
-  if (scope && typeof scope.has === 'function') {
-    return scope as TerritoryScope;
-  }
-  return DEFAULT_TERRITORY_SCOPE;
-}
-
 export function calculateTerritoryAverages(
   observations: TerritoryPriceObservation[],
-  scope: any = DEFAULT_TERRITORY_SCOPE
+  scope?: TerritoryScope
 ): TerritoryAverageMap {
-  const effectiveScope = ensureScope(scope);
+  const effectiveScope = scope ?? DEFAULT_TERRITORY_SCOPE;
   const byTerr: Map<string, number[]> = new Map();
 
   for (const o of observations) {
     const terr = normalizeTerritory(o.territory);
     if (!terr) continue;
-    if (effectiveScope && !effectiveScope.has(terr)) continue;
+    if (!effectiveScope.has(terr)) continue;
 
     const v = pickValue(o);
     if (v === null) continue;
 
-    let arr = byTerr.get(terr);
-    if (!arr) {
-      arr = [];
-      byTerr.set(terr, arr);
-    }
-    arr.push(v);
+    if (!byTerr.has(terr)) byTerr.set(terr, []);
+    byTerr.get(terr)!.push(v);
   }
 
   const out: TerritoryAverageMap = {};
   for (const [terr, values] of byTerr.entries()) {
     out[terr] = avg(values);
   }
+
   return out;
 }
 
 export function calculateTerritoryComparison(
   observations: TerritoryPriceObservation[],
   baseTerritory: string = 'FR',
-  scope: any = DEFAULT_TERRITORY_SCOPE
+  scope?: TerritoryScope
 ): TerritoryComparisonRow[] {
-  const effectiveScope = ensureScope(scope);
-  const averages = calculateTerritoryAverages(observations, effectiveScope);
+  const effectiveScope = scope ?? DEFAULT_TERRITORY_SCOPE;
 
+  const averages = calculateTerritoryAverages(observations, effectiveScope);
   const territories = Object.keys(averages);
+
   if (!territories.length) return [];
 
-  // tri ascendant: moins cher en premier
   territories.sort((a, b) => averages[a] - averages[b]);
 
-  const requestedBase = normalizeTerritory(baseTerritory);
+  const normalizedBase = normalizeTerritory(baseTerritory);
   const effectiveBase =
-    requestedBase && averages[requestedBase] !== undefined
-      ? requestedBase
+    normalizedBase && averages[normalizedBase] !== undefined
+      ? normalizedBase
       : territories[0];
 
   const baseAvg = averages[effectiveBase];
@@ -140,11 +125,10 @@ export function calculateTerritoryComparison(
 
 export function buildTerritoryTimeSeries(
   observations: TerritoryPriceObservation[],
-  scope: any = DEFAULT_TERRITORY_SCOPE
+  scope?: TerritoryScope
 ): Array<Record<string, any>> {
-  const effectiveScope = ensureScope(scope);
+  const effectiveScope = scope ?? DEFAULT_TERRITORY_SCOPE;
 
-  // date -> territory -> values
   const byDate: Map<string, Map<string, number[]>> = new Map();
 
   for (const o of observations) {
@@ -153,28 +137,20 @@ export function buildTerritoryTimeSeries(
 
     const terr = normalizeTerritory(o.territory);
     if (!terr) continue;
-    if (effectiveScope && !effectiveScope.has(terr)) continue;
+    if (!effectiveScope.has(terr)) continue;
 
     const v = pickValue(o);
     if (v === null) continue;
 
-    let terrMap = byDate.get(date);
-    if (!terrMap) {
-      terrMap = new Map();
-      byDate.set(date, terrMap);
-    }
+    if (!byDate.has(date)) byDate.set(date, new Map());
+    const terrMap = byDate.get(date)!;
 
-    let arr = terrMap.get(terr);
-    if (!arr) {
-      arr = [];
-      terrMap.set(terr, arr);
-    }
-    arr.push(v);
+    if (!terrMap.has(terr)) terrMap.set(terr, []);
+    terrMap.get(terr)!.push(v);
   }
 
   const dates = Array.from(byDate.keys()).sort();
 
-  // Format attendu par tes tests: { date, FR: x, GP: y, ... }
   return dates.map((date) => {
     const terrMap = byDate.get(date)!;
     const row: Record<string, any> = { date };
