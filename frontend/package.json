@@ -4,20 +4,38 @@
   "version": "3.0.1",
   "type": "module",
   "scripts": {
+    "test": "vitest run --config vitest.config.ts",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-
     "lint": "eslint src --ext .ts,.tsx,.js,.jsx --cache --cache-location .eslintcache",
     "lint:fix": "eslint src --ext .ts,.tsx,.js,.jsx --fix",
-
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "typecheck:ci": "tsc -p tsconfig.json --noEmit",
-
-    "test": "vitest run --config vitest.config.ts",
     "test:ci": "vitest run --config vitest.config.ts",
-
     "audit": "npm audit --omit=dev --audit-level=high",
     "audit:ci": "npm audit --omit=dev --audit-level=high"
+  },
+  "dependencies": {
+    "firebase": "^12.9.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-helmet-async": "^2.0.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.24",
+    "jsdom": "^28.1.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.2.0",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.0",
+    "vitest": "^1.6.0"
   }
 }

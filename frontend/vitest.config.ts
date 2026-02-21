@@ -11,7 +11,9 @@ export default defineConfig({
   root: here,
 
   test: {
-    environment: 'jsdom',
+    
+    setupFiles: ['src/test/setupTests.ts'],
+environment: 'jsdom',
     globals: true,
 
     // IMPORTANT : chemin ABSOLU => plus d'erreur "/@fs/.../akiprisaye-web/src/test/setup.ts"
