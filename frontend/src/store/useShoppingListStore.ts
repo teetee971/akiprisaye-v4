@@ -11,6 +11,11 @@ export interface ShoppingListStoreItem {
   history?: number[];
   source?: string;
   lastObservedAt?: string;
+<<<<<<< HEAD
+  imageUrl?: string;
+  imageThumbUrl?: string;
+=======
+>>>>>>> origin/main
 }
 
 function readStorage(): ShoppingListStoreItem[] {
@@ -47,7 +52,17 @@ export function addShoppingListItem(item: ShoppingListStoreItem, maxItems: numbe
   const next = existing
     ? items.map((current) =>
         current.id === item.id
+<<<<<<< HEAD
+          ? {
+              ...current,
+              quantity: current.quantity + item.quantity,
+              price: item.price ?? current.price,
+              imageUrl: item.imageUrl ?? current.imageUrl,
+              imageThumbUrl: item.imageThumbUrl ?? current.imageThumbUrl,
+            }
+=======
           ? { ...current, quantity: current.quantity + item.quantity, price: item.price ?? current.price }
+>>>>>>> origin/main
           : current,
       )
     : [...items, item];
