@@ -87,21 +87,26 @@ const globalLoadTimeout = window.setTimeout(() => {
 
 async function bootstrap() {
   // 1) Anti “mismatch de build” (peut reload/redirect)
-  const versionChanged = await enforceBuildVersionSync(BUILD_ID);
-  if (versionChanged) return;
 
-  // 2) Service worker (tests Vitest attendent "registerAppServiceWorker")
-  registerAppServiceWorker();
+  if (import.meta.env.PROD) {
 
+    const versionChanged = await enforceBuildVersionSync(BUILD_ID);
+
+    if (versionChanged) return;
+
+    registerAppServiceWorker();
+
+  }
   // 3) Render React
   const rootElement = document.getElementById('root');
-  if (!rootElement) {
+if (!rootElement) {
     if (isFallbackVisible()) {
       renderFallbackError('A KI PRI SA YÉ', 'Élément racine introuvable (#root).');
     }
     return;
   }
 
+  setTimeout(() => hideHtmlFallback(), 0);
   ReactDOM.createRoot(rootElement).render(
     <React.StrictMode>
       <HelmetProvider>
@@ -114,7 +119,6 @@ async function bootstrap() {
 
   // Masque le fallback HTML dès que le rendu est lancé
   requestAnimationFrame(() => {
-    hideHtmlFallback();
     clearTimeout(globalLoadTimeout);
   });
 }

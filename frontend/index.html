@@ -73,6 +73,22 @@
       #root {
         min-height: 100vh;
       }
+    
+      /* Loading fallback overlay */
+      #loading-fallback {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 12px;
+        background: #0f172a;
+        z-index: 1;
+      }
+      /* App always above fallback once React mounts */
+      #root { position: relative; z-index: 2; }
+
     </style>
   </head>
 
