@@ -14,10 +14,22 @@ export interface ShoppingListItem {
   brand?: string;
   barcode?: string;
   qty: number;
-  unit?: string;
+  unit?: 'unit' | 'kg' | 'l';
+  quantityValue?: number;
+  quantityUnit?: 'kg' | 'g' | 'l' | 'ml' | 'unit';
   territory?: string;
   imageUrl?: string;
   imageThumbUrl?: string;
+  normalized?: {
+    pricePerUnit?: number;
+    normalizedLabel?: string;
+  };
+  premium?: {
+    score?: number;
+    trend7?: 'up' | 'down' | 'flat';
+    trend30?: 'up' | 'down' | 'flat';
+    alerts?: string[];
+  };
   createdAt: string;
   updatedAt: string;
   priceHistory: PriceObservation[];
