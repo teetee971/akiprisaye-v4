@@ -45,6 +45,7 @@ export default defineConfig({
       abs('./src/test/scannerFallback.test.tsx'),
 
       abs('./src/test/listePage.thumbnails.test.tsx'),
+      abs('./src/test/mergeConflictMarkers.test.ts'),
 
       abs('./src/test/decisionEngine.test.ts'),
       abs('./src/domain/decision/__tests__/decisionEngine.test.ts'),
