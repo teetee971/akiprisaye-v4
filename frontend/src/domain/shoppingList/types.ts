@@ -16,11 +16,8 @@ export interface ShoppingListItem {
   qty: number;
   unit?: string;
   territory?: string;
-<<<<<<< HEAD
   imageUrl?: string;
   imageThumbUrl?: string;
-=======
->>>>>>> origin/main
   createdAt: string;
   updatedAt: string;
   priceHistory: PriceObservation[];

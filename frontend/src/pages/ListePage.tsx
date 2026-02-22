@@ -154,7 +154,6 @@ export default function ListePage() {
           const rec = recommendations.find((r) => r.itemId === item.id)?.rec;
           return (
             <li key={item.id} className="rounded border border-slate-700 p-3">
-<<<<<<< HEAD
               <div className="flex items-start gap-3">
                 {item.imageThumbUrl ? (
                   <img
@@ -187,20 +186,6 @@ export default function ListePage() {
                   )}
                 </div>
               </div>
-=======
-              <div className="flex items-center justify-between">
-                <span>{item.name} × {item.quantity}</span>
-                <button className="text-red-300" onClick={() => setItems(removeShoppingListItem(item.id))}>Retirer</button>
-              </div>
-              <div className="mt-1 text-xs text-slate-400">
-                Dernier prix: {lastPrice ? `${lastPrice.toFixed(2)} €` : 'N/A'} · Source: {item.source ?? 'local'} · Date: {item.lastObservedAt ? new Date(item.lastObservedAt).toLocaleString() : 'N/A'}
-              </div>
-              {rec && (
-                <div className="mt-1 text-sm text-blue-200">
-                  Décision: <strong>{rec.verdict}</strong> — {rec.reason}
-                </div>
-              )}
->>>>>>> origin/main
             </li>
           );
         })}
