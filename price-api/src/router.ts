@@ -233,6 +233,7 @@ export async function handleRequest(request: Request, env: Env, ctx: ExecutionCo
         rawJson: bodyText,
       });
 
+      // resync even on duplicates, but don't process twice
       if (!isNewEvent) {
         const duplicateSubscriptionId = getPaypalSubscriptionId(event);
         await syncPaypalSubscriptionEvent(env.PRICE_DB, event);
@@ -245,6 +246,7 @@ export async function handleRequest(request: Request, env: Env, ctx: ExecutionCo
         return withCors(json({ status: 'ignored', reason: 'duplicate_event' }, 200), origin, env);
       }
 
+      // IMPORTANT: resync-first flow
       if (hasMissingPayPalSignatureHeaders(request)) {
         await syncPaypalSubscriptionEvent(env.PRICE_DB, event);
         console.warn('paypal_webhook_processed_unverified', {
@@ -252,7 +254,11 @@ export async function handleRequest(request: Request, env: Env, ctx: ExecutionCo
           eventType,
           reason: 'missing_signature_headers',
         });
-        return withCors(json({ status: 'processed', verified: false, reason: 'missing_signature_headers' }, 200), origin, env);
+        return withCors(
+          json({ status: 'processed', verified: false, reason: 'missing_signature_headers' }, 200),
+          origin,
+          env,
+        );
       }
 
       const isVerified = await verifyPayPalWebhookSignature(request, env, event);
@@ -262,6 +268,7 @@ export async function handleRequest(request: Request, env: Env, ctx: ExecutionCo
       }
 
       await syncPaypalSubscriptionEvent(env.PRICE_DB, event);
+
       const status = mapPayPalEventTypeToSubscriptionStatus(event.event_type);
       if (!status) {
         console.log('paypal_webhook_ignored', { eventId, eventType, reason: 'unsupported_event_type' });
@@ -316,7 +323,9 @@ export async function handleRequest(request: Request, env: Env, ctx: ExecutionCo
       const parsed = getPricesQuerySchema.parse(Object.fromEntries(url.searchParams.entries()));
       const retailer = parsed.retailer ? validateRetailer(parsed.retailer) : undefined;
       const fingerprint = await getAggregateFingerprint(env.PRICE_DB, parsed.ean, parsed.territory, retailer);
-      const etag = buildEtag(`${parsed.ean}:${parsed.territory ?? 'all'}:${retailer ?? 'all'}:${fingerprint.maxUpdatedAt ?? 'none'}:${fingerprint.rowCount}`);
+      const etag = buildEtag(
+        `${parsed.ean}:${parsed.territory ?? 'all'}:${retailer ?? 'all'}:${fingerprint.maxUpdatedAt ?? 'none'}:${fingerprint.rowCount}`,
+      );
 
       if (shouldReturnNotModified(request, etag)) {
         return withCors(
@@ -362,10 +371,7 @@ export async function handleRequest(request: Request, env: Env, ctx: ExecutionCo
     if (request.method === 'GET' && url.pathname.startsWith('/v1/products/')) {
       const ean = decodeURIComponent(url.pathname.replace('/v1/products/', ''));
       const parsed = getProductParamsSchema.parse({ ean });
-      const [product, aggregates] = await Promise.all([
-        getProduct(env.PRICE_DB, parsed.ean),
-        getPriceAggregates(env.PRICE_DB, parsed.ean),
-      ]);
+      const [product, aggregates] = await Promise.all([getProduct(env.PRICE_DB, parsed.ean), getPriceAggregates(env.PRICE_DB, parsed.ean)]);
 
       const response: ProductResponse = {
         status: computeStatus(aggregates.length > 0, Boolean(product)),
