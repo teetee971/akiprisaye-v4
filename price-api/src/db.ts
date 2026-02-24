@@ -26,6 +26,29 @@ export interface SubscriptionUpsertPayload {
   email?: string;
 }
 
+/**
+ * Idempotent insert for PayPal webhooks table.
+ * IMPORTANT: this assumes paypal_webhooks.id is the PayPal event id (event_id).
+ * If your schema uses different column names, align them here.
+ */
+export async function recordPayPalWebhookIfNew(
+  db: D1Database,
+  payload: { eventId: string; eventType: string; createTime?: string; rawJson: string },
+): Promise<boolean> {
+  const cappedRawJson = payload.rawJson.length > 64000 ? payload.rawJson.slice(0, 64000) : payload.rawJson;
+
+  // This is the key fix: IGNORE duplicates instead of throwing SQLITE_CONSTRAINT
+  const result = await db
+    .prepare(
+      `INSERT OR IGNORE INTO paypal_webhooks (id, event_type, create_time, raw_json)
+       VALUES (?, ?, ?, ?)`,
+    )
+    .bind(payload.eventId, payload.eventType, payload.createTime ?? null, cappedRawJson)
+    .run();
+
+  return Boolean(result.meta.changes && result.meta.changes > 0);
+}
+
 export async function getAggregateFingerprint(
   db: D1Database,
   ean: string,
@@ -63,7 +86,7 @@ export async function getPriceAggregates(
   retailer?: string,
 ): Promise<PriceAggregateRecord[]> {
   let sql = 'SELECT * FROM price_aggregates WHERE ean = ?';
-  const binds: string[] = [ean];
+  const binds: (string | null)[] = [ean];
 
   if (territory) {
     sql += ' AND territory = ?';
@@ -120,7 +143,8 @@ export async function ensureProductExists(
 ): Promise<void> {
   await db
     .prepare(
-      `INSERT OR IGNORE INTO products (ean, product_name, quantity, updated_at) VALUES (?, NULL, ?, datetime('now'))`,
+      `INSERT OR IGNORE INTO products (ean, product_name, quantity, updated_at)
+       VALUES (?, NULL, ?, datetime('now'))`,
     )
     .bind(input.ean, input.quantity ?? null)
     .run();
@@ -157,7 +181,10 @@ export async function upsertProduct(
     .run();
 }
 
-export async function insertObservationAndRefreshAggregate(db: D1Database, input: InsertObservationInput): Promise<void> {
+export async function insertObservationAndRefreshAggregate(
+  db: D1Database,
+  input: InsertObservationInput,
+): Promise<void> {
   await insertObservationCentsAndRefreshAggregate(db, {
     ...input,
     priceCents: Math.round(input.price * 100),
@@ -354,14 +381,7 @@ export async function updateImportJobProgress(
        SET status = ?, total_rows = ?, success_rows = ?, error_rows = ?, finished_at = CASE WHEN ? THEN datetime('now') ELSE NULL END
        WHERE id = ?`,
     )
-    .bind(
-      payload.status,
-      payload.totalRows,
-      payload.successRows,
-      payload.errorRows,
-      payload.finished ? 1 : 0,
-      payload.id,
-    )
+    .bind(payload.status, payload.totalRows, payload.successRows, payload.errorRows, payload.finished ? 1 : 0, payload.id)
     .run();
 }
 
@@ -468,25 +488,23 @@ export async function updateReceiptJobCashier(
 }
 
 /**
- * Idempotent insert: does not throw when PayPal re-sends the same event_id.
- * Returns true if inserted, false if already existed.
+ * Generic idempotent webhook event storage (existing behavior).
+ * Keeps webhook_events unique on event_id.
  */
 export async function recordWebhookEventIfNew(
   db: D1Database,
   payload: { eventId: string; eventType: string; createTime?: string; rawJson: string },
 ): Promise<boolean> {
   const cappedRawJson = payload.rawJson.length > 64000 ? payload.rawJson.slice(0, 64000) : payload.rawJson;
-
   const result = await db
     .prepare(
-      `INSERT INTO webhook_events (event_id, event_type, create_time, raw_json)
-       VALUES (?, ?, ?, ?)
-       ON CONFLICT(event_id) DO NOTHING`,
+      `INSERT OR IGNORE INTO webhook_events (event_id, event_type, create_time, raw_json)
+       VALUES (?, ?, ?, ?)`,
     )
     .bind(payload.eventId, payload.eventType, payload.createTime ?? null, cappedRawJson)
     .run();
 
-  return (result.meta?.changes ?? 0) > 0;
+  return Boolean(result.meta.changes && result.meta.changes > 0);
 }
 
 export async function upsertSubscriptionByPayPalId(db: D1Database, payload: SubscriptionUpsertPayload): Promise<void> {
