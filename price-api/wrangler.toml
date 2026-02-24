@@ -4,6 +4,7 @@ compatibility_date = "2026-02-18"
 workers_dev = true
 
 [vars]
+# En dev local (Vite). En prod, on ajoutera https://akiprisaye-web.pages.dev et/ou ton domaine.
 ALLOWED_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173"
 CASHIER_HASH_SALT = "CHANGE_ME_LONG_RANDOM"
 
