@@ -26,29 +26,6 @@ export interface SubscriptionUpsertPayload {
   email?: string;
 }
 
-/**
- * Idempotent insert for PayPal webhooks table.
- * IMPORTANT: this assumes paypal_webhooks.id is the PayPal event id (event_id).
- * If your schema uses different column names, align them here.
- */
-export async function recordPayPalWebhookIfNew(
-  db: D1Database,
-  payload: { eventId: string; eventType: string; createTime?: string; rawJson: string },
-): Promise<boolean> {
-  const cappedRawJson = payload.rawJson.length > 64000 ? payload.rawJson.slice(0, 64000) : payload.rawJson;
-
-  // This is the key fix: IGNORE duplicates instead of throwing SQLITE_CONSTRAINT
-  const result = await db
-    .prepare(
-      `INSERT OR IGNORE INTO paypal_webhooks (id, event_type, create_time, raw_json)
-       VALUES (?, ?, ?, ?)`,
-    )
-    .bind(payload.eventId, payload.eventType, payload.createTime ?? null, cappedRawJson)
-    .run();
-
-  return Boolean(result.meta.changes && result.meta.changes > 0);
-}
-
 export async function getAggregateFingerprint(
   db: D1Database,
   ean: string,
@@ -86,7 +63,7 @@ export async function getPriceAggregates(
   retailer?: string,
 ): Promise<PriceAggregateRecord[]> {
   let sql = 'SELECT * FROM price_aggregates WHERE ean = ?';
-  const binds: (string | null)[] = [ean];
+  const binds: string[] = [ean];
 
   if (territory) {
     sql += ' AND territory = ?';
@@ -488,8 +465,7 @@ export async function updateReceiptJobCashier(
 }
 
 /**
- * Generic idempotent webhook event storage (existing behavior).
- * Keeps webhook_events unique on event_id.
+ * Table webhook_events (générique).
  */
 export async function recordWebhookEventIfNew(
   db: D1Database,
@@ -504,7 +480,43 @@ export async function recordWebhookEventIfNew(
     .bind(payload.eventId, payload.eventType, payload.createTime ?? null, cappedRawJson)
     .run();
 
-  return Boolean(result.meta.changes && result.meta.changes > 0);
+  return Boolean(result?.meta?.changes && result.meta.changes > 0);
+}
+
+/**
+ * ✅ FIX: table paypal_webhooks
+ * Empêche "UNIQUE constraint failed: paypal_webhooks.id" via INSERT OR IGNORE.
+ */
+export async function recordPayPalWebhookIfNew(
+  db: D1Database,
+  payload: {
+    id: string; // event_id PayPal (ou id unique)
+    eventType: string;
+    createTime?: string | null;
+    paypalSubscriptionId?: string | null;
+    payerId?: string | null;
+    rawJson: string;
+  },
+): Promise<boolean> {
+  const cappedRawJson = payload.rawJson.length > 64000 ? payload.rawJson.slice(0, 64000) : payload.rawJson;
+
+  const result = await db
+    .prepare(
+      `INSERT OR IGNORE INTO paypal_webhooks (
+         id, event_type, create_time, paypal_subscription_id, payer_id, raw_json, created_at
+       ) VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
+    )
+    .bind(
+      payload.id,
+      payload.eventType,
+      payload.createTime ?? null,
+      payload.paypalSubscriptionId ?? null,
+      payload.payerId ?? null,
+      cappedRawJson,
+    )
+    .run();
+
+  return Boolean(result?.meta?.changes && result.meta.changes > 0);
 }
 
 export async function upsertSubscriptionByPayPalId(db: D1Database, payload: SubscriptionUpsertPayload): Promise<void> {
