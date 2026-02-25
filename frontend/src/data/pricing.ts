@@ -78,6 +78,11 @@ export const FEATURES: Record<FeatureKey, { label: string; description?: string 
 
 const EUR = (amountCents: number): Money => ({ currency: 'EUR', amountCents });
 
+/**
+ * Convention "2 mois off" : annuel = 10 x mensuel (et non 12).
+ * => le prix annuel est un total payé en 1 fois.
+ * => on calcule aussi un "équivalent mensuel" = annuel / 12 pour l’affichage.
+ */
 export const ADDONS: Addon[] = [
   {
     id: 'addon_api',
@@ -128,10 +133,7 @@ export const PLANS: Plan[] = [
     id: 'free',
     name: 'Gratuit',
     tagline: 'Découvrir et contribuer.',
-    pricing: {
-      monthly: EUR(0),
-      yearly: EUR(0),
-    },
+    pricing: { monthly: EUR(0), yearly: EUR(0) },
     ctaLabel: 'Commencer',
     ctaHref: '/signup',
     featureKeys: ['f_scan', 'f_prices_view', 'f_contribute'],
@@ -188,7 +190,7 @@ export const FAQ = [
   },
   {
     q: 'Mensuel vs Annuel : c’est quoi la différence ?',
-    a: 'L’annuel te donne une remise (équivalent ~2 mois off). Les fonctionnalités restent identiques.',
+    a: 'L’annuel applique une remise (équivalent ~2 mois off). Les fonctionnalités restent identiques.',
   },
   {
     q: 'Les options sont obligatoires ?',
@@ -196,22 +198,40 @@ export const FAQ = [
   },
   {
     q: 'Paiement plus tard : ça casse la page ?',
-    a: 'Non. Les boutons sont déjà prêts à pointer vers /checkout. Tu brancheras Stripe/PayPal ensuite sans refaire l’UI.',
+    a: 'Non. Les boutons pointent déjà vers /checkout. Tu brancheras Stripe/PayPal ensuite sans refaire l’UI.',
   },
 ];
 
-export function formatMoneyEUR(cents: number): string {
+export function moneyCents(value: Money): number {
+  return value.amountCents;
+}
+
+export function formatMoneyEURFromCents(cents: number): string {
   if (cents === 0) return '0 €';
-  const euros = (cents / 100).toFixed(0);
-  return `${euros} €`;
+  const value = cents / 100;
+  // Affichage propre (fr-FR), sans décimales si entier, sinon 2
+  const isInt = Math.abs(value - Math.round(value)) < 1e-9;
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: isInt ? 0 : 2,
+    maximumFractionDigits: isInt ? 0 : 2,
+  }).format(value);
 }
 
 export function formatPlanPrice(plan: Plan, period: BillingPeriod): string {
   const cents = period === 'monthly' ? plan.pricing.monthly.amountCents : plan.pricing.yearly.amountCents;
-  return formatMoneyEUR(cents);
+  return formatMoneyEURFromCents(cents);
 }
 
 export function formatAddonPrice(addon: Addon, period: BillingPeriod): string {
   const cents = period === 'monthly' ? addon.pricing.monthly.amountCents : addon.pricing.yearly.amountCents;
-  return formatMoneyEUR(cents);
+  return formatMoneyEURFromCents(cents);
+}
+
+/** Équivalent mensuel sur annuel: total annuel / 12 */
+export function formatMonthlyEquivalentFromYearlyCents(yearlyTotalCents: number): string {
+  if (yearlyTotalCents === 0) return '0 €';
+  const monthlyEqCents = Math.round(yearlyTotalCents / 12);
+  return formatMoneyEURFromCents(monthlyEqCents);
 }
