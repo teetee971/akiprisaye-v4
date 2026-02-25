@@ -5,10 +5,13 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+    "allowJs": true,
+    "noUncheckedIndexedAccess": false
   },
   "include": [
-    "src",
+    "src/data/pricing.ts",
+    "src/pages/Pricing.tsx",
     "src/vite-env.d.ts",
     "vite.config.ts"
   ],

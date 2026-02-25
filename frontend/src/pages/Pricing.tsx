@@ -1,260 +1,285 @@
-import React, { useMemo } from "react";
-import { Helmet } from "react-helmet-async";
-import { pricingPlans } from "../data/pricingPlans";
+import React from 'react';
+import { Helmet } from 'react-helmet-async';
+import { ADDONS, FAQ, FEATURES, PLANS, type BillingPeriod, type FeatureKey, formatAddonPrice, formatPlanPrice } from '../data/pricing';
 
-function formatPrice(p: number | "gratuit") {
-  if (p === "gratuit") return "Gratuit";
-  return `${p.toFixed(2).replace(".", ",")} €`;
+function cn(...parts: Array<string | false | null | undefined>) {
+  return parts.filter(Boolean).join(' ');
 }
 
-export default function Pricing() {
-  const { subs, annuals, options } = useMemo(() => {
-    const subs = pricingPlans.filter((p) => p.cadence === "mensuel" && p.id !== "freemium");
-    const annuals = pricingPlans.filter((p) => p.cadence === "annuel");
-    const options = pricingPlans.filter((p) => p.cadence === "option");
-    const freemium = pricingPlans.find((p) => p.id === "freemium");
-    return { subs: freemium ? [freemium, ...subs] : subs, annuals, options };
-  }, []);
+function Badge({ children }: { children: React.ReactNode }) {
+  return <span className="inline-flex items-center rounded-full border px-2 py-0.5 text-xs">{children}</span>;
+}
+
+function PeriodToggle({
+  period,
+  onChange,
+}: {
+  period: BillingPeriod;
+  onChange: (p: BillingPeriod) => void;
+}) {
+  return (
+    <div className="inline-flex rounded-xl border p-1">
+      <button
+        className={cn('px-3 py-1.5 text-sm rounded-lg', period === 'monthly' && 'bg-black text-white')}
+        onClick={() => onChange('monthly')}
+        type="button"
+      >
+        Mensuel
+      </button>
+      <button
+        className={cn('px-3 py-1.5 text-sm rounded-lg', period === 'yearly' && 'bg-black text-white')}
+        onClick={() => onChange('yearly')}
+        type="button"
+      >
+        Annuel
+      </button>
+    </div>
+  );
+}
+
+function LimitLine({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between text-sm">
+      <span className="text-neutral-600">{label}</span>
+      <span className="font-medium">{value}</span>
+    </div>
+  );
+}
+
+export default function PricingPage() {
+  const [period, setPeriod] = React.useState<BillingPeriod>('monthly');
 
   return (
     <>
       <Helmet>
-        <title>Offres & Abonnements – A KI PRI SA YÉ</title>
-        <meta
-          name="description"
-          content="Découvrez les formules Freemium, Pro et Premium, ainsi que les options (OCR, IA) pour A KI PRI SA YÉ."
-        />
+        <title>Formules d’abonnement – A KI PRI SA YÉ</title>
       </Helmet>
+      <div className="min-h-screen bg-white">
+        <div className="mx-auto max-w-6xl px-4 py-10">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 flex-wrap items-start justify-between sm:flex-row sm:items-center">
+              <div className="max-w-2xl">
+                <h1 className="text-3xl font-semibold tracking-tight">Formules d’abonnement</h1>
+                <p className="mt-2 text-neutral-600">
+                  A KI PRI SA YÉ : une base de prix utile, vérifiable, et exploitable. Commence en gratuit, puis active
+                  les capacités pro quand tu en as besoin.
+                </p>
+                <div className="mt-3 flex gap-2 flex-wrap">
+                  <Badge>Freemium</Badge>
+                  <Badge>Options modulaires</Badge>
+                  <Badge>Branchable Stripe/PayPal</Badge>
+                </div>
+              </div>
 
-      <main style={{ padding: "24px 16px", maxWidth: 1100, margin: "0 auto" }}>
-        <header style={{ marginBottom: 18 }}>
-          <h1 style={{ fontSize: 28, margin: 0 }}>Offres & abonnements</h1>
-          <p style={{ opacity: 0.85, marginTop: 8, lineHeight: 1.5 }}>
-            Choisis une formule adaptée à ton usage. Freemium pour démarrer, Pro/Premium pour analyser et suivre tes
-            prix, options pour aller plus loin.
-          </p>
-        </header>
+              <div className="flex items-center gap-3">
+                <PeriodToggle period={period} onChange={setPeriod} />
+                {period === 'yearly' ? (
+                  <span className="text-sm text-neutral-600">Remise annuelle appliquée</span>
+                ) : (
+                  <span className="text-sm text-neutral-600">Sans engagement annuel</span>
+                )}
+              </div>
+            </div>
 
-        <section style={{ marginTop: 18 }}>
-          <h2 style={{ fontSize: 18, margin: "0 0 12px 0", opacity: 0.9 }}>Formules</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14 }}>
-            {subs.map((p) => (
-              <article
-                key={p.id}
-                style={{
-                  borderRadius: 16,
-                  padding: 16,
-                  border: p.highlight ? "1px solid rgba(59,130,246,0.6)" : "1px solid rgba(255,255,255,0.10)",
-                  background: "rgba(255,255,255,0.04)",
-                  boxShadow: p.highlight ? "0 0 0 1px rgba(59,130,246,0.15) inset" : "none",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
-                  <div>
-                    <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                      <strong style={{ fontSize: 16 }}>{p.name}</strong>
-                      {p.badge ? (
-                        <span
-                          style={{
-                            fontSize: 12,
-                            padding: "3px 8px",
-                            borderRadius: 999,
-                            background: "rgba(255,255,255,0.08)",
-                            border: "1px solid rgba(255,255,255,0.10)",
-                            opacity: 0.95,
-                          }}
-                        >
-                          {p.badge}
-                        </span>
-                      ) : null}
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {PLANS.map((plan) => {
+                const price = formatPlanPrice(plan, period);
+                const isFree = plan.pricing.monthly.amountCents === 0 && plan.pricing.yearly.amountCents === 0;
+                const perLabel = period === 'monthly' ? '/mois' : '/an';
+                const yearlyHint =
+                  period === 'yearly' && plan.pricing.yearlyDiscountLabel ? plan.pricing.yearlyDiscountLabel : null;
+
+                return (
+                  <div key={plan.id} className={cn('rounded-2xl border p-5 shadow-sm', plan.recommended && 'border-black')}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h2 className="text-lg font-semibold">{plan.name}</h2>
+                          {plan.recommended && <Badge>Recommandé</Badge>}
+                        </div>
+                        <p className="mt-1 text-sm text-neutral-600">{plan.tagline}</p>
+                      </div>
                     </div>
-                    <p style={{ margin: "8px 0 0 0", opacity: 0.85, lineHeight: 1.45 }}>{p.description}</p>
-                  </div>
 
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: 20, fontWeight: 700 }}>{formatPrice(p.priceEur)}</div>
-                    <div style={{ fontSize: 12, opacity: 0.75 }}>{p.priceEur === "gratuit" ? "" : "/ mois"}</div>
+                    <div className="mt-4">
+                      <div className="flex items-baseline gap-2">
+                        <div className="text-3xl font-semibold">{price}</div>
+                        <div className="text-sm text-neutral-600">{isFree ? '' : perLabel}</div>
+                      </div>
+                      {yearlyHint && <div className="mt-1 text-sm text-neutral-600">{yearlyHint}</div>}
+                    </div>
+
+                    <a
+                      href={plan.ctaHref}
+                      className={cn(
+                        'mt-4 inline-flex w-full items-center justify-center rounded-xl px-4 py-2 text-sm font-medium',
+                        plan.recommended ? 'bg-black text-white' : 'border bg-white hover:bg-neutral-50'
+                      )}
+                    >
+                      {plan.ctaLabel}
+                    </a>
+
+                    <div className="mt-5 space-y-2">
+                      <LimitLine
+                        label="Scans / mois"
+                        value={plan.limits.scansPerMonth === undefined ? 'Illimité' : String(plan.limits.scansPerMonth)}
+                      />
+                      <LimitLine
+                        label="Exports / mois"
+                        value={
+                          plan.limits.exportsPerMonth === undefined ? 'Illimité' : String(plan.limits.exportsPerMonth)
+                        }
+                      />
+                      <LimitLine
+                        label="Territoires"
+                        value={plan.limits.territories === undefined ? 'Illimité' : String(plan.limits.territories)}
+                      />
+                      {plan.limits.teamSeats !== undefined && (
+                        <LimitLine label="Sièges équipe" value={String(plan.limits.teamSeats)} />
+                      )}
+                    </div>
+
+                    <div className="mt-5 border-t pt-4">
+                      <div className="text-sm font-medium">Inclus</div>
+                      <ul className="mt-2 space-y-2 text-sm text-neutral-700">
+                        {plan.featureKeys.slice(0, 6).map((k) => (
+                          <li key={k} className="flex gap-2">
+                            <span className="mt-0.5">✓</span>
+                            <span>{FEATURES[k].label}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      {plan.featureKeys.length > 6 && (
+                        <div className="mt-2 text-sm text-neutral-600">
+                          +{plan.featureKeys.length - 6} autres fonctionnalités dans le comparatif.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-10">
+              <h3 className="text-xl font-semibold">Options</h3>
+              <p className="mt-1 text-neutral-600">
+                Active seulement ce dont tu as besoin. Les options sont cumulables selon le plan.
+              </p>
+
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                {ADDONS.map((addon) => (
+                  <div key={addon.id} className="rounded-2xl border p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="text-base font-semibold">{addon.name}</div>
+                        <div className="mt-1 text-sm text-neutral-600">{addon.description}</div>
+                        <div className="mt-2 flex gap-2 flex-wrap">
+                          {addon.appliesTo.map((p) => (
+                            <Badge key={p}>Compatible: {p.toUpperCase()}</Badge>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-semibold">{formatAddonPrice(addon, period)}</div>
+                        <div className="text-xs text-neutral-600">{period === 'monthly' ? '/mois' : '/an'}</div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex gap-2">
+                      <a
+                        href={`/checkout?addon=${addon.id}&billing=${period}`}
+                        className="inline-flex items-center justify-center rounded-xl border px-4 py-2 text-sm hover:bg-neutral-50"
+                      >
+                        Ajouter
+                      </a>
+                      <a
+                        href="/contact"
+                        className="inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+                      >
+                        Demander un devis
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-10">
+              <h3 className="text-xl font-semibold">Comparatif</h3>
+              <div className="mt-4 overflow-x-auto rounded-2xl border">
+                <table className="min-w-[760px] w-full text-sm">
+                  <thead className="bg-neutral-50">
+                    <tr>
+                      <th className="p-3 text-left font-medium">Fonctionnalité</th>
+                      {PLANS.map((p) => (
+                        <th key={p.id} className="p-3 text-left font-medium">
+                          {p.name}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(Object.entries(FEATURES) as Array<[FeatureKey, (typeof FEATURES)[FeatureKey]]>).map(([key, meta]) => (
+                      <tr key={key} className="border-t">
+                        <td className="p-3">
+                          <div className="font-medium">{meta.label}</div>
+                          {meta.description && <div className="text-xs text-neutral-600">{meta.description}</div>}
+                        </td>
+                        {PLANS.map((p) => {
+                          const has = p.featureKeys.includes(key);
+                          return <td key={p.id} className="p-3">{has ? '✓' : '—'}</td>;
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="mt-10">
+              <h3 className="text-xl font-semibold">FAQ</h3>
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                {FAQ.map((item) => (
+                  <div key={item.q} className="rounded-2xl border p-5">
+                    <div className="font-medium">{item.q}</div>
+                    <div className="mt-2 text-sm text-neutral-700">{item.a}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-10 rounded-2xl border p-6 bg-neutral-50">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <div className="text-lg font-semibold">Prêt à lancer la monétisation proprement</div>
+                  <div className="mt-1 text-sm text-neutral-700">
+                    On a l’UI, les plans, les options. Plus tard, on branche Stripe ou PayPal sans refaire cette page.
                   </div>
                 </div>
-
-                <ul style={{ margin: "12px 0 0 0", paddingLeft: 18, opacity: 0.92, lineHeight: 1.5 }}>
-                  {p.features.slice(0, 6).map((f) => (
-                    <li key={f}>{f}</li>
-                  ))}
-                </ul>
-
-                {p.limits?.length ? (
-                  <details style={{ marginTop: 10, opacity: 0.85 }}>
-                    <summary style={{ cursor: "pointer" }}>Limites</summary>
-                    <ul style={{ margin: "8px 0 0 0", paddingLeft: 18 }}>
-                      {p.limits.map((l) => (
-                        <li key={l}>{l}</li>
-                      ))}
-                    </ul>
-                  </details>
-                ) : null}
-
-                <div style={{ marginTop: 14 }}>
+                <div className="flex gap-2">
                   <a
-                    href={p.ctaHref}
-                    style={{
-                      display: "inline-block",
-                      padding: "10px 12px",
-                      borderRadius: 12,
-                      textDecoration: "none",
-                      background: p.highlight ? "rgba(59,130,246,0.95)" : "rgba(255,255,255,0.10)",
-                      border: "1px solid rgba(255,255,255,0.12)",
-                      color: "white",
-                      fontWeight: 600,
-                    }}
+                    className="inline-flex items-center justify-center rounded-xl bg-black text-white px-4 py-2 text-sm font-medium"
+                    href="/signup"
                   >
-                    {p.ctaLabel}
+                    Commencer gratuitement
+                  </a>
+                  <a
+                    className="inline-flex items-center justify-center rounded-xl border px-4 py-2 text-sm hover:bg-white"
+                    href="/contact"
+                  >
+                    Parler options / devis
                   </a>
                 </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        {annuals.length ? (
-          <section style={{ marginTop: 22 }}>
-            <h2 style={{ fontSize: 18, margin: "0 0 12px 0", opacity: 0.9 }}>Annuel</h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14 }}>
-              {annuals.map((p) => (
-                <article
-                  key={p.id}
-                  style={{
-                    borderRadius: 16,
-                    padding: 16,
-                    border: "1px solid rgba(255,255,255,0.10)",
-                    background: "rgba(255,255,255,0.04)",
-                  }}
-                >
-                  <strong style={{ fontSize: 16 }}>{p.name}</strong>
-                  <p style={{ margin: "8px 0 0 0", opacity: 0.85 }}>{p.description}</p>
-                  <div style={{ marginTop: 10, fontSize: 18, fontWeight: 700 }}>{formatPrice(p.priceEur)} / an</div>
-                  <ul style={{ margin: "10px 0 0 0", paddingLeft: 18, opacity: 0.92 }}>
-                    {p.features.map((f) => (
-                      <li key={f}>{f}</li>
-                    ))}
-                  </ul>
-                  <div style={{ marginTop: 12 }}>
-                    <a
-                      href={p.ctaHref}
-                      style={{
-                        display: "inline-block",
-                        padding: "10px 12px",
-                        borderRadius: 12,
-                        textDecoration: "none",
-                        background: "rgba(255,255,255,0.10)",
-                        border: "1px solid rgba(255,255,255,0.12)",
-                        color: "white",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {p.ctaLabel}
-                    </a>
-                  </div>
-                </article>
-              ))}
+              </div>
             </div>
-          </section>
-        ) : null}
 
-        {options.length ? (
-          <section style={{ marginTop: 22 }}>
-            <h2 style={{ fontSize: 18, margin: "0 0 12px 0", opacity: 0.9 }}>Options</h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 14 }}>
-              {options.map((p) => (
-                <article
-                  key={p.id}
-                  style={{
-                    borderRadius: 16,
-                    padding: 16,
-                    border: "1px solid rgba(255,255,255,0.10)",
-                    background: "rgba(255,255,255,0.04)",
-                  }}
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
-                    <div>
-                      <strong style={{ fontSize: 16 }}>{p.name}</strong>
-                      <p style={{ margin: "8px 0 0 0", opacity: 0.85 }}>{p.description}</p>
-                    </div>
-                    <div style={{ textAlign: "right" }}>
-                      <div style={{ fontSize: 18, fontWeight: 700 }}>{formatPrice(p.priceEur)}</div>
-                      <div style={{ fontSize: 12, opacity: 0.75 }}>/ mois</div>
-                    </div>
-                  </div>
-
-                  <ul style={{ margin: "10px 0 0 0", paddingLeft: 18, opacity: 0.92 }}>
-                    {p.features.map((f) => (
-                      <li key={f}>{f}</li>
-                    ))}
-                  </ul>
-
-                  <div style={{ marginTop: 12 }}>
-                    <a
-                      href={p.ctaHref}
-                      style={{
-                        display: "inline-block",
-                        padding: "10px 12px",
-                        borderRadius: 12,
-                        textDecoration: "none",
-                        background: "rgba(255,255,255,0.10)",
-                        border: "1px solid rgba(255,255,255,0.12)",
-                        color: "white",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {p.ctaLabel}
-                    </a>
-                  </div>
-                </article>
-              ))}
+            <div className="text-xs text-neutral-500">
+              Prix affichés en EUR. Exemple: Annuel = total sur 12 mois (remise incluse). Ajuste les montants dans
+              <code className="mx-1">src/data/pricing.ts</code>.
             </div>
-          </section>
-        ) : null}
-
-        <section id="contact" style={{ marginTop: 26, paddingTop: 10 }}>
-          <h2 style={{ fontSize: 18, margin: "0 0 10px 0", opacity: 0.9 }}>Activer un abonnement</h2>
-          <p style={{ opacity: 0.85, lineHeight: 1.5 }}>
-            Paiement Stripe/PayPal branchable ensuite. Pour l’instant, ce bouton peut ouvrir un canal de contact.
-          </p>
-
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 10 }}>
-            <a
-              href="/contact"
-              style={{
-                display: "inline-block",
-                padding: "10px 12px",
-                borderRadius: 12,
-                textDecoration: "none",
-                background: "rgba(59,130,246,0.95)",
-                border: "1px solid rgba(255,255,255,0.12)",
-                color: "white",
-                fontWeight: 700,
-              }}
-            >
-              Contacter
-            </a>
-            <a
-              href="/"
-              style={{
-                display: "inline-block",
-                padding: "10px 12px",
-                borderRadius: 12,
-                textDecoration: "none",
-                background: "rgba(255,255,255,0.10)",
-                border: "1px solid rgba(255,255,255,0.12)",
-                color: "white",
-                fontWeight: 600,
-              }}
-            >
-              Retour accueil
-            </a>
           </div>
-        </section>
-      </main>
+        </div>
+      </div>
     </>
   );
 }
