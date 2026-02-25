@@ -1,21 +1,21 @@
 import { buildEtag, shouldReturnNotModified, storeInCache } from './cache';
-import { withCors } from './cors';
 import {
   applySimpleRateLimit,
   getAggregateFingerprint,
   getImportJobById,
   getImportJobs,
   getImportRowsByJobId,
-  getLatestSubscriptions,
   getPriceAggregates,
   getProduct,
   getRecentObservations,
+  getLatestSubscriptions,
   getSubscriptionByUserId,
   insertObservationAndRefreshAggregate,
   recordWebhookEventIfNew,
-  upsertProduct,
   upsertSubscriptionByPayPalId,
+  upsertProduct,
 } from './db';
+import { withCors } from './cors';
 import { queueCsvImport } from './importCsv';
 import { verifyPayPalWebhookSignature, type PayPalWebhookEvent } from './paypal';
 import { mapPayPalEventTypeToSubscriptionStatus, mapPayPalPlanIdToInternalPlan } from './subscriptionPlans';
@@ -79,109 +79,18 @@ function toObservationView(observation: PriceObservationRecord) {
 }
 
 function computeStatus(hasAggregates: boolean, hasProduct = false): PriceStatus {
-  if (hasAggregates) return 'OK';
-  if (hasProduct) return 'PARTIAL';
+  if (hasAggregates) {
+    return 'OK';
+  }
+  if (hasProduct) {
+    return 'PARTIAL';
+  }
   return 'NO_DATA';
 }
 
 function assertSubscriptionLookupToken(request: Request, adminToken: string): boolean {
   const token = request.headers.get('X-Admin-Token');
   return Boolean(token && token === adminToken);
-}
-
-function hasMissingPayPalSignatureHeaders(request: Request): boolean {
-  const requiredHeaders = [
-    'paypal-transmission-id',
-    'paypal-transmission-time',
-    'paypal-cert-url',
-    'paypal-auth-algo',
-    'paypal-transmission-sig',
-  ];
-  return requiredHeaders.some((headerName) => !request.headers.get(headerName));
-}
-
-const UNKNOWN_USER_ID = '__unknown__';
-const UNKNOWN_PLAN_CODE = 'UNKNOWN';
-
-function getPaypalSubscriptionId(event: PayPalWebhookEvent): string | null {
-  const candidateIds = [event.resource?.id, event.resource?.billing_agreement_id, event.resource?.subscription_id];
-
-  return (
-    candidateIds.find(
-      (candidate): candidate is string => typeof candidate === 'string' && candidate.startsWith('I-'),
-    ) ?? null
-  );
-}
-
-function getPayerId(event: PayPalWebhookEvent): string | null {
-  const payerId = event.resource?.subscriber?.payer_id ?? event.resource?.payer?.payer_id ?? null;
-  return typeof payerId === 'string' && payerId.length > 0 ? payerId : null;
-}
-
-function getPayerEmail(event: PayPalWebhookEvent): string | null {
-  const email = event.resource?.subscriber?.email_address ?? event.resource?.payer?.email_address ?? null;
-  return typeof email === 'string' && email.length > 0 ? email : null;
-}
-
-/**
- * Sync minimal subscription info into D1.
- * - Safe to call multiple times (idempotent via ON CONFLICT in db.ts).
- * - Can be called even when webhook is unverified (resync-first flow).
- */
-async function syncPaypalSubscriptionEvent(db: D1Database, event: PayPalWebhookEvent): Promise<void> {
-  const subscriptionId = getPaypalSubscriptionId(event);
-
-  if (!subscriptionId) {
-    console.warn('paypal_webhook_ignored', {
-      eventId: event.id ?? 'unknown',
-      eventType: event.event_type ?? 'unknown',
-      reason: 'missing_paypal_subscription_id',
-      resourceType: event.resource_type ?? 'unknown',
-    });
-    return;
-  }
-
-  const mappedStatus = mapPayPalEventTypeToSubscriptionStatus(event.event_type);
-  if (!mappedStatus) {
-    console.log('paypal_webhook_ignored', {
-      eventId: event.id ?? 'unknown',
-      eventType: event.event_type ?? 'unknown',
-      reason: 'unsupported_event_type_for_sync',
-      paypalSubscriptionId: subscriptionId,
-      resourceType: event.resource_type ?? 'unknown',
-    });
-    return;
-  }
-
-  const userId =
-    (typeof event.resource?.custom_id === 'string' && event.resource.custom_id.length > 0
-      ? event.resource.custom_id
-      : null) ?? UNKNOWN_USER_ID;
-
-  const plan =
-    (typeof event.resource?.plan_id === 'string' && event.resource.plan_id.length > 0
-      ? mapPayPalPlanIdToInternalPlan(event.resource.plan_id)
-      : null) ?? UNKNOWN_PLAN_CODE;
-
-  const payerId = getPayerId(event);
-  const email = getPayerEmail(event);
-
-  await upsertSubscriptionByPayPalId(db, {
-    userId,
-    plan,
-    status: mappedStatus,
-    paypalSubscriptionId: subscriptionId,
-    payerId: payerId ?? undefined,
-    email: email ?? undefined,
-  });
-
-  console.log('paypal_subscription_synced', {
-    eventId: event.id ?? 'unknown',
-    eventType: event.event_type,
-    resourceType: event.resource_type ?? 'unknown',
-    paypalSubscriptionId: subscriptionId,
-    status: mappedStatus,
-  });
 }
 
 export async function handleRequest(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -193,85 +102,29 @@ export async function handleRequest(request: Request, env: Env, ctx: ExecutionCo
   }
 
   try {
-    if (request.method === 'GET' && url.pathname === '/health') {
-      return withCors(
-        json({
-          ok: true,
-          service: 'paypal-webhook',
-          paypal_env: env.PAYPAL_ENV,
-          now: new Date().toISOString(),
-          has_db: Boolean(env.PRICE_DB),
-        }),
-        origin,
-        env,
-      );
-    }
-
-    // --- PAYPAL WEBHOOK ---
     if (request.method === 'POST' && url.pathname === '/v1/webhooks/paypal') {
       const bodyText = await request.text();
       let event: PayPalWebhookEvent;
-
       try {
         event = JSON.parse(bodyText) as PayPalWebhookEvent;
       } catch {
         console.warn('paypal_webhook_ignored', { reason: 'invalid_json' });
-        // 400 ici est OK (payload invalide), mais si tu veux éviter les retries: renvoyer 200.
         return withCors(json({ error: 'invalid_json' }, 400), origin, env);
       }
 
       const eventId = event.id ?? 'unknown';
       const eventType = event.event_type ?? 'unknown';
 
-      // Identité obligatoire (mais on garde 200 pour éviter une tempête de retries sur payload bancal)
       if (!event.id || !event.event_type) {
         console.warn('paypal_webhook_ignored', { eventId, eventType, reason: 'missing_event_identity' });
         return withCors(json({ status: 'ignored', reason: 'missing_event_identity' }, 200), origin, env);
       }
 
-      // Idempotence globale: on enregistre l’event dans webhook_events (INSERT OR IGNORE)
-      const isNewEvent = await recordWebhookEventIfNew(env.PRICE_DB, {
-        eventId: event.id,
-        eventType: event.event_type,
-        createTime: event.create_time,
-        rawJson: bodyText,
-      });
-
-      // Duplicate: on resynchronise l’état subscription (safe), puis on sort (ne traite pas 2 fois)
-      if (!isNewEvent) {
-        await syncPaypalSubscriptionEvent(env.PRICE_DB, event);
-        console.log('paypal_webhook_duplicate_resynced', {
-          eventId,
-          eventType,
-          paypalSubscriptionId: getPaypalSubscriptionId(event) ?? 'unknown',
-        });
-        return withCors(json({ status: 'ignored', reason: 'duplicate_event' }, 200), origin, env);
-      }
-
-      // Resync-first flow: si headers signature absents (souvent en sandbox / simulateur), on ne bloque pas
-      if (hasMissingPayPalSignatureHeaders(request)) {
-        await syncPaypalSubscriptionEvent(env.PRICE_DB, event);
-        console.warn('paypal_webhook_processed_unverified', {
-          eventId,
-          eventType,
-          reason: 'missing_signature_headers',
-        });
-        return withCors(
-          json({ status: 'processed', verified: false, reason: 'missing_signature_headers' }, 200),
-          origin,
-          env,
-        );
-      }
-
-      // Signature présente -> on vérifie
       const isVerified = await verifyPayPalWebhookSignature(request, env, event);
       if (!isVerified) {
         console.warn('paypal_webhook_rejected', { eventId, eventType, reason: 'invalid_signature' });
         return withCors(json({ error: 'invalid_signature' }, 401), origin, env);
       }
-
-      // Verified -> sync + logs métier
-      await syncPaypalSubscriptionEvent(env.PRICE_DB, event);
 
       const status = mapPayPalEventTypeToSubscriptionStatus(event.event_type);
       if (!status) {
@@ -279,25 +132,44 @@ export async function handleRequest(request: Request, env: Env, ctx: ExecutionCo
         return withCors(json({ status: 'ignored', reason: 'unsupported_event_type' }, 200), origin, env);
       }
 
-      const subscriptionId = getPaypalSubscriptionId(event);
+      const isNewEvent = await recordWebhookEventIfNew(env.PRICE_DB, {
+        eventId: event.id,
+        eventType: event.event_type,
+        createTime: event.create_time,
+        rawJson: bodyText,
+      });
+
+      if (!isNewEvent) {
+        console.log('paypal_webhook_ignored', { eventId, eventType, reason: 'duplicate_event' });
+        return withCors(json({ status: 'ignored', reason: 'duplicate_event' }, 200), origin, env);
+      }
+
+      const userId = event.resource?.custom_id;
+      if (!userId) {
+        console.warn('paypal_webhook_ignored', { eventId, eventType, reason: 'missing_custom_id' });
+        return withCors(json({ status: 'ignored', reason: 'missing_custom_id' }, 200), origin, env);
+      }
+
+      const subscriptionId = event.resource?.id;
       if (!subscriptionId) {
         console.warn('paypal_webhook_ignored', { eventId, eventType, reason: 'missing_subscription_id' });
         return withCors(json({ status: 'ignored', reason: 'missing_subscription_id' }, 200), origin, env);
       }
 
-      console.log('paypal_webhook_processed', {
-        eventId,
-        eventType,
-        verified: true,
+      await upsertSubscriptionByPayPalId(env.PRICE_DB, {
+        userId,
+        plan: mapPayPalPlanIdToInternalPlan(event.resource?.plan_id),
         status,
-        userId: (event.resource?.custom_id as string | undefined) ?? UNKNOWN_USER_ID,
-        subscriptionId,
+        paypalSubscriptionId: subscriptionId,
+        payerId: event.resource?.subscriber?.payer_id,
+        email: event.resource?.subscriber?.email_address,
       });
 
-      return withCors(json({ status: 'processed', verified: true }, 200), origin, env);
+      console.log('paypal_webhook_processed', { eventId, eventType, status, userId, subscriptionId });
+
+      return withCors(json({ status: 'processed' }, 200), origin, env);
     }
 
-    // --- SUBSCRIPTION LOOKUP (ADMIN) ---
     if (request.method === 'GET' && url.pathname === '/v1/me/subscription') {
       if (!assertSubscriptionLookupToken(request, env.PRICE_ADMIN_TOKEN)) {
         return withCors(json({ error: 'unauthorized' }, 401), origin, env);
@@ -308,6 +180,7 @@ export async function handleRequest(request: Request, env: Env, ctx: ExecutionCo
         return withCors(json({ error: 'missing_user_id' }, 400), origin, env);
       }
 
+      // TODO: remplacer user_id query param par une authentification utilisateur (JWT/session).
       const subscription = await getSubscriptionByUserId(env.PRICE_DB, userId);
       if (!subscription) {
         return withCors(json({ status: 'FREE' }, 200), origin, env);
@@ -324,15 +197,11 @@ export async function handleRequest(request: Request, env: Env, ctx: ExecutionCo
       );
     }
 
-    // --- PRICES ---
     if (request.method === 'GET' && url.pathname === '/v1/prices') {
       const parsed = getPricesQuerySchema.parse(Object.fromEntries(url.searchParams.entries()));
       const retailer = parsed.retailer ? validateRetailer(parsed.retailer) : undefined;
-
       const fingerprint = await getAggregateFingerprint(env.PRICE_DB, parsed.ean, parsed.territory, retailer);
-      const etag = buildEtag(
-        `${parsed.ean}:${parsed.territory ?? 'all'}:${retailer ?? 'all'}:${fingerprint.maxUpdatedAt ?? 'none'}:${fingerprint.rowCount}`,
-      );
+      const etag = buildEtag(`${parsed.ean}:${parsed.territory ?? 'all'}:${retailer ?? 'all'}:${fingerprint.maxUpdatedAt ?? 'none'}:${fingerprint.rowCount}`);
 
       if (shouldReturnNotModified(request, etag)) {
         return withCors(
@@ -375,11 +244,9 @@ export async function handleRequest(request: Request, env: Env, ctx: ExecutionCo
       return withCors(response, origin, env);
     }
 
-    // --- PRODUCTS ---
     if (request.method === 'GET' && url.pathname.startsWith('/v1/products/')) {
       const ean = decodeURIComponent(url.pathname.replace('/v1/products/', ''));
       const parsed = getProductParamsSchema.parse({ ean });
-
       const [product, aggregates] = await Promise.all([
         getProduct(env.PRICE_DB, parsed.ean),
         getPriceAggregates(env.PRICE_DB, parsed.ean),
@@ -411,7 +278,6 @@ export async function handleRequest(request: Request, env: Env, ctx: ExecutionCo
       );
     }
 
-    // --- ADMIN ---
     if (
       (request.method === 'POST' && url.pathname.startsWith('/v1/admin/')) ||
       (request.method === 'GET' && url.pathname.startsWith('/v1/admin/import/'))
@@ -445,10 +311,7 @@ export async function handleRequest(request: Request, env: Env, ctx: ExecutionCo
 
       if (request.method === 'GET' && /^\/v1\/admin\/import\/jobs\/[^/]+$/.test(url.pathname)) {
         const jobId = decodeURIComponent(url.pathname.replace('/v1/admin/import/jobs/', ''));
-        const [job, rows] = await Promise.all([
-          getImportJobById(env.PRICE_DB, jobId),
-          getImportRowsByJobId(env.PRICE_DB, jobId, 500),
-        ]);
+        const [job, rows] = await Promise.all([getImportJobById(env.PRICE_DB, jobId), getImportRowsByJobId(env.PRICE_DB, jobId, 500)]);
 
         if (!job) {
           return withCors(adminJson({ error: 'not_found' }, 404), origin, env);
@@ -528,6 +391,7 @@ export async function handleRequest(request: Request, env: Env, ctx: ExecutionCo
     if (error instanceof Error) {
       return withCors(adminJson({ error: 'bad_request', message: error.message }, 400), origin, env);
     }
+
     return withCors(adminJson({ error: 'unavailable' }, 503), origin, env);
   }
 }

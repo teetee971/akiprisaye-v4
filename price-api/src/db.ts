@@ -119,10 +119,7 @@ export async function ensureProductExists(
   },
 ): Promise<void> {
   await db
-    .prepare(
-      `INSERT OR IGNORE INTO products (ean, product_name, quantity, updated_at)
-       VALUES (?, NULL, ?, datetime('now'))`,
-    )
+    .prepare(`INSERT OR IGNORE INTO products (ean, product_name, quantity, updated_at) VALUES (?, NULL, ?, datetime('now'))`)
     .bind(input.ean, input.quantity ?? null)
     .run();
 }
@@ -464,9 +461,6 @@ export async function updateReceiptJobCashier(
     .run();
 }
 
-/**
- * Table webhook_events (générique).
- */
 export async function recordWebhookEventIfNew(
   db: D1Database,
   payload: { eventId: string; eventType: string; createTime?: string; rawJson: string },
@@ -480,43 +474,7 @@ export async function recordWebhookEventIfNew(
     .bind(payload.eventId, payload.eventType, payload.createTime ?? null, cappedRawJson)
     .run();
 
-  return Boolean(result?.meta?.changes && result.meta.changes > 0);
-}
-
-/**
- * ✅ FIX: table paypal_webhooks
- * Empêche "UNIQUE constraint failed: paypal_webhooks.id" via INSERT OR IGNORE.
- */
-export async function recordPayPalWebhookIfNew(
-  db: D1Database,
-  payload: {
-    id: string; // event_id PayPal (ou id unique)
-    eventType: string;
-    createTime?: string | null;
-    paypalSubscriptionId?: string | null;
-    payerId?: string | null;
-    rawJson: string;
-  },
-): Promise<boolean> {
-  const cappedRawJson = payload.rawJson.length > 64000 ? payload.rawJson.slice(0, 64000) : payload.rawJson;
-
-  const result = await db
-    .prepare(
-      `INSERT OR IGNORE INTO paypal_webhooks (
-         id, event_type, create_time, paypal_subscription_id, payer_id, raw_json, created_at
-       ) VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
-    )
-    .bind(
-      payload.id,
-      payload.eventType,
-      payload.createTime ?? null,
-      payload.paypalSubscriptionId ?? null,
-      payload.payerId ?? null,
-      cappedRawJson,
-    )
-    .run();
-
-  return Boolean(result?.meta?.changes && result.meta.changes > 0);
+  return Boolean(result.meta.changes && result.meta.changes > 0);
 }
 
 export async function upsertSubscriptionByPayPalId(db: D1Database, payload: SubscriptionUpsertPayload): Promise<void> {
