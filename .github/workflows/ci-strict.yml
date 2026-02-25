@@ -53,9 +53,9 @@ jobs:
         shell: bash
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            ./scripts/audit-repo.sh --warn-only
+            bash ./scripts/audit-repo.sh --warn-only
           else
-            ./scripts/audit-repo.sh --strict
+            bash ./scripts/audit-repo.sh --strict
           fi
 
       - name: TypeScript strict check
