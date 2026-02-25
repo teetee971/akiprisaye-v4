@@ -18,7 +18,7 @@
     "test:ci": "vitest run --config vitest.config.ts",
     "audit": "npm audit --omit=dev --audit-level=high",
     "audit:ci": "npm audit --omit=dev --audit-level=high",
-    "postbuild": "cp -f public/_redirects dist/_redirects 2>/dev/null || true"
+    "postbuild": "node -e \"const fs=require('fs');fs.mkdirSync('dist',{recursive:true});fs.copyFileSync('public/_redirects','dist/_redirects');\""
   },
   "dependencies": {
     "@capacitor/core": "^8.1.0",
