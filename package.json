@@ -13,7 +13,7 @@
     "build:frontend": "cd frontend && npm ci --include=dev && npm run build",
     "install:frontend": "cd frontend && npm ci --include=dev",
     "lint": "cd frontend && npm run lint",
-    "lint:ci": "eslint \"{src,price-api/src,frontend/src}/**/*.{js,jsx,ts,tsx}\" --max-warnings=0"
+    "lint:ci": "eslint \"src/**/*.{js,jsx,ts,tsx}\" \"frontend/src/**/*.{js,jsx,ts,tsx}\" \"price-api/src/**/*.{js,jsx,ts,tsx}\" --max-warnings=0"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.56.1",
