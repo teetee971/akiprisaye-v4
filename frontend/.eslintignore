@@ -1,9 +1,0 @@
-dist/
-build/
-coverage/
-node_modules/
-src_old/
-src.bak.*
-**/*.bak
-**/*.bak.*
-**/*.old
