@@ -63,6 +63,9 @@ jobs:
         run: npm run typecheck:ci
         continue-on-error: ${{ github.event_name == 'pull_request' }}
 
+      - name: Install root dependencies
+        run: npm ci || npm install
+
       - name: ESLint strict check (max-warnings=0)
         working-directory: frontend
         run: npm run lint:ci
