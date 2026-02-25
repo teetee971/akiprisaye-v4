@@ -9,6 +9,7 @@
     "build": "vite build",
     "dev": "cd frontend && npm run dev",
     "preview": "cd frontend && npm run preview",
+    "typecheck": "cd frontend && npm run -s typecheck",
     "build:frontend": "cd frontend && npm ci --include=dev && npm run build",
     "install:frontend": "cd frontend && npm ci --include=dev",
     "lint": "cd frontend && npm run lint"
