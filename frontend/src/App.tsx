@@ -222,8 +222,6 @@ export default function App() {
                   <Suspense fallback={<LoadingFallback />}>
                     <Routes>
 
-                    <Route path="/offres" element={<Pricing />} />
-                    <Route path="/pricing" element={<Pricing />} />
                       {/* Admin routes with dedicated layout */}
                       <Route path="/admin" element={<AdminLayout />}>
                         <Route index element={<AdminDashboardNew />} />
