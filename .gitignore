@@ -178,3 +178,4 @@ MERGE_RESOLUTION_SUMMARY.md
 push-rebased-branch.sh
 *.bak.*
 frontend/dist/
+*.orig
