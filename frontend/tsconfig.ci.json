@@ -11,10 +11,9 @@
     "allowJs": true,
     "checkJs": false,
 
-    "types": ["node", "vite/client"]
+    "types": ["node"]
   },
   "include": [
-    "src/main.tsx",
-    "src/App.tsx"
+    "src/ci-entry.ts"
   ]
 }
