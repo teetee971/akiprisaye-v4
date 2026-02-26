@@ -1,10 +1,10 @@
 - name: Deploy to Cloudflare Pages (best-effort)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        continue-on-error: true
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: ${{ env.CLOUDFLARE_PROJECT_NAME }}
-          directory: frontend/dist
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+  if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  continue-on-error: true
+  uses: cloudflare/pages-action@v1
+  with:
+    apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    projectName: ${{ vars.CLOUDFLARE_PROJECT_NAME }}
+    directory: frontend/dist
+    gitHubToken: ${{ secrets.GITHUB_TOKEN }}
