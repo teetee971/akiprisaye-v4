@@ -6,7 +6,7 @@ import { getShoppingListCount } from '../../store/useShoppingListStore';
 const links = [
   { to: '/search', label: 'Recherche' },
   { to: '/scanner', label: 'Scan' },
-  { to: '/offres', label: 'Offres' },
+  { to: '/pricing', label: 'Offres' },
   { to: '/liste', label: 'Liste' },
   { to: '/observatoire', label: 'Observatoire' },
   { to: '/actualites', label: 'Actualités' },
