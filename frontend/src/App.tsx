@@ -55,6 +55,9 @@ const Comparateurs = lazyPage(() => import('./pages/Comparateurs'));
 const CarteItinerairesHub = lazyPage(() => import('./pages/CarteItinerairesHub'));
 const ComparateurCitoyen = lazyPage(() => import('./pages/ComparateurCitoyen'));
 const LutteVieChere = lazyPage(() => import('./pages/LutteVieChereIndexPage'));
+const SolidariteHub = lazyPage(() => import('./pages/SolidariteHub'));
+const InscriptionPro = lazyPage(() => import('./pages/InscriptionPro'));
+const EspacePro = lazyPage(() => import('./pages/EspacePro'));
 
 // Scanner & OCR pages
 const ScannerHub = lazyPage(() => import('./pages/ScannerHub'));
@@ -296,6 +299,13 @@ export default function App() {
                           <Route path="actualites" element={<Actualites />} />
                           <Route path="mentions-legales" element={<MentionsLegales />} />
                           <Route path="privacy" element={<Transparence />} />
+
+                          {/* Solidarité & Entraide */}
+                          <Route path="solidarite" element={<SolidariteHub />} />
+
+                          {/* Espace Professionnel */}
+                          <Route path="inscription-pro" element={<InscriptionPro />} />
+                          <Route path="espace-pro" element={<EspacePro />} />
 
                           {/* Additional feature routes */}
                           <Route path="donnees-publiques" element={<DonneesPubliques />} />
