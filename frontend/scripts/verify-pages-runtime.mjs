@@ -92,6 +92,9 @@ async function run() {
     await assertOk(`${BASE_PATH}service-worker.js`);
 
     const notFoundCheck = await fetch(`http://${HOST}:${PORT}/assets/does-not-exist.js`, { cache: 'no-store' });
+    if (notFoundCheck.status !== 404) {
+      throw new Error(`/assets/does-not-exist.js returned HTTP ${notFoundCheck.status}, expected 404 (root /assets paths are being served).`);
+    } else {
     if (notFoundCheck.status === 404) {
       console.log('[verify-pages-runtime] OK: root /assets paths are not served accidentally.');
     }
