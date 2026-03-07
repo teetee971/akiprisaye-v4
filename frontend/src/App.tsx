@@ -148,6 +148,14 @@ const ObservatoryMethodology = lazyPage(() => import('./pages/ObservatoryMethodo
 const DelaisTensionsLogistiques = lazyPage(() => import('./pages/recherche-prix/DelaisTensionsLogistiques'));
 const IndiceLogistique = lazyPage(() => import('./pages/recherche-prix/IndiceLogistique'));
 const PourquoiDelaisProduit = lazyPage(() => import('./pages/recherche-prix/PourquoiDelaisProduit'));
+const RechercheAvions = lazyPage(() => import('./pages/recherche-prix/Avions'));
+const RechercheBateaux = lazyPage(() => import('./pages/recherche-prix/Bateaux'));
+const RechercheEau = lazyPage(() => import('./pages/recherche-prix/Eau'));
+const RechercheElectricite = lazyPage(() => import('./pages/recherche-prix/Electricite'));
+const RechercheFret = lazyPage(() => import('./pages/recherche-prix/Fret'));
+const RechercheFretAerien = lazyPage(() => import('./pages/recherche-prix/FretAerien'));
+const RechercheAbonnementsInternet = lazyPage(() => import('./pages/recherche-prix/AbonnementsInternet'));
+const RechercheAbonnementsMobile = lazyPage(() => import('./pages/recherche-prix/AbonnementsMobile'));
 
 // Ressources pages
 const QuestionsLogistiqueDOM = lazyPage(() => import('./pages/ressources/QuestionsLogistiqueDOM'));
@@ -183,6 +191,9 @@ const BudgetVital = lazyPage(() => import('./pages/BudgetVital'));
 const IEVRPage = lazyPage(() => import('./pages/IEVR'));
 const Versions = lazyPage(() => import('./pages/Versions'));
 const ScanOCR = lazyPage(() => import('./pages/ScanOCR'));
+
+// Messagerie interne
+const Messagerie = lazyPage(() => import('./pages/Messagerie'));
 
 /**
  * IMPORTANT — NE PAS SUPPRIMER
@@ -460,6 +471,14 @@ export default function App() {
                           <Route path="recherche-prix/delais-logistiques" element={<DelaisTensionsLogistiques />} />
                           <Route path="recherche-prix/indice-logistique" element={<IndiceLogistique />} />
                           <Route path="recherche-prix/pourquoi-delais-produit" element={<PourquoiDelaisProduit />} />
+                          <Route path="recherche-prix/avions" element={<RechercheAvions />} />
+                          <Route path="recherche-prix/bateaux" element={<RechercheBateaux />} />
+                          <Route path="recherche-prix/eau" element={<RechercheEau />} />
+                          <Route path="recherche-prix/electricite" element={<RechercheElectricite />} />
+                          <Route path="recherche-prix/fret" element={<RechercheFret />} />
+                          <Route path="recherche-prix/fret-aerien" element={<RechercheFretAerien />} />
+                          <Route path="recherche-prix/abonnements-internet" element={<RechercheAbonnementsInternet />} />
+                          <Route path="recherche-prix/abonnements-mobile" element={<RechercheAbonnementsMobile />} />
 
                           {/* Ressources pédagogiques */}
                           <Route path="ressources/questions-logistique-dom" element={<QuestionsLogistiqueDOM />} />
@@ -495,6 +514,9 @@ export default function App() {
                           <Route path="budget-vital" element={<BudgetVital />} />
                           <Route path="ievr" element={<IEVRPage />} />
                           <Route path="versions" element={<Versions />} />
+
+                          {/* Messagerie interne */}
+                          <Route path="messagerie" element={<Messagerie />} />
 
                           {/* Catch-all route - redirect to home */}
                           <Route path="*" element={<Navigate to="/" replace />} />
