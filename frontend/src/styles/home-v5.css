@@ -1522,6 +1522,9 @@
 .price-chart-section {
   padding: 4rem 2rem;
   background: linear-gradient(180deg, rgba(15,23,42,0) 0%, rgba(15,23,42,0.6) 100%);
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .price-chart-header {
@@ -1652,6 +1655,9 @@
 
 .news-feed-section {
   padding: 4rem 2rem;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .news-feed-header {
@@ -1677,14 +1683,36 @@
   background: rgba(30, 41, 59, 0.65);
   border: 1px solid rgba(148, 163, 184, 0.1);
   border-radius: 14px;
-  padding: 1.25rem;
+  overflow: hidden;
   transition: transform 0.25s ease, border-color 0.25s ease;
   backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
 }
 
 .news-card:hover {
   transform: translateY(-3px);
   border-color: rgba(59, 130, 246, 0.3);
+}
+
+.news-card-image {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+  flex-shrink: 0;
+}
+
+.news-card-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.news-card-footer {
+  margin-top: auto;
+  padding-top: 0.5rem;
 }
 
 .news-card-top {
@@ -1787,6 +1815,9 @@
 .price-evo-section {
   padding: 4rem 2rem;
   background: linear-gradient(180deg, rgba(15,23,42,0.3) 0%, rgba(15,23,42,0) 100%);
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .price-evo-header {
@@ -1851,6 +1882,27 @@
   }
 }
 
+@media (max-width: 479px) {
+  .price-evo-section {
+    padding: 2.5rem 0.5rem;
+  }
+  .price-evo-wrap {
+    padding: 0.75rem 0.5rem;
+  }
+  .price-chart-section {
+    padding: 2.5rem 0.5rem;
+  }
+  .price-chart-wrap {
+    padding: 0.75rem 0.5rem;
+  }
+  .news-feed-section {
+    padding: 2.5rem 0.75rem;
+  }
+  .choc-section {
+    padding: 2.5rem 0.75rem;
+  }
+}
+
 /* ============================================================
    PANIER VITAL WIDGET — Indice minutes de SMIC
    ============================================================ */
@@ -1859,6 +1911,10 @@
   padding: 4rem 1.5rem;
   max-width: 900px;
   margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: visible;
 }
 
 .panier-vital-header {
@@ -1930,6 +1986,7 @@
 .pvc-header {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
 }
@@ -2070,6 +2127,25 @@
   }
 }
 
+@media (max-width: 479px) {
+  .panier-vital-section {
+    padding: 2.5rem 0.75rem;
+  }
+
+  .panier-vital-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .pvc-price-value {
+    font-size: 1.4rem;
+  }
+
+  .pvc-minutes-value {
+    font-size: 1.8rem;
+  }
+}
+
 /* =====================================================================
    INFLATION BAROMETER WIDGET
    ===================================================================== */
@@ -2078,6 +2154,10 @@
   padding: 4rem 2rem;
   max-width: 900px;
   margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: visible;
 }
 
 .ibw-header {
@@ -2281,12 +2361,26 @@
   }
 }
 
+@media (max-width: 479px) {
+  .ibw-section {
+    padding: 2.5rem 0.75rem;
+  }
+
+  .ibw-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
 /* ========================================================
    ProduitChocWidget — Chocs de Prix DOM
    ======================================================== */
 
 .choc-section {
   padding: 4rem 2rem;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .choc-header {
@@ -2486,6 +2580,12 @@
 
 .equite-section {
   padding: 4rem 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: visible;
 }
 
 .equite-header {
@@ -2680,6 +2780,17 @@
 
   .equite-score {
     font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 479px) {
+  .equite-section {
+    padding: 2.5rem 0.75rem;
+  }
+
+  .equite-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
   }
 }
 
