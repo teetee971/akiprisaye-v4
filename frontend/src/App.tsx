@@ -197,6 +197,8 @@ const ScanOCR = lazyPage(() => import('./pages/ScanOCR'));
 // Messagerie interne
 const Messagerie = lazyPage(() => import('./pages/Messagerie'));
 
+// Groupes de Parole Citoyens
+const GroupesParole = lazyPage(() => import('./pages/GroupesParole'));
 // Marketplace Enseignes
 const MerchantOnboarding = lazyPage(() => import('./pages/marketplace/MerchantOnboarding'));
 const MerchantDashboard = lazyPage(() => import('./pages/marketplace/MerchantDashboard'));
@@ -528,6 +530,9 @@ export default function App() {
                           {/* Messagerie interne */}
                           <Route path="messagerie" element={<Messagerie />} />
 
+                          {/* Groupes de Parole Citoyens */}
+                          <Route path="groupes-parole" element={<GroupesParole />} />
+                          <Route path="groupes-parole/:groupId" element={<GroupesParole />} />
                           {/* Marketplace Enseignes */}
                           <Route path="marketplace/inscription" element={<MerchantOnboarding />} />
                           <Route path="marketplace/dashboard" element={<MerchantDashboard />} />
