@@ -3,6 +3,41 @@ Tous les changements notables de ce projet seront documentés dans ce fichier.
 
 Le format s'inspire de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et ce projet adhère à la [sémantique de versionnage](https://semver.org/lang/fr/).
 
+## [3.1.9] - 2026-03-09
+
+### Fixed — FuelComparator : horodatage réel de la donnée
+
+- **`services/fuelComparisonService.ts`** — Nouveau type exporté `LiveFuelPricesResult { prices, fetchedAt }`.
+  `fetchLiveFuelPrices()` retourne désormais `fetchedAt` (ISO 8601) issu de la réponse du proxy Cloudflare
+  (champ `fetchedAt` déjà présent dans le payload de `functions/api/fuel-prices.ts`).
+
+- **`pages/FuelComparator.tsx`** — Supprime l'affichage de `new Date()` (date du navigateur, jamais fraîche)
+  dans le badge hero et la citation source. Affiche à la place la date+heure réelle de l'appel API gouvernemental :
+  `🔄 Mis à jour le 9 mars 2026 à 17:30`. Fallback sur la date locale si la donnée live n'est pas encore chargée.
+
+### Fixed — Erreurs console DevTools (CORB, crossorigin, accessibilité)
+
+- **`components/home/StoreRankingWidget.tsx`** — Ajout de `crossOrigin="anonymous"` sur l'`<img>` Unsplash.
+  Corrige le blocage CORB : le `<link rel="preconnect" crossorigin>` de `index.html` établit une connexion
+  CORS vers Unsplash, et l'absence du flag correspondant sur l'`<img>` créait un mismatch de credentials.
+
+- **`components/ui/HeroImage.tsx`** — Ajout conditionnel de `crossOrigin="anonymous"` sur l'`<img>` fallback
+  dans `<picture>` pour toutes les URLs `images.unsplash.com`, assurant la cohérence CORS.
+
+- **`components/home/HeroSearch.tsx`** — URL `HERO_IMG` mise à jour avec `fm=webp` inclus directement,
+  évitant que `toWebP()` génère une URL différente (paramètre en fin au lieu du milieu) de celle utilisée
+  dans `StoreRankingWidget` pour le même cliché.
+
+- **`pages/FuelComparator.tsx`** — Ajout de `id`, `name` et `htmlFor` sur les 4 contrôles de formulaire
+  (sélecteur territoire, sélecteur carburant × 2, filtre ville). Corrige 3 avertissements
+  « A form field element should have an id or name attribute » dans le panneau Problèmes DevTools.
+
+- **`pages/Comparateur.jsx`** — Ajout de `id`/`name` sur l'`<input>` recherche (`comp-query`) et
+  le `<select>` de tri (`comp-sort`) + conversion de la `<label>` inline en `htmlFor` pour la
+  liaison label/contrôle. Supprime les 2 avertissements d'accessibilité restants de la page comparateur.
+
+---
+
 ## [3.1.8] - 2026-03-09
 
 ### Added — Octroi de Mer : enquête + conférence institutionnelle
