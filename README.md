@@ -565,6 +565,7 @@ Rollback possible
 Validation rapide en production (ne pas tester `/_redirects`, ce fichier est parsé par Pages et non servi tel quel) :
 
 ```bash
+bash scripts/validate-deployment.sh
 curl -I https://akiprisaye-web.pages.dev/
 curl -I https://akiprisaye-web.pages.dev/login
 curl -I https://akiprisaye-web.pages.dev/mon-compte
@@ -572,6 +573,7 @@ curl -I https://akiprisaye-web.pages.dev/reset-password
 curl -I https://akiprisaye-web.pages.dev/inscription
 ```
 
+Le script `scripts/validate-deployment.sh` vérifie aussi que les assets réellement référencés par le HTML public existent bien sur le site déployé.
 Toutes ces routes doivent répondre `HTTP 200` et charger l'application SPA.
 
 ---
@@ -1096,6 +1098,25 @@ VITE_ADMIN_EMAILS=
 ```
 
 Sur Cloudflare Pages, définir les mêmes variables dans **Settings > Environment variables** pour les environnements **Production** et **Preview**.
+
+### 1 bis) Cloudflare Browser Rendering (crawl beta)
+
+Pour activer le proxy `POST/GET /api/browser-rendering/crawl`, créer un **Custom API Token** Cloudflare avec la permission exacte :
+
+- **Compte → Browser Rendering → Modifier / Edit**
+
+Restreindre ensuite le token au **compte Cloudflare** utilisé par le projet. Aucune permission **Zone**, **DNS**, **Workers** ou **Pages** n'est nécessaire pour cet endpoint.
+
+Configurer ensuite ces variables côté Cloudflare Pages :
+
+```bash
+CLOUDFLARE_BROWSER_RENDERING_API_TOKEN=<token Cloudflare>
+CLOUDFLARE_ACCOUNT_ID=<account id>
+BROWSER_RENDERING_SHARED_SECRET=<secret applicatif défini manuellement>
+```
+
+> `CLOUDFLARE_BROWSER_RENDERING_API_TOKEN` = jeton API Cloudflare  
+> `BROWSER_RENDERING_SHARED_SECRET` = secret interne de l'application, à inventer vous-même (ce n'est pas une permission Cloudflare)
 
 ### 2) Firebase Console (Authentication)
 
