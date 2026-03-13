@@ -282,7 +282,7 @@ Engagement et fidélisation des contributeurs :
   - Analyse de stabilité des prix (exclusion des promotions ponctuelles)
   - Calculs transparents et auditables
   - Analyse indépendante par territoire (971, 972, 973, 974)
-  - [Méthodologie complète](backend/docs/ANTICRISIS_METHODOLOGY.md)
+  - [Méthodologie Anti-Crise](docs/ANTICRISIS_METHODOLOGY.md)
 
 ### 📷 Scanner intelligent
 
@@ -783,8 +783,6 @@ c'est un **outil citoyen, économique et stratégique**, pensé pour **durer et 
 - **Aucune affirmation médicale** : Respect strict des réglementations
 - **Aucune donnée fictive** : 100% de données publiques vérifiables
 
-📘 Voir [COSMETIQUE_EVALUATION_MODULE.md](./COSMETIQUE_EVALUATION_MODULE.md) pour la documentation complète.
-
 **Accès** : `/evaluation-cosmetique`
 
 **Tests** : 35 tests unitaires ✅
@@ -979,9 +977,8 @@ Le pipeline CI/CD garantit des déploiements robustes et sans régression:
 
 ### Documentation
 
-- 📖 [CI/CD Documentation Complète](./CI_CD_DOCUMENTATION.md)
-- 🔄 [Procédures de Rollback](./ROLLBACK_PROCEDURES.md)
-- 🆘 [Guide de Dépannage](./CI_CD_TROUBLESHOOTING.md)
+- 📘 [Runbook de déploiement & rollback](docs/deployment.md)
+- 📖 [CI/CD Logs](https://github.com/teetee971/akiprisaye-web/actions)
 
 ### Monitoring
 
@@ -1035,23 +1032,11 @@ service cloud.firestore {
 
 Pour en savoir plus sur l'architecture et les fonctionnalités :
 
-### 🧭 Navigation
-- **[NAVIGATION_GUIDE.md](NAVIGATION_GUIDE.md)** - Guide complet de navigation de l'application
-  - Architecture des 7 hubs
-  - Routes Ti-Panier détaillées
-  - Résolution des problèmes de navigation
-  - Routes expérimentales (feature flags)
-
-### 🔍 Audits & Rapports
-- **[AUDIT_NAVIGATION_RAPPORT.md](AUDIT_NAVIGATION_RAPPORT.md)** - Rapport d'audit de navigation (Janvier 2026)
-  - Problèmes identifiés et corrigés
-  - Métriques de performance
-  - Solutions implémentées
-  - Recommandations futures
-
 ### 🏗️ Architecture
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Architecture technique de l'application
-- **[METHODOLOGIE_OFFICIELLE_v2.0.md](METHODOLOGIE_OFFICIELLE_v2.0.md)** - Méthodologie de collecte de données
+- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - Architecture technique de l'application
+
+### 🔒 Sécurité
+- **[docs/security/SECURITY_AUDIT.md](docs/security/SECURITY_AUDIT.md)** - Audit de sécurité des dépendances (0 vulnérabilités, mis à jour 2026-02-07)
 
 ### ⚡ Performance
 - **[MISSION_H_PRELOAD_HINTS.md](docs/performance/MISSION_H_PRELOAD_HINTS.md)** - Documentation complète sur l'optimisation des preload hints
@@ -1060,11 +1045,7 @@ Pour en savoir plus sur l'architecture et les fonctionnalités :
   - Guide de test performance local
   - Comparaison avant/après optimisation
 
-### 📦 Déploiement
-- **[CLOUDFLARE_DEPLOYMENT.md](CLOUDFLARE_DEPLOYMENT.md)** - Guide de déploiement Cloudflare Pages
-- **[DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md)** - Checklist de déploiement
-
-Pour toute question ou problème, consultez d'abord le [NAVIGATION_GUIDE.md](NAVIGATION_GUIDE.md) ou ouvrez une issue GitHub.
+Pour toute question ou problème, ouvrez une issue GitHub.
 
 
 ---
