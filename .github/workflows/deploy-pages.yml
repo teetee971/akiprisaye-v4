@@ -3,11 +3,6 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
-  # Catches merges done by github-actions[bot] (auto-merge via GITHUB_TOKEN),
-  # which do NOT fire the push event. Only deploys on actual merges (merged==true).
-  pull_request:
-    types: [closed]
-    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -21,8 +16,6 @@ concurrency:
 
 jobs:
   build:
-    # Run on push/workflow_dispatch, or when a PR is actually merged (not just closed)
-    if: github.event_name != 'pull_request' || github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -71,11 +64,8 @@ jobs:
 
   deploy:
     needs: build
-    # Only run when build actually succeeded AND the event is not a pull_request.
-    # pull_request events run in refs/pull/*/merge context which GitHub Pages
-    # environment protection rules do not allow; deployment happens instead via
-    # the push event that fires when a PR is merged into main.
-    if: needs.build.result == 'success' && github.event_name != 'pull_request'
+    # Only run when build actually succeeded
+    if: needs.build.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       pages: write
@@ -83,7 +73,39 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+
+  validate:
+    needs: deploy
+    if: needs.deploy.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Wait for CDN propagation
+        run: sleep 30
+
+      - name: Validate live deployment
+        run: |
+          for attempt in 1 2 3; do
+            if node scripts/validate-deployment.mjs "${{ needs.deploy.outputs.page_url }}"; then
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "⏳ Attempt $attempt failed — waiting 30s before retry..."
+              sleep 30
+            fi
+          done
+          exit 1
