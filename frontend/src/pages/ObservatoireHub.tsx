@@ -40,7 +40,7 @@ export default function ObservatoireHub() {
         <link rel="alternate" hrefLang="x-default" href="https://teetee971.github.io/akiprisaye-web/observatoire" />
       </Helmet>
       
-      <div className="min-h-screen bg-slate-950 p-3 sm:p-4 pt-14 sm:pt-16">
+      <div className="min-h-screen bg-slate-950 p-3 sm:p-4 pt-10 sm:pt-12">
         <div className="max-w-7xl mx-auto">
 
           {/* Hero banner */}
@@ -49,7 +49,7 @@ export default function ObservatoireHub() {
               src={HERO_IMG}
               alt="Rayons de supermarché — comparaison des prix DOM-TOM"
               gradient="from-slate-900 to-emerald-950"
-              height="h-36 sm:h-64"
+              height="h-32 sm:h-48"
             >
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white drop-shadow">
                 🔬 Observatoire des Prix — DOM-TOM

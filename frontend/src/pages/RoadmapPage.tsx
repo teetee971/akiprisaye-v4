@@ -758,7 +758,7 @@ export default function RoadmapPage() {
             src={PAGE_HERO_IMAGES.roadmap}
             alt="Roadmap — évolutions prévues de la plateforme"
             gradient="from-slate-950 to-purple-900"
-            height="h-48 sm:h-64"
+            height="h-36 sm:h-48"
           >
             <div className="flex items-center gap-2 mb-2">
               <BarChart3 className="w-5 h-5 text-purple-300 drop-shadow" />
@@ -798,7 +798,7 @@ export default function RoadmapPage() {
           </div>
         </div>
 
-        <div className="max-w-5xl mx-auto px-4 py-6 pb-20">
+        <div className="max-w-5xl mx-auto px-4 py-6 pb-12">
 
           {/* ── ROADMAP ────────────────────────────────────────────────── */}
           {activeTab === 'roadmap' && (

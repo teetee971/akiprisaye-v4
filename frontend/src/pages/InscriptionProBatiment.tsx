@@ -776,7 +776,7 @@ export default function InscriptionProBatiment() {
         <link rel="alternate" hrefLang="fr" href="https://teetee971.github.io/akiprisaye-web/inscription-pro" />
         <link rel="alternate" hrefLang="x-default" href="https://teetee971.github.io/akiprisaye-web/inscription-pro" />
       </Helmet>
-        <div className="min-h-screen bg-slate-950 flex items-center justify-center py-12 px-4">
+        <div className="min-h-screen bg-slate-950 flex items-center justify-center py-6 px-4">
           <div className="max-w-lg w-full bg-slate-900 border border-slate-700 rounded-2xl p-8 text-center space-y-5">
             <div className="text-5xl">✅</div>
             <h1 className="text-2xl font-bold text-white">Dossier soumis avec succès</h1>
@@ -819,7 +819,7 @@ export default function InscriptionProBatiment() {
         />
       </Helmet>
 
-      <div className="min-h-screen bg-slate-950 py-10 px-4">
+      <div className="min-h-screen bg-slate-950 py-5 px-4">
         <div className="max-w-2xl mx-auto">
           {/* En-tête */}
           <div className="text-center mb-8">
