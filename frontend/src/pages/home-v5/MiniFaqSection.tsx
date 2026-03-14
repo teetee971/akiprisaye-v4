@@ -1,24 +1,12 @@
 import { Link } from 'react-router-dom';
+import { getFeaturedFAQ } from '../../data/faq';
 
 type MiniFaqSectionProps = {
   expandedFaq: number | null;
   onToggleFaq: (index: number) => void;
 };
 
-const FAQ_ITEMS = [
-  {
-    question: 'C\'est vraiment gratuit?',
-    answer: 'Oui, 100% gratuit et sans publicité'
-  },
-  {
-    question: 'Que faites-vous de mes données?',
-    answer: 'Aucune collecte. Données anonymes uniquement.'
-  },
-  {
-    question: 'Comment garantir la fiabilité?',
-    answer: 'Sources publiques vérifiables (Etalab 2.0)'
-  }
-];
+const FAQ_ITEMS = getFeaturedFAQ();
 
 export default function MiniFaqSection({ expandedFaq, onToggleFaq }: MiniFaqSectionProps) {
   return (
@@ -26,7 +14,7 @@ export default function MiniFaqSection({ expandedFaq, onToggleFaq }: MiniFaqSect
       <h3 className="section-title-small slide-up">Questions fréquentes</h3>
       <div className="faq-list">
         {FAQ_ITEMS.map((faq, index) => (
-          <div key={faq.question} className="faq-item slide-up">
+          <div key={faq.id} className="faq-item slide-up">
             <button
               className="faq-question"
               onClick={() => onToggleFaq(index)}
