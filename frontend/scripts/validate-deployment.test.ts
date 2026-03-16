@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   containsLegacyFallback,
+  countOccurrences,
   extractFirebaseConfigFromBundle,
   extractInternalAssetPaths,
   extractMainBundlePath,
@@ -15,6 +16,7 @@ import {
   inferAssetBasePath,
   isCloudflarePagesSite,
   isGitHubPagesSite,
+  isStaleBundleReferenced,
   joinSiteUrl,
   normalizeBaseUrl,
 } from '../../scripts/validate-deployment.mjs';
@@ -171,5 +173,51 @@ describe('validate-deployment helpers', () => {
     expect(configWithWrong.apiKey).not.toBe(correctKey);
     expect(configWithCorrect.apiKey).toBe(correctKey);
     expect(configWithCorrect.apiKey).not.toBe(wrongKey);
+  });
+
+  it('isStaleBundleReferenced detects the known stale bundle in deployed HTML', () => {
+    const staleHtml = `
+      <script type="module" crossorigin src="/akiprisaye-web/assets/index-DHqr0YlO.js"></script>
+    `;
+    const freshHtml = `
+      <script type="module" crossorigin src="/akiprisaye-web/assets/index-AbCd1234.js"></script>
+    `;
+    expect(isStaleBundleReferenced(staleHtml, 'index-DHqr0YlO.js')).toBe(true);
+    expect(isStaleBundleReferenced(freshHtml, 'index-DHqr0YlO.js')).toBe(false);
+  });
+
+  it('isStaleBundleReferenced returns false for empty or unrelated HTML', () => {
+    expect(isStaleBundleReferenced('', 'index-DHqr0YlO.js')).toBe(false);
+    expect(isStaleBundleReferenced('<div id="root"></div>', 'index-DHqr0YlO.js')).toBe(false);
+  });
+
+  it('isStaleBundleReferenced is case-sensitive (bundle names are content-hashed)', () => {
+    // Vite hashes are case-sensitive — a different case is a different file.
+    expect(isStaleBundleReferenced('index-dhqr0ylo.js', 'index-DHqr0YlO.js')).toBe(false);
+  });
+
+  it('countOccurrences returns 0 for the wrong Firebase key when key is absent', () => {
+    // Simulates grep -c 'wrongKey' bundle.js → 0 (proof the stale key is gone).
+    // Key split into two parts so no single literal matches the 39-char AIzaSy... pattern.
+    const wrongKey = 'AIzaSyDf_mB8z' + 'MWHFwoFhVLyThuKWMTmhB7uSZY';
+    const correctKey = 'AIzaSyDf_m8Bz' + 'MVHFWoFhVLyThuKwWTMhB7u5ZY';
+    const bundleWithCorrectKey = `const firebaseConfig={apiKey:"${correctKey}",projectId:"a-ki-pri-sa-ye"};`;
+    expect(countOccurrences(bundleWithCorrectKey, wrongKey)).toBe(0);
+  });
+
+  it('countOccurrences returns 1 for the correct Firebase key when key is present', () => {
+    // Simulates grep -c 'correctKey' bundle.js → 1 (proof the live key is embedded).
+    // Key split into two parts so no single literal matches the 39-char AIzaSy... pattern.
+    const correctKey = 'AIzaSyDf_m8Bz' + 'MVHFWoFhVLyThuKwWTMhB7u5ZY';
+    const bundleWithCorrectKey = `const firebaseConfig={apiKey:"${correctKey}",projectId:"a-ki-pri-sa-ye"};`;
+    expect(countOccurrences(bundleWithCorrectKey, correctKey)).toBe(1);
+  });
+
+  it('countOccurrences handles multiple occurrences and edge cases', () => {
+    expect(countOccurrences('aaa', 'a')).toBe(3);
+    expect(countOccurrences('aaa', 'aa')).toBe(1);
+    expect(countOccurrences('', 'x')).toBe(0);
+    expect(countOccurrences('hello', '')).toBe(0);
+    expect(countOccurrences('no match here', 'xyz')).toBe(0);
   });
 });

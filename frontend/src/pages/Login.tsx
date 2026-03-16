@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
-import { firebaseError, missingCriticalEnvKeys } from "@/lib/firebase";
+import { firebaseError, missingCriticalEnvKeys, wrongApiKeyDetected } from "@/lib/firebase";
 import { FIREBASE_UNAVAILABLE_MESSAGE, getAuthErrorMessage } from "@/lib/authMessages";
 import SocialLoginButtons from "@/components/SocialLoginButtons";
 import { useAuth } from "@/context/AuthContext";
@@ -22,8 +22,8 @@ export default function Login() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const firebaseHealthy = !firebaseError && missingCriticalEnvKeys.length === 0;
-  const showFirebaseStatus = import.meta.env.DEV || Boolean(firebaseError) || missingCriticalEnvKeys.length > 0;
+  const firebaseHealthy = !firebaseError && missingCriticalEnvKeys.length === 0 && !wrongApiKeyDetected;
+  const showFirebaseStatus = import.meta.env.DEV || Boolean(firebaseError) || missingCriticalEnvKeys.length > 0 || wrongApiKeyDetected;
 
   const getSafeNext = useCallback(() => {
     const nextParam = searchParams.get("next");
@@ -203,6 +203,15 @@ export default function Login() {
           </Link>
         </div>
 
+        <div className="mt-3 text-center">
+          <Link
+            to="/activation-createur"
+            className="text-xs text-amber-500 hover:text-amber-400 hover:underline"
+          >
+            ✨ Vous êtes le propriétaire ? Activez votre accès Créateur →
+          </Link>
+        </div>
+
         {showFirebaseStatus && (
           <div className="mt-6 p-3 bg-slate-800/70 border border-slate-700 rounded-lg text-xs">
             {firebaseHealthy ? (
@@ -210,6 +219,9 @@ export default function Login() {
             ) : (
               <div className="text-amber-300">
                 <p className="font-semibold">Firebase missing env at build time</p>
+                {wrongApiKeyDetected && (
+                  <p className="mt-1">Clé API Firebase incorrecte détectée dans ce build. Vérifiez le secret VITE_FIREBASE_API_KEY dans GitHub Actions.</p>
+                )}
                 {missingCriticalEnvKeys.length > 0 && (
                   <p className="mt-1 break-words">Clés manquantes : {missingCriticalEnvKeys.join(", ")}</p>
                 )}
