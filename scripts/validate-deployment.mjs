@@ -258,7 +258,7 @@ async function verifyHomepage(siteUrl) {
   }
 
   if (!hasReactShell(body)) {
-    fail('La page d’accueil ne contient pas de conteneur React `#root`.');
+    fail('La page d\'accueil ne contient pas de conteneur React `#root`.');
   }
 
   if (containsLegacyFallback(body)) {
@@ -272,7 +272,7 @@ async function verifyHomepage(siteUrl) {
 async function verifyAssets(siteUrl, html) {
   const assetPaths = extractInternalAssetPaths(html, siteUrl);
   if (assetPaths.length === 0) {
-    fail('Aucun asset interne exploitable n’a été détecté dans le HTML déployé.');
+    fail('Aucun asset interne exploitable n\'a été détecté dans le HTML déployé.');
   }
 
   for (const assetPath of assetPaths) {
@@ -299,7 +299,7 @@ async function verifyServiceWorker(siteUrl, assetPaths) {
 
   const version = extractServiceWorkerVersion(body);
   if (version === null) {
-    fail('Le Service Worker est servi mais sa version de cache n’a pas pu être détectée.');
+    fail('Le Service Worker est servi mais sa version de cache n\'a pas pu être détectée.');
   }
 
   if (/['"]\/index\.html['"]/i.test(body)) {
@@ -367,7 +367,7 @@ async function verifySitemap(siteUrl) {
 
 async function verifyApi(siteUrl) {
   if (isGitHubPagesSite(siteUrl) || isCloudflarePagesSite(siteUrl)) {
-    logOk('/api ignoré (hébergement statique – pas d’endpoints /api servis).');
+    logOk('/api ignoré (hébergement statique - pas d\'endpoints /api servis).');
     return;
   }
 
