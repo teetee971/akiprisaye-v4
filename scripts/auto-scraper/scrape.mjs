@@ -38,6 +38,7 @@ import { join, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import admin from 'firebase-admin';
 import OpenAI from 'openai';
+import { timedSource, isScrapingAllowed } from './sources/utils.mjs';
 
 import { scrapeFuelPrices }    from './sources/fuel.mjs';
 import { scrapeFoodPrices }    from './sources/food.mjs';
@@ -151,6 +152,42 @@ function detectFuelShocks(existing, newFuelPrices) {
   return shocks.sort((a, b) => Math.abs(b.pct) - Math.abs(a.pct));
 }
 
+/**
+ * Détecte les chocs de prix alimentaires entre le snapshot précédent et les
+ * nouveaux relevés Open Prices.  Seuil : ≥5 % de variation (alimentation
+ * fluctue moins que le carburant, donc seuil plus haut).
+ *
+ * @param {{ prices?: Array<{ean:string, territory:string, price:number}> } | null} existing
+ * @param {Array<{ean:string, name?:string, territory:string, price:number}>} newFood
+ * @returns {Array<{ean:string, name:string, territory:string, oldPrice:number, newPrice:number, pct:number, direction:string}>}
+ */
+function detectFoodShocks(existing, newFood) {
+  const prevIndex = new Map();
+  for (const e of existing?.prices ?? []) {
+    prevIndex.set(`${e.ean}|${e.territory}`, e);
+  }
+
+  const shocks = [];
+  for (const newEntry of newFood) {
+    const key  = `${newEntry.ean}|${newEntry.territory}`;
+    const prev = prevIndex.get(key);
+    if (!prev?.price || !newEntry.price) continue;
+    const pct = ((newEntry.price - prev.price) / prev.price) * 100;
+    if (Math.abs(pct) >= 5) {
+      shocks.push({
+        ean:       newEntry.ean,
+        name:      newEntry.name ?? newEntry.productName ?? 'Produit inconnu',
+        territory: newEntry.territory,
+        oldPrice:  prev.price,
+        newPrice:  newEntry.price,
+        pct:       Math.round(pct * 10) / 10,
+        direction: pct > 0 ? 'hausse' : 'baisse',
+      });
+    }
+  }
+  return shocks.sort((a, b) => Math.abs(b.pct) - Math.abs(a.pct));
+}
+
 // ─── Firestore writes ─────────────────────────────────────────────────────────
 
 async function writeScrapingResults(db, results, shocks) {
@@ -169,17 +206,19 @@ async function writeScrapingResults(db, results, shocks) {
       bqp:      results.bqp?.length ?? 0,
       services: results.services?.length ?? 0,
     },
-    shocksCount: shocks.length,
+    shocksCount: (shocks.fuel?.length ?? 0) + (shocks.food?.length ?? 0),
     status: 'success',
     generatedAt: admin.firestore.FieldValue.serverTimestamp(),
   }, { merge: true });
 
-  // Write shocks if any
-  if (shocks.length > 0) {
+  // Write fuel shocks
+  const allShocks = [...(shocks.fuel ?? []).map(s => ({ ...s, source: 'fuel' })),
+                     ...(shocks.food ?? []).map(s => ({ ...s, source: 'food' }))];
+  if (allShocks.length > 0) {
     const shocksRef = db.collection('price_shocks').doc(DATE_ID);
     batch.set(shocksRef, {
       date: DATE_ID,
-      shocks,
+      shocks: allShocks,
       type: 'multi-source',
       generatedAt: admin.firestore.FieldValue.serverTimestamp(),
     }, { merge: true });
@@ -204,10 +243,11 @@ async function generateScrapingReport(counts, shocks) {
 
   const openai = new OpenAI({ apiKey: key });
 
-  const shockSummary = shocks.length === 0
+  const allShocks = [...(shocks.fuel ?? []), ...(shocks.food ?? [])];
+  const shockSummary = allShocks.length === 0
     ? 'Aucun choc de prix détecté — prix stables.'
-    : shocks.slice(0, 5).map((s) =>
-        `${s.direction === 'hausse' ? '🔴' : '🟢'} ${s.territory} ${s.type} : ${s.direction} de ${Math.abs(s.pct)}% (${s.oldPrice}€ → ${s.newPrice}€)`
+    : allShocks.slice(0, 5).map((s) =>
+        `${s.direction === 'hausse' ? '🔴' : '🟢'} ${s.territory} ${s.type ?? s.name} : ${s.direction} de ${Math.abs(s.pct)}% (${s.oldPrice}€ → ${s.newPrice}€)`
       ).join('\n');
 
   const prompt = `Tu es l'IA de collecte de données du projet "A KI PRI SA YÉ".
@@ -296,14 +336,19 @@ async function main() {
   // ── Shock detection ───────────────────────────────────────────────────────
   console.log('\n🔍 Détection des chocs de prix…');
   const existingFuel = loadJSON(join(dataDir, 'fuel-prices.json'));
-  const shocks = detectFuelShocks(existingFuel, fuelAggregated);
-  if (shocks.length > 0) {
-    console.log(`   🚨 ${shocks.length} choc(s) détecté(s) :`);
-    shocks.slice(0, 5).forEach((s) =>
-      console.log(`   ${s.direction === 'hausse' ? '🔴' : '🟢'} ${s.territory} ${s.type} : ${s.pct > 0 ? '+' : ''}${s.pct}%`),
+  const existingFood = loadJSON(join(dataDir, 'open-prices-dom.json'));
+  const fuelShocks   = detectFuelShocks(existingFuel, fuelAggregated);
+  const foodShocks   = detectFoodShocks(existingFood, foodDedup);
+  const shocks       = { fuel: fuelShocks, food: foodShocks };
+  const allShocks    = [...fuelShocks, ...foodShocks];
+
+  if (allShocks.length > 0) {
+    console.log(`   🚨 ${allShocks.length} choc(s) détecté(s) :`);
+    allShocks.slice(0, 5).forEach((s) =>
+      console.log(`   ${s.direction === 'hausse' ? '🔴' : '🟢'} ${s.territory} ${s.type ?? s.name} : ${s.pct > 0 ? '+' : ''}${s.pct}%`),
     );
   } else {
-    console.log('   ✅ Prix stables — aucun choc');
+    console.log('   ✅ Prix stables — aucun choc (carburant + alimentation)');
   }
 
   if (!DRY_RUN) {
@@ -385,9 +430,9 @@ async function main() {
       `| 📋 BQP (data.gouv.fr) | ${counts.bqp} entrées officielles |`,
       `| 📡 Services (ARCEP/CRE/INSEE) | ${counts.services} tarifs |`,
       '',
-      shocks.length === 0
+      allShocks.length === 0
         ? '### ✅ Prix stables — aucun choc détecté'
-        : `### 🚨 Chocs détectés (${shocks.length})\n${shocks.slice(0, 5).map((s) => `- ${s.direction === 'hausse' ? '🔴' : '🟢'} **${s.territory} ${s.type}** : ${s.pct > 0 ? '+' : ''}${s.pct}%`).join('\n')}`,
+        : `### 🚨 Chocs détectés (${allShocks.length})\n${allShocks.slice(0, 5).map((s) => `- ${s.direction === 'hausse' ? '🔴' : '🟢'} **${s.territory} ${s.type ?? s.name}** : ${s.pct > 0 ? '+' : ''}${s.pct}%`).join('\n')}`,
       '',
       report ? `### 🤖 Rapport IA\n> **${report.qualite_donnees?.toUpperCase()}** — ${report.rapport}` : '',
     ].filter((l) => l !== undefined).join('\n');
@@ -396,6 +441,26 @@ async function main() {
 
   const totalEntries = counts.fuel + counts.food + counts.bqp + counts.services;
   console.log(`\n✅ Scraping terminé — ${totalEntries} entrées collectées au total\n`);
+
+  // ── Scraping health file ────────────────────────────────────────────────
+  // Written unconditionally (even in dry-run) so the monitoring system can
+  // always check when the last successful scrape ran and which sources had data.
+  const health = {
+    lastScrapedAt: ISO_NOW,
+    date: DATE_ID,
+    dryRun: DRY_RUN,
+    sources: {
+      fuel:     { count: counts.fuel,     ok: counts.fuel > 0 },
+      food:     { count: counts.food,     ok: counts.food > 0 },
+      bqp:      { count: counts.bqp,      ok: counts.bqp > 0 },
+      services: { count: counts.services, ok: counts.services > 0 },
+    },
+    totalEntries,
+    shocksDetected: allShocks.length,
+    status: totalEntries > 0 ? 'ok' : 'empty',
+  };
+  saveJSON(join(dataDir, 'scraping-health.json'), health);
+  console.log('💾 scraping-health.json mis à jour');
 }
 
 main().catch((err) => {

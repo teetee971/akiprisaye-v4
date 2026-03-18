@@ -56,31 +56,24 @@ concurrency:
   cancel-in-progress: false   # Ne jamais annuler un scraping en cours
 
 jobs:
-  check-firebase-secret:
-    name: 🔍 Diagnostic secret Firebase
-    runs-on: ubuntu-latest
-    steps:
-      - name: Vérifier présence FIREBASE_SERVICE_ACCOUNT
-        env:
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-        run: |
-          if [ -n "${FIREBASE_SERVICE_ACCOUNT}" ]; then
-            echo "FIREBASE_SERVICE_ACCOUNT_PRESENT=yes"
-          else
-            echo "FIREBASE_SERVICE_ACCOUNT_PRESENT=no"
-            echo "⚠️  Le secret FIREBASE_SERVICE_ACCOUNT est absent ou vide dans ce contexte CI."
-            exit 1
-          fi
-
   scrape:
     name: 🔄 Scraping multi-sources
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    needs: check-firebase-secret
     # Ne pas exécuter si c'est un déploiement qui a échoué
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
+      - name: 🔍 Vérifier secret Firebase
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -n "${FIREBASE_SERVICE_ACCOUNT}" ]; then
+            echo "✅ FIREBASE_SERVICE_ACCOUNT présent — Firestore activé"
+          else
+            echo "⚠️  FIREBASE_SERVICE_ACCOUNT absent — le scraping continuera sans écriture Firestore"
+          fi
+
       - name: 📥 Checkout
         uses: actions/checkout@v4
         with:
@@ -92,11 +85,11 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: scripts/auto-scraper/package.json
+          cache-dependency-path: scripts/auto-scraper/package-lock.json
 
       - name: 📦 Installer dépendances scraper
         working-directory: scripts/auto-scraper
-        run: npm install
+        run: npm ci
 
       - name: 🤖 Scraping automatique
         working-directory: scripts/auto-scraper
@@ -110,6 +103,23 @@ jobs:
             node scrape.mjs --source "$SOURCE" --dry-run
           else
             node scrape.mjs --source "$SOURCE"
+          fi
+
+      - name: 🛒 Scan panier de base (produits essentiels DOM-TOM)
+        if: ${{ inputs.dry_run != 'true' && (inputs.source == 'all' || inputs.source == '') }}
+        working-directory: scripts/auto-scraper
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+        run: |
+          echo "📦 Scan prix produits de première nécessité…"
+          if node scrape-product.mjs --panier --territory all --output both; then
+            echo "✅ Scan panier terminé"
+          else
+            EXIT_CODE=$?
+            echo "⚠️  Scan panier partiel (code $EXIT_CODE) — données Open Prices limitées ou API indisponible"
+            # Non-fatal : ne pas échouer le workflow pour un scan panier partiel
+            exit 0
           fi
 
       - name: 💾 Commit des données mises à jour
@@ -128,7 +138,8 @@ jobs:
             git add frontend/public/data/fuel-prices.json \
                     frontend/public/data/services-prices.json \
                     frontend/public/data/bqp-prices.json \
-                    frontend/public/data/open-prices-dom.json 2>/dev/null || true
+                    frontend/public/data/open-prices-dom.json \
+                    frontend/public/data/product-scan-*.json 2>/dev/null || true
 
             git commit \
               -m "🤖 [auto] Mise à jour données prix — $(date -u '+%Y-%m-%d %H:%M UTC')" \
