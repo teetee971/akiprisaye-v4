@@ -110,6 +110,11 @@ jobs:
           echo "✅ dist/version.json found:"
           cat dist/version.json
 
+      - name: Verify version.json fields (mirror check)
+        run: node scripts/verify-version-json-fields.mjs
+        env:
+          GITHUB_REF_NAME: ${{ github.ref_name }}
+
       - name: SPA fallback — copy index.html → 404.html
         run: cp dist/index.html dist/404.html
 
