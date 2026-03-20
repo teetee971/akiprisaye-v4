@@ -28,8 +28,11 @@ import {
   generateProductCanonical,
   buildProductJsonLd,
   buildProductBreadcrumbJsonLd,
+  buildFaqJsonLd,
   getTerritoryName,
+  generateCategorySlug,
   SITE_URL,
+  TERRITORY_NAMES,
 } from '../utils/seoHelpers';
 import type { PriceObservationRow } from '../types/compare';
 import type { SignalResult, HistoryPoint } from '../types/api';
@@ -195,7 +198,7 @@ function BestPriceHero({
           {savings != null && savings > 0.01 && (
             <div className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5">
               <span className="text-xs font-semibold text-emerald-300">
-                Économie potentielle&nbsp;: <span className="text-base font-extrabold">{formatEur(savings)}</span>
+                Économisez&nbsp;<span className="text-base font-extrabold">{formatEur(savings)}</span>&nbsp;maintenant
               </span>
             </div>
           )}
@@ -214,9 +217,9 @@ function BestPriceHero({
               target="_blank"
               rel="noopener noreferrer"
               onClick={handleHeroClick}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-400/40 bg-emerald-400/15 px-4 py-2 text-sm font-bold text-emerald-300 transition-all hover:bg-emerald-400/25 active:scale-95"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-400/60 bg-emerald-400/25 px-5 py-2.5 text-sm font-bold text-emerald-200 shadow-lg shadow-emerald-900/30 transition-all hover:bg-emerald-400/35 active:scale-95"
             >
-              Acheter chez {retailer} →
+              Voir l'offre la moins chère →
             </a>
           )}
         </div>
@@ -312,29 +315,160 @@ interface SEOContentBlockProps {
 function SEOContentBlock({ product, territory, minPrice, maxPrice, savings, storeCount }: SEOContentBlockProps) {
   const territoryName = getTerritoryName(territory);
   const brand = product.brand ?? '';
-  
+  const brandLabel = brand ? `${brand} ` : '';
+
   return (
     <section className="mt-6 rounded-xl border border-white/5 bg-white/[0.01] p-4">
       <h2 className="sr-only">Informations complémentaires</h2>
       <div className="text-xs leading-relaxed text-zinc-500 space-y-2">
         <p>
-          <strong className="text-zinc-400">Comparatif {brand} {product.name} en {territoryName}</strong> — 
-          Retrouvez les meilleurs prix dans {storeCount} enseigne{storeCount > 1 ? 's' : ''} locales.
+          <strong className="text-zinc-400">Comparatif {brandLabel}{product.name} en {territoryName}</strong> —{' '}
+          Retrouvez les meilleurs prix dans {storeCount} enseigne{storeCount > 1 ? 's' : ''} locales et faites des économies sur vos courses.
         </p>
         {minPrice != null && maxPrice != null && minPrice !== maxPrice && (
           <p>
             Les prix varient de <span className="text-emerald-400 font-medium">{formatEur(minPrice)}</span> à{' '}
             <span className="text-zinc-300 font-medium">{formatEur(maxPrice)}</span>.
             {savings != null && savings > 0.01 && (
-              <> Économisez jusqu'à <span className="text-emerald-400 font-bold">{formatEur(savings)}</span> en comparant.</>
+              <> Économisez jusqu'à <span className="text-emerald-400 font-bold">{formatEur(savings)}</span> en comparant les enseignes.</>
             )}
           </p>
         )}
+        <p>
+          Où acheter {brandLabel}{product.name} moins cher en {territoryName}&nbsp;? Notre comparateur analyse quotidiennement
+          les prix dans les principales enseignes (Carrefour, E.Leclerc, Super U, Leader Price…) pour vous aider à trouver la meilleure offre.
+        </p>
         <p>
           Données actualisées quotidiennement à partir de relevés terrains et sources officielles pour{' '}
           {territoryName}.
         </p>
       </div>
+    </section>
+  );
+}
+
+// ── "Prix vérifié récemment" badge ───────────────────────────────────────────
+function PriceVerifiedBadge({ latestDate }: { latestDate: string | undefined }) {
+  if (!latestDate) return null;
+  return (
+    <div className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-400/20 bg-emerald-400/5 px-2.5 py-1 text-[10px] font-semibold text-emerald-400">
+      <span aria-hidden="true">✓</span>
+      Prix vérifié récemment · {formatDate(latestDate)}
+    </div>
+  );
+}
+
+// ── FAQ section ───────────────────────────────────────────────────────────────
+interface FaqSectionProps {
+  product: { name: string; brand?: string };
+  territory: string;
+  bestPrice: number | null;
+  savings: number | null;
+  average: number | null;
+  bestRetailer: string | undefined;
+}
+function FaqSection({ product, territory, bestPrice, savings, average, bestRetailer }: FaqSectionProps) {
+  const territoryName = getTerritoryName(territory);
+  const brandLabel = product.brand ? `${product.brand} ` : '';
+  const productLabel = `${brandLabel}${product.name}`;
+
+  const questions: { q: string; a: string }[] = [
+    {
+      q: `Où acheter ${productLabel} moins cher en ${territoryName} ?`,
+      a:
+        bestPrice != null && bestRetailer
+          ? `Le meilleur prix du ${productLabel} en ${territoryName} est actuellement de ${bestPrice.toFixed(2)} € chez ${bestRetailer}. Notre comparateur analyse toutes les enseignes locales (Carrefour, E.Leclerc, Super U, Leader Price…) pour vous garantir la meilleure offre.`
+          : `Utilisez notre comparateur pour trouver le meilleur prix du ${productLabel} parmi toutes les enseignes en ${territoryName}.`,
+    },
+    {
+      q: `Quel est le prix moyen du ${productLabel} en ${territoryName} ?`,
+      a:
+        average != null
+          ? `Le prix moyen du ${productLabel} en ${territoryName} est de ${average.toFixed(2)} € d'après les relevés effectués dans les principales enseignes. Les prix sont mis à jour quotidiennement.`
+          : `Le prix du ${productLabel} varie selon les enseignes. Consultez notre comparateur pour avoir les prix du jour en ${territoryName}.`,
+    },
+    {
+      q: `Comment économiser sur le ${productLabel} en ${territoryName} ?`,
+      a:
+        savings != null && savings > 0.01
+          ? `Vous pouvez économiser jusqu'à ${savings.toFixed(2)} € sur le ${productLabel} en ${territoryName} en comparant les enseignes. Notre comparateur vous indique en temps réel quelle enseigne propose le prix le plus bas.`
+          : `Comparez les prix dans toutes les enseignes grâce à notre comparateur pour trouver la meilleure offre sur le ${productLabel} en ${territoryName}.`,
+    },
+  ];
+
+  return (
+    <section className="mt-4 rounded-xl border border-white/5 bg-white/[0.01] p-4">
+      <h2 className="mb-3 text-sm font-bold text-zinc-300">Questions fréquentes</h2>
+      <div className="space-y-4">
+        {questions.map(({ q, a }) => (
+          <details key={q} className="group">
+            <summary className="cursor-pointer list-none text-xs font-semibold text-zinc-300 hover:text-emerald-300 transition-colors">
+              <span className="mr-1.5 text-emerald-500 group-open:hidden">▶</span>
+              <span className="mr-1.5 hidden text-emerald-500 group-open:inline">▼</span>
+              {q}
+            </summary>
+            <p className="mt-2 pl-4 text-xs leading-relaxed text-zinc-500">{a}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ── Related products / territory links ────────────────────────────────────────
+const DOM_TERRITORIES
+
+interface RelatedProductsSectionProps {
+  product: { name: string; brand?: string; category?: string };
+  currentTerritory: string;
+  slug: string;
+}
+function RelatedProductsSection({ product, currentTerritory, slug }: RelatedProductsSectionProps) {
+  const otherTerritories = DOM_TERRITORIES.filter((t) => t !== currentTerritory);
+  const categorySlug = product.category ? generateCategorySlug(product.category) : null;
+
+  return (
+    <section className="mt-4 rounded-xl border border-white/5 bg-white/[0.02] p-4">
+      {/* Territory variants — great for internal linking across DOM pages */}
+      <div className="mb-4">
+        <h2 className="mb-2 text-xs font-bold uppercase tracking-widest text-zinc-500">
+          Prix {product.brand ? `${product.brand} ` : ''}{product.name} dans d'autres territoires
+        </h2>
+        <div className="flex flex-wrap gap-2">
+          {otherTerritories.map((t) => (
+            <Link
+              key={t}
+              to={`/produit/${slug}?territory=${t}`}
+              className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-zinc-400 transition-all hover:border-emerald-400/30 hover:text-emerald-300"
+            >
+              {TERRITORY_NAMES[t]}
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Category link */}
+      {categorySlug && (
+        <div>
+          <h2 className="mb-2 text-xs font-bold uppercase tracking-widest text-zinc-500">
+            Dans la même catégorie
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              to={`/categorie/${categorySlug}?territory=${currentTerritory}`}
+              className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-zinc-400 transition-all hover:border-emerald-400/30 hover:text-emerald-300"
+            >
+              Tous les {product.category} →
+            </Link>
+            <Link
+              to={`/comparateur`}
+              className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-zinc-400 transition-all hover:border-white/20 hover:text-white"
+            >
+              ← Comparateur
+            </Link>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
@@ -399,13 +533,25 @@ export default function SEOProductPage() {
     ? buildProductBreadcrumbJsonLd(compareData.product, territory)
     : null;
 
-  // Combine JSON-LD schemas
-  const combinedJsonLd = productJsonLd && breadcrumbJsonLd
-    ? {
-        '@context': 'https://schema.org',
-        '@graph': [productJsonLd, breadcrumbJsonLd],
-      }
-    : productJsonLd;
+  // Build FAQ JSON-LD once data is available
+  const faqJsonLd = compareData?.product
+    ? buildFaqJsonLd(
+        compareData.product,
+        territory,
+        compareData.summary?.min ?? null,
+        compareData.summary?.savings ?? null,
+        compareData.summary?.average ?? null,
+        sorted[0]?.retailer,
+      )
+    : null;
+
+  // Combine all JSON-LD schemas in a single @graph for Google
+  const combinedJsonLd = (() => {
+    const schemas = [productJsonLd, breadcrumbJsonLd, faqJsonLd].filter(Boolean);
+    if (schemas.length === 0) return null;
+    if (schemas.length === 1) return schemas[0];
+    return { '@context': 'https://schema.org', '@graph': schemas };
+  })();
 
   // ── Loading skeleton ────────────────────────────────────────────────────────
   if (compareLoading) {
@@ -501,6 +647,9 @@ export default function SEOProductPage() {
                 </Link>
               </div>
             ) : null}
+            <div className="mt-2">
+              <PriceVerifiedBadge latestDate={sorted[0]?.observedAt} />
+            </div>
             <div className="mt-1 font-mono text-[10px] text-zinc-700">{product.barcode}</div>
           </div>
         </div>
@@ -562,6 +711,23 @@ export default function SEOProductPage() {
           maxPrice={summary?.max ?? null}
           savings={maxSavings}
           storeCount={sorted.length}
+        />
+
+        {/* ── FAQ — boosts rich-result eligibility + indexation ─────────────── */}
+        <FaqSection
+          product={product}
+          territory={territory}
+          bestPrice={summary?.min ?? null}
+          savings={maxSavings ?? summary?.savings ?? null}
+          average={summary?.average ?? null}
+          bestRetailer={bestRetailer}
+        />
+
+        {/* ── Related products / territory links (internal linking) ─────────── */}
+        <RelatedProductsSection
+          product={product}
+          currentTerritory={territory}
+          slug={slug}
         />
 
       </div>

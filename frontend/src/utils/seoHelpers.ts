@@ -48,7 +48,7 @@ export function generateProductSlug(name: string, territory: string): string {
   const normalized = `${name}-${getTerritoryName(territory)}`
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+    .replace(/[̀-ͯ]/g, '') // Remove diacritics
     .replace(/[^a-z0-9\s-]/g, '')    // Remove special chars
     .replace(/\s+/g, '-')            // Replace spaces with hyphens
     .replace(/-+/g, '-')             // Collapse multiple hyphens
@@ -64,7 +64,7 @@ export function generateCategorySlug(category: string): string {
   return category
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9\s-]/g, '')
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-')
@@ -75,6 +75,7 @@ export function generateCategorySlug(category: string): string {
 
 /**
  * Generate SEO meta description for a product page
+ * Optimized for CTR: includes price, savings, and call to action.
  */
 export function generateProductMetaDescription(
   product: CompareProduct,
@@ -83,17 +84,18 @@ export function generateProductMetaDescription(
 ): string {
   const territoryName = getTerritoryName(territory);
   const brand = product.brand ? `${product.brand} ` : '';
-  
+
   if (summary?.min != null) {
-    const priceText = `${summary.min.toFixed(2)} €`;
-    const savingsText = summary.savings != null && summary.savings > 0
-      ? ` — économisez jusqu'à ${summary.savings.toFixed(2)} €`
-      : '';
-    
-    return `Prix ${brand}${product.name} en ${territoryName} : à partir de ${priceText}${savingsText}. Comparez les prix dans ${summary.count} magasins.`;
+    const priceText = summary.min.toFixed(2);
+    const savingsText =
+      summary.savings != null && summary.savings > 0
+        ? ` Économisez jusqu'à ${summary.savings.toFixed(2)} €.`
+        : '';
+
+    return `Comparez les prix ${brand}${product.name} en ${territoryName}. Meilleur prix aujourd'hui : ${priceText} €.${savingsText} ${summary.count} magasin${summary.count > 1 ? 's' : ''} comparé${summary.count > 1 ? 's' : ''}.`;
   }
-  
-  return `Comparez les prix de ${brand}${product.name} en ${territoryName}. Trouvez le meilleur prix dans les supermarchés locaux.`;
+
+  return `Comparez les prix de ${brand}${product.name} en ${territoryName}. Trouvez le meilleur prix et économisez dans les supermarchés locaux.`;
 }
 
 /**
@@ -168,6 +170,7 @@ export function buildProductJsonLd(
           highPrice: sortedPrices[sortedPrices.length - 1]?.price.toFixed(2),
           priceCurrency: 'EUR',
           offerCount: observations.length,
+          priceValidUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
           offers,
         }
       : offers[0],
@@ -246,6 +249,8 @@ export function buildCategoryJsonLd(
 
 /**
  * Generate SEO title for product page
+ * Format: "Prix [Produit] en [Territoire] – Comparer et économiser"
+ * Optimized for CTR with action-oriented suffix.
  */
 export function generateProductTitle(
   product: CompareProduct,
@@ -253,8 +258,8 @@ export function generateProductTitle(
 ): string {
   const territoryName = getTerritoryName(territory);
   const brand = product.brand ? `${product.brand} ` : '';
-  
-  return `Prix ${brand}${product.name} en ${territoryName} — Comparateur`;
+
+  return `Prix ${brand}${product.name} en ${territoryName} – Comparer et économiser`;
 }
 
 /**
@@ -267,6 +272,62 @@ export function generateCategoryTitle(
   const territoryName = getTerritoryName(territory);
   
   return `Prix ${categoryName} en ${territoryName} — Comparateur Outre-mer`;
+}
+
+// ── FAQ JSON-LD schema ─────────────────────────────────────────────────────────
+
+/**
+ * Build JSON-LD FAQPage schema for product pages.
+ * 3 targeted Q&A entries boost rich-result eligibility and indexation.
+ */
+export function buildFaqJsonLd(
+  product: CompareProduct,
+  territory: string,
+  bestPrice: number | null,
+  savings: number | null,
+  average: number | null,
+  bestRetailer?: string,
+): Record<string, unknown> {
+  const territoryName = getTerritoryName(territory);
+  const brandLabel = product.brand ? `${product.brand} ` : '';
+  const productLabel = `${brandLabel}${product.name}`;
+
+  const priceAnswer =
+    bestPrice != null && bestRetailer
+      ? `Selon notre comparateur, le meilleur prix du ${productLabel} en ${territoryName} est de ${bestPrice.toFixed(2)} € chez ${bestRetailer}. Consultez notre comparatif pour voir toutes les enseignes disponibles.`
+      : `Utilisez notre comparateur pour trouver le meilleur prix du ${productLabel} en ${territoryName} parmi toutes les enseignes locales.`;
+
+  const averageAnswer =
+    average != null
+      ? `Le prix moyen du ${productLabel} en ${territoryName} est de ${average.toFixed(2)} € d'après les données collectées dans les principales enseignes (Carrefour, E.Leclerc, Super U, Leader Price…).`
+      : `Le prix du ${productLabel} varie selon les enseignes en ${territoryName}. Comparez pour trouver la meilleure offre.`;
+
+  const savingsAnswer =
+    savings != null && savings > 0.01
+      ? `En comparant les enseignes, vous pouvez économiser jusqu'à ${savings.toFixed(2)} € sur le ${productLabel} en ${territoryName}. Notre comparateur met à jour les prix quotidiennement pour vous garantir les meilleures offres.`
+      : `Consultez notre comparateur pour identifier l'enseigne la moins chère pour le ${productLabel} en ${territoryName} et faire des économies sur vos courses.`;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: `Où acheter ${productLabel} moins cher en ${territoryName} ?`,
+        acceptedAnswer: { '@type': 'Answer', text: priceAnswer },
+      },
+      {
+        '@type': 'Question',
+        name: `Quel est le prix moyen du ${productLabel} en ${territoryName} ?`,
+        acceptedAnswer: { '@type': 'Answer', text: averageAnswer },
+      },
+      {
+        '@type': 'Question',
+        name: `Comment économiser sur le ${productLabel} en ${territoryName} ?`,
+        acceptedAnswer: { '@type': 'Answer', text: savingsAnswer },
+      },
+    ],
+  };
 }
 
 // ── Canonical URL generation ───────────────────────────────────────────────────
