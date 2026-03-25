@@ -1,14 +1,13 @@
- 
 /**
  * Product Service - v1.1.0
  * 
- * Service for fetching and managing product prices
- * with automatic fallback to last known prices
+ * Service for fetching and managing live product prices.
  * 
  * @module productService
  */
 
 import { safeLocalStorage } from '../utils/safeLocalStorage';
+import { liveApiFetchJson } from './liveApiClient';
 import type { 
   Product, 
   ProductSearchParams, 
@@ -18,8 +17,7 @@ import type { TerritoryCode } from '../types/extensions';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
 
 /**
- * Fetch products with automatic fallback
- * Always returns best available data, never empty
+ * Fetch products from live API.
  */
 export async function fetchProducts(
   params: ProductSearchParams = {}
@@ -36,7 +34,7 @@ export async function fetchProducts(
 }
 
 /**
- * Fetch from API (placeholder for real implementation)
+ * Fetch list from live products API.
  */
 async function fetchFromAPI(params: ProductSearchParams): Promise<Product[]> {
   const query = new URLSearchParams();
@@ -46,6 +44,10 @@ async function fetchFromAPI(params: ProductSearchParams): Promise<Product[]> {
   if (params.limit) query.set('limit', String(params.limit));
   if (params.offset) query.set('offset', String(params.offset));
 
+  const payload = await liveApiFetchJson<any>(`/products?${query.toString()}`, {
+    incidentReason: 'products_api_unavailable',
+    timeoutMs: 10000,
+  });
   const response = await fetch(`${API_BASE_URL}/products?${query.toString()}`);
   if (!response.ok) {
     throw new Error(`Failed to fetch live products (${response.status})`);
@@ -62,10 +64,10 @@ async function fetchFromAPI(params: ProductSearchParams): Promise<Product[]> {
  */
 export async function getProduct(id: string): Promise<Product | null> {
   try {
-    // Try API first
-    const response = await fetchProducts({});
-    const product = response.products.find(p => p.id === id);
-    return product || null;
+    return await liveApiFetchJson<Product>(`/products/${id}`, {
+      incidentReason: 'product_detail_api_unavailable',
+      timeoutMs: 10000,
+    });
   } catch (error) {
     if (import.meta.env.DEV) {
       console.warn('Product fetch failed:', error);
@@ -141,24 +143,11 @@ export function getReliabilityColor(score: number): string {
  * Validate price (citizen validation)
  */
 export async function validatePrice(productId: string, isValid: boolean): Promise<void> {
-  // In production, this would send to backend
-  // For now, store locally
-  try {
-    const validations = JSON.parse(safeLocalStorage.getItem('price_validations') || '{}');
-    if (!validations[productId]) {
-      validations[productId] = { positive: 0, negative: 0 };
-    }
-    
-    if (isValid) {
-      validations[productId].positive++;
-    } else {
-      validations[productId].negative++;
-    }
-    
-    safeLocalStorage.setItem('price_validations', JSON.stringify(validations));
-  } catch (error) {
-    if (import.meta.env.DEV) {
-      console.error('Failed to save validation:', error);
-    }
-  }
+  await liveApiFetchJson(`/products/${productId}/validation`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ isValid }),
+    incidentReason: 'product_validation_api_unavailable',
+    timeoutMs: 10000,
+  });
 }

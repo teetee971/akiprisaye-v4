@@ -11,6 +11,7 @@ import { getStores } from '@/services/admin/storeAdminService';
 import { getProducts } from '@/services/admin/productAdminService';
 import { getPendingContributions } from '@/services/contributionService';
 import { getAdminDashboardOverview } from '@/services/admin/adminDashboardService';
+import { activateIncidentMode, clearIncidentMode } from '@/services/incidentMode';
 
 interface DashboardStats {
   storesCount: number;
@@ -72,6 +73,11 @@ export default function AdminDashboard() {
             };
           })
         );
+        clearIncidentMode();
+        return;
+      } catch (overviewError) {
+        console.warn('[AdminDashboard] overview endpoint unavailable, fallback multi-source mode', overviewError);
+        activateIncidentMode('admin_overview_endpoint_unavailable');
         return;
       } catch (overviewError) {
         console.warn('[AdminDashboard] overview endpoint unavailable, fallback multi-source mode', overviewError);
@@ -146,6 +152,7 @@ export default function AdminDashboard() {
         .slice(0, 120);
 
       setRecentActivity(allActivities);
+      clearIncidentMode();
     } catch (error) {
       console.error('[AdminDashboard] Failed to load dashboard data:', {
         error,
@@ -153,6 +160,7 @@ export default function AdminDashboard() {
         territoryFilter,
         timestamp: new Date().toISOString(),
       });
+      activateIncidentMode('admin_dashboard_data_unavailable');
       setRecentActivity([]);
     } finally {
       setRefreshing(false);
