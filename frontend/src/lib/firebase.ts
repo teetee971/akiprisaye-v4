@@ -83,7 +83,11 @@ try {
     console.warn("Firebase Auth persistence fallback (local) unavailable:", error);
   });
   db = getFirestore(app);
-  safeInitInstallations(app);
+  void Promise.resolve()
+    .then(() => getInstallations(app!))
+    .catch((error) => {
+      console.warn("Firebase Installations unavailable (non-blocking):", error);
+    });
   // Analytics requires a real browser environment and a valid measurementId.
   // Load the analytics module lazily so Node/Vitest contexts never evaluate
   // firebase/analytics internals that assume window/document are available.
