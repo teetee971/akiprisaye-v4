@@ -140,7 +140,6 @@ const EspaceCreateur: React.FC = () => {
             <p className="text-xs text-amber-200/60 flex items-center gap-1 mt-1">
               <Clock3 size={12} /> Dernière synchro: {predatorLastScan ? new Date(predatorLastScan).toLocaleTimeString('fr-FR') : 'en attente'}
             </p>
-            <h2 className="text-lg font-semibold mt-2">Tableau de bord IA — audience & comportement</h2>
           </div>
         </div>
       </header>
@@ -189,14 +188,11 @@ const EspaceCreateur: React.FC = () => {
         <div className="flex justify-between items-end mb-6">
           <div>
             <h2 className="text-xl font-bold flex items-center gap-2">
-              Revenus CPC — suivi créateur
+              <BarChart3 className="text-emerald-400" /> Trackers d'engagement CPC
             </h2>
-            <p className="text-sm text-slate-400 mt-1">Revenu 30 jours: {analytics.monthlyRevenue.toFixed(2)} €</p>
+            <p className="text-sm text-slate-400 mt-1">Gains sur les 30 derniers jours : <strong className="text-white">{analytics.monthlyRevenue.toFixed(2)} €</strong></p>
           </div>
         </div>
-        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <BarChart3 className="text-emerald-400" /> Trackers d'engagement CPC
-        </h3>
 
         <div className="space-y-3">
           {weeklyStats.slice().reverse().map((stat) => (
@@ -218,23 +214,19 @@ const EspaceCreateur: React.FC = () => {
         <h2 className="sr-only">Outils d'administration</h2>
         <Link to="/admin" className="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex gap-4 items-center hover:bg-slate-800 transition shadow-sm">
           <BarChart3 className="text-blue-400" size={24} />
-          <span className="font-bold">Dashboard Admin</span>
-          <span className="text-xs ml-auto">Ouvrir</span>
+          <span className="font-bold">Admin Global</span>
         </Link>
         <Link to="/admin/stores" className="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex gap-4 items-center hover:bg-slate-800 transition shadow-sm">
           <Building2 className="text-emerald-400" size={24} />
           <span className="font-bold">Enseignes</span>
-          <span className="text-xs ml-auto">Ouvrir</span>
         </Link>
         <Link to="/admin/calculs-batiment" className="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex gap-4 items-center hover:bg-slate-800 transition shadow-sm">
           <Wrench className="text-amber-400" size={24} />
           <span className="font-bold">Calculs BTP</span>
-          <span className="text-xs ml-auto">Ouvrir</span>
         </Link>
         <Link to="/admin/users" className="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex gap-4 items-center hover:bg-slate-800 transition shadow-sm">
           <Users className="text-purple-400" size={24} />
           <span className="font-bold">Utilisateurs</span>
-          <span className="text-xs ml-auto">Ouvrir</span>
         </Link>
       </section>
 
