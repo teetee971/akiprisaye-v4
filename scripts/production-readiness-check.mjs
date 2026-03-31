@@ -7,12 +7,7 @@ const ROUNDS = 3;
 const allowNetworkFailure = process.env.ALLOW_NETWORK_FAILURE === '1';
 
 const deploymentHost = new URL(DEPLOYMENT_URL).hostname;
-const deploymentHostLabels = deploymentHost.split('.');
-const isGitHubPagesTarget =
-  (deploymentHost === 'github.io') ||
-  (deploymentHostLabels.length === 3 &&
-    deploymentHostLabels[1] === 'github' &&
-    deploymentHostLabels[2] === 'io');
+const isGitHubPagesTarget = deploymentHost.endsWith('github.io');
 const buildBasePath = isGitHubPagesTarget ? '/akiprisaye-web/' : '/';
 
 const checks = [
