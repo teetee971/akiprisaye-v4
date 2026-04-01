@@ -414,8 +414,7 @@ export default function App() {
                               <Route path="solidarite" element={<SolidariteHub />} />
                               <Route path="inscription-pro" element={<InscriptionPro />} />
                               <Route path="espace-pro" element={<EspacePro />} />
-                              <Route path="espace-pro-batiment" element={<Navigate to="/espace-pro" replace />} />
-                              <Route path="espace-createur" element={<RequireCreator><Suspense fallback={<div className="text-white p-5">Chargement...</div>}><EspaceCreateur /></Suspense></RequireCreator>} />
+                              <Route path="espace-createur" element={<RequireCreator><Suspense fallback={<div>Chargement...</div>}><EspaceCreateur /></Suspense></RequireCreator>} />
                               <Route path="activation-createur" element={<ActivationCreateur />} />
                               <Route path="scanner" element={<ScannerHub />} />
                               <Route path="scan-ean" element={<ScanEAN />} />
@@ -458,7 +457,6 @@ export default function App() {
                               {LEGACY_ALIAS_ROUTES}
                               <Route path="pricing" element={<Pricing />} />
                               <Route path="subscribe" element={<Subscribe />} />
-                              <Route path="subscribe/success" element={<Subscribe />} />
                               <Route path="observatoire-temps-reel" element={<ObservatoireTempsReel />} />
                               <Route path="transparence" element={<Transparence />} />
                               <Route path="signaler-abus" element={<SignalerAbus />} />
@@ -574,7 +572,7 @@ export default function App() {
                               <Route path="chocs-prix" element={<ChocsPrixPage />} />
                               <Route path="newsletter" element={<NewsletterHubPage />} />
                               <Route path="monitoring-ia" element={<MonitoringIAPage />} />
-                              <Route path="organigramme-gbh" element={<OrganigrammeGBH />} />
+                              <Route path="organigrame-gbh" element={<OrganigrammeGBH />} />
                               <Route path="produit/:slug" element={<SEOProductPage />} />
                               <Route path="categorie/:slug" element={<SEOCategoryPage />} />
                               <Route path="prix/:slug" element={<SEOPrixLocalPage />} />
