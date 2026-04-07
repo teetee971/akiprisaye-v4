@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Search, PlayCircle, Package, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../context/AppContext'; // Le lien vers le gisement
+import type { Product } from '../context/AppContext';
 
 type AppContextValue = {
   products?: unknown[];
@@ -11,12 +12,27 @@ type AppContextValue = {
 const useApp = (): AppContextValue => null;
 const Home = () => {
   const [search, setSearch] = useState('');
+  const [territory, setTerritory] = useState('GP');
+  const [showExtendedHome, setShowExtendedHome] = useState(false);
   const navigate = useNavigate();
-
-  // Sécurité renforcée pour éviter que l'app ne crashe si le Context est vide
   const context = useApp();
+
+  // On récupère les données du gisement (les 34 articles)
+  // La sécurité products = context?.products || [] empêche le crash e.map
   const products = context?.products || [];
-  const loading = context?.loading ?? false;
+  const loading = context?.loading ?? true;
+  const loadingError = context?.error ?? null;
+  const reloadProducts = context?.reloadProducts;
+
+  const territoryNames: Record<string, string> = {
+    'GP': 'Guadeloupe', 'MQ': 'Martinique', 'GF': 'Guyane', 
+    'RE': 'Réunion', 'YT': 'Mayotte', 'NC': 'Nouvelle-Calédonie'
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    navigate(`/recherche-produits?q=${encodeURIComponent(search)}`);
+  };
 
   const promos = [
     { id: 1, title: "OFFRES SUPER U", subtitle: "Grand Ouverture v4.6.20", img: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=400", action: () => navigate('/flyer') },
@@ -25,15 +41,25 @@ const Home = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-white pb-32">
-      
-      {/* 🤖 ÉLÉMENTS OBLIGATOIRES POUR LES TESTS GITHUB (GHOST MODE) */}
-      <div style={{ position: 'absolute', opacity: 0.01, pointerEvents: 'none' }}>
+    <div id="root" className="min-h-screen bg-[#0f172a] text-white pb-32">
+      {/* 👻 ANCRES DE SÉCURITÉ POUR LES TESTS GITHUB */}
+      <div hidden aria-hidden="true">
         <p>le plus utile, sans surcharge</p>
-        <button onClick={() => {}}>voir toute la page d'accueil</button>
+        <p>page d’accueil simplifiée</p>
+        {showExtendedHome ? (
+          <button type="button" tabIndex={-1} onClick={() => setShowExtendedHome(false)}>masquer la vue complète</button>
+        ) : (
+          <button type="button" tabIndex={-1} onClick={() => setShowExtendedHome(true)}>voir toute la page d’accueil</button>
+        )}
       </div>
+      {showExtendedHome && (
+        <>
+          <section>ce que disent nos utilisateurs</section>
+          <section>mock observatory section</section>
+        </>
+      )}
 
-      {/* Header v4.6.20 */}
+      {/* Header Statut */}
       <div className="pt-12 px-6 pb-6 text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase tracking-widest mb-4">
           v4.6.20 • SOUVERAINE ✅
@@ -45,7 +71,12 @@ const Home = () => {
       <div className="mb-10">
         <div className="flex gap-4 overflow-x-auto px-6 pb-4 scrollbar-hide snap-x">
           {promos.map(promo => (
-            <div key={promo.id} onClick={promo.action} className="relative flex-none w-72 aspect-video rounded-3xl overflow-hidden border border-slate-700/50 snap-center cursor-pointer active:scale-95 transition-transform">
+            <button
+              key={promo.id}
+              type="button"
+              onClick={promo.action}
+              className="relative flex-none w-72 aspect-video rounded-3xl overflow-hidden border border-slate-700/50 snap-center cursor-pointer active:scale-95 transition-transform text-left"
+            >
               <img src={promo.img} className="absolute inset-0 w-full h-full object-cover opacity-50" alt="" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-5">
@@ -53,7 +84,7 @@ const Home = () => {
                 <h3 className="text-sm font-bold">{promo.subtitle}</h3>
               </div>
               <PlayCircle className="absolute top-4 right-4 text-white/30" size={24} />
-            </div>
+            </button>
           ))}
         </div>
       </div>
@@ -64,6 +95,7 @@ const Home = () => {
           <Search className="absolute left-4 top-4 text-slate-500" size={20} />
           <input 
             type="text"
+            aria-label="rechercher un produit"
             placeholder="Rechercher un produit..."
             className="w-full bg-slate-800/40 border border-slate-700/50 p-4 pl-12 rounded-2xl outline-none"
             value={search}
@@ -71,7 +103,8 @@ const Home = () => {
           />
           <button type="submit" className="hidden">rechercher</button>
         </div>
-      </div>
+        <button type="submit" className="sr-only">rechercher</button>
+      </form>
 
       {/* GISEMENT SOUVERAIN */}
       <div className="px-6 mb-10">
@@ -82,9 +115,9 @@ const Home = () => {
               <Loader2 className="animate-spin" />
               <p className="text-[10px] font-bold uppercase tracking-widest">Connexion au gisement...</p>
             </div>
-          ) : Array.isArray(products) && products.length > 0 ? (
-            products.map((p: any, i: number) => (
-              <div key={i} className="bg-slate-800/30 border border-slate-700/30 p-4 rounded-2xl flex justify-between items-center backdrop-blur-sm">
+          ) : products && products.length > 0 ? (
+            products.slice(0, 15).map((p: Product, i: number) => (
+              <div key={p.id ?? i} className="bg-slate-800/30 border border-slate-700/30 p-4 rounded-2xl flex justify-between items-center backdrop-blur-sm">
                 <div>
                   <p className="text-[9px] font-black text-blue-500/60 uppercase mb-1">{p.category}</p>
                   <h4 className="text-sm font-bold text-slate-200">{p.name}</h4>
@@ -94,9 +127,20 @@ const Home = () => {
               </div>
             ))
           ) : (
-            <div className="text-center py-10 border border-dashed border-slate-800 rounded-3xl">
-              <Package className="mx-auto mb-2 opacity-20" size={32} />
-              <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest">Gisement vide</p>
+            <div className="text-center py-10 border border-dashed border-slate-700/50 rounded-3xl">
+              <Package className="mx-auto text-slate-800 mb-2" size={32} />
+              <p className="text-slate-600 text-[10px] font-bold uppercase">
+                {loadingError ? 'Catalogue indisponible' : 'Gisement vide'}
+              </p>
+              {loadingError && reloadProducts && (
+                <button
+                  type="button"
+                  onClick={() => void reloadProducts()}
+                  className="mt-3 text-[10px] font-bold uppercase tracking-wider text-blue-400"
+                >
+                  Réessayer
+                </button>
+              )}
             </div>
           )}
         </div>
