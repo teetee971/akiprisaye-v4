@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import {
   evaluateProduct,
   getCategories,
@@ -117,7 +118,7 @@ export default function CosmeticEvaluation({ initialEan }) {
   const handleEvaluate = (e) => {
     e.preventDefault();
     if (!productName.trim() || !inciList.trim()) {
-      setFormError('Veuillez renseigner le nom du produit et la liste INCI.');
+      toast.error('Veuillez renseigner le nom du produit et la liste INCI.');
       return;
     }
     setFormError('');
@@ -175,7 +176,9 @@ export default function CosmeticEvaluation({ initialEan }) {
           </h2>
           <div className="flex gap-2">
             <input
+              id="barcode-cosmetic-input"
               type="text"
+              aria-label="Code-barres produit cosmétique"
               value={barcode}
               onChange={(e) => { setBarcode(e.target.value); setBarcodeError(''); }}
               onKeyDown={(e) => e.key === 'Enter' && handleLoadBarcode()}

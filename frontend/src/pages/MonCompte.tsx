@@ -60,7 +60,7 @@ export default function MonCompte() {
       await signOutUser();
       navigate("/");
     } catch (err) {
-      toast.error('Erreur lors de la déconnexion : ' + err);
+      toast.error("Erreur lors de la déconnexion : " + err);
     }
   };
 

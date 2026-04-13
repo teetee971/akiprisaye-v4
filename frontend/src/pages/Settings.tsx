@@ -17,6 +17,7 @@ import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 import { auth } from '../lib/firebase';
 import { User } from 'firebase/auth';
+import toast from 'react-hot-toast';
 import { safeLocalStorage } from '../utils/safeLocalStorage';
 import { HeroImage } from '../components/ui/HeroImage';
 import { PAGE_HERO_IMAGES } from '../config/imageAssets';
@@ -96,7 +97,7 @@ export default function Settings() {
         document.cookie = name + "=; expires=" + expires + "; path=/; domain=" + window.location.hostname;
       });
       
-      toast.success('Toutes les données locales ont été supprimées.');
+      toast.success('Toutes les données locales ont été supprimées. La page va se recharger.');
       window.location.reload();
     }
   }

@@ -296,7 +296,7 @@ export default function LicenceInstitution() {
               <CivicButton
                 variant="primary"
                 className="w-full"
-                onClick={() => toast('Dossier institutionnel en cours de génération. Contact : institutions@akiprisaye.fr', { icon: '📄', duration: 6000 })}
+                onClick={() => toast('Dossier institutionnel en cours de génération. Contact : institutions@akiprisaye.fr', { icon: '📄', duration: 5000 })}
               >
                 Télécharger le PDF
               </CivicButton>

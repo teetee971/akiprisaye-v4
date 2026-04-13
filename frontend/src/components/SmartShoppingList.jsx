@@ -171,7 +171,7 @@ export default function SmartShoppingList({ territoire = 'Guadeloupe' }) {
   // Optimize shopping route based on selected mode
   const optimizeShoppingRoute = async () => {
     if (!userLocation) {
-      toast.error("Veuillez activer la géolocalisation d'abord");
+      toast.error('Veuillez activer la géolocalisation d\'abord');
       return;
     }
 
@@ -469,7 +469,7 @@ export default function SmartShoppingList({ territoire = 'Guadeloupe' }) {
 
   // Export to PDF
   const exportToPDF = () => {
-    toast("Fonctionnalité d'export PDF à venir", { icon: '📄' });
+    toast('Fonctionnalité d\'export PDF à venir', { icon: '📄' });
     // TODO: Implement PDF export
   };
 

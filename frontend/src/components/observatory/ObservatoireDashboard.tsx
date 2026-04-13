@@ -149,11 +149,11 @@ export default function ObservatoireDashboard() {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
       } else {
-        toast.error(`Export échoué : ${result.error}`);
+        toast.error(`Export échoué: ${result.error}`);
       }
     } catch (error) {
       console.error('Export failed:', error);
-      toast.error("Erreur lors de l'export");
+      toast.error('Erreur lors de l\'export');
     } finally {
       setExporting(false);
     }

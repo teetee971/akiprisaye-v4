@@ -35,7 +35,7 @@ export default function AssistantChat() {
     
     // Check for prohibited content
     if (isProhibitedQuery(query)) {
-      toast.error('Cette question contient un contenu interdit.');
+      toast.error('⚠️ Cette question contient un contenu interdit.');
       return;
     }
     

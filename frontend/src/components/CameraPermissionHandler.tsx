@@ -118,6 +118,8 @@ export default function CameraPermissionHandler({
         "Autorisez l'accès",
       ];
     }
+    
+    toast(instructions, { icon: 'ℹ️', duration: 6000 });
   }
 
   // If permission already granted, show children

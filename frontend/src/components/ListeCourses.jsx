@@ -56,7 +56,7 @@ export default function ListeCourses({ territoire = '971' }) {
   // Fonction GPS (locale uniquement) - optimisée avec callbacks
   const activerGPS = useCallback(async () => {
     if (!consentementGPS) {
-      toast.error("Vous devez accepter l'utilisation de votre localisation pour cette fonctionnalité.");
+      toast.error('Vous devez accepter l\'utilisation de votre localisation pour cette fonctionnalité.');
       return;
     }
 
