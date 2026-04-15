@@ -15,5 +15,10 @@
     "firebase-admin": "^12.1.0",
     "openai": "^4.47.1",
     "sanitize-html": "^2.17.1"
+  },
+  "overrides": {
+    "@google-cloud/storage": {
+      "fast-xml-parser": "^5.5.6"
+    }
   }
 }
