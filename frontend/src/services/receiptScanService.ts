@@ -22,6 +22,7 @@
 
 import { runOCR } from './ocrService';
 import type { OCRResult } from './ocrService';
+import { findProductByEan, searchProductsByName } from '../data/seedProducts';
 
 /**
  * Structure d'une ligne de ticket détectée
@@ -61,6 +62,11 @@ export interface ReceiptLine {
    * Nécessite validation utilisateur?
    */
   needsValidation: boolean;
+
+  /**
+   * EAN de la fiche produit correspondante dans le catalogue (null si non trouvé)
+   */
+  productMatchId?: string | null;
 }
 
 /**
@@ -301,13 +307,30 @@ export function analyzeReceiptText(ocrResult: OCRResult): ReceiptAnalysisResult 
   
   const productLines: ReceiptLine[] = [];
   const unrecognizedLines: string[] = [];
-  
+  // Cache per-call: avoid calling searchProductsByName multiple times for the same label
+  const labelCache = new Map<string, string | null>();
+
   for (const line of lines) {
     const parsed = parseReceiptLine(line);
     const lineType = classifyLineType(line);
     
     // Ne garder que les lignes produits
     if (lineType === 'product' && parsed.confidence > 30) {
+      // Résoudre la fiche produit : EAN en priorité, sinon recherche par nom.
+      // Seuil : libellé ≥ 4 caractères ET au moins 2 termes (évite les faux positifs
+      // sur des labels courts/bruités comme "LT 1" ou "X2").
+      let productMatchId: string | null = null;
+      const labelTerms = parsed.label.trim().split(/\s+/).filter(Boolean);
+      if (parsed.label.length >= 4 && labelTerms.length >= 2) {
+        const cached = labelCache.get(parsed.label);
+        if (cached !== undefined) {
+          productMatchId = cached;
+        } else {
+          const nameMatches = searchProductsByName(parsed.label) as Array<{ ean?: string }>;
+          productMatchId = (nameMatches.length > 0 && nameMatches[0].ean) ? nameMatches[0].ean : null;
+          labelCache.set(parsed.label, productMatchId);
+        }
+      }
       productLines.push({
         rawText: line,
         normalizedLabel: parsed.label,
@@ -316,6 +339,7 @@ export function analyzeReceiptText(ocrResult: OCRResult): ReceiptAnalysisResult 
         confidence: parsed.confidence,
         type: lineType,
         needsValidation: parsed.confidence < 80, // Validation si confiance < 80%
+        productMatchId,
       });
     } else if (lineType !== 'total' && lineType !== 'tax' && lineType !== 'payment') {
       // Lister les lignes non reconnues (sauf totaux/TVA/paiements)

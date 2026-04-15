@@ -5,6 +5,7 @@
  *  1. OCR de l'image ticket (Tesseract.js via ocrService)
  *  2. Parsing structuré (receiptParser)
  *  3. Normalisation (enseignes, produits, unités)
+ *  3b. Matching articles → fiches produits catalogue (EAN ou nom)
  *  4. Validation métier + confidence scoring
  *  5. Déduplication (checksum store+date+total)
  *  6. Persistance Firestore (graceful si db=null)
@@ -38,6 +39,7 @@ import {
 import { db } from '@/lib/firebase';
 import { runOCR } from './ocrService';
 import { parseReceipt } from './receiptParser';
+import { findProductByEan, searchProductsByName } from '../data/seedProducts';
 import type { TerritoryCode } from '../constants/territories';
 import type {
   OCRRawBlock,
@@ -410,6 +412,56 @@ export function normalizeReceipt(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// 3b. Matching articles → fiches produits catalogue
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Résout chaque article du ticket vers une fiche produit du catalogue.
+ * Priorité : EAN (code-barres) > recherche par nom normalisé.
+ * Renseigne `productMatchId` avec l'EAN de la fiche trouvée, ou null.
+ */
+export function matchProductsInReceipt(
+  receipt: Omit<ReceiptRecord, 'id' | 'createdAt' | 'updatedAt' | 'checksum'>,
+): Omit<ReceiptRecord, 'id' | 'createdAt' | 'updatedAt' | 'checksum'> {
+  // Per-call cache: avoid duplicate lookups for repeated labels on the same ticket
+  const labelCache = new Map<string, string | null>();
+
+  const matchedItems: ReceiptItem[] = receipt.items.map((item) => {
+    // 1. Recherche par EAN si disponible
+    if (item.barcode) {
+      const byEan = findProductByEan(item.barcode) as { ean?: string } | null;
+      if (byEan?.ean) {
+        return { ...item, productMatchId: byEan.ean };
+      }
+    }
+
+    // 2. Recherche par nom normalisé.
+    // Seuil : libellé ≥ 4 caractères ET au moins 2 termes pour éviter
+    // les faux positifs sur des labels courts/bruités (ex: "LT 1", "X2").
+    const query = item.normalizedLabel ?? item.rawLabel;
+    if (query) {
+      const terms = query.trim().split(/\s+/).filter(Boolean);
+      if (query.length >= 4 && terms.length >= 2) {
+        const cached = labelCache.get(query);
+        if (cached !== undefined) {
+          return { ...item, productMatchId: cached };
+        }
+        const results = searchProductsByName(query) as Array<{ ean?: string }>;
+        const matchId = (results.length > 0 && results[0].ean) ? results[0].ean : null;
+        labelCache.set(query, matchId);
+        if (matchId) {
+          return { ...item, productMatchId: matchId };
+        }
+      }
+    }
+
+    return { ...item, productMatchId: null };
+  });
+
+  return { ...receipt, items: matchedItems };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // 4. Validation
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -610,6 +662,7 @@ export async function createPriceObservationsFromReceipt(
       category: item.category,
       brand: item.productBrand,
       barcode: item.barcode ?? null,
+      productMatchId: item.productMatchId ?? null,
       quantity: item.quantity,
       unit: item.unit,
       packageSizeValue: item.packageSizeValue,
@@ -731,8 +784,11 @@ export async function ingestReceiptImages(
     // ── Étape 3: Normalisation ────────────────────────────────────────────────
     const normalized = normalizeReceipt(parsed);
 
+    // ── Étape 3b: Matching produits catalogue ─────────────────────────────────
+    const matched = matchProductsInReceipt(normalized);
+
     // ── Étape 4: Validation ───────────────────────────────────────────────────
-    const validated = validateReceipt(normalized);
+    const validated = validateReceipt(matched);
 
     // ── Étape 5: Déduplication ────────────────────────────────────────────────
     const checksum = validated.checksum ?? '';
