@@ -7,6 +7,7 @@ interface Product {
   price: number;
   store: string;
   tags?: string[];
+  normalizedSearchContent?: string;
 }
 
 interface RawCatalogueItem {
@@ -37,7 +38,10 @@ const SearchPage: React.FC = () => {
     const catalogueUrl = `${baseUrl.replace(/\/+$/, '')}/data/catalogue.json`;
 
     fetch(catalogueUrl)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
       .then((data: RawCatalogueItem[]) => {
         if (!mounted || !Array.isArray(data)) return;
 
@@ -50,6 +54,7 @@ const SearchPage: React.FC = () => {
             price: typeof item.price === 'number' ? item.price : Number(item.price) || 0,
             store: item.store ?? 'Magasin non précisé',
             tags: item.tags ?? [],
+            normalizedSearchContent: normalize(`${item.name ?? ''} ${item.brand ?? ''} ${item.store ?? ''}`),
           }));
 
         setCatalogue(normalizedCatalogue);
@@ -79,7 +84,7 @@ const SearchPage: React.FC = () => {
 
     return catalogue
       .filter((item) => {
-        const searchContent = normalize(`${item.name} ${item.brand} ${item.store}`);
+        const searchContent = item.normalizedSearchContent ?? normalize(`${item.name} ${item.brand} ${item.store}`);
         return searchContent.includes(normalizedQuery);
       })
       .sort((a, b) => {

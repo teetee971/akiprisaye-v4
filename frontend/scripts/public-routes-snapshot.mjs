@@ -29,7 +29,7 @@ const mode = process.argv.includes('--write') ? 'write' : 'check';
 
 function extractRoutesFromSnapshot(content) {
   return content
-    .split('\n')
+    .split(/\r?\n/)
     .map((line) => line.trim())
     .filter((line) => line && !line.startsWith('#'));
 }
