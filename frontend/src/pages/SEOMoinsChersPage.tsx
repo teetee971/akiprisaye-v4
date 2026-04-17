@@ -18,7 +18,7 @@
  *   - Internal linking: comparator, category pages, price pages
  */
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { SEOHead } from '../components/ui/SEOHead';
 import { formatEur } from '../utils/currency';
@@ -38,67 +38,105 @@ function resolveTerritoryCode(slug: string): string {
 }
 
 // ── Category tabs ─────────────────────────────────────────────────────────────
+
+/** Estimated price premium vs hexagone per territory (ratio: 1.0 = same price) */
+const TERRITORY_PRICE_COEFF: Record<string, number> = {
+  GP: 1.4,
+  MQ: 1.42,
+  GF: 1.38,
+  RE: 1.35,
+  YT: 1.5,
+  BL: 1.6,
+  MF: 1.55,
+  PM: 1.45,
+};
+
 const CATEGORIES = [
-  { slug: 'all',              name: 'Tout',            icon: '🛒' },
-  { slug: 'boissons',         name: 'Boissons',        icon: '🥤' },
-  { slug: 'epicerie',         name: 'Épicerie',        icon: '🥫' },
+  { slug: 'all', name: 'Tout', icon: '🛒' },
+  { slug: 'boissons', name: 'Boissons', icon: '🥤' },
+  { slug: 'epicerie', name: 'Épicerie', icon: '🥫' },
   { slug: 'produits-laitiers', name: 'Produits Laitiers', icon: '🥛' },
-  { slug: 'viande',           name: 'Viande',          icon: '🥩' },
-  { slug: 'hygiene',          name: 'Hygiène',         icon: '🧴' },
-  { slug: 'fruits-legumes',   name: 'Fruits & Légumes', icon: '🥗' },
-  { slug: 'bebe',             name: 'Bébé',            icon: '👶' },
+  { slug: 'viande', name: 'Viande', icon: '🥩' },
+  { slug: 'hygiene', name: 'Hygiène', icon: '🧴' },
+  { slug: 'fruits-legumes', name: 'Fruits & Légumes', icon: '🥗' },
+  { slug: 'bebe', name: 'Bébé', icon: '👶' },
 ];
 
-// ── Mock best deals data ───────────────────────────────────────────────────────
+// ── Best deal types ───────────────────────────────────────────────────────────
 interface BestDeal {
-  id:       string;
-  name:     string;
-  price:    number;
+  id: string;
+  name: string;
+  price: number;
   avgPrice: number;
   retailer: string;
   category: string;
-  savings:  number;
-  pct:      number;
-  isFlash:  boolean;
+  savings: number;
+  pct: number;
+  isFlash: boolean;
 }
 
-const BASE_DEALS: Array<Omit<BestDeal, 'price' | 'avgPrice' | 'savings' | 'pct'>> = [
-  { id: 'coca-cola-1-5l',      name: 'Coca-Cola 1,5L',          retailer: 'E.Leclerc',    category: 'boissons',         isFlash: true  },
-  { id: 'riz-basmati-1kg',     name: 'Riz Basmati 1kg',         retailer: 'Leader Price', category: 'epicerie',         isFlash: false },
-  { id: 'lait-entier-1l',      name: 'Lait entier 1L',          retailer: 'Super U',      category: 'produits-laitiers', isFlash: false },
-  { id: 'nutella-400g',        name: 'Nutella 400g',            retailer: 'Carrefour',    category: 'epicerie',         isFlash: true  },
-  { id: 'poulet-entier',       name: 'Poulet entier /kg',       retailer: 'E.Leclerc',    category: 'viande',           isFlash: false },
-  { id: 'lessive-ariel-30d',   name: 'Lessive Ariel 30 doses',  retailer: 'Leader Price', category: 'hygiene',          isFlash: true  },
-  { id: 'banane-kg',           name: 'Banane /kg',              retailer: 'Super U',      category: 'fruits-legumes',   isFlash: false },
-  { id: 'couches-pampers-t3',  name: 'Couches Pampers T3 × 54', retailer: 'Carrefour',    category: 'bebe',             isFlash: false },
-  { id: 'eau-evian-1-5l',      name: 'Eau Évian 1,5L',          retailer: 'Intermarché',  category: 'boissons',         isFlash: false },
-  { id: 'beurre-president',    name: 'Beurre Président 250g',   retailer: 'E.Leclerc',    category: 'produits-laitiers', isFlash: false },
-  { id: 'pates-panzani-500g',  name: 'Pâtes Panzani 500g',      retailer: 'Leader Price', category: 'epicerie',         isFlash: false },
-  { id: 'shampoing-pantene',   name: 'Shampooing Pantène 300ml', retailer: 'Carrefour',   category: 'hygiene',          isFlash: true  },
-];
-
-const TERRITORY_PRICE_COEFF: Record<string, number> = {
-  GP: 1.18, MQ: 1.16, GF: 1.22, RE: 1.14, YT: 1.25,
+/** Category slug mapping from catalogue categories to page slugs */
+const CAT_SLUG_MAP: Record<string, string> = {
+  BOISSONS: 'boissons',
+  ÉPICERIE: 'epicerie',
+  'ULTRA FRAIS': 'produits-laitiers',
+  CHARCUTERIE: 'viande',
+  BOUCHERIE: 'viande',
+  POISSONNERIE: 'viande',
+  HYGIÈNE: 'hygiene',
+  'FRUITS ET LÉGUMES': 'fruits-legumes',
+  BÉBÉ: 'bebe',
 };
 
-const BASE_PRICES: Record<string, number> = {
-  'coca-cola-1-5l': 2.10, 'riz-basmati-1kg': 2.80, 'lait-entier-1l': 1.30,
-  'nutella-400g': 4.20, 'poulet-entier': 5.80, 'lessive-ariel-30d': 8.50,
-  'banane-kg': 1.50, 'couches-pampers-t3': 15.90, 'eau-evian-1-5l': 1.20,
-  'beurre-president': 2.20, 'pates-panzani-500g': 1.80, 'shampoing-pantene': 3.90,
-};
+/**
+ * Build best deals from real catalogue data.
+ * For each product, "price" is its real price, "avgPrice" is the category average.
+ * Sorted by savings percentage descending.
+ */
+async function getRealDeals(territory: string, categoryFilter: string): Promise<BestDeal[]> {
+  const { getCatalogue, nameToSlug } = await import('../services/realDataService');
+  const catalogue = await getCatalogue();
+  if (catalogue.length === 0) return [];
 
-function getMockDeals(territory: string): BestDeal[] {
-  const coeff = TERRITORY_PRICE_COEFF[territory] ?? 1.15;
+  // Compute per-category averages
+  const catTotals: Record<string, { sum: number; count: number }> = {};
+  for (const p of catalogue) {
+    const c = p.category;
+    if (!catTotals[c]) catTotals[c] = { sum: 0, count: 0 };
+    catTotals[c].sum += p.price;
+    catTotals[c].count += 1;
+  }
+  const catAvg: Record<string, number> = {};
+  for (const [c, { sum, count }] of Object.entries(catTotals)) {
+    catAvg[c] = sum / count;
+  }
 
-  return BASE_DEALS.map((deal) => {
-    const basePrice = BASE_PRICES[deal.id] ?? 3.00;
-    const price     = Math.round(basePrice * coeff * 0.88 * 100) / 100; // -12% best price
-    const avgPrice  = Math.round(basePrice * coeff * 100) / 100;
-    const savings   = Math.round((avgPrice - price) * 100) / 100;
-    const pct       = Math.round((savings / avgPrice) * 100);
-    return { ...deal, price, avgPrice, savings, pct };
-  }).sort((a, b) => b.pct - a.pct); // Sort by best % savings
+  const deals = catalogue
+    .map((p) => {
+      const avg = catAvg[p.category] ?? p.price;
+      const savings = +(avg - p.price).toFixed(2);
+      const pct = avg > 0 ? Math.round((savings / avg) * 100) : 0;
+      const catPageSlug = CAT_SLUG_MAP[p.category] ?? 'epicerie';
+      return {
+        id: nameToSlug(p.name),
+        name: p.name,
+        price: p.price,
+        avgPrice: +avg.toFixed(2),
+        retailer: p.store,
+        category: catPageSlug,
+        savings,
+        pct,
+        isFlash: pct > 20,
+      };
+    })
+    .filter((d) => d.savings > 0 && d.pct > 0);
+
+  const filtered =
+    categoryFilter && categoryFilter !== 'all'
+      ? deals.filter((d) => d.category === categoryFilter)
+      : deals;
+
+  return filtered.sort((a, b) => b.pct - a.pct).slice(0, 12);
 }
 
 // ── Deal card ─────────────────────────────────────────────────────────────────
@@ -127,7 +165,9 @@ function DealCard({ deal, territory }: { deal: BestDeal; territory: string }) {
         </div>
         <div className="mt-0.5 flex items-center gap-2 text-xs text-zinc-500">
           <span>{deal.retailer}</span>
-          <span aria-hidden className="text-zinc-700">·</span>
+          <span aria-hidden className="text-zinc-700">
+            ·
+          </span>
           <span className="line-through">{formatEur(deal.avgPrice)}</span>
         </div>
       </div>
@@ -160,32 +200,41 @@ function DealCard({ deal, territory }: { deal: BestDeal; territory: string }) {
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function SEOMoinsChersPage() {
   const { territory: tSlug = 'guadeloupe', category: catSlug } = useParams<{
-    territory: string; category?: string;
+    territory: string;
+    category?: string;
   }>();
 
-  const territory     = resolveTerritoryCode(tSlug);
+  const territory = resolveTerritoryCode(tSlug);
   const territoryName = getTerritoryName(territory);
 
   const [activeCategory, setActiveCategory] = useState(catSlug ?? 'all');
+  const [allDeals, setAllDeals] = useState<BestDeal[]>([]);
 
-  const allDeals = useMemo(() => getMockDeals(territory), [territory]);
-  const deals    = activeCategory === 'all'
-    ? allDeals
-    : allDeals.filter((d) => d.category === activeCategory);
+  useEffect(() => {
+    let cancelled = false;
+    getRealDeals(territory, activeCategory).then((data) => {
+      if (!cancelled) setAllDeals(data);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [territory, activeCategory]);
+
+  const deals = allDeals;
 
   const jsonLd = buildMoinsChersJsonLd(
     territory,
-    deals.slice(0, 10).map((d) => ({ name: d.name, price: d.price, retailer: d.retailer })),
+    deals.slice(0, 10).map((d) => ({ name: d.name, price: d.price, retailer: d.retailer }))
   );
 
-  const seoTitle       = `Produits les moins chers en ${territoryName} — Top offres du jour`;
+  const seoTitle = `Produits les moins chers en ${territoryName} — Top offres du jour`;
   const seoDescription = `Découvrez les ${deals.length} meilleures offres du jour en ${territoryName}. Économisez jusqu'à ${deals[0]?.pct ?? 20}% sur vos courses avec notre comparateur.`;
-  const canonical      = catSlug
+  const canonical = catSlug
     ? `${SITE_URL}/moins-cher/${tSlug}/${catSlug}`
     : `${SITE_URL}/moins-cher/${tSlug}`;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] px-4 py-8">
+    <div className="min-h-screen bg-slate-950 px-4 py-8">
       <SEOHead
         title={seoTitle}
         description={seoDescription}
@@ -194,14 +243,25 @@ export default function SEOMoinsChersPage() {
       />
 
       <div className="mx-auto max-w-2xl space-y-4">
-
         {/* Breadcrumb */}
         <nav aria-label="Fil d'Ariane" className="text-xs text-zinc-500">
           <ol className="flex flex-wrap items-center gap-1.5">
-            <li><Link to="/" className="hover:text-emerald-400 transition-colors">Accueil</Link></li>
-            <li aria-hidden className="text-zinc-700">›</li>
-            <li><Link to="/comparateur" className="hover:text-emerald-400 transition-colors">Comparateur</Link></li>
-            <li aria-hidden className="text-zinc-700">›</li>
+            <li>
+              <Link to="/" className="hover:text-emerald-400 transition-colors">
+                Accueil
+              </Link>
+            </li>
+            <li aria-hidden className="text-zinc-700">
+              ›
+            </li>
+            <li>
+              <Link to="/comparateur" className="hover:text-emerald-400 transition-colors">
+                Comparateur
+              </Link>
+            </li>
+            <li aria-hidden className="text-zinc-700">
+              ›
+            </li>
             <li className="text-zinc-300">Moins chers · {territoryName}</li>
           </ol>
         </nav>
@@ -222,7 +282,8 @@ export default function SEOMoinsChersPage() {
                 {deals.length} produits en promotion
               </div>
               <div className="mt-1 text-sm text-zinc-400">
-                Jusqu'à <span className="font-bold text-emerald-400">-{deals[0]?.pct ?? 20}%</span> de réduction
+                Jusqu'à <span className="font-bold text-emerald-400">-{deals[0]?.pct ?? 20}%</span>{' '}
+                de réduction
               </div>
             </div>
             <Link
@@ -242,9 +303,11 @@ export default function SEOMoinsChersPage() {
               type="button"
               onClick={() => setActiveCategory(cat.slug)}
               className={`flex-shrink-0 rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all
-                ${activeCategory === cat.slug
-                  ? 'border-emerald-400/40 bg-emerald-400/15 text-emerald-300'
-                  : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:border-white/20 hover:text-white'}`}
+                ${
+                  activeCategory === cat.slug
+                    ? 'border-emerald-400/40 bg-emerald-400/15 text-emerald-300'
+                    : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:border-white/20 hover:text-white'
+                }`}
             >
               {cat.icon} {cat.name}
             </button>
@@ -258,9 +321,7 @@ export default function SEOMoinsChersPage() {
               Aucun produit trouvé dans cette catégorie.
             </p>
           ) : (
-            deals.map((deal) => (
-              <DealCard key={deal.id} deal={deal} territory={territory} />
-            ))
+            deals.map((deal) => <DealCard key={deal.id} deal={deal} territory={territory} />)
           )}
         </div>
 
@@ -275,14 +336,17 @@ export default function SEOMoinsChersPage() {
               <strong className="text-zinc-400">
                 {Math.round((TERRITORY_PRICE_COEFF[territory] ?? 1.15) * 100 - 100)}% plus élevés
               </strong>{' '}
-              qu'en France métropolitaine. Notre comparateur analyse quotidiennement les prix
-              dans toutes les enseignes locales (Carrefour, E.Leclerc, Super U, Leader Price,
+              qu'en France métropolitaine. Notre comparateur analyse quotidiennement les prix dans
+              toutes les enseignes locales (Carrefour, E.Leclerc, Super U, Leader Price,
               Intermarché) pour vous aider à trouver les meilleures offres.
             </p>
             <p>
               En comparant avant vos courses, vous pouvez économiser jusqu'à{' '}
-              <strong className="text-emerald-400">{deals[0] ? formatEur(deals[0].savings) : '2 €'}</strong>{' '}
-              par produit et réaliser des économies substantielles sur votre budget alimentaire mensuel.
+              <strong className="text-emerald-400">
+                {deals[0] ? formatEur(deals[0].savings) : '2 €'}
+              </strong>{' '}
+              par produit et réaliser des économies substantielles sur votre budget alimentaire
+              mensuel.
             </p>
           </div>
         </section>
@@ -333,7 +397,6 @@ export default function SEOMoinsChersPage() {
             </Link>
           </div>
         </section>
-
       </div>
     </div>
   );

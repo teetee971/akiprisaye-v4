@@ -1,21 +1,21 @@
 /**
  * PriceReport Component
  * Allows users to report prices with geolocation
- * 
+ *
  * Features:
  * - Price input with validation
  * - Store selection
  * - Automatic geolocation (with permission)
  * - Date/time capture
  * - Promo/special offer flag
- * 
+ *
  * Citizen Contribution:
  * - Helps build real-time price database
  * - Transparent source attribution
  * - Moderation before publication
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 // Configuration constants
 const MAX_PRICE_LIMIT = 10000; // Maximum reasonable price in euros
@@ -48,35 +48,41 @@ export default function PriceReport({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  
+  const [locationLoading, setLocationLoading] = useState(false);
+
   /**
-   * Request geolocation on component mount
+   * Request geolocation on user gesture (not on mount)
    */
-  useEffect(() => {
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            accuracy: position.coords.accuracy,
-          });
-          setLocationError(null);
-        },
-        (err) => {
-          console.error('Geolocation error:', err);
-          setLocationError('Impossible d\'obtenir votre position. Veuillez l\'activer dans vos paramètres.');
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0,
-        }
-      );
-    } else {
+  const requestLocation = () => {
+    if (!('geolocation' in navigator)) {
       setLocationError('Géolocalisation non disponible sur cet appareil');
+      return;
     }
-  }, []);
+    setLocationLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+        });
+        setLocationError(null);
+        setLocationLoading(false);
+      },
+      (err) => {
+        console.error('Geolocation error:', err);
+        setLocationError(
+          "Impossible d'obtenir votre position. Veuillez l'activer dans vos paramètres."
+        );
+        setLocationLoading(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
+  };
 
   /**
    * Validate price input
@@ -85,7 +91,7 @@ export default function PriceReport({
     if (!value) {
       return false;
     }
-    
+
     const priceNum = parseFloat(value.replace(',', '.'));
     return !isNaN(priceNum) && priceNum > 0 && priceNum < MAX_PRICE_LIMIT;
   };
@@ -99,15 +105,15 @@ export default function PriceReport({
       setError('Veuillez entrer un prix valide (ex: 3.50)');
       return;
     }
-    
+
     if (!store.trim()) {
       setError('Veuillez sélectionner ou saisir le nom du magasin');
       return;
     }
-    
+
     setLoading(true);
     setError(null);
-    
+
     try {
       const priceValue = parseFloat(price.replace(',', '.'));
       const observation = {
@@ -133,7 +139,10 @@ export default function PriceReport({
 
       let reportId: string;
       if (res.ok || res.status === 201) {
-        const payload = await res.json().catch(() => ({})) as { observation?: { id?: string }; ok?: boolean };
+        const payload = (await res.json().catch(() => ({}))) as {
+          observation?: { id?: string };
+          ok?: boolean;
+        };
         reportId = payload.observation?.id ?? `report-${Date.now()}`;
       } else if (res.status === 403) {
         // Write endpoint disabled on backend — accept locally (graceful degradation)
@@ -146,10 +155,9 @@ export default function PriceReport({
       setTimeout(() => {
         onReportSuccess?.(reportId);
       }, 800);
-      
     } catch (err) {
       console.error('Report submission error:', err);
-      setError('Erreur lors de l\'envoi du signalement. Veuillez réessayer.');
+      setError("Erreur lors de l'envoi du signalement. Veuillez réessayer.");
     } finally {
       setLoading(false);
     }
@@ -160,19 +168,29 @@ export default function PriceReport({
       <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-6 max-w-2xl mx-auto">
         <div className="text-center space-y-4">
           <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto">
-            <svg className="w-10 h-10 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <svg
+              className="w-10 h-10 text-green-600 dark:text-green-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
             </svg>
           </div>
-          
+
           <h3 className="text-xl font-bold text-gray-900 dark:text-white">
             Prix signalé avec succès !
           </h3>
-          
+
           <p className="text-gray-600 dark:text-gray-400">
             Merci pour votre contribution. Votre signalement sera vérifié puis publié.
           </p>
-          
+
           <button
             onClick={onCancel}
             className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
@@ -188,9 +206,7 @@ export default function PriceReport({
     <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden max-w-2xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-          Signaler un prix
-        </h2>
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white">Signaler un prix</h2>
         {onCancel && (
           <button
             onClick={onCancel}
@@ -205,20 +221,17 @@ export default function PriceReport({
       <div className="p-6 space-y-6">
         {/* Product info */}
         <div className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-            Produit
-          </p>
-          <p className="font-semibold text-gray-900 dark:text-white">
-            {productName}
-          </p>
-          <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-            EAN: {productEan}
-          </p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Produit</p>
+          <p className="font-semibold text-gray-900 dark:text-white">{productName}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">EAN: {productEan}</p>
         </div>
 
         {/* Price input */}
         <div>
-          <label htmlFor="price-report-price" className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+          <label
+            htmlFor="price-report-price"
+            className="block text-sm font-semibold text-gray-900 dark:text-white mb-2"
+          >
             Prix observé <span className="text-red-500">*</span>
           </label>
           <div className="relative">
@@ -235,14 +248,15 @@ export default function PriceReport({
               €
             </span>
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-            Exemple : 3.50 ou 12.99
-          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Exemple : 3.50 ou 12.99</p>
         </div>
 
         {/* Store input */}
         <div>
-          <label htmlFor="price-report-store" className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+          <label
+            htmlFor="price-report-store"
+            className="block text-sm font-semibold text-gray-900 dark:text-white mb-2"
+          >
             Magasin <span className="text-red-500">*</span>
           </label>
           <input
@@ -270,7 +284,10 @@ export default function PriceReport({
 
         {/* Comment */}
         <div>
-          <label htmlFor="price-report-comment" className="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+          <label
+            htmlFor="price-report-comment"
+            className="block text-sm font-semibold text-gray-900 dark:text-white mb-2"
+          >
             Commentaire (optionnel)
           </label>
           <textarea
@@ -290,9 +307,24 @@ export default function PriceReport({
         {/* Geolocation status */}
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
           <div className="flex items-start gap-3">
-            <svg className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            <svg
+              className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+              />
             </svg>
             <div className="flex-1 text-sm">
               {location ? (
@@ -300,13 +332,31 @@ export default function PriceReport({
                   📍 Position enregistrée (précision: {Math.round(location.accuracy)}m)
                 </p>
               ) : locationError ? (
-                <p className="text-orange-700 dark:text-orange-300">
-                  ⚠️ {locationError}
-                </p>
+                <div>
+                  <p className="text-orange-700 dark:text-orange-300 mb-2">⚠️ {locationError}</p>
+                  <button
+                    type="button"
+                    onClick={requestLocation}
+                    disabled={locationLoading}
+                    className="text-xs px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {locationLoading ? 'Localisation...' : 'Réessayer'}
+                  </button>
+                </div>
               ) : (
-                <p className="text-gray-700 dark:text-gray-300">
-                  📡 Récupération de votre position...
-                </p>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-gray-500 dark:text-gray-400">
+                    📡 Position non partagée (optionnelle)
+                  </p>
+                  <button
+                    type="button"
+                    onClick={requestLocation}
+                    disabled={locationLoading}
+                    className="text-xs px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 whitespace-nowrap"
+                  >
+                    {locationLoading ? 'Localisation...' : 'Localiser'}
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -315,9 +365,7 @@ export default function PriceReport({
         {/* Error message */}
         {error && (
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-            <p className="text-sm text-red-800 dark:text-red-200">
-              {error}
-            </p>
+            <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
           </div>
         )}
 
@@ -340,8 +388,19 @@ export default function PriceReport({
             {loading ? (
               <>
                 <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
                 </svg>
                 Envoi en cours...
               </>

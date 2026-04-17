@@ -6,12 +6,12 @@
 import { safeLocalStorage } from '../utils/safeLocalStorage';
 import { liveApiFetchJson } from './liveApiClient';
 import { resolveApiBaseUrl } from './apiBaseUrl';
-import type { 
-  ShoppingList, 
-  ShoppingListItem, 
+import type {
+  ShoppingList,
+  ShoppingListItem,
   BudgetOptimization,
   StoreAllocation,
-  Coordinates 
+  Coordinates,
 } from '../types/shoppingList';
 
 export class ShoppingListService {
@@ -28,13 +28,13 @@ export class ShoppingListService {
       items: [],
       territory,
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     };
-    
+
     const lists = this.getLists();
     lists.push(newList);
     this.saveLists(lists);
-    
+
     return newList;
   }
 
@@ -50,7 +50,7 @@ export class ShoppingListService {
    */
   getList(listId: string): ShoppingList | null {
     const lists = this.getLists();
-    return lists.find(l => l.id === listId) || null;
+    return lists.find((l) => l.id === listId) || null;
   }
 
   /**
@@ -58,16 +58,16 @@ export class ShoppingListService {
    */
   async addItem(listId: string, item: Omit<ShoppingListItem, 'id' | 'addedAt'>): Promise<void> {
     const lists = this.getLists();
-    const list = lists.find(l => l.id === listId);
-    
+    const list = lists.find((l) => l.id === listId);
+
     if (!list) throw new Error('List not found');
-    
+
     const newItem: ShoppingListItem = {
       ...item,
       id: this.generateId(),
-      addedAt: new Date().toISOString()
+      addedAt: new Date().toISOString(),
     };
-    
+
     list.items.push(newItem);
     list.updatedAt = new Date().toISOString();
     this.saveLists(lists);
@@ -78,11 +78,11 @@ export class ShoppingListService {
    */
   async removeItem(listId: string, itemId: string): Promise<void> {
     const lists = this.getLists();
-    const list = lists.find(l => l.id === listId);
-    
+    const list = lists.find((l) => l.id === listId);
+
     if (!list) throw new Error('List not found');
-    
-    list.items = list.items.filter(i => i.id !== itemId);
+
+    list.items = list.items.filter((i) => i.id !== itemId);
     list.updatedAt = new Date().toISOString();
     this.saveLists(lists);
   }
@@ -121,10 +121,7 @@ export class ShoppingListService {
   /**
    * Calculate optimal route using TSP approximation
    */
-  async calculateOptimalRoute(
-    storeIds: string[],
-    userLocation?: Coordinates
-  ): Promise<string[]> {
+  async calculateOptimalRoute(storeIds: string[], userLocation?: Coordinates): Promise<string[]> {
     const payload = await liveApiFetchJson<{ route?: string[] }>('/shopping-lists/route', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -139,10 +136,13 @@ export class ShoppingListService {
    * Get similar/cheaper products
    */
   async getSimilarProducts(ean: string): Promise<any[]> {
-    const payload = await liveApiFetchJson<{ items?: any[] }>(`/products/${encodeURIComponent(ean)}/similar`, {
-      incidentReason: 'similar_products_api_unavailable',
-      timeoutMs: 10000,
-    });
+    const payload = await liveApiFetchJson<{ items?: any[] }>(
+      `/products/${encodeURIComponent(ean)}/similar`,
+      {
+        incidentReason: 'similar_products_api_unavailable',
+        timeoutMs: 10000,
+      }
+    );
     return Array.isArray(payload?.items) ? payload.items : [];
   }
 
@@ -153,17 +153,47 @@ export class ShoppingListService {
     if (format === 'text') {
       let content = `Liste: ${list.name}\n`;
       content += `Créée le: ${new Date(list.createdAt).toLocaleDateString()}\n\n`;
-      
+
       list.items.forEach((item, i) => {
         content += `${i + 1}. ${item.productName} (x${item.quantity})\n`;
         if (item.notes) content += `   Notes: ${item.notes}\n`;
       });
-      
+
       return new Blob([content], { type: 'text/plain' });
     }
-    
-    // TODO: Implement PDF export with jspdf
-    return new Blob(['PDF not implemented yet'], { type: 'application/pdf' });
+
+    // PDF export via jsPDF (dynamic import to keep main bundle lean)
+    const { jsPDF } = await import('jspdf');
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+    pdf.setFontSize(16);
+    pdf.text(`Liste : ${list.name}`, 14, 20);
+    pdf.setFontSize(11);
+    pdf.text(`Créée le : ${new Date(list.createdAt).toLocaleDateString('fr-FR')}`, 14, 28);
+    pdf.text(`Territoire : ${list.territory}`, 14, 35);
+    pdf.setLineWidth(0.3);
+    pdf.line(14, 38, 196, 38);
+
+    let y = 44;
+    pdf.setFontSize(12);
+    list.items.forEach((item, i) => {
+      if (y > 270) {
+        pdf.addPage();
+        y = 20;
+      }
+      const label = `${i + 1}. ${item.productName}  ×${item.quantity}`;
+      pdf.text(label, 14, y);
+      if (item.notes) {
+        pdf.setFontSize(10);
+        pdf.text(`   ${item.notes}`, 14, y + 5);
+        pdf.setFontSize(12);
+        y += 12;
+      } else {
+        y += 8;
+      }
+    });
+
+    return new Blob([pdf.output('arraybuffer')], { type: 'application/pdf' });
   }
 
   /**
@@ -171,7 +201,7 @@ export class ShoppingListService {
    */
   async deleteList(listId: string): Promise<void> {
     const lists = this.getLists();
-    const filtered = lists.filter(l => l.id !== listId);
+    const filtered = lists.filter((l) => l.id !== listId);
     this.saveLists(filtered);
   }
 

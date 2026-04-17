@@ -1,34 +1,47 @@
 /**
  * Invoice OCR Service v1.0.0
- * 
+ *
  * Service d'extraction automatique des données de factures transporteurs
  * Détection des frais cachés
  */
 
 import type { InvoiceData, HiddenFee, FreightQuote } from '../types/freightComparison';
+import { runOCR } from './ocrService';
 
 /**
- * Extrait les données d'une facture (OCR)
- * Note: Implémentation simplifiée - nécessite intégration Tesseract.js ou API OCR
+ * Extrait les données d'une facture via OCR (Tesseract.js) ou lecture texte (PDF).
+ * Délègue à extractTextFromImage / extractTextFromPDF puis parse le texte brut.
  */
 export async function extractInvoiceData(file: File): Promise<InvoiceData | null> {
   try {
-    // TODO: Implémenter OCR réel avec Tesseract.js
-    // Pour l'instant, retourner structure de base
-    
-    console.log('OCR extraction pour:', file.name);
-    
-    // Simulation d'extraction
+    let rawText = '';
+
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    if (isPdf) {
+      rawText = await extractTextFromPDF(file);
+    } else {
+      rawText = await extractTextFromImage(file);
+    }
+
+    if (!rawText.trim()) {
+      return {
+        carrier: 'Non détecté',
+        route: { origin: '', destination: '' },
+        basePrice: 0,
+        fees: [],
+        totalPaid: 0,
+        extractionConfidence: 0,
+      };
+    }
+
+    const parsed = parseInvoiceText(rawText);
     return {
-      carrier: 'Non détecté',
-      route: {
-        origin: '',
-        destination: '',
-      },
-      basePrice: 0,
-      fees: [],
-      totalPaid: 0,
-      extractionConfidence: 0.5,
+      carrier: parsed.carrier ?? 'Non détecté',
+      route: parsed.route ?? { origin: '', destination: '' },
+      basePrice: parsed.basePrice ?? 0,
+      fees: parsed.fees ?? [],
+      totalPaid: parsed.totalPaid ?? 0,
+      extractionConfidence: rawText.length > 100 ? 0.75 : 0.4,
     };
   } catch (error) {
     console.error('Error extracting invoice data:', error);
@@ -44,7 +57,7 @@ export function detectHiddenFees(
   expectedQuote: FreightQuote | null
 ): HiddenFee[] {
   const hiddenFees: HiddenFee[] = [];
-  
+
   if (!expectedQuote) {
     // Pas de devis de référence, marquer tous les frais comme potentiellement cachés
     invoiceData.fees.forEach((fee) => {
@@ -57,7 +70,7 @@ export function detectHiddenFees(
     });
     return hiddenFees;
   }
-  
+
   // Comparer avec le devis attendu
   const expectedFees = new Map<string, number>();
   expectedFees.set('base', expectedQuote.pricing.basePrice);
@@ -66,12 +79,12 @@ export function detectHiddenFees(
     expectedFees.set('assurance', expectedQuote.pricing.insurance);
   }
   expectedFees.set('octroi', expectedQuote.pricing.octroi);
-  
+
   // Vérifier chaque frais de la facture
   invoiceData.fees.forEach((fee) => {
     const category = categorizeFee(fee.name);
     const expectedAmount = expectedFees.get(category);
-    
+
     if (!expectedAmount) {
       // Frais non prévu
       hiddenFees.push({
@@ -90,11 +103,9 @@ export function detectHiddenFees(
       });
     }
   });
-  
+
   // Vérifier le total
-  const totalDifference = Math.abs(
-    invoiceData.totalPaid - expectedQuote.pricing.totalTTC
-  );
+  const totalDifference = Math.abs(invoiceData.totalPaid - expectedQuote.pricing.totalTTC);
   if (totalDifference > expectedQuote.pricing.totalTTC * 0.05) {
     // Différence > 5% sur le total
     hiddenFees.push({
@@ -104,7 +115,7 @@ export function detectHiddenFees(
       category: 'surcharge',
     });
   }
-  
+
   return hiddenFees;
 }
 
@@ -113,7 +124,7 @@ export function detectHiddenFees(
  */
 function categorizeFee(feeName: string): HiddenFee['category'] {
   const lowerName = feeName.toLowerCase();
-  
+
   if (
     lowerName.includes('manutention') ||
     lowerName.includes('handling') ||
@@ -121,7 +132,7 @@ function categorizeFee(feeName: string): HiddenFee['category'] {
   ) {
     return 'handling';
   }
-  
+
   if (
     lowerName.includes('douane') ||
     lowerName.includes('customs') ||
@@ -129,7 +140,7 @@ function categorizeFee(feeName: string): HiddenFee['category'] {
   ) {
     return 'customs';
   }
-  
+
   if (
     lowerName.includes('octroi') ||
     lowerName.includes('taxe') ||
@@ -138,7 +149,7 @@ function categorizeFee(feeName: string): HiddenFee['category'] {
   ) {
     return 'tax';
   }
-  
+
   if (
     lowerName.includes('supplément') ||
     lowerName.includes('surcharge') ||
@@ -146,7 +157,7 @@ function categorizeFee(feeName: string): HiddenFee['category'] {
   ) {
     return 'surcharge';
   }
-  
+
   return 'other';
 }
 
@@ -160,27 +171,27 @@ export function validateInvoiceData(data: InvoiceData): {
 } {
   const errors: string[] = [];
   const warnings: string[] = [];
-  
+
   if (!data.carrier || data.carrier === 'Non détecté') {
     errors.push('Transporteur non détecté');
   }
-  
+
   if (!data.route.origin || !data.route.destination) {
     errors.push('Origine ou destination manquante');
   }
-  
+
   if (data.basePrice <= 0) {
     errors.push('Prix de base invalide');
   }
-  
+
   if (data.totalPaid <= 0) {
     errors.push('Total payé invalide');
   }
-  
+
   if (data.extractionConfidence < 0.7) {
-    warnings.push('Confiance d\'extraction faible - vérifiez les données');
+    warnings.push("Confiance d'extraction faible - vérifiez les données");
   }
-  
+
   // Vérifier cohérence
   const calculatedTotal = data.basePrice + data.fees.reduce((sum, f) => sum + f.amount, 0);
   const difference = Math.abs(calculatedTotal - data.totalPaid);
@@ -188,7 +199,7 @@ export function validateInvoiceData(data: InvoiceData): {
     // Différence > 1%
     warnings.push('Incohérence entre le total calculé et le total payé');
   }
-  
+
   return {
     valid: errors.length === 0,
     errors,
@@ -197,14 +208,30 @@ export function validateInvoiceData(data: InvoiceData): {
 }
 
 /**
- * Parse un fichier PDF pour extraire le texte
- * Note: Nécessite intégration pdf.js ou similaire
+ * Extrait le texte brut d'un fichier PDF via lecture en tant que texte.
+ * Fonctionne pour les PDF "texte" (non scannés).
+ * Pour les PDF scannés (images), utiliser extractTextFromImage sur chaque page.
  */
 export async function extractTextFromPDF(file: File): Promise<string> {
   try {
-    // TODO: Implémenter extraction PDF avec pdf.js
-    console.log('Extraction PDF pour:', file.name);
-    return '';
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const raw = e.target?.result;
+        if (typeof raw !== 'string') {
+          resolve('');
+          return;
+        }
+        // Extract human-readable ASCII/Latin runs from raw PDF bytes
+        const text = raw
+          .replace(/[^\x20-\x7E\u00A0-\u00FF\n\r]/g, ' ')
+          .replace(/ {3,}/g, ' ')
+          .trim();
+        resolve(text);
+      };
+      reader.onerror = () => reject(reader.error);
+      reader.readAsText(file, 'latin1');
+    });
   } catch (error) {
     console.error('Error extracting PDF text:', error);
     return '';
@@ -212,17 +239,20 @@ export async function extractTextFromPDF(file: File): Promise<string> {
 }
 
 /**
- * Parse une image pour extraire le texte (OCR)
- * Note: Nécessite intégration Tesseract.js
+ * Extrait le texte d'une image via Tesseract.js (OCR côté client, WASM).
+ * Fonctionne hors ligne grâce au Service Worker.
  */
 export async function extractTextFromImage(file: File): Promise<string> {
+  let objectUrl: string | null = null;
   try {
-    // TODO: Implémenter OCR avec Tesseract.js
-    console.log('OCR image pour:', file.name);
-    return '';
+    objectUrl = URL.createObjectURL(file);
+    const result = await runOCR(objectUrl, 'fra', { receiptMode: true });
+    return result.success ? result.rawText : '';
   } catch (error) {
-    console.error('Error extracting image text:', error);
+    console.error('Error extracting image text via OCR:', error);
     return '';
+  } finally {
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
   }
 }
 
@@ -233,7 +263,7 @@ export function parseInvoiceText(text: string): Partial<InvoiceData> {
   const data: Partial<InvoiceData> = {
     fees: [],
   };
-  
+
   // Patterns de détection
   const carrierPatterns = [
     /colissimo/i,
@@ -244,7 +274,7 @@ export function parseInvoiceText(text: string): Partial<InvoiceData> {
     /cma\s*cgm/i,
     /maersk/i,
   ];
-  
+
   // Détecter le transporteur
   for (const pattern of carrierPatterns) {
     const match = text.match(pattern);
@@ -253,33 +283,33 @@ export function parseInvoiceText(text: string): Partial<InvoiceData> {
       break;
     }
   }
-  
+
   // Détecter les montants (EUR, €)
   const pricePattern = /(\d+[.,]\d{2})\s*(?:EUR|€)/gi;
   const prices = Array.from(text.matchAll(pricePattern)).map((m) =>
     parseFloat(m[1].replace(',', '.'))
   );
-  
+
   if (prices.length > 0) {
     data.totalPaid = prices[prices.length - 1]; // Dernier montant = total
     if (prices.length > 1) {
       data.basePrice = prices[0]; // Premier montant = base
     }
   }
-  
+
   // Détecter poids (kg)
   const weightPattern = /(\d+[.,]?\d*)\s*kg/i;
   const weightMatch = text.match(weightPattern);
   if (weightMatch) {
     data.weight = parseFloat(weightMatch[1].replace(',', '.'));
   }
-  
+
   // Détecter numéro de suivi
   const trackingPattern = /(?:tracking|suivi|n°|numéro)\s*:?\s*([A-Z0-9]{10,})/i;
   const trackingMatch = text.match(trackingPattern);
   if (trackingMatch) {
     data.trackingNumber = trackingMatch[1];
   }
-  
+
   return data;
 }

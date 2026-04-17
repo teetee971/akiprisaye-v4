@@ -3,8 +3,10 @@
  * Main container for the interactive store map with clustering and filters
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet.markercluster';
 import { Loader2 } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
@@ -47,19 +49,90 @@ interface StoreMapProps {
   showNearbyList?: boolean;
 }
 
+/** Minimal interface for leaflet.markercluster (no @types available) */
+interface MarkerClusterGroupInstance extends L.FeatureGroup {
+  clearLayers(): this;
+  addLayer(layer: L.Layer): this;
+}
+
+type LWithCluster = typeof L & {
+  markerClusterGroup: (opts?: object) => MarkerClusterGroupInstance;
+};
+
 const DEFAULT_CENTER: [number, number] = [16.265, -61.551]; // Guadeloupe
 const DEFAULT_ZOOM = 11;
+
+/** Escape HTML special characters to prevent XSS in Leaflet popups. */
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/**
+ * MarkerClusterLayer — renders store markers using leaflet.markercluster.
+ * Mounted inside <MapContainer> so it has access to the Leaflet map instance.
+ */
+function MarkerClusterLayer({
+  stores,
+  onStoreClick,
+}: {
+  stores: Store[];
+  onStoreClick: (store: Store) => void;
+}) {
+  const map = useMap();
+  const clusterGroupRef = useRef<MarkerClusterGroupInstance | null>(null);
+
+  useEffect(() => {
+    // Create or reuse the cluster group
+    if (!clusterGroupRef.current) {
+      clusterGroupRef.current = (L as unknown as LWithCluster).markerClusterGroup({
+        chunkedLoading: true,
+        maxClusterRadius: 60,
+      });
+      map.addLayer(clusterGroupRef.current);
+    }
+
+    const group = clusterGroupRef.current;
+    group.clearLayers();
+
+    stores.forEach((store) => {
+      const marker = L.marker([store.lat, store.lon]);
+      const label =
+        store.priceIndex != null ? `${store.name} — indice ${store.priceIndex}` : store.name;
+      marker.bindPopup(
+        `<strong>${escapeHtml(store.name)}</strong><br/>${escapeHtml(store.address ?? '')}<br/>${escapeHtml(label)}`
+      );
+      marker.on('click', () => onStoreClick(store));
+      group.addLayer(marker);
+    });
+
+    return () => {
+      group.clearLayers();
+    };
+  }, [map, stores, onStoreClick]);
+
+  // Clean up on unmount
+  useEffect(() => {
+    const group = clusterGroupRef.current;
+    return () => {
+      if (group) {
+        map.removeLayer(group);
+      }
+      clusterGroupRef.current = null;
+    };
+  }, [map]);
+
+  return null;
+}
 
 /**
  * MapController - handles map interactions
  */
-function MapController({
-  center,
-  zoom,
-}: {
-  center: [number, number];
-  zoom: number;
-}) {
+function MapController({ center, zoom }: { center: [number, number]; zoom: number }) {
   const map = useMap();
 
   useEffect(() => {
@@ -83,9 +156,9 @@ export function StoreMap({
 }: StoreMapProps) {
   const [territory, setTerritory] = useState(initialTerritory);
   const [selectedChains, setSelectedChains] = useState<string[]>([]);
-  const [priceCategory, setPriceCategory] = useState<
-    'all' | 'cheap' | 'medium' | 'expensive'
-  >('all');
+  const [priceCategory, setPriceCategory] = useState<'all' | 'cheap' | 'medium' | 'expensive'>(
+    'all'
+  );
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [radius, setRadius] = useState(10);
   const [openOnly, setOpenOnly] = useState(false);
@@ -112,13 +185,6 @@ export function StoreMap({
     chains: selectedChains.length > 0 ? selectedChains : undefined,
     autoFetch: false,
   });
-
-  // Request geolocation on mount
-  useEffect(() => {
-    if (permission === 'prompt') {
-      requestPermission();
-    }
-  }, [permission, requestPermission]);
 
   // Update map center when position changes
   useEffect(() => {
@@ -208,8 +274,24 @@ export function StoreMap({
               <PriceHeatmap points={heatmapPoints} visible={showHeatmap} />
             )}
 
-            {/* TODO: Add marker clustering layer here */}
+            {/* Marker Cluster Layer */}
+            {displayedStores.length > 0 && (
+              <MarkerClusterLayer stores={displayedStores} onStoreClick={handleStoreClick} />
+            )}
           </MapContainer>
+
+          {/* Locate Me Button */}
+          {permission !== 'granted' && (
+            <div className="absolute bottom-4 left-4 z-[1000]">
+              <button
+                type="button"
+                onClick={requestPermission}
+                className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-lg shadow-lg font-medium hover:bg-gray-100 transition-colors"
+              >
+                📍 Me localiser
+              </button>
+            </div>
+          )}
 
           {/* Heatmap Toggle */}
           {enableHeatmap && (
@@ -245,7 +327,11 @@ export function StoreMap({
               Magasins à proximité
               {displayedStores.length > 0 && (
                 <span className="ml-2 text-sm font-normal text-gray-600">
-                  ({displayedStores.length}{openOnly && nearbyStores.length !== displayedStores.length ? ` ouverts sur ${nearbyStores.length}` : ''})
+                  ({displayedStores.length}
+                  {openOnly && nearbyStores.length !== displayedStores.length
+                    ? ` ouverts sur ${nearbyStores.length}`
+                    : ''}
+                  )
                 </span>
               )}
             </h2>

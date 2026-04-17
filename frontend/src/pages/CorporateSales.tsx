@@ -4,7 +4,16 @@
  */
 import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Building2, School, Globe, Heart, CheckCircle, ChevronRight, Euro, Phone } from 'lucide-react';
+import {
+  Building2,
+  School,
+  Globe,
+  Heart,
+  CheckCircle,
+  ChevronRight,
+  Euro,
+  Phone,
+} from 'lucide-react';
 
 const PACKAGES = [
   {
@@ -23,7 +32,7 @@ const PACKAGES = [
       'Accès illimité pour les bénéficiaires',
       'Tableau de bord gestionnaire',
       'Ateliers numériques inclus',
-      'Rapports d\'impact mensuels',
+      "Rapports d'impact mensuels",
       'Support prioritaire',
     ],
     examples: ['Centre Social Pointe-à-Pitre', 'CCAS Basse-Terre'],
@@ -64,7 +73,7 @@ const PACKAGES = [
     features: [
       'Tableau de bord exécutif',
       'Rapports territoriaux personnalisés',
-      'API d\'accès aux données',
+      "API d'accès aux données",
       'Veille concurrentielle',
       'Intégration portail citoyen',
       'SLA 99,9% garanti',
@@ -87,7 +96,7 @@ const PACKAGES = [
       'Accès complet à tarif solidaire',
       'Badge "Partenaire Solidaire"',
       'Communication commune',
-      'Données d\'impact partagées',
+      "Données d'impact partagées",
     ],
     examples: ['Secours Catholique Antilles', 'Restos du Cœur Réunion'],
   },
@@ -107,7 +116,10 @@ export default function CorporateSales() {
     <div className="min-h-screen bg-slate-950 p-4 md:p-8">
       <Helmet>
         <title>Offres Corporate B2B — A KI PRI SA YÉ</title>
-        <meta name="description" content="Packages corporate pour centres sociaux, écoles, collectivités et ONG. Tarification adaptée à chaque type d'organisation." />
+        <meta
+          name="description"
+          content="Packages corporate pour centres sociaux, écoles, collectivités et ONG. Tarification adaptée à chaque type d'organisation."
+        />
       </Helmet>
 
       {/* Hero */}
@@ -117,12 +129,13 @@ export default function CorporateSales() {
           <span className="text-emerald-400 text-sm">Corporate B2B</span>
         </div>
         <h1 className="text-4xl font-bold text-white mb-4">
-          Solutions pour<br />
+          Solutions pour
+          <br />
           <span className="text-emerald-400">Organisations & Institutions</span>
         </h1>
         <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-          Des packages dédiés pour centres sociaux, établissements scolaires,
-          collectivités territoriales et ONG. Potentiel 30k€/mois.
+          Des packages dédiés pour centres sociaux, établissements scolaires, collectivités
+          territoriales et ONG. Potentiel 30k€/mois.
         </p>
         <div className="mt-4 text-2xl font-bold text-white">
           Potentiel Total : <span className="text-emerald-400">30k€/mois</span>
@@ -132,31 +145,23 @@ export default function CorporateSales() {
       {/* Packages */}
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
         {PACKAGES.map((pkg) => {
-          const PkgIcon = pkg.icon;
           return (
-            <div
+            <button
               key={pkg.type}
-              role="button"
-              tabIndex={0}
+              type="button"
               aria-pressed={selectedType === pkg.type}
-              className={`border rounded-xl p-6 cursor-pointer transition-all ${
+              className={`w-full text-left border rounded-xl p-6 cursor-pointer transition-all ${
                 selectedType === pkg.type
                   ? `${pkg.bgColor} ring-2 ring-current`
                   : 'bg-white/5 border-white/10 hover:border-white/20'
               }`}
               onClick={() => setSelectedType(pkg.type === selectedType ? null : pkg.type)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault();
-                  setSelectedType(pkg.type === selectedType ? null : pkg.type);
-                }
-              }}
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <span className="text-3xl">{pkg.emoji}</span>
                   <div>
-                    <h3 className={`text-lg font-bold text-white`}>{pkg.label}</h3>
+                    <h3 className="text-lg font-bold text-white">{pkg.label}</h3>
                     <p className="text-sm text-gray-400">{pkg.subtitle}</p>
                   </div>
                 </div>
@@ -165,9 +170,7 @@ export default function CorporateSales() {
                   <div className="text-xs text-gray-500">ou {pkg.annualFee}€/an</div>
                 </div>
               </div>
-              <div className="text-xs text-gray-400 mb-3">
-                🎯 {pkg.target}
-              </div>
+              <div className="text-xs text-gray-400 mb-3">🎯 {pkg.target}</div>
               <ul className="space-y-1.5 mb-4">
                 {pkg.features.map((f) => (
                   <li key={f} className="flex items-center gap-2 text-sm text-gray-300">
@@ -176,13 +179,9 @@ export default function CorporateSales() {
                   </li>
                 ))}
               </ul>
-              <div className="text-xs text-gray-500">
-                💡 Potentiel : {pkg.potentialMRR}
-              </div>
-              <div className="text-xs text-gray-600 mt-1">
-                Ex : {pkg.examples.join(', ')}
-              </div>
-            </div>
+              <div className="text-xs text-gray-500">💡 Potentiel : {pkg.potentialMRR}</div>
+              <div className="text-xs text-gray-600 mt-1">Ex : {pkg.examples.join(', ')}</div>
+            </button>
           );
         })}
       </div>
@@ -197,8 +196,11 @@ export default function CorporateSales() {
           <form onSubmit={handleContact} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Organisation</label>
+                <label htmlFor="cs-org" className="block text-sm text-gray-400 mb-1">
+                  Organisation
+                </label>
                 <input
+                  id="cs-org"
                   type="text"
                   required
                   value={contactForm.org}
@@ -208,8 +210,11 @@ export default function CorporateSales() {
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Nom du contact</label>
+                <label htmlFor="cs-name" className="block text-sm text-gray-400 mb-1">
+                  Nom du contact
+                </label>
                 <input
+                  id="cs-name"
                   type="text"
                   required
                   value={contactForm.name}
@@ -220,8 +225,11 @@ export default function CorporateSales() {
               </div>
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Email institutionnel</label>
+              <label htmlFor="cs-email" className="block text-sm text-gray-400 mb-1">
+                Email institutionnel
+              </label>
               <input
+                id="cs-email"
                 type="email"
                 required
                 value={contactForm.email}
@@ -231,16 +239,23 @@ export default function CorporateSales() {
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Type d'organisation</label>
+              <label htmlFor="cs-type" className="block text-sm text-gray-400 mb-1">
+                Type d'organisation
+              </label>
               <select
+                id="cs-type"
                 value={selectedType ?? ''}
                 onChange={(e) => setSelectedType(e.target.value)}
                 required
                 className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-emerald-500"
               >
-                <option value="" disabled>Sélectionner...</option>
+                <option value="" disabled>
+                  Sélectionner...
+                </option>
                 {PACKAGES.map((p) => (
-                  <option key={p.type} value={p.type}>{p.label}</option>
+                  <option key={p.type} value={p.type}>
+                    {p.label}
+                  </option>
                 ))}
               </select>
             </div>

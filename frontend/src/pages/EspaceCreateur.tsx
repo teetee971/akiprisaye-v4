@@ -1,13 +1,28 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, Navigate } from 'react-router-dom';
-import { BarChart3, Bell, BrainCircuit, Building2, Clock3, Crown, RefreshCw, Wrench, Users, Key } from 'lucide-react';
+import { Building2, Clock3, Crown, Key, RefreshCw, Wrench } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { getDailyStats } from '../utils/priceClickTracker';
-import { generateDailyPost } from '../services/ghostwriterService';
+import {
+  generateDailyPost,
+  getGhostwriterHistory,
+  saveGhostwriterPost,
+} from '../services/ghostwriterService';
+import type { GhostwriterHistoryEntry } from '../services/ghostwriterService';
 import { getPredatorSeedAlerts, runPredatorMonitoring } from '../services/predatorService';
 import { useVisitorStats } from '../hooks/useVisitorStats';
-import type { InterestStats, TerritoryInterestStat, TerritoryStats } from '../hooks/useVisitorStats';
+import type {
+  InterestStats,
+  TerritoryInterestStat,
+  TerritoryStats,
+} from '../hooks/useVisitorStats';
+import CreatorSkeleton from '../components/creator/CreatorSkeleton';
+
+const CreatorAudiencePanel = lazy(() => import('../components/creator/CreatorAudiencePanel'));
+const CreatorRevenuePanel = lazy(() => import('../components/creator/CreatorRevenuePanel'));
+const CreatorAdminTools = lazy(() => import('../components/creator/CreatorAdminTools'));
+const CreatorActivationGuide = lazy(() => import('../components/creator/CreatorActivationGuide'));
 
 const radarStyle = `
 @keyframes radarPulse { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.1); } }
@@ -32,7 +47,9 @@ export function buildCreatorBriefing({
   const liveEmoji = topInterest?.emoji ?? '📌';
   const liveLabel = (topInterest?.name ?? 'aucun focus').toLowerCase();
   const historicalEmoji = topTerritoryHistoricalInterest?.emoji ?? '';
-  const historicalLabel = (topTerritoryHistoricalInterest?.name ?? 'aucun historique dominant').toLowerCase();
+  const historicalLabel = (
+    topTerritoryHistoricalInterest?.name ?? 'aucun historique dominant'
+  ).toLowerCase();
 
   const liveKey = normalizeInterestKey(topInterest?.key);
   const historicalKey = normalizeInterestKey(topTerritoryHistoricalInterest?.interest);
@@ -54,6 +71,9 @@ const EspaceCreateur: React.FC = () => {
   const [predatorScanning, setPredatorScanning] = useState(false);
   const [predatorAlerts, setPredatorAlerts] = useState(() => getPredatorSeedAlerts());
   const [predatorLastScan, setPredatorLastScan] = useState<string | null>(null);
+  const [postHistory, setPostHistory] = useState<GhostwriterHistoryEntry[]>(() =>
+    getGhostwriterHistory()
+  );
 
   const weeklyStats = useMemo(() => getDailyStats(7), []);
   const monthlyStats = useMemo(() => getDailyStats(30), []);
@@ -74,6 +94,14 @@ const EspaceCreateur: React.FC = () => {
     };
   }, [weeklyStats, monthlyStats]);
 
+  // Most dormant territory — lowest live online count; available for growth-ops recommendations
+  const mostDormantTerritory = useMemo(
+    () =>
+      byTerritory.length > 0 ? [...byTerritory].sort((a, b) => a.online - b.online)[0] : undefined,
+    [byTerritory]
+  );
+  void mostDormantTerritory;
+
   const ghostwriterRevenueTrend =
     typeof window !== 'undefined'
       ? (window as { revenueAnalytics?: { revenueTrend?: number } }).revenueAnalytics?.revenueTrend
@@ -81,18 +109,60 @@ const EspaceCreateur: React.FC = () => {
   const ghostwriterPriceSignal = ghostwriterRevenueTrend ?? 0;
 
   const ghostwriterPost = useMemo(() => {
+    const drops = predatorAlerts
+      .filter((a) => a.deltaPercent < 0)
+      .map((a) => ({ name: a.targetName, changePct: a.deltaPercent }));
+    const increases = predatorAlerts
+      .filter((a) => a.deltaPercent > 0)
+      .map((a) => ({ name: a.targetName, changePct: a.deltaPercent }));
+    const avgDelta =
+      predatorAlerts.length > 0
+        ? predatorAlerts.reduce((sum, a) => sum + a.deltaPercent, 0) / predatorAlerts.length
+        : ghostwriterPriceSignal;
+    const topProduct = predatorAlerts.length > 0 ? predatorAlerts[0].targetName : undefined;
+
     return generateDailyPost({
       territory: byTerritory[0]?.name ?? 'Guadeloupe',
       topCategory: byInterest[0]?.name ?? 'produits frais',
-      averagePriceChangePct: analytics.monthlyCtr * 100,
+      averagePriceChangePct: avgDelta,
+      notableDrops: drops,
+      notableIncreases: increases,
+      topProduct,
+      date: new Date().toLocaleDateString('fr-FR', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+      }),
     });
-  }, [byTerritory, byInterest, analytics.monthlyCtr]);
+  }, [byTerritory, byInterest, predatorAlerts, ghostwriterPriceSignal]);
+
+  const audienceBriefing = useMemo(
+    () =>
+      buildCreatorBriefing({
+        topTerritory: byTerritory[0],
+        topInterest: byInterest[0],
+        topTerritoryHistoricalInterest: byTerritory[0]?.topInterests[0]
+          ? {
+              territory: byTerritory[0].code ?? '',
+              interest: byTerritory[0].topInterests[0].key,
+              name: byTerritory[0].topInterests[0].name,
+              emoji: byTerritory[0].topInterests[0].emoji,
+              totalViews: byTerritory[0].topInterests[0].online,
+            }
+          : undefined,
+      }),
+    [byTerritory, byInterest]
+  );
 
   const handleCopyGhostwriterPost = useCallback(() => {
     navigator.clipboard.writeText(ghostwriterPost);
     setGhostwriterCopied(true);
     setTimeout(() => setGhostwriterCopied(false), 2000);
-  }, [ghostwriterPost]);
+    const entry = saveGhostwriterPost(ghostwriterPost, audienceBriefing);
+    setPostHistory((prev) =>
+      prev.length > 0 && prev[0].id === entry.id ? prev : [entry, ...prev].slice(0, 10)
+    );
+  }, [ghostwriterPost, audienceBriefing]);
 
   const handleScan = useCallback(async () => {
     if (typeof window === 'undefined') return;
@@ -146,150 +216,44 @@ const EspaceCreateur: React.FC = () => {
           <div>
             <h1 className="text-2xl font-black">Espace Créateur v{creatorSpaceVersion}</h1>
             <p className="text-xs text-amber-200/60 flex items-center gap-1 mt-1">
-              <Clock3 size={12} /> Dernière synchro: {predatorLastScan ? new Date(predatorLastScan).toLocaleTimeString('fr-FR') : 'en attente'}
+              <Clock3 size={12} /> Dernière synchro:{' '}
+              {predatorLastScan
+                ? new Date(predatorLastScan).toLocaleTimeString('fr-FR')
+                : 'en attente'}
             </p>
           </div>
         </div>
       </header>
 
-      <section className="mb-8 rounded-3xl border border-violet-500/30 bg-slate-900/50 p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-bold flex items-center gap-2">
-            <BrainCircuit className="text-violet-400" /> Ghostwriter Social
-          </h2>
-          <button
-            type="button"
-            onClick={handleCopyGhostwriterPost}
-            className="text-xs bg-violet-600 px-3 py-2 rounded-lg font-bold hover:bg-violet-500 transition"
-          >
-            {ghostwriterCopied ? 'Copié !' : 'Copier le texte'}
-          </button>
-        </div>
-        <pre className="whitespace-pre-wrap text-sm text-slate-300 bg-slate-950 p-5 rounded-xl border border-slate-800">
-          {ghostwriterPost}
-        </pre>
-      </section>
+      <Suspense fallback={<CreatorSkeleton />}>
+        <CreatorAudiencePanel
+          ghostwriterPost={ghostwriterPost}
+          audienceBriefing={audienceBriefing}
+          ghostwriterCopied={ghostwriterCopied}
+          onCopy={handleCopyGhostwriterPost}
+          postHistory={postHistory}
+        />
+      </Suspense>
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        <article className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-md">
-          <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Revenu 7j</p>
-          <p className="text-3xl font-black text-emerald-400 mt-2">{analytics.weeklyRevenue.toFixed(2)} €</p>
-        </article>
-        <article className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-md">
-          <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">CTR mensuel</p>
-          <p className="text-3xl font-black text-amber-400 mt-2">{(analytics.monthlyCtr * 100).toFixed(2)}%</p>
-        </article>
-        <article className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-md">
-          <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Audience live</p>
-          <p className="text-3xl font-black text-fuchsia-400 mt-2">{totalOnline}</p>
-        </article>
-        <article className="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-md">
-          <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Paiement estimé</p>
-          <p className="text-3xl font-black text-slate-100 mt-2">{analytics.monthlyRevenue.toFixed(2)} €</p>
-          <div className="w-full bg-slate-800 rounded-full h-1.5 mt-4">
-            <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: `${Math.min(100, analytics.payoutProgress)}%` }} />
-          </div>
-        </article>
-      </section>
+      <Suspense fallback={<CreatorSkeleton />}>
+        <CreatorRevenuePanel
+          analytics={analytics}
+          totalOnline={totalOnline}
+          weeklyStats={weeklyStats}
+        />
+      </Suspense>
 
-      <section className="order-2 md:order-1 mb-8 bg-slate-900 border border-slate-800 p-6 rounded-3xl">
-        <div className="flex justify-between items-end mb-6">
-          <div>
-            <h2 className="text-xl font-bold flex items-center gap-2">
-              <BarChart3 className="text-emerald-400" /> Trackers d'engagement CPC
-            </h2>
-            <p className="text-sm text-slate-400 mt-1">Gains sur les 30 derniers jours : <strong className="text-white">{analytics.monthlyRevenue.toFixed(2)} €</strong></p>
-          </div>
-        </div>
-        
-        <div className="space-y-3">
-          {weeklyStats.slice().reverse().map((stat) => (
-            <div key={stat.date} className="flex items-center justify-between bg-slate-950 p-4 rounded-xl border border-slate-800 hover:border-slate-700 transition">
-              <p className="text-sm font-bold text-slate-300 w-24">
-                {new Date(stat.date).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' })}
-              </p>
-              <div className="flex gap-4 text-xs text-slate-500">
-                <span className="w-16 text-right">{stat.views} vues</span>
-                <span className="w-16 text-right">{stat.clicks} clics</span>
-              </div>
-              <p className="text-lg font-black text-emerald-400 w-20 text-right">{stat.estimatedRevenue.toFixed(2)} €</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <Suspense fallback={<CreatorSkeleton />}>
+        <CreatorAdminTools isAdmin={isAdmin} />
+      </Suspense>
 
-      <section className="order-1 md:order-2 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-        <h2 className="sr-only">Outils d'administration</h2>
-        {isAdmin ? (
-          <>
-            <Link to="/admin" className="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex gap-4 items-center hover:bg-slate-800 transition shadow-sm">
-              <BarChart3 className="text-blue-400" size={24} />
-              <span className="font-bold">Admin Global</span>
-            </Link>
-            <Link to="/admin/stores" className="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex gap-4 items-center hover:bg-slate-800 transition shadow-sm">
-              <Building2 className="text-emerald-400" size={24} />
-              <span className="font-bold">Enseignes</span>
-            </Link>
-            <Link to="/admin/calculs-batiment" className="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex gap-4 items-center hover:bg-slate-800 transition shadow-sm">
-              <Wrench className="text-amber-400" size={24} />
-              <span className="font-bold">Calculs BTP</span>
-            </Link>
-            <Link to="/admin/users" className="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex gap-4 items-center hover:bg-slate-800 transition shadow-sm">
-              <Users className="text-purple-400" size={24} />
-              <span className="font-bold">Utilisateurs</span>
-            </Link>
-          </>
-        ) : (
-          <>
-            <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl flex flex-col gap-2 shadow-sm opacity-80">
-              <div className="flex gap-4 items-center">
-                <BarChart3 className="text-blue-400" size={24} />
-                <span className="font-bold">Admin Global</span>
-              </div>
-              <p className="text-xs text-amber-300">Admin requis</p>
-            </div>
-            <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl flex flex-col gap-2 shadow-sm opacity-80">
-              <div className="flex gap-4 items-center">
-                <Building2 className="text-emerald-400" size={24} />
-                <span className="font-bold">Enseignes</span>
-              </div>
-              <p className="text-xs text-amber-300">Admin requis</p>
-            </div>
-            <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl flex flex-col gap-2 shadow-sm opacity-80">
-              <div className="flex gap-4 items-center">
-                <Wrench className="text-amber-400" size={24} />
-                <span className="font-bold">Calculs BTP</span>
-              </div>
-              <p className="text-xs text-amber-300">Admin requis</p>
-            </div>
-            <Link to="/mon-compte" className="bg-slate-900 border border-slate-800 p-5 rounded-2xl flex gap-4 items-center hover:bg-slate-800 transition shadow-sm">
-              <Users className="text-purple-400" size={24} />
-              <span className="font-bold">Mon compte créateur</span>
-            </Link>
-          </>
-        )}
-      </section>
-
-      <section className="bg-emerald-950/20 border border-emerald-500/20 p-6 rounded-3xl mb-8">
-        <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-bold flex items-center gap-2 text-emerald-400"><Bell size={18} /> Alertes Predator</h3>
-            <button onClick={() => { void handleScan(); }} disabled={predatorScanning} className="text-xs bg-emerald-700 px-3 py-1 rounded-lg flex items-center gap-1 disabled:opacity-50">
-                <RefreshCw size={12} className={predatorScanning ? 'animate-spin' : ''} /> {predatorScanning ? 'Scan...' : 'Scanner'}
-            </button>
-        </div>
-
-        <div className="space-y-3">
-          {predatorAlerts.length === 0 && (
-            <p className="text-sm text-slate-500 text-center py-6 border border-dashed border-slate-800 rounded-xl">Aucune alerte critique détectée sur le marché.</p>
-          )}
-          {predatorAlerts.map((alert) => (
-            <div key={alert.id} className="bg-slate-950/80 p-4 rounded-xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <p className="text-sm font-bold text-white">{alert.targetName}</p>
-              <p className="text-xs text-slate-400">{alert.message}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <Suspense fallback={<CreatorSkeleton />}>
+        <CreatorActivationGuide
+          predatorAlerts={predatorAlerts}
+          predatorScanning={predatorScanning}
+          onScan={handleScan}
+        />
+      </Suspense>
 
       <div className="flex justify-center gap-8 mt-4 pt-6 border-t border-slate-800/50 pb-8">
         <Link
@@ -306,7 +270,11 @@ const EspaceCreateur: React.FC = () => {
         >
           <Wrench size={22} />
         </Link>
-        <Link to="/mon-compte" className="text-slate-500 hover:text-slate-300 hover:scale-110 transition-transform" aria-label="Mon compte">
+        <Link
+          to="/mon-compte"
+          className="text-slate-500 hover:text-slate-300 hover:scale-110 transition-transform"
+          aria-label="Mon compte"
+        >
           <Key size={22} />
         </Link>
         <button

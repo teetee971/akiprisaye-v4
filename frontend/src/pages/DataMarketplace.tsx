@@ -4,7 +4,16 @@
  */
 import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Database, FileText, Globe, GraduationCap, Euro, Download, ChevronRight, CheckCircle } from 'lucide-react';
+import {
+  Database,
+  FileText,
+  Globe,
+  GraduationCap,
+  Euro,
+  Download,
+  ChevronRight,
+  CheckCircle,
+} from 'lucide-react';
 
 const REPORTS = [
   {
@@ -21,7 +30,7 @@ const REPORTS = [
       'Tendances sur 6 mois',
       'Top 20 produits impactés',
       'Comparaison avec France hexagonale',
-      'Indice d\'inflation calculé',
+      "Indice d'inflation calculé",
     ],
     Icon: Database,
   },
@@ -98,7 +107,10 @@ export default function DataMarketplace() {
     <div className="min-h-screen bg-slate-950 p-4 md:p-8">
       <Helmet>
         <title>Data Marketplace — A KI PRI SA YÉ</title>
-        <meta name="description" content="Licences de données de prix DOM-TOM. Rapports mensuels, analyses territoriales, exports personnalisés." />
+        <meta
+          name="description"
+          content="Licences de données de prix DOM-TOM. Rapports mensuels, analyses territoriales, exports personnalisés."
+        />
       </Helmet>
 
       {/* Hero */}
@@ -108,34 +120,28 @@ export default function DataMarketplace() {
           <span className="text-blue-400 text-sm">Data Marketplace</span>
         </div>
         <h1 className="text-4xl font-bold text-white mb-4">
-          Données de Prix DOM-TOM<br />
+          Données de Prix DOM-TOM
+          <br />
           <span className="text-blue-400">sous licence commerciale</span>
         </h1>
         <p className="text-gray-400 text-lg">
-          Rapports pré-générés, exports personnalisés et licences académiques.
-          Données 100% conformes RGPD, anonymisées par défaut.
+          Rapports pré-générés, exports personnalisés et licences académiques. Données 100%
+          conformes RGPD, anonymisées par défaut.
         </p>
       </div>
 
       {/* Reports Grid */}
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
         {REPORTS.map((report) => (
-          <div
+          <button
             key={report.id}
-            role="button"
-            tabIndex={0}
-            className={`bg-white/5 border rounded-xl p-6 cursor-pointer transition-all ${
+            type="button"
+            className={`w-full text-left bg-white/5 border rounded-xl p-6 cursor-pointer transition-all ${
               selectedReport === report.id
                 ? 'border-blue-500/50 ring-2 ring-blue-500/30'
                 : 'border-white/10 hover:border-white/20'
             }`}
             onClick={() => setSelectedReport(report.id)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setSelectedReport(report.id);
-              }
-            }}
           >
             <div className="flex items-start justify-between mb-3">
               <div>
@@ -154,7 +160,10 @@ export default function DataMarketplace() {
             </div>
             <div className="flex flex-wrap gap-1 mb-4">
               {report.formats.map((f) => (
-                <span key={f} className="text-xs bg-white/5 border border-white/10 rounded px-2 py-0.5 text-gray-400">
+                <span
+                  key={f}
+                  className="text-xs bg-white/5 border border-white/10 rounded px-2 py-0.5 text-gray-400"
+                >
                   {f}
                 </span>
               ))}
@@ -167,7 +176,7 @@ export default function DataMarketplace() {
                 </li>
               ))}
             </ul>
-          </div>
+          </button>
         ))}
       </div>
 
@@ -180,22 +189,32 @@ export default function DataMarketplace() {
         {!ordered ? (
           <form onSubmit={handleOrder} className="space-y-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Rapport sélectionné</label>
+              <label htmlFor="dm-report" className="block text-sm text-gray-400 mb-1">
+                Rapport sélectionné
+              </label>
               <select
+                id="dm-report"
                 value={selectedReport ?? ''}
                 onChange={(e) => setSelectedReport(e.target.value)}
                 required
                 className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
               >
-                <option value="" disabled>Choisir un rapport...</option>
+                <option value="" disabled>
+                  Choisir un rapport...
+                </option>
                 {REPORTS.map((r) => (
-                  <option key={r.id} value={r.id}>{r.title}</option>
+                  <option key={r.id} value={r.id}>
+                    {r.title}
+                  </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Email de livraison</label>
+              <label htmlFor="dm-email" className="block text-sm text-gray-400 mb-1">
+                Email de livraison
+              </label>
               <input
+                id="dm-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -212,7 +231,10 @@ export default function DataMarketplace() {
               className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
             >
               <Euro className="w-4 h-4" />
-              Commander {selectedReport && REPORTS.find((r) => r.id === selectedReport)?.price ? `(${REPORTS.find((r) => r.id === selectedReport)?.price}€)` : ''}
+              Commander{' '}
+              {selectedReport && REPORTS.find((r) => r.id === selectedReport)?.price
+                ? `(${REPORTS.find((r) => r.id === selectedReport)?.price}€)`
+                : ''}
               <ChevronRight className="w-4 h-4" />
             </button>
           </form>
@@ -221,10 +243,15 @@ export default function DataMarketplace() {
             <div className="text-4xl">✅</div>
             <div className="text-white font-bold">Commande reçue !</div>
             <div className="text-sm text-gray-400">
-              Vous recevrez votre rapport à <strong className="text-white">{email}</strong> selon les délais indiqués.
+              Vous recevrez votre rapport à <strong className="text-white">{email}</strong> selon
+              les délais indiqués.
             </div>
             <button
-              onClick={() => { setOrdered(false); setSelectedReport(null); setEmail(''); }}
+              onClick={() => {
+                setOrdered(false);
+                setSelectedReport(null);
+                setEmail('');
+              }}
               className="text-sm text-blue-400 hover:text-blue-300"
             >
               ← Nouvelle commande

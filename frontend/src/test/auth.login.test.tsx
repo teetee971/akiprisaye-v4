@@ -16,6 +16,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
+import { ThemeProvider } from '../context/ThemeContext';
 
 /* ── Shared mock navigate ──────────────────────────────────────────────── */
 const mockNavigate = vi.fn();
@@ -137,7 +138,7 @@ describe('Login page', () => {
     render(
       <MemoryRouter>
         <Login />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     expect(screen.getByRole('status', { name: /vérification en cours/i })).toBeTruthy();
@@ -151,7 +152,7 @@ describe('Login page', () => {
     render(
       <MemoryRouter>
         <Login />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     expect(screen.queryByRole('status', { name: /vérification/i })).toBeNull();
@@ -167,19 +168,24 @@ describe('Login page', () => {
     render(
       <MemoryRouter initialEntries={['/connexion']}>
         <Login />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     expect(mockNavigate).toHaveBeenCalledWith('/mon-compte', { replace: true });
     // Success toast is fired to confirm the sign-in visually
     expect(mockToastSuccess).toHaveBeenCalledWith(
       expect.stringContaining('Bienvenue'),
-      expect.objectContaining({ id: 'auth-success' }),
+      expect.objectContaining({ id: 'auth-success' })
     );
   });
 
   it('fires a success toast before redirecting when auth resolves with a user (OAuth return)', () => {
-    const fakeUser = { uid: 'u1', email: 'marie@example.com', displayName: 'Marie Dupont', photoURL: null };
+    const fakeUser = {
+      uid: 'u1',
+      email: 'marie@example.com',
+      displayName: 'Marie Dupont',
+      photoURL: null,
+    };
     authState = makeAuthMock({ loading: false, user: fakeUser });
     mockNavigate.mockClear();
     mockToastSuccess.mockClear();
@@ -187,13 +193,13 @@ describe('Login page', () => {
     render(
       <MemoryRouter>
         <Login />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     // Toast includes the user's first name
     expect(mockToastSuccess).toHaveBeenCalledWith(
       expect.stringContaining('Marie'),
-      expect.objectContaining({ id: 'auth-success', duration: 3000 }),
+      expect.objectContaining({ id: 'auth-success', duration: 3000 })
     );
     expect(mockNavigate).toHaveBeenCalledWith('/mon-compte', { replace: true });
   });
@@ -204,7 +210,7 @@ describe('Login page', () => {
     render(
       <MemoryRouter>
         <Login />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     // Spinner is shown, social buttons hidden — prevents flash of login form during redirect settlement
@@ -224,7 +230,7 @@ describe('Header', () => {
     render(
       <MemoryRouter>
         <Header />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     expect(screen.getByRole('link', { name: /se connecter/i })).toBeTruthy();
@@ -232,12 +238,17 @@ describe('Header', () => {
   });
 
   it('shows a loading skeleton instead of "Se connecter" while auth is settling', () => {
-    authState = makeAuthMock({ loading: true, authFlowState: 'resolving', authResolved: false, user: null });
+    authState = makeAuthMock({
+      loading: true,
+      authFlowState: 'resolving',
+      authResolved: false,
+      user: null,
+    });
 
     render(
       <MemoryRouter>
         <Header />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     // During OAuth redirect return, auth is in loading state.
@@ -263,7 +274,7 @@ describe('Header', () => {
     render(
       <MemoryRouter>
         <Header />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     expect(screen.getByText('Jean Dupont')).toBeTruthy();
@@ -283,7 +294,7 @@ describe('Header', () => {
     render(
       <MemoryRouter>
         <Header />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     const avatar = screen.getByAltText('Avatar') as HTMLImageElement;
@@ -302,7 +313,7 @@ describe('Header', () => {
     render(
       <MemoryRouter>
         <Header />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     // The initial badge is aria-hidden, but its text content should be "P"
@@ -322,7 +333,7 @@ describe('SocialLoginButtons', () => {
     render(
       <MemoryRouter>
         <SocialLoginButtons />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     // The Google button has text "Continuer avec Google" inside it
@@ -336,7 +347,7 @@ describe('SocialLoginButtons', () => {
     const { container } = render(
       <MemoryRouter>
         <SocialLoginButtons />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     expect(screen.queryByText(/continuer avec google/i)).toBeNull();
@@ -349,7 +360,7 @@ describe('SocialLoginButtons', () => {
     const { rerender } = render(
       <MemoryRouter>
         <SocialLoginButtons redirectTo="/mon-compte" />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     // Simulate onAuthStateChanged confirming the user after popup
@@ -361,7 +372,7 @@ describe('SocialLoginButtons', () => {
     rerender(
       <MemoryRouter>
         <SocialLoginButtons redirectTo="/mon-compte" />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     expect(screen.queryByText(/continuer avec google/i)).toBeNull();
@@ -378,7 +389,8 @@ describe('SocialLoginButtons', () => {
 
     // Simulate a mobile user agent
     Object.defineProperty(navigator, 'userAgent', {
-      value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
+      value:
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
       configurable: true,
     });
 
@@ -386,7 +398,7 @@ describe('SocialLoginButtons', () => {
     render(
       <MemoryRouter>
         <SocialLoginButtons redirectTo="/mon-compte" />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     fireEvent.click(screen.getByRole('button', { name: /se connecter avec google/i }));
@@ -396,7 +408,7 @@ describe('SocialLoginButtons', () => {
       // call signInGoogleRedirect directly. The redirect is initiated by AuthCallbackPage.
       expect(mockNavigate).toHaveBeenCalledWith(
         expect.stringContaining('/auth/callback?provider=google'),
-        expect.any(Object),
+        expect.any(Object)
       );
     });
     expect(mockSignInGoogleRedirect).not.toHaveBeenCalled();
@@ -404,7 +416,8 @@ describe('SocialLoginButtons', () => {
 
     // Restore a desktop user agent for subsequent tests
     Object.defineProperty(navigator, 'userAgent', {
-      value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      value:
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       configurable: true,
     });
   });
@@ -420,14 +433,15 @@ describe('SocialLoginButtons', () => {
 
     // Ensure desktop user agent
     Object.defineProperty(navigator, 'userAgent', {
-      value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      value:
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       configurable: true,
     });
 
     render(
       <MemoryRouter>
         <SocialLoginButtons />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     // The Google button accessible name is set by its aria-label
@@ -449,21 +463,30 @@ describe('layout/Header', () => {
     authState = makeAuthMock({ user: null });
 
     render(
-      <MemoryRouter>
-        <LayoutHeader />
-      </MemoryRouter>,
+      <ThemeProvider>
+        <MemoryRouter>
+          <LayoutHeader />
+        </MemoryRouter>
+      </ThemeProvider>
     );
 
     expect(screen.getByRole('link', { name: /se connecter/i })).toBeTruthy();
   });
 
   it('shows a loading skeleton instead of "Se connecter" while auth is settling', () => {
-    authState = makeAuthMock({ loading: true, authFlowState: 'resolving', authResolved: false, user: null });
+    authState = makeAuthMock({
+      loading: true,
+      authFlowState: 'resolving',
+      authResolved: false,
+      user: null,
+    });
 
     render(
-      <MemoryRouter>
-        <LayoutHeader />
-      </MemoryRouter>,
+      <ThemeProvider>
+        <MemoryRouter>
+          <LayoutHeader />
+        </MemoryRouter>
+      </ThemeProvider>
     );
 
     // The skeleton replaces the "Se connecter" button while auth is resolving.
@@ -482,9 +505,11 @@ describe('layout/Header', () => {
     authState = makeAuthMock({ user: fakeUser, signOutUser: vi.fn() });
 
     render(
-      <MemoryRouter>
-        <LayoutHeader />
-      </MemoryRouter>,
+      <ThemeProvider>
+        <MemoryRouter>
+          <LayoutHeader />
+        </MemoryRouter>
+      </ThemeProvider>
     );
 
     // Avatar button is accessible as "Mon compte"
@@ -503,9 +528,11 @@ describe('layout/Header', () => {
     authState = makeAuthMock({ user: fakeUser, signOutUser: vi.fn() });
 
     render(
-      <MemoryRouter>
-        <LayoutHeader />
-      </MemoryRouter>,
+      <ThemeProvider>
+        <MemoryRouter>
+          <LayoutHeader />
+        </MemoryRouter>
+      </ThemeProvider>
     );
 
     // Open the mobile navigation menu

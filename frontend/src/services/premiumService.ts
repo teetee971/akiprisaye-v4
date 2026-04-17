@@ -1,14 +1,14 @@
 /**
  * Premium Status Service
- * 
+ *
  * Manages premium subscription status for Android app
- * 
+ *
  * CONTEXT (NON-NEGOTIABLE):
  * - CITOYEN mode is 100% FREE forever (web and Android)
  * - Premium features only available via Google Play Billing (Android only)
  * - No payment on web version
  * - Premium status is checked via Google Play Billing API
- * 
+ *
  * PREMIUM FEATURES:
  * - Advanced price history (3+ years)
  * - Multi-store comparison
@@ -57,9 +57,11 @@ const PREMIUM_STATUS_KEY = 'akiprisaye_premium_status';
 
 /**
  * Get current subscription status
- * 
- * For now, returns CITOYEN (free) tier by default
- * TODO: Integrate with Google Play Billing API
+ *
+ * Returns CITOYEN (free) tier by default on web.
+ * On Android, checks localStorage first; Google Play Billing will be integrated
+ * via the Capacitor plugin (com.getcapacitor.community.billing) when the app
+ * is published to Play Store.
  */
 export async function getSubscriptionStatus(): Promise<SubscriptionStatus> {
   // Default to free tier

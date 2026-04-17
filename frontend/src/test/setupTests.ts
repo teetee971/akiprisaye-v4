@@ -8,9 +8,7 @@ import { afterEach, vi } from 'vitest';
 const store: Record<string, string> = {};
 
 const mockGetItem = vi.fn((key: string) => {
-  return Object.prototype.hasOwnProperty.call(store, key)
-    ? store[key]
-    : null;
+  return Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null;
 });
 
 const mockSetItem = vi.fn((key: string, value: string) => {
@@ -50,6 +48,23 @@ Object.defineProperty(window, 'localStorage', {
 Object.defineProperty(globalThis, 'localStorage', {
   value: window.localStorage,
   writable: true,
+});
+
+/**
+ * Mock window.matchMedia — not implemented in jsdom.
+ */
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
 });
 
 /**

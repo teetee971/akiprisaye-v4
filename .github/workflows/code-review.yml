@@ -13,7 +13,7 @@ jobs:
     name: Analyse automatique de la PR
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -74,7 +74,7 @@ jobs:
           echo "removed=$removed" >> "$GITHUB_OUTPUT"
 
       - name: Publication du rapport de revue
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           TS_NOCHECK: ${{ steps.ts-nocheck.outputs.count }}
           CONSOLE_LOG: ${{ steps.consolelog.outputs.count }}

@@ -1,4 +1,3 @@
- 
 /**
  * LeaderboardTable Component
  * Full leaderboard table with rankings
@@ -9,6 +8,8 @@ import { Trophy, TrendingUp, MapPin, Award } from 'lucide-react';
 import { LevelBadge } from './LevelBadge';
 import { UserRankBadge } from './UserRankBadge';
 import type { LeaderboardEntry } from '../../types/gamification';
+import { TERRITORIES } from '../../constants/territories';
+import type { TerritoryCode } from '../../constants/territories';
 
 interface LeaderboardTableProps {
   entries: LeaderboardEntry[];
@@ -17,11 +18,11 @@ interface LeaderboardTableProps {
   className?: string;
 }
 
-export function LeaderboardTable({ 
-  entries, 
+export function LeaderboardTable({
+  entries,
   currentUserId,
   showTerritory = false,
-  className = '' 
+  className = '',
 }: LeaderboardTableProps) {
   return (
     <div className={`bg-white rounded-xl shadow-lg overflow-hidden ${className}`}>
@@ -64,14 +65,12 @@ export function LeaderboardTable({
             {entries.map((entry, index) => {
               const isCurrentUser = entry.userId === currentUserId;
               const isTopThree = entry.rank <= 3;
-              
+
               return (
-                <tr 
+                <tr
                   key={entry.userId}
                   className={`transition-colors ${
-                    isCurrentUser 
-                      ? 'bg-blue-50 hover:bg-blue-100' 
-                      : 'hover:bg-gray-50'
+                    isCurrentUser ? 'bg-blue-50 hover:bg-blue-100' : 'hover:bg-gray-50'
                   }`}
                 >
                   {/* Rank */}
@@ -80,9 +79,11 @@ export function LeaderboardTable({
                       {isTopThree ? (
                         <UserRankBadge rank={entry.rank} size="sm" />
                       ) : (
-                        <span className={`font-bold text-lg ${
-                          isCurrentUser ? 'text-blue-600' : 'text-gray-700'
-                        }`}>
+                        <span
+                          className={`font-bold text-lg ${
+                            isCurrentUser ? 'text-blue-600' : 'text-gray-700'
+                          }`}
+                        >
                           #{entry.rank}
                         </span>
                       )}
@@ -93,8 +94,8 @@ export function LeaderboardTable({
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       {entry.avatar ? (
-                        <img 
-                          src={entry.avatar} 
+                        <img
+                          src={entry.avatar}
                           alt={entry.username}
                           width={40}
                           height={40}
@@ -107,9 +108,11 @@ export function LeaderboardTable({
                         </div>
                       )}
                       <div>
-                        <div className={`font-semibold ${
-                          isCurrentUser ? 'text-blue-700' : 'text-gray-900'
-                        }`}>
+                        <div
+                          className={`font-semibold ${
+                            isCurrentUser ? 'text-blue-700' : 'text-gray-900'
+                          }`}
+                        >
                           {entry.username}
                           {isCurrentUser && (
                             <span className="ml-2 text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">
@@ -124,12 +127,27 @@ export function LeaderboardTable({
                   {/* Territory */}
                   {showTerritory && (
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {entry.territory && (
-                        <div className="flex items-center gap-1 text-sm text-gray-600">
-                          <MapPin size={14} />
-                          <span>{entry.territory}</span>
-                        </div>
-                      )}
+                      {entry.territory &&
+                        (() => {
+                          const code = entry.territory.toLowerCase() as TerritoryCode;
+                          const terr = TERRITORIES[code];
+                          return (
+                            <div className="flex items-center gap-1.5 text-sm text-gray-600">
+                              {terr ? (
+                                <>
+                                  <span>{terr.flag}</span>
+                                  <span className="font-medium">{terr.name}</span>
+                                  <span className="text-xs text-gray-400">({terr.type})</span>
+                                </>
+                              ) : (
+                                <>
+                                  <MapPin size={14} />
+                                  <span>{entry.territory}</span>
+                                </>
+                              )}
+                            </div>
+                          );
+                        })()}
                     </td>
                   )}
 
@@ -154,9 +172,7 @@ export function LeaderboardTable({
                     {entry.badges !== undefined && (
                       <div className="flex items-center justify-end gap-1">
                         <Award size={16} className="text-yellow-600" />
-                        <span className="font-semibold text-gray-700">
-                          {entry.badges}
-                        </span>
+                        <span className="font-semibold text-gray-700">{entry.badges}</span>
                       </div>
                     )}
                   </td>

@@ -5,6 +5,7 @@
  *  1. OCR de l'image ticket (Tesseract.js via ocrService)
  *  2. Parsing structuré (receiptParser)
  *  3. Normalisation (enseignes, produits, unités)
+ *  3b. Matching articles → fiches produits catalogue (EAN ou nom)
  *  4. Validation métier + confidence scoring
  *  5. Déduplication (checksum store+date+total)
  *  6. Persistance Firestore (graceful si db=null)
@@ -27,17 +28,11 @@
  * ⚠️ RGPD: traitement local de l'image, pas de transmission à un serveur tiers.
  */
 
-import {
-  collection,
-  addDoc,
-  getDocs,
-  query,
-  where,
-  serverTimestamp,
-} from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, where, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { runOCR } from './ocrService';
 import { parseReceipt } from './receiptParser';
+import { findProductByEan, searchProductsByName } from '../data/seedProducts';
 import type { TerritoryCode } from '../constants/territories';
 import type {
   OCRRawBlock,
@@ -71,51 +66,51 @@ const MAX_ITEM_PRICE = 9999;
 
 /** Dictionnaire de normalisation des noms d'enseigne */
 const STORE_NORMALIZATION: Array<{ pattern: RegExp; normalized: string; brand: string }> = [
-  { pattern: /carrefour\s*market/i,    normalized: 'Carrefour Market',    brand: 'Carrefour' },
-  { pattern: /carrefour\s*city/i,      normalized: 'Carrefour City',      brand: 'Carrefour' },
-  { pattern: /carrefour\s*express/i,   normalized: 'Carrefour Express',   brand: 'Carrefour' },
-  { pattern: /carrefour/i,             normalized: 'Carrefour',           brand: 'Carrefour' },
-  { pattern: /e\.?\s*leclerc/i,        normalized: 'E.Leclerc',           brand: 'E.Leclerc' },
-  { pattern: /auchan/i,                normalized: 'Auchan',              brand: 'Auchan' },
-  { pattern: /casino/i,                normalized: 'Casino',              brand: 'Casino' },
-  { pattern: /intermarch[eé]/i,        normalized: 'Intermarché',         brand: 'Intermarché' },
-  { pattern: /super\s*u/i,             normalized: 'Super U',             brand: 'U' },
-  { pattern: /hyper\s*u/i,             normalized: 'Hyper U',             brand: 'U' },
-  { pattern: /u\s*express/i,           normalized: 'U Express',           brand: 'U' },
-  { pattern: /leader\s*price/i,        normalized: 'Leader Price',        brand: 'Leader Price' },
-  { pattern: /monoprix/i,              normalized: 'Monoprix',            brand: 'Monoprix' },
-  { pattern: /franprix/i,              normalized: 'Franprix',            brand: 'Franprix' },
-  { pattern: /lidl/i,                  normalized: 'Lidl',                brand: 'Lidl' },
-  { pattern: /aldi/i,                  normalized: 'Aldi',                brand: 'Aldi' },
-  { pattern: /match/i,                 normalized: 'Match',               brand: 'Match' },
-  { pattern: /simply\s*market/i,       normalized: 'Simply Market',       brand: 'Auchan' },
-  { pattern: /spar/i,                  normalized: 'Spar',                brand: 'Spar' },
-  { pattern: /8\s*[àa]\s*huit/i,       normalized: '8 à Huit',           brand: 'Carrefour' },
+  { pattern: /carrefour\s*market/i, normalized: 'Carrefour Market', brand: 'Carrefour' },
+  { pattern: /carrefour\s*city/i, normalized: 'Carrefour City', brand: 'Carrefour' },
+  { pattern: /carrefour\s*express/i, normalized: 'Carrefour Express', brand: 'Carrefour' },
+  { pattern: /carrefour/i, normalized: 'Carrefour', brand: 'Carrefour' },
+  { pattern: /e\.?\s*leclerc/i, normalized: 'E.Leclerc', brand: 'E.Leclerc' },
+  { pattern: /auchan/i, normalized: 'Auchan', brand: 'Auchan' },
+  { pattern: /casino/i, normalized: 'Casino', brand: 'Casino' },
+  { pattern: /intermarch[eé]/i, normalized: 'Intermarché', brand: 'Intermarché' },
+  { pattern: /super\s*u/i, normalized: 'Super U', brand: 'U' },
+  { pattern: /hyper\s*u/i, normalized: 'Hyper U', brand: 'U' },
+  { pattern: /u\s*express/i, normalized: 'U Express', brand: 'U' },
+  { pattern: /leader\s*price/i, normalized: 'Leader Price', brand: 'Leader Price' },
+  { pattern: /monoprix/i, normalized: 'Monoprix', brand: 'Monoprix' },
+  { pattern: /franprix/i, normalized: 'Franprix', brand: 'Franprix' },
+  { pattern: /lidl/i, normalized: 'Lidl', brand: 'Lidl' },
+  { pattern: /aldi/i, normalized: 'Aldi', brand: 'Aldi' },
+  { pattern: /match/i, normalized: 'Match', brand: 'Match' },
+  { pattern: /simply\s*market/i, normalized: 'Simply Market', brand: 'Auchan' },
+  { pattern: /spar/i, normalized: 'Spar', brand: 'Spar' },
+  { pattern: /8\s*[àa]\s*huit/i, normalized: '8 à Huit', brand: 'Carrefour' },
 ];
 
 /** Dictionnaire de normalisation des catégories produit */
 const CATEGORY_PATTERNS: Array<{ pattern: RegExp; category: string; subcategory?: string }> = [
-  { pattern: /lait|yaourt|fromage|beurre|crème|creme/i,              category: 'Produits laitiers' },
-  { pattern: /pain|baguette|brioche|viennoiserie|croissant/i,         category: 'Boulangerie' },
-  { pattern: /viande|poulet|b[œoe]uf|veau|porc|jambon|sauciss/i,     category: 'Viandes et poissons' },
-  { pattern: /poisson|saumon|thon|crevette|cabillaud/i,               category: 'Viandes et poissons' },
-  { pattern: /fruit|pomme|banane|orange|mangue|ananas|citron/i,       category: 'Fruits et légumes' },
-  { pattern: /l[eé]gume|salade|tomate|carotte|courgette|haricot/i,   category: 'Fruits et légumes' },
-  { pattern: /boisson|eau|jus|sodas?|bi[eè]re|vin|champagne/i,       category: 'Boissons' },
-  { pattern: /café|caf[eé]|nescaf[eé]|expresso|thé/i,                category: 'Épicerie' },
-  { pattern: /biscuit|chips|chocolat|bonbon|confiserie/i,             category: 'Épicerie' },
-  { pattern: /riz|pâtes|farine|sucre|sel|huile|vinaigre/i,           category: 'Épicerie' },
-  { pattern: /shampooing|savon|gel|dent|hygi[eè]ne|rasoir/i,         category: 'Hygiène et beauté' },
-  { pattern: /lessive|liquide|nettoyant|entretien|javel/i,           category: 'Entretien' },
-  { pattern: /couche|bib[eé]ron|lait\s+b[eé]b[eé]|b[eé]b[eé]/i,    category: 'Bébé' },
+  { pattern: /lait|yaourt|fromage|beurre|crème|creme/i, category: 'Produits laitiers' },
+  { pattern: /pain|baguette|brioche|viennoiserie|croissant/i, category: 'Boulangerie' },
+  { pattern: /viande|poulet|b[œoe]uf|veau|porc|jambon|sauciss/i, category: 'Viandes et poissons' },
+  { pattern: /poisson|saumon|thon|crevette|cabillaud/i, category: 'Viandes et poissons' },
+  { pattern: /fruit|pomme|banane|orange|mangue|ananas|citron/i, category: 'Fruits et légumes' },
+  { pattern: /l[eé]gume|salade|tomate|carotte|courgette|haricot/i, category: 'Fruits et légumes' },
+  { pattern: /boisson|eau|jus|sodas?|bi[eè]re|vin|champagne/i, category: 'Boissons' },
+  { pattern: /café|caf[eé]|nescaf[eé]|expresso|thé/i, category: 'Épicerie' },
+  { pattern: /biscuit|chips|chocolat|bonbon|confiserie/i, category: 'Épicerie' },
+  { pattern: /riz|pâtes|farine|sucre|sel|huile|vinaigre/i, category: 'Épicerie' },
+  { pattern: /shampooing|savon|gel|dent|hygi[eè]ne|rasoir/i, category: 'Hygiène et beauté' },
+  { pattern: /lessive|liquide|nettoyant|entretien|javel/i, category: 'Entretien' },
+  { pattern: /couche|bib[eé]ron|lait\s+b[eé]b[eé]|b[eé]b[eé]/i, category: 'Bébé' },
 ];
 
 /** Mappage des méthodes de paiement */
 const PAYMENT_PATTERNS: Array<{ pattern: RegExp; method: ReceiptPayment['method'] }> = [
-  { pattern: /sans\s*contact/i,                        method: 'card_contactless' },
+  { pattern: /sans\s*contact/i, method: 'card_contactless' },
   { pattern: /cb\b|carte\s*(?:bancaire|bleue|visa|mastercard)/i, method: 'card' },
-  { pattern: /esp[eè]ces?|esp[eè]ce/i,                 method: 'cash' },
-  { pattern: /ch[eè]que/i,                             method: 'cash' },
+  { pattern: /esp[eè]ces?|esp[eè]ce/i, method: 'cash' },
+  { pattern: /ch[eè]que/i, method: 'cash' },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -152,11 +147,11 @@ export function normalizeProductLabel(label: string): string {
   return label
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')   // Retirer accents
-    .replace(/[^a-z0-9\s]/g, '')       // Retirer ponctuation
-    .replace(/\s+/g, '_')              // Espaces → underscores
-    .replace(/^_+|_+$/g, '')           // Trim underscores
-    .slice(0, 80);                     // Max 80 chars
+    .replace(/[̀-ͯ]/g, '') // Retirer accents
+    .replace(/[^a-z0-9\s]/g, '') // Retirer ponctuation
+    .replace(/\s+/g, '_') // Espaces → underscores
+    .replace(/^_+|_+$/g, '') // Trim underscores
+    .slice(0, 80); // Max 80 chars
 }
 
 /** Détecter la catégorie d'un produit à partir de son libellé */
@@ -214,7 +209,7 @@ function toISODate(ddmmyyyy: string | undefined): string | undefined {
  * @returns Texte brut concaténé et blocs OCR
  */
 export async function runOcrOnReceipt(
-  images: string[],
+  images: string[]
 ): Promise<{ rawText: string; blocks: OCRRawBlock[] }> {
   const parts: string[] = [];
   const allBlocks: OCRRawBlock[] = [];
@@ -256,7 +251,7 @@ export async function runOcrOnReceipt(
 export function parseReceiptFromOcr(
   rawText: string,
   blocks: OCRRawBlock[],
-  territory: TerritoryCode = DEFAULT_TERRITORY,
+  territory: TerritoryCode = DEFAULT_TERRITORY
 ): Omit<ReceiptRecord, 'id' | 'createdAt' | 'updatedAt' | 'checksum'> {
   const parsed = parseReceipt(rawText);
 
@@ -271,16 +266,16 @@ export function parseReceiptFromOcr(
     // Score de confiance par ligne
     let score = 0;
     if (item.name && item.name.length >= 3) score += 35;
-    if (priceValid)                          score += 45;
-    if (item.qty !== undefined)              score += 10;
-    if (item.unitPrice !== undefined)        score += 10;
+    if (priceValid) score += 45;
+    if (item.qty !== undefined) score += 10;
+    if (item.unitPrice !== undefined) score += 10;
 
     const needsReview = score < REVIEW_THRESHOLD || !priceValid;
 
     return {
       lineIndex: idx,
       rawLabel: item.name,
-      normalizedLabel: undefined,             // Rempli par normalizeReceipt
+      normalizedLabel: undefined, // Rempli par normalizeReceipt
       quantity: qty,
       unit: undefined,
       totalPrice: priceValid ? Math.round(price * 100) / 100 : 0,
@@ -312,13 +307,12 @@ export function parseReceiptFromOcr(
     items.length > 0 ? true : undefined,
   ].filter(Boolean).length;
 
-  const globalOcrConf = blocks.length > 0
-    ? blocks.reduce((s, b) => s + (b.confidenceScore ?? 0), 0) / blocks.length
-    : 0;
+  const globalOcrConf =
+    blocks.length > 0
+      ? blocks.reduce((s, b) => s + (b.confidenceScore ?? 0), 0) / blocks.length
+      : 0;
 
-  const confidenceScore = Math.round(
-    globalOcrConf * 0.5 + (detectedFields / 4) * 50,
-  );
+  const confidenceScore = Math.round(globalOcrConf * 0.5 + (detectedFields / 4) * 50);
 
   const needsReview =
     confidenceScore < RECEIPT_REVIEW_THRESHOLD ||
@@ -370,7 +364,7 @@ export function parseReceiptFromOcr(
  * Complète les champs laissés undefined par parseReceiptFromOcr.
  */
 export function normalizeReceipt(
-  receipt: Omit<ReceiptRecord, 'id' | 'createdAt' | 'updatedAt' | 'checksum'>,
+  receipt: Omit<ReceiptRecord, 'id' | 'createdAt' | 'updatedAt' | 'checksum'>
 ): Omit<ReceiptRecord, 'id' | 'createdAt' | 'updatedAt' | 'checksum'> {
   const normalizedItems: ReceiptItem[] = receipt.items.map((item) => {
     const normalizedLabel = normalizeProductLabel(item.rawLabel);
@@ -386,11 +380,27 @@ export function normalizeReceipt(
       const rawUnit = unitMatch[2].toLowerCase();
       const sizeVal = parseFloat(unitMatch[1].replace(',', '.'));
 
-      if (rawUnit === 'kg')  { packageSizeValue = sizeVal;        packageSizeUnit = 'kg';   unit = 'kg'; }
-      else if (rawUnit === 'g')   { packageSizeValue = sizeVal / 1000; packageSizeUnit = 'g';    unit = 'kg'; }
-      else if (rawUnit === 'l')   { packageSizeValue = sizeVal;        packageSizeUnit = 'l';    unit = 'l';  }
-      else if (rawUnit === 'ml')  { packageSizeValue = sizeVal / 1000; packageSizeUnit = 'ml';   unit = 'l';  }
-      else if (rawUnit === 'cl')  { packageSizeValue = sizeVal / 100;  packageSizeUnit = 'ml';   unit = 'l';  }
+      if (rawUnit === 'kg') {
+        packageSizeValue = sizeVal;
+        packageSizeUnit = 'kg';
+        unit = 'kg';
+      } else if (rawUnit === 'g') {
+        packageSizeValue = sizeVal / 1000;
+        packageSizeUnit = 'g';
+        unit = 'kg';
+      } else if (rawUnit === 'l') {
+        packageSizeValue = sizeVal;
+        packageSizeUnit = 'l';
+        unit = 'l';
+      } else if (rawUnit === 'ml') {
+        packageSizeValue = sizeVal / 1000;
+        packageSizeUnit = 'ml';
+        unit = 'l';
+      } else if (rawUnit === 'cl') {
+        packageSizeValue = sizeVal / 100;
+        packageSizeUnit = 'ml';
+        unit = 'l';
+      }
     }
 
     return {
@@ -410,6 +420,56 @@ export function normalizeReceipt(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// 3b. Matching articles → fiches produits catalogue
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Résout chaque article du ticket vers une fiche produit du catalogue.
+ * Priorité : EAN (code-barres) > recherche par nom normalisé.
+ * Renseigne `productMatchId` avec l'EAN de la fiche trouvée, ou null.
+ */
+export function matchProductsInReceipt(
+  receipt: Omit<ReceiptRecord, 'id' | 'createdAt' | 'updatedAt' | 'checksum'>
+): Omit<ReceiptRecord, 'id' | 'createdAt' | 'updatedAt' | 'checksum'> {
+  // Per-call cache: avoid duplicate lookups for repeated labels on the same ticket
+  const labelCache = new Map<string, string | null>();
+
+  const matchedItems: ReceiptItem[] = receipt.items.map((item) => {
+    // 1. Recherche par EAN si disponible
+    if (item.barcode) {
+      const byEan = findProductByEan(item.barcode) as { ean?: string } | null;
+      if (byEan?.ean) {
+        return { ...item, productMatchId: byEan.ean };
+      }
+    }
+
+    // 2. Recherche par nom normalisé.
+    // Seuil : libellé ≥ 4 caractères ET au moins 2 termes pour éviter
+    // les faux positifs sur des labels courts/bruités (ex: "LT 1", "X2").
+    const query = item.normalizedLabel ?? item.rawLabel;
+    if (query) {
+      const terms = query.trim().split(/\s+/).filter(Boolean);
+      if (query.length >= 4 && terms.length >= 2) {
+        const cached = labelCache.get(query);
+        if (cached !== undefined) {
+          return { ...item, productMatchId: cached };
+        }
+        const results = searchProductsByName(query) as Array<{ ean?: string }>;
+        const matchId = results.length > 0 && results[0].ean ? results[0].ean : null;
+        labelCache.set(query, matchId);
+        if (matchId) {
+          return { ...item, productMatchId: matchId };
+        }
+      }
+    }
+
+    return { ...item, productMatchId: null };
+  });
+
+  return { ...receipt, items: matchedItems };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // 4. Validation
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -423,7 +483,7 @@ export function normalizeReceipt(
  * - Checksum interne (somme items ≈ total)
  */
 export function validateReceipt(
-  receipt: Omit<ReceiptRecord, 'id' | 'createdAt' | 'updatedAt'>,
+  receipt: Omit<ReceiptRecord, 'id' | 'createdAt' | 'updatedAt'>
 ): Omit<ReceiptRecord, 'id' | 'createdAt' | 'updatedAt'> {
   const issues: string[] = [];
 
@@ -453,8 +513,10 @@ export function validateReceipt(
     const rounded = Math.round(computedSum * 100) / 100;
     const diff = Math.abs(rounded - receipt.totalTtc);
 
-    if (diff > 0.10) {
-      issues.push(`Somme des articles (${rounded.toFixed(2)}€) ≠ total déclaré (${receipt.totalTtc.toFixed(2)}€)`);
+    if (diff > 0.1) {
+      issues.push(
+        `Somme des articles (${rounded.toFixed(2)}€) ≠ total déclaré (${receipt.totalTtc.toFixed(2)}€)`
+      );
     }
   }
 
@@ -482,11 +544,7 @@ export function validateReceipt(
 
   return {
     ...receipt,
-    checksum: buildChecksum(
-      receipt.store.normalizedName,
-      receipt.receiptDate,
-      receipt.totalTtc,
-    ),
+    checksum: buildChecksum(receipt.store.normalizedName, receipt.receiptDate, receipt.totalTtc),
     items: validatedItems,
     needsReview: globalNeedsReview,
   };
@@ -503,10 +561,7 @@ async function isDuplicate(checksum: string): Promise<boolean> {
   if (!db || !checksum) return false;
 
   try {
-    const q = query(
-      collection(db, 'receipts'),
-      where('checksum', '==', checksum),
-    );
+    const q = query(collection(db, 'receipts'), where('checksum', '==', checksum));
     const snap = await getDocs(q);
     return !snap.empty;
   } catch {
@@ -587,7 +642,7 @@ function sanitizeForFirestore(obj: unknown): unknown {
  * @returns Observations créées
  */
 export async function createPriceObservationsFromReceipt(
-  receipt: ReceiptRecord,
+  receipt: ReceiptRecord
 ): Promise<ReceiptOcrPriceObservation[]> {
   const now = new Date().toISOString();
   const observations: ReceiptOcrPriceObservation[] = [];
@@ -610,6 +665,7 @@ export async function createPriceObservationsFromReceipt(
       category: item.category,
       brand: item.productBrand,
       barcode: item.barcode ?? null,
+      productMatchId: item.productMatchId ?? null,
       quantity: item.quantity,
       unit: item.unit,
       packageSizeValue: item.packageSizeValue,
@@ -630,7 +686,7 @@ export async function createPriceObservationsFromReceipt(
           sanitizeForFirestore({
             ...obs,
             createdAt: serverTimestamp(),
-          }) as Record<string, unknown>,
+          }) as Record<string, unknown>
         );
       } catch (err) {
         console.error('[ReceiptPipeline] Failed to persist price observation:', err);
@@ -656,7 +712,7 @@ async function queueForReview(receipt: ReceiptRecord): Promise<void> {
     reasons.push(`Confiance globale faible (${receipt.confidenceScore}/100)`);
   }
   if (!receipt.receiptDate) reasons.push('Date absente');
-  if (!receipt.totalTtc)    reasons.push('Total TTC absent');
+  if (!receipt.totalTtc) reasons.push('Total TTC absent');
   const itemsNeedingReview = receipt.items.filter((it) => it.needsReview).length;
   if (itemsNeedingReview > 0) {
     reasons.push(`${itemsNeedingReview} ligne(s) produit nécessitent vérification`);
@@ -673,7 +729,7 @@ async function queueForReview(receipt: ReceiptRecord): Promise<void> {
   try {
     await addDoc(
       collection(db, 'ocr_review_queue'),
-      sanitizeForFirestore({ ...entry, createdAt: serverTimestamp() }) as Record<string, unknown>,
+      sanitizeForFirestore({ ...entry, createdAt: serverTimestamp() }) as Record<string, unknown>
     );
   } catch (err) {
     console.error('[ReceiptPipeline] Failed to queue receipt for review:', err);
@@ -704,7 +760,7 @@ async function queueForReview(receipt: ReceiptRecord): Promise<void> {
 export async function ingestReceiptImages(
   images: Array<File | string>,
   territory: TerritoryCode = DEFAULT_TERRITORY,
-  imagesMeta?: Array<Partial<OCRSourceImage>>,
+  imagesMeta?: Array<Partial<OCRSourceImage>>
 ): Promise<ReceiptOcrPipelineResult> {
   try {
     // Résoudre les File en object URLs
@@ -712,7 +768,7 @@ export async function ingestReceiptImages(
       images.map((img) => {
         if (typeof img === 'string') return Promise.resolve(img);
         return Promise.resolve(URL.createObjectURL(img));
-      }),
+      })
     );
 
     // ── Étape 1: OCR ──────────────────────────────────────────────────────────
@@ -721,7 +777,7 @@ export async function ingestReceiptImages(
     if (!rawText || rawText.trim().length === 0) {
       return {
         success: false,
-        error: 'OCR n\'a extrait aucun texte de l\'image fournie',
+        error: "OCR n'a extrait aucun texte de l'image fournie",
       };
     }
 
@@ -731,8 +787,11 @@ export async function ingestReceiptImages(
     // ── Étape 3: Normalisation ────────────────────────────────────────────────
     const normalized = normalizeReceipt(parsed);
 
+    // ── Étape 3b: Matching produits catalogue ─────────────────────────────────
+    const matched = matchProductsInReceipt(normalized);
+
     // ── Étape 4: Validation ───────────────────────────────────────────────────
-    const validated = validateReceipt(normalized);
+    const validated = validateReceipt(matched);
 
     // ── Étape 5: Déduplication ────────────────────────────────────────────────
     const checksum = validated.checksum ?? '';
@@ -802,7 +861,7 @@ export async function ingestReceiptImages(
     console.error('[ReceiptPipeline] ingestReceiptImages failed:', err);
     return {
       success: false,
-      error: err instanceof Error ? err.message : 'Erreur inconnue du pipeline d\'ingestion',
+      error: err instanceof Error ? err.message : "Erreur inconnue du pipeline d'ingestion",
     };
   }
 }

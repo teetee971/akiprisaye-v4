@@ -8,9 +8,11 @@ import {
   createProduct,
   updateProduct,
   getProduct,
+  getProductStatic,
   searchOpenFoodFacts,
   type CreateProductInput,
 } from '@/services/admin/productAdminService';
+import { isStaticPreviewEnv } from '@/services/admin/runtimeEnv';
 import type { ProductCategory, Unit } from '@/types/product';
 import { Package, Save, X, Search, Camera } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -54,10 +56,7 @@ const productSchema = z.object({
   ean: z
     .string()
     .optional()
-    .refine(
-      (val) => !val || /^\d{8}$|^\d{13}$/.test(val),
-      'L\'EAN doit contenir 8 ou 13 chiffres'
-    ),
+    .refine((val) => !val || /^\d{8}$|^\d{13}$/.test(val), "L'EAN doit contenir 8 ou 13 chiffres"),
   description: z.string().optional(),
   unit: z.enum(['g', 'kg', 'ml', 'L', 'unité']),
   quantity: z.number().positive('La quantité doit être positive'),
@@ -116,7 +115,10 @@ export function ProductForm() {
   const loadProduct = async (productId: string) => {
     setLoading(true);
     try {
-      const product = await getProduct(productId);
+      const product = isStaticPreviewEnv()
+        ? await getProductStatic(productId)
+        : await getProduct(productId);
+      if (!product) throw new Error('Produit introuvable');
       reset({
         name: product.name,
         brand: product.brand || '',
@@ -231,9 +233,7 @@ export function ProductForm() {
 
       navigate('/admin/products');
     } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : 'Erreur lors de la sauvegarde du produit'
-      );
+      toast.error(err instanceof Error ? err.message : 'Erreur lors de la sauvegarde du produit');
     } finally {
       setSubmitting(false);
     }
@@ -265,20 +265,20 @@ export function ProductForm() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Name */}
           <div>
-            <label htmlFor="pf-nom-produit" className="mb-2 block text-sm font-medium text-slate-700">
+            <label
+              htmlFor="pf-nom-produit"
+              className="mb-2 block text-sm font-medium text-slate-700"
+            >
               Nom du produit <span className="text-red-400">*</span>
             </label>
             <input
-              
               id="pf-nom-produit"
               type="text"
               {...register('name')}
               className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Ex: Lait demi-écrémé"
             />
-            {errors.name && (
-              <p className="mt-1 text-sm text-red-400">{errors.name.message}</p>
-            )}
+            {errors.name && <p className="mt-1 text-sm text-red-400">{errors.name.message}</p>}
           </div>
 
           {/* Brand */}
@@ -287,7 +287,6 @@ export function ProductForm() {
               Marque
             </label>
             <input
-              
               id="pf-marque"
               type="text"
               {...register('brand')}
@@ -302,7 +301,6 @@ export function ProductForm() {
               Catégorie <span className="text-red-400">*</span>
             </label>
             <select
-              
               id="pf-categorie"
               {...register('category')}
               className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -325,8 +323,7 @@ export function ProductForm() {
             </label>
             <div className="flex gap-2">
               <input
-                 id="pf-ean"
-                 
+                id="pf-ean"
                 type="text"
                 {...register('ean')}
                 className="flex-1 rounded-lg border border-slate-300 bg-white px-4 py-3 font-mono text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -349,18 +346,18 @@ export function ProductForm() {
                 </button>
               )}
             </div>
-            {errors.ean && (
-              <p className="mt-1 text-sm text-red-400">{errors.ean.message}</p>
-            )}
+            {errors.ean && <p className="mt-1 text-sm text-red-400">{errors.ean.message}</p>}
           </div>
 
           {/* Description */}
           <div>
-            <label htmlFor="pf-description" className="mb-2 block text-sm font-medium text-slate-700">
+            <label
+              htmlFor="pf-description"
+              className="mb-2 block text-sm font-medium text-slate-700"
+            >
               Description
             </label>
             <textarea
-              
               id="pf-description"
               {...register('description')}
               rows={3}
@@ -373,12 +370,11 @@ export function ProductForm() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="pf-unite" className="mb-2 block text-sm font-medium text-slate-700">
-              Unité <span className="text-red-400">*</span>
+                Unité <span className="text-red-400">*</span>
               </label>
               <select
-                
-              id="pf-unite"
-              {...register('unit')}
+                id="pf-unite"
+                {...register('unit')}
                 className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {UNITS.map((unit) => (
@@ -387,19 +383,19 @@ export function ProductForm() {
                   </option>
                 ))}
               </select>
-              {errors.unit && (
-                <p className="mt-1 text-sm text-red-400">{errors.unit.message}</p>
-              )}
+              {errors.unit && <p className="mt-1 text-sm text-red-400">{errors.unit.message}</p>}
             </div>
 
             <div>
-              <label htmlFor="pf-quantite" className="mb-2 block text-sm font-medium text-slate-700">
-              Quantité <span className="text-red-400">*</span>
+              <label
+                htmlFor="pf-quantite"
+                className="mb-2 block text-sm font-medium text-slate-700"
+              >
+                Quantité <span className="text-red-400">*</span>
               </label>
               <input
-                
-              id="pf-quantite"
-              type="number"
+                id="pf-quantite"
+                type="number"
                 step="0.01"
                 {...register('quantity', { valueAsNumber: true })}
                 className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -442,7 +438,6 @@ export function ProductForm() {
               />
             </div>
             <input
-              
               id="pf-image-url"
               type="url"
               {...register('imageUrl')}

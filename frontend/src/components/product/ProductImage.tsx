@@ -1,7 +1,6 @@
- 
 /**
  * Product Image Component - Mobile Optimized for Samsung S24+
- * 
+ *
  * Features:
  * - Responsive images with srcset
  * - Lazy loading for performance
@@ -12,8 +11,16 @@
 
 import { useState, useEffect } from 'react';
 import type { ProductImages } from '../../types/enhancedPrice';
-import { createFallbackImage, generateLoadingPlaceholder, generateErrorPlaceholder } from '../../services/productImageFallback';
+import {
+  createFallbackImage,
+  generateLoadingPlaceholder,
+  generateErrorPlaceholder,
+} from '../../services/productImageFallback';
 import type { ProductCategory } from '../../types/product';
+
+function asHttpUrl(value: unknown): string | null {
+  return typeof value === 'string' && /^https?:\/\//i.test(value) ? value : null;
+}
 
 interface ProductImageProps {
   images?: ProductImages;
@@ -39,7 +46,9 @@ export default function ProductImage({
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [fallbackImage, setFallbackImage] = useState<string | null>(null);
-  
+  const [fetchedImageUrl, setFetchedImageUrl] = useState<string | null>(null);
+  const [fetchedSource, setFetchedSource] = useState<'off' | null>(null);
+
   // Generate fallback image on mount or when category changes
   useEffect(() => {
     if (!images || imageError) {
@@ -47,13 +56,47 @@ export default function ProductImage({
       setFallbackImage(size === 'thumbnail' ? fallback.thumbnailUrl : fallback.url);
     }
   }, [images, imageError, category, productName, size]);
-  
+
+  // Fetch real product image by barcode when no images prop is supplied
+  useEffect(() => {
+    setFetchedImageUrl(null);
+    setFetchedSource(null);
+    if (images || !barcode) return;
+
+    const controller = new AbortController();
+    fetch(`/api/product-image?ean=${encodeURIComponent(barcode)}&format=json`, {
+      signal: controller.signal,
+      headers: { Accept: 'application/json' },
+    })
+      .then((res) => (res.ok ? (res.json() as Promise<Record<string, unknown>>) : null))
+      .then((data) => {
+        if (!data) return;
+        const url = asHttpUrl(data.url) ?? asHttpUrl(data.redirect_to) ?? asHttpUrl(data.image_url);
+        if (url && data.source === 'off') {
+          setFetchedImageUrl(url);
+          setFetchedSource('off');
+        }
+      })
+      .catch(() => {});
+
+    return () => controller.abort();
+  }, [barcode, images]);
+
+  // Reset image load/error state when a fetched URL arrives so the real image renders
+  useEffect(() => {
+    if (fetchedImageUrl) {
+      setImageError(false);
+      setImageLoaded(false);
+    }
+  }, [fetchedImageUrl]);
+
   // Get appropriate image URL based on size
   const getImageUrl = () => {
     if (!images || imageError) {
+      if (fetchedImageUrl && !imageError) return fetchedImageUrl;
       return fallbackImage || images?.fallback || generateErrorPlaceholder();
     }
-    
+
     switch (size) {
       case 'thumbnail':
         return images.thumbnail;
@@ -65,41 +108,39 @@ export default function ProductImage({
         return images.card;
     }
   };
-  
+
   // Build srcset for responsive images
   const getSrcSet = () => {
     if (!images || imageError || !images.srcset) {
       return undefined;
     }
-    
-    return images.srcset
-      .map(src => `${src.url} ${src.descriptor}`)
-      .join(', ');
+
+    return images.srcset.map((src) => `${src.url} ${src.descriptor}`).join(', ');
   };
-  
+
   // Handle image load error
   const handleError = () => {
     setImageError(true);
     setImageLoaded(true);
   };
-  
+
   // Handle image load success
   const handleLoad = () => {
     setImageLoaded(true);
   };
-  
+
   const imageUrl = getImageUrl();
   const srcset = getSrcSet();
   const imageAlt = alt || productName;
   const fetchPriority = loading === 'eager' ? 'high' : 'auto';
-  
+
   // Size classes for different display modes
   const sizeClasses = {
     thumbnail: 'w-20 h-20',
     card: 'w-full h-48 md:h-56',
     full: 'w-full h-auto',
   };
-  
+
   return (
     <div className={`relative overflow-hidden bg-gray-100 ${className}`}>
       {/* Loading placeholder */}
@@ -112,7 +153,7 @@ export default function ProductImage({
           />
         </div>
       )}
-      
+
       {/* Actual image */}
       <img
         src={imageUrl}
@@ -127,19 +168,25 @@ export default function ProductImage({
           imageLoaded ? 'opacity-100' : 'opacity-0'
         }`}
       />
-      
+
       {/* Attribution badge (for Open Food Facts images) */}
-      {images && !imageError && images.source === 'openfoodfacts' && (size === 'full' || size === 'card') && (
-        <div className="absolute bottom-2 right-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
-          <span role="img" aria-label="Photo">📸</span>
-          <span>Open Food Facts</span>
-        </div>
-      )}
-      
+      {!imageError &&
+        ((images && images.source === 'openfoodfacts') || fetchedSource === 'off') &&
+        (size === 'full' || size === 'card') && (
+          <div className="absolute bottom-2 right-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
+            <span role="img" aria-label="Photo">
+              📸
+            </span>
+            <span>Open Food Facts</span>
+          </div>
+        )}
+
       {/* Fallback indicator */}
-      {imageError && fallbackImage && size !== 'thumbnail' && (
+      {fallbackImage && imageUrl === fallbackImage && size !== 'thumbnail' && (
         <div className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
-          <span role="img" aria-label="Catégorie">🏷️</span>
+          <span role="img" aria-label="Catégorie">
+            🏷️
+          </span>
           <span>Image par catégorie</span>
         </div>
       )}

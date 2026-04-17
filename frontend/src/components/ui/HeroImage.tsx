@@ -12,7 +12,7 @@ interface HeroImageProps {
   src: string;
   alt: string;
   gradient?: string; // tailwind gradient classes e.g. "from-blue-900 to-slate-900"
-  height?: string;   // tailwind height class e.g. "h-56"
+  height?: string; // tailwind height class e.g. "h-56"
   loading?: 'eager' | 'lazy';
   fetchPriority?: 'high' | 'low' | 'auto';
   sizes?: string;
@@ -63,7 +63,7 @@ export function HeroImage({
             alt={alt}
             loading={loading}
             decoding="async"
-            {...({ fetchpriority: fetchPriority } as Record<string, string>)}
+            fetchPriority={fetchPriority}
             sizes={sizes}
             width={width}
             height={heightPx}
@@ -84,9 +84,7 @@ export function HeroImage({
 
       {/* Content */}
       {children && (
-        <div className="relative z-10 flex h-full flex-col justify-end p-6">
-          {children}
-        </div>
+        <div className="relative z-10 flex h-full flex-col justify-end p-6">{children}</div>
       )}
     </div>
   );

@@ -8,10 +8,12 @@
 /actualites
 /actus
 /admin
-/admin/sync
+/admin/fraude
+/admin/partenaires
 /ai-dashboard
 /ai-insights
 /alertes
+/alertes-predictives
 /alertes-prix
 /alertes-rupture
 /alertes/:id
@@ -19,6 +21,9 @@
 /analyse-factures
 /analyse-nutri
 /analyse-photo-produit
+/api-docs
+/api-keys
+/app-mobile
 /ar-scanner
 /assistant-ia
 /audience
@@ -29,6 +34,7 @@
 /auth/reset-password
 /authority-dashboard
 /auto-seo-dashboard
+/automation
 /budget-reel-mensuel
 /budget-vital
 /calculateur-batiment
@@ -41,6 +47,7 @@
 /catalogs
 /catalogues
 /categorie/:slug
+/chaine-approvisionnement
 /chaine-fourniture
 /checklist-prod
 /checkout
@@ -63,6 +70,7 @@
 /comparateur-services
 /comparateur-supermarches-dom
 /comparateur-territoires
+/comparateur-transport
 /comparateur-vols
 /comparateur/:slug
 /comparateurs
@@ -106,6 +114,7 @@
 /executive
 /expansion-dashboard
 /faq
+/fiche-entreprise/:id
 /flyer
 /forgot-password
 /gamification
@@ -164,6 +173,7 @@
 /monetisation
 /monitoring-ia
 /news
+/news/v4.6.20
 /newsletter
 /observatoire
 /observatoire-temps-reel
@@ -178,14 +188,19 @@
 /outreach
 /p/:id
 /panier
+/paniers-types
 /parametres
 /perimetre
 /petits-commerces
+/plan
 /planificateur-repas
+/plans
 /populaires
 /portail-affilies
+/portail-api
 /portail-developpeurs
 /predictions
+/premium
 /presse
 /pricing
 /privacy
@@ -234,6 +249,7 @@
 /scan-ocr
 /scan-photo
 /scanner
+/scanner-ar
 /search
 /seo-loop-dashboard
 /seo-monitoring
@@ -244,6 +260,7 @@
 /simulateur-budget
 /solidarite
 /stations-proximite
+/stats
 /stats-dashboard
 /statut
 /stores

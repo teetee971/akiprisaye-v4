@@ -4,12 +4,18 @@
     <meta charset="utf-8">
     <title>A KI PRI SA YÉ — Redirection en cours</title>
     <script type="text/javascript">
-      // Redirection SPA pour GitHub Pages
-      // Target: https://teetee971.github.io/akiprisaye-web/
+      // GitHub Pages SPA deep-link fallback.
+      // Strips the repository base path (/akiprisaye-web) then redirects to
+      // the SPA root with the original sub-path encoded as /?p=<path> so that
+      // the inline script in index.html can restore it via history.replaceState.
+      // Canonical deployment root: https://teetee971.github.io/akiprisaye-web/
+      var BASE = '/akiprisaye-web';
+      var ROOT = 'https://teetee971.github.io/akiprisaye-web/';
       var l = window.location;
+      var pathname = l.pathname;
+      var path = (pathname.startsWith(BASE) ? pathname.slice(BASE.length) : pathname) || '/';
       l.replace(
-        l.protocol + '//' + 'teetee971.github.io/akiprisaye-web' + '/?p=/' +
-        l.pathname.split('/').slice(2).join('/').replace(/&/g, '~and~') +
+        ROOT + '?p=' + path.replace(/&/g, '~and~') +
         (l.search ? '&q=' + l.search.slice(1).replace(/&/g, '~and~') : '') +
         l.hash
       );

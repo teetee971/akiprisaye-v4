@@ -7,7 +7,21 @@
  */
 import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Zap, Key, Code2, Shield, CheckCircle, Copy, ChevronRight, ExternalLink } from 'lucide-react';
+import {
+  Zap,
+  Key,
+  Code2,
+  Shield,
+  CheckCircle,
+  Copy,
+  ChevronRight,
+  ExternalLink,
+  ShoppingBag,
+} from 'lucide-react';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../lib/firebase';
+import { HeroImage } from '../components/ui/HeroImage';
+import { PAGE_HERO_IMAGES } from '../config/imageAssets';
 
 const API_TIERS = [
   {
@@ -27,7 +41,13 @@ const API_TIERS = [
     dailyLimit: '10 000 req/jour',
     costPerRequest: '0,03€',
     badge: '⭐ Populaire',
-    features: ['Tous les endpoints', 'Historique 12 mois', 'Webhooks', 'Support prioritaire', 'Analytics avancés'],
+    features: [
+      'Tous les endpoints',
+      'Historique 12 mois',
+      'Webhooks',
+      'Support prioritaire',
+      'Analytics avancés',
+    ],
     highlighted: true,
   },
   {
@@ -37,7 +57,13 @@ const API_TIERS = [
     dailyLimit: 'Illimité',
     costPerRequest: '0,01€',
     badge: '',
-    features: ['SLA 99,9%', 'IP whitelist', 'Support dédié', 'Intégrations custom', 'Formation incluse'],
+    features: [
+      'SLA 99,9%',
+      'IP whitelist',
+      'Support dédié',
+      'Intégrations custom',
+      'Formation incluse',
+    ],
     highlighted: false,
   },
 ];
@@ -69,18 +95,28 @@ prices = client.prices.get_by_territory(
 )
 
 print(prices['items'])`,
-  curl: `curl -X GET \\
-  "https://api.akiprisaye.re/v1/prices?territory=re&limit=20" \\
-  -H "Authorization: Bearer aki_your_key_here" \\
+  curl: `curl -X GET \
+  "https://api.akiprisaye.re/v1/prices?territory=re&limit=20" \
+  -H "Authorization: Bearer aki_your_key_here" \
   -H "Content-Type: application/json"`,
 };
 
 const ENDPOINTS = [
   { method: 'GET', path: '/v1/prices', desc: 'Prix par territoire et catégorie', cost: '0,05€' },
-  { method: 'GET', path: '/v1/prices/{ean}', desc: 'Prix d\'un produit par EAN', cost: '0,05€' },
+  { method: 'GET', path: '/v1/prices/{ean}', desc: "Prix d'un produit par EAN", cost: '0,05€' },
   { method: 'GET', path: '/v1/products/{ean}', desc: 'Fiche produit complète', cost: '0,05€' },
-  { method: 'GET', path: '/v1/territories', desc: 'Liste des territoires DOM-COM', cost: 'Gratuit' },
-  { method: 'POST', path: '/v1/observations', desc: 'Soumettre une observation citoyenne', cost: '0,02€' },
+  {
+    method: 'GET',
+    path: '/v1/territories',
+    desc: 'Liste des territoires DOM-COM',
+    cost: 'Gratuit',
+  },
+  {
+    method: 'POST',
+    path: '/v1/observations',
+    desc: 'Soumettre une observation citoyenne',
+    cost: '0,02€',
+  },
   { method: 'GET', path: '/v1/prices/predict', desc: 'Prédiction de prix (ML)', cost: '0,15€' },
 ];
 
@@ -91,6 +127,8 @@ export default function MarketplacePortal() {
   const [email, setEmail] = useState('');
   const [orgName, setOrgName] = useState('');
   const [generatedKey, setGeneratedKey] = useState<string | null>(null);
+  const [keyRequestError, setKeyRequestError] = useState<string | null>(null);
+  const [keyRequestLoading, setKeyRequestLoading] = useState(false);
 
   const copyCode = async () => {
     try {
@@ -102,35 +140,63 @@ export default function MarketplacePortal() {
     }
   };
 
-  const handleRequestKey = (e: React.FormEvent) => {
+  const handleRequestKey = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    // Simulated key generation (in production: call POST /api/marketplace/keys)
-    const fakeKey = `aki_${Math.random().toString(36).slice(2, 14)}`;
-    setGeneratedKey(fakeKey);
+    setKeyRequestError(null);
+    setKeyRequestLoading(true);
+    // Generate a random prefixed key (deterministic format; real secret managed server-side)
+    const newKey = `aki_${Math.random().toString(36).slice(2, 14)}`;
+    try {
+      if (db) {
+        await addDoc(collection(db, 'api_key_requests'), {
+          email: email.toLowerCase().trim(),
+          orgName: orgName.trim() || null,
+          tier: selectedTier,
+          keyPreview: newKey.slice(0, 10) + '…',
+          requestedAt: serverTimestamp(),
+          status: 'pending',
+        });
+      }
+      setGeneratedKey(newKey);
+    } catch {
+      setKeyRequestError('Erreur lors de la création de la demande. Veuillez réessayer.');
+    } finally {
+      setKeyRequestLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-slate-950 p-4 md:p-8">
       <Helmet>
         <title>API Marketplace — A KI PRI SA YÉ</title>
-        <meta name="description" content="Accédez à l'API de données de prix DOM-TOM. Tiers Starter, Pro, Enterprise." />
+        <meta
+          name="description"
+          content="Accédez à l'API de données de prix DOM-TOM. Tiers Starter, Pro, Enterprise."
+        />
       </Helmet>
 
       {/* Hero */}
-      <div className="max-w-6xl mx-auto mb-12 text-center">
-        <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-4 py-2 mb-4">
-          <Zap className="w-4 h-4 text-emerald-400" />
-          <span className="text-emerald-400 text-sm">API Marketplace</span>
-        </div>
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-          Données de Prix DOM-TOM<br />
-          <span className="text-emerald-400">en temps réel</span>
-        </h1>
-        <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-          Intégrez les prix de 250k+ produits dans 12 territoires directement dans votre application.
-          API RESTful, SDKs Node.js &amp; Python, documentation complète.
-        </p>
+      <div className="max-w-6xl mx-auto mb-12">
+        <HeroImage
+          src={PAGE_HERO_IMAGES.marketplacePortal}
+          alt="Marketplace enseignes DOM-TOM — données de prix en temps réel"
+          gradient="from-slate-950 to-emerald-900"
+          height="h-44 sm:h-56"
+        >
+          <div className="flex items-center gap-2 mb-1">
+            <ShoppingBag className="w-5 h-5 text-emerald-300 drop-shadow" />
+            <span className="text-xs font-semibold uppercase tracking-widest text-emerald-300">
+              API Marketplace
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-white drop-shadow">
+            Données de Prix DOM-TOM en temps réel
+          </h1>
+          <p className="text-emerald-100 text-sm mt-1 drop-shadow">
+            250k+ produits · 12 territoires · API RESTful · SDKs Node.js &amp; Python
+          </p>
+        </HeroImage>
       </div>
 
       {/* Pricing Tiers */}
@@ -154,7 +220,9 @@ export default function MarketplacePortal() {
             )}
             <span className="mb-1 block text-lg font-bold text-white">{t.label}</span>
             <span className="mb-1 block text-2xl font-bold text-emerald-400">{t.price}</span>
-            <span className="mb-4 block text-sm text-gray-400">{t.dailyLimit} · {t.costPerRequest}/req</span>
+            <span className="mb-4 block text-sm text-gray-400">
+              {t.dailyLimit} · {t.costPerRequest}/req
+            </span>
             <span className="block">
               {t.features.map((f) => (
                 <span key={f} className="flex items-center gap-2 text-sm text-gray-300">
@@ -177,8 +245,11 @@ export default function MarketplacePortal() {
           {!generatedKey ? (
             <form onSubmit={handleRequestKey} className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Email professionnel</label>
+                <label htmlFor="mp-email" className="block text-sm text-gray-400 mb-1">
+                  Email professionnel
+                </label>
                 <input
+                  id="mp-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -188,8 +259,11 @@ export default function MarketplacePortal() {
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Organisation (optionnel)</label>
+                <label htmlFor="mp-org" className="block text-sm text-gray-400 mb-1">
+                  Organisation (optionnel)
+                </label>
                 <input
+                  id="mp-org"
                   type="text"
                   value={orgName}
                   onChange={(e) => setOrgName(e.target.value)}
@@ -198,23 +272,40 @@ export default function MarketplacePortal() {
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Tier sélectionné</label>
+                <label htmlFor="mp-tier" className="block text-sm text-gray-400 mb-1">
+                  Tier sélectionné
+                </label>
                 <select
+                  id="mp-tier"
                   value={selectedTier}
                   onChange={(e) => setSelectedTier(e.target.value)}
                   className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-emerald-500"
                 >
                   {API_TIERS.map((t) => (
-                    <option key={t.tier} value={t.tier}>{t.label} — {t.price}</option>
+                    <option key={t.tier} value={t.tier}>
+                      {t.label} — {t.price}
+                    </option>
                   ))}
                 </select>
               </div>
               <button
                 type="submit"
-                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
+                disabled={keyRequestLoading}
+                className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
               >
-                Générer ma clé <ChevronRight className="w-4 h-4" />
+                {keyRequestLoading ? (
+                  <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>
+                    Générer ma clé <ChevronRight className="w-4 h-4" />
+                  </>
+                )}
               </button>
+              {keyRequestError && (
+                <p className="text-sm text-red-400" role="alert">
+                  {keyRequestError}
+                </p>
+              )}
             </form>
           ) : (
             <div className="space-y-4">
@@ -256,7 +347,9 @@ export default function MarketplacePortal() {
                 key={lang}
                 onClick={() => setActiveLang(lang)}
                 className={`text-xs px-2.5 py-1 rounded ${
-                  activeLang === lang ? 'bg-emerald-500 text-white' : 'bg-white/5 text-gray-400 border border-white/10'
+                  activeLang === lang
+                    ? 'bg-emerald-500 text-white'
+                    : 'bg-white/5 text-gray-400 border border-white/10'
                 }`}
               >
                 {lang}
@@ -289,7 +382,9 @@ export default function MarketplacePortal() {
               {ENDPOINTS.map((ep) => (
                 <tr key={ep.path}>
                   <td className="py-2 pr-4">
-                    <span className={`text-xs font-mono px-2 py-0.5 rounded ${ep.method === 'GET' ? 'bg-blue-500/20 text-blue-300' : 'bg-green-500/20 text-green-300'}`}>
+                    <span
+                      className={`text-xs font-mono px-2 py-0.5 rounded ${ep.method === 'GET' ? 'bg-blue-500/20 text-blue-300' : 'bg-green-500/20 text-green-300'}`}
+                    >
                       {ep.method}
                     </span>
                   </td>

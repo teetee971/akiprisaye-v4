@@ -82,6 +82,7 @@ export default defineConfig({
       // Firebase API key integrity — prevents re-introducing the wrong hardcoded key
       abs('./scripts/firebase-config.test.ts'),
       abs('./scripts/auto-scraper-robots.test.ts'),
+      abs('./scripts/scraper-base.test.ts'),
       // Aggregation utilities — normalizeRetailer, deduplicateObservations, discardOutliers
       abs('./src/test/compareAggregation.test.ts'),
       // Retailer link builder — UTM-enriched URLs + deep-links by retailer
@@ -183,6 +184,8 @@ export default defineConfig({
       abs('./src/test/adminCatalogImport.test.tsx'),
       // subscriptionConversionService — promo validation, discount math, event tracking, localStorage resilience
       abs('./src/test/subscriptionConversionService.test.ts'),
+      // matchProductsInReceipt — EAN priority, name matching thresholds (≥4 chars, ≥2 terms), per-call cache
+      abs('./src/test/matchProductsInReceipt.test.ts'),
     ],
 
     exclude: ['**/node_modules/**', '**/.git/**', '**/dist/**', '**/coverage/**'],

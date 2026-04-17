@@ -1,20 +1,20 @@
 /**
  * Scan Types - v1.0.0
- * 
+ *
  * Types et interfaces pour la fonctionnalité de scan de codes-barres et OCR
  */
 
 /**
  * États du scan
  */
-export type ScanState = 
-  | 'idle'                // Inactif, en attente de démarrage
-  | 'scanning'            // Scanner actif, recherche de code-barres
-  | 'processing'          // Traitement du code scanné / OCR en cours
-  | 'success'             // Scan réussi avec produit trouvé
-  | 'not_found'           // Scan réussi mais produit non référencé
-  | 'error'               // Erreur générale
-  | 'permission_denied';  // Accès caméra refusé
+export type ScanState =
+  | 'idle' // Inactif, en attente de démarrage
+  | 'scanning' // Scanner actif, recherche de code-barres
+  | 'processing' // Traitement du code scanné / OCR en cours
+  | 'success' // Scan réussi avec produit trouvé
+  | 'not_found' // Scan réussi mais produit non référencé
+  | 'error' // Erreur générale
+  | 'permission_denied'; // Accès caméra refusé
 
 /**
  * Options de configuration du scanner
@@ -97,9 +97,8 @@ export interface ScanResult {
 
   /**
    * Données du produit trouvé (si applicable)
-   * TODO: Replace with proper Product type from product.ts when available
    */
-  product?: unknown;
+  product?: import('./product').Product;
 
   /**
    * Message d'erreur (si applicable)

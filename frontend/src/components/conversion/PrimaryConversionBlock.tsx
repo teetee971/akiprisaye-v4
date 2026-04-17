@@ -13,19 +13,10 @@
  *   - logEvent tracking
  */
 import React, { useEffect, useState } from 'react';
-import {
-  getBestDeal,
-  getBadges,
-  type ConversionProduct,
-} from '../../engine/conversionEngine';
-import {
-  trackConversionEvent,
-  getVariantForPage,
-} from '../../utils/conversionTracker';
-import {
-  safeRetailerUrl,
-  buildRetailerUrl,
-} from '../../utils/retailerLinks';
+import { useNavigate } from 'react-router-dom';
+import { getBestDeal, getBadges, type ConversionProduct } from '../../engine/conversionEngine';
+import { trackConversionEvent, getVariantForPage } from '../../utils/conversionTracker';
+import { safeRetailerUrl, buildRetailerUrl } from '../../utils/retailerLinks';
 import { logEvent, getCTAVariant, CTA_LABELS } from '../../engine/analytics';
 import { FavoriteButton } from './FavoriteButton';
 import { PostClickConfirmation } from './PostClickConfirmation';
@@ -41,6 +32,7 @@ interface PrimaryConversionBlockProps {
 
 export function PrimaryConversionBlock({ products = [] }: PrimaryConversionBlockProps) {
   const [confirmed, setConfirmed] = useState(false);
+  const navigate = useNavigate();
 
   const best = getBestDeal(products);
 
@@ -55,16 +47,14 @@ export function PrimaryConversionBlock({ products = [] }: PrimaryConversionBlock
   if (!best) {
     return (
       <div className="rounded-2xl border border-gray-800 bg-gray-900 p-6 text-center">
-        <p className="text-sm text-gray-500">
-          Chargement des meilleurs prix en cours…
-        </p>
+        <p className="text-sm text-gray-500">Chargement des meilleurs prix en cours…</p>
       </div>
     );
   }
 
-  const badges    = getBadges(best);
+  const badges = getBadges(best);
   const abVariant = getCTAVariant();
-  const ctaLabel  = CTA_LABELS[abVariant];
+  const ctaLabel = CTA_LABELS[abVariant];
 
   const oldPrice =
     best.price != null && (best.priceDrop ?? 0) > 0
@@ -81,12 +71,12 @@ export function PrimaryConversionBlock({ products = [] }: PrimaryConversionBlock
     // CRO tracker (existing engine)
     trackConversionEvent({
       pageUrl,
-      retailer:    best.retailer ?? 'inconnu',
+      retailer: best.retailer ?? 'inconnu',
       productName: best.name,
-      variant:     routerVariant,
-      clickedAt:   new Date().toISOString(),
-      territory:   best.territory,
-      price:       best.price,
+      variant: routerVariant,
+      clickedAt: new Date().toISOString(),
+      territory: best.territory,
+      price: best.price,
     });
 
     // Analytics engine
@@ -102,17 +92,14 @@ export function PrimaryConversionBlock({ products = [] }: PrimaryConversionBlock
     if (url && url !== '/comparateur') {
       window.open(url, '_blank', 'noopener,noreferrer');
     } else {
-      window.location.href = '/comparateur';
+      navigate('/comparateur');
     }
   }
 
   return (
     <>
       {confirmed && (
-        <PostClickConfirmation
-          productName={best.name}
-          onDismiss={() => setConfirmed(false)}
-        />
+        <PostClickConfirmation productName={best.name} onDismiss={() => setConfirmed(false)} />
       )}
 
       <div className="rounded-2xl bg-gradient-to-b from-gray-900 to-gray-950 border border-gray-800 p-5 text-center shadow-2xl">
@@ -139,7 +126,10 @@ export function PrimaryConversionBlock({ products = [] }: PrimaryConversionBlock
           {/* Price — visually dominant (32 px bold green) */}
           <div className="flex items-baseline justify-center gap-2 mb-2">
             {best.price != null && (
-              <span className="text-4xl font-extrabold text-green-400" style={{ fontSize: '2rem', fontWeight: 800, color: '#16a34a' }}>
+              <span
+                className="text-4xl font-extrabold text-green-400"
+                style={{ fontSize: '2rem', fontWeight: 800, color: '#16a34a' }}
+              >
                 {best.price.toFixed(2)}&nbsp;€
               </span>
             )}
@@ -155,9 +145,7 @@ export function PrimaryConversionBlock({ products = [] }: PrimaryConversionBlock
             )}
           </div>
 
-          {best.retailer && (
-            <p className="text-xs text-gray-500 mb-2">{best.retailer}</p>
-          )}
+          {best.retailer && <p className="text-xs text-gray-500 mb-2">{best.retailer}</p>}
 
           {/* Urgency badges */}
           {badges.length > 0 && (
@@ -184,6 +172,7 @@ export function PrimaryConversionBlock({ products = [] }: PrimaryConversionBlock
 
         {/* Primary CTA — full width, high contrast */}
         <button
+          type="button"
           onClick={handleClick}
           className="w-full bg-green-500 hover:bg-green-400 text-black font-extrabold text-base py-4 rounded-xl active:scale-95 transition-transform shadow-lg animate-pulse-once"
         >

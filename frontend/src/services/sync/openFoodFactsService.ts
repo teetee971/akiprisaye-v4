@@ -11,10 +11,42 @@ import type {
   Product,
   QuantityParsed,
 } from './types';
+import { safeLocalStorage } from '../../utils/safeLocalStorage';
 
 const OFF_API_BASE = 'https://world.openfoodfacts.org';
 const OFF_API_V2_BASE = `${OFF_API_BASE}/api/v2`;
 const OFF_SEARCH_BASE = `${OFF_API_BASE}/cgi`;
+
+const LOCAL_PRODUCTS_KEY = 'akiprisaye_off_products';
+
+/** Persist a mapped product to localStorage. Deduplicates by EAN. */
+function saveProductLocally(product: Partial<Product>): void {
+  if (!product.ean) return;
+  const stored = safeLocalStorage.getJSON<Record<string, Partial<Product>>>(LOCAL_PRODUCTS_KEY, {});
+  const existing = stored[product.ean] ?? {};
+  stored[product.ean] = {
+    ...existing,
+    ...product,
+    metadata: {
+      ...(existing.metadata ?? {}),
+      ...(product.metadata ?? {}),
+      lastSync: new Date().toISOString(),
+    },
+  };
+  safeLocalStorage.setJSON(LOCAL_PRODUCTS_KEY, stored);
+}
+
+/** Retrieve a product from the local cache by EAN. Returns undefined if not found. */
+export function getLocalProduct(ean: string): Partial<Product> | undefined {
+  const stored = safeLocalStorage.getJSON<Record<string, Partial<Product>>>(LOCAL_PRODUCTS_KEY, {});
+  return stored[ean];
+}
+
+/** Return all locally cached EAN codes. */
+export function getLocalProductEANs(): string[] {
+  const stored = safeLocalStorage.getJSON<Record<string, Partial<Product>>>(LOCAL_PRODUCTS_KEY, {});
+  return Object.keys(stored);
+}
 
 // Rate limiting: 100 req/min max
 const RATE_LIMIT_DELAY = 600; // ms between requests
@@ -26,11 +58,11 @@ let lastRequestTime = 0;
 async function rateLimit(): Promise<void> {
   const now = Date.now();
   const timeSinceLastRequest = now - lastRequestTime;
-  
+
   if (timeSinceLastRequest < RATE_LIMIT_DELAY) {
-    await new Promise(resolve => setTimeout(resolve, RATE_LIMIT_DELAY - timeSinceLastRequest));
+    await new Promise((resolve) => setTimeout(resolve, RATE_LIMIT_DELAY - timeSinceLastRequest));
   }
-  
+
   lastRequestTime = Date.now();
 }
 
@@ -68,12 +100,12 @@ export function mapCategory(categoriesTags: string[] | undefined): string {
   }
 
   const categoryMap: Record<string, string> = {
-    'beverages': 'Boissons',
-    'dairies': 'Produits laitiers',
-    'meats': 'Viandes',
+    beverages: 'Boissons',
+    dairies: 'Produits laitiers',
+    meats: 'Viandes',
     'plant-based-foods': 'Fruits et légumes',
-    'snacks': 'Snacks',
-    'groceries': 'Épicerie',
+    snacks: 'Snacks',
+    groceries: 'Épicerie',
     'frozen-foods': 'Surgelés',
   };
 
@@ -121,14 +153,14 @@ export async function getProductByBarcode(ean: string): Promise<OFFProduct | nul
     await rateLimit();
 
     const response = await fetch(`${OFF_API_V2_BASE}/product/${ean}`);
-    
+
     if (!response.ok) {
       console.warn(`OpenFoodFacts: Product ${ean} not found`);
       return null;
     }
 
     const data = await response.json();
-    
+
     if (data.status !== 1 || !data.product) {
       return null;
     }
@@ -162,13 +194,13 @@ export async function searchProducts(
     }
 
     const response = await fetch(`${OFF_SEARCH_BASE}/search.pl?${params}`);
-    
+
     if (!response.ok) {
       throw new Error('Failed to search products');
     }
 
     const data: OFFSearchResponse = await response.json();
-    
+
     return data.products || [];
   } catch (error) {
     console.error('Error searching products on OpenFoodFacts:', error);
@@ -179,9 +211,7 @@ export async function searchProducts(
 /**
  * Recherche avancée de produits (API v2)
  */
-export async function advancedSearch(
-  options: OFFSearchOptions = {}
-): Promise<OFFSearchResponse> {
+export async function advancedSearch(options: OFFSearchOptions = {}): Promise<OFFSearchResponse> {
   try {
     await rateLimit();
 
@@ -203,13 +233,13 @@ export async function advancedSearch(
     }
 
     const response = await fetch(`${OFF_API_V2_BASE}/search?${params}`);
-    
+
     if (!response.ok) {
       throw new Error('Failed to perform advanced search');
     }
 
     const data: OFFSearchResponse = await response.json();
-    
+
     return data;
   } catch (error) {
     console.error('Error in advanced search on OpenFoodFacts:', error);
@@ -243,7 +273,7 @@ export async function syncProduct(ean: string): Promise<SyncResult> {
 
   try {
     const offProduct = await getProductByBarcode(ean);
-    
+
     if (!offProduct) {
       result.errors.push(`Product with EAN ${ean} not found on OpenFoodFacts`);
       result.itemsSkipped = 1;
@@ -251,10 +281,9 @@ export async function syncProduct(ean: string): Promise<SyncResult> {
       return result;
     }
 
-    // TODO: Implémenter la logique de sauvegarde dans la base locale
-    // Pour l'instant, on mappe juste le produit
+    // Persist the mapped product to localStorage for offline use
     const mappedProduct = mapOFFToProduct(offProduct);
-    console.log('Product mapped:', mappedProduct);
+    saveProductLocally(mappedProduct);
 
     result.success = true;
     result.itemsProcessed = 1;
@@ -299,11 +328,11 @@ export async function bulkSync(eans: string[]): Promise<BulkSyncResult> {
     const batchEnd = Math.min(batchStart + batchSize, eans.length);
     const batchEans = eans.slice(batchStart, batchEnd);
 
-    console.log(`Processing batch ${i + 1}/${batches}...`);
+    if (import.meta.env.DEV) console.log(`Processing batch ${i + 1}/${batches}...`);
 
     for (const ean of batchEans) {
       const syncResult = await syncProduct(ean);
-      
+
       result.itemsProcessed += syncResult.itemsProcessed;
       result.itemsAdded += syncResult.itemsAdded;
       result.itemsUpdated += syncResult.itemsUpdated;
@@ -317,7 +346,7 @@ export async function bulkSync(eans: string[]): Promise<BulkSyncResult> {
 
     // Pause entre les batches pour respecter le rate limit
     if (i < batches - 1) {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
     }
   }
 
@@ -332,12 +361,9 @@ export async function bulkSync(eans: string[]): Promise<BulkSyncResult> {
  * Note: OpenFoodFacts n'a pas d'API native pour filtrer par date de création
  * Cette fonction est un placeholder pour une implémentation future
  */
-export async function getNewProductsSince(
-  date: Date,
-  country?: string
-): Promise<OFFProduct[]> {
+export async function getNewProductsSince(date: Date, country?: string): Promise<OFFProduct[]> {
   console.warn('getNewProductsSince is not fully implemented - OpenFoodFacts API limitation');
-  
+
   // Pour l'instant, on retourne les produits récents via une recherche générale
   // avec tri par date (si disponible)
   try {

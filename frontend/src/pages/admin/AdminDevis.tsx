@@ -38,15 +38,31 @@ import {
   PROFONDEUR_LABELS,
   DELAI_LABELS,
 } from '@/services/devisEstimationEngine';
+import { isStaticPreviewEnv } from '@/services/admin/runtimeEnv';
 
-const PIPELINE_ACTIONS: Partial<Record<DevisStatus, { next: DevisStatus; label: string; color: string }>> = {
+const PIPELINE_ACTIONS: Partial<
+  Record<DevisStatus, { next: DevisStatus; label: string; color: string }>
+> = {
   DRAFT: { next: 'VALIDATED', label: 'Valider le devis', color: 'bg-blue-600 hover:bg-blue-700' },
-  VALIDATED: { next: 'SENT', label: 'Envoyer au client', color: 'bg-indigo-600 hover:bg-indigo-700' },
-  SENT: { next: 'ACCEPTED', label: 'Marquer comme accepté', color: 'bg-green-600 hover:bg-green-700' },
-  ACCEPTED: { next: 'PAID', label: 'Marquer comme payé', color: 'bg-emerald-600 hover:bg-emerald-700' },
+  VALIDATED: {
+    next: 'SENT',
+    label: 'Envoyer au client',
+    color: 'bg-indigo-600 hover:bg-indigo-700',
+  },
+  SENT: {
+    next: 'ACCEPTED',
+    label: 'Marquer comme accepté',
+    color: 'bg-green-600 hover:bg-green-700',
+  },
+  ACCEPTED: {
+    next: 'PAID',
+    label: 'Marquer comme payé',
+    color: 'bg-emerald-600 hover:bg-emerald-700',
+  },
 };
 
 export default function AdminDevis() {
+  const isDegradedMode = isStaticPreviewEnv();
   const [user, setUser] = useState<User | null>(null);
   const [devisList, setDevisList] = useState<DevisRequest[]>([]);
   const [selected, setSelected] = useState<DevisRequest | null>(null);
@@ -61,14 +77,14 @@ export default function AdminDevis() {
   }, []);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || isDegradedMode) return;
     return subscribeToAllDevis((list) => {
       setDevisList(list);
       if (selected) {
         setSelected(list.find((d) => d.id === selected.id) ?? null);
       }
     });
-  }, [user]);
+  }, [user, isDegradedMode]);
 
   async function handleAdvance(devis: DevisRequest) {
     const action = PIPELINE_ACTIONS[devis.status];
@@ -89,9 +105,9 @@ export default function AdminDevis() {
     setActionLoading(true);
     setError(null);
     try {
-      await updateDevisStatus(devis.id, 'CANCELLED', user.uid, 'Annulé par l\'administrateur');
+      await updateDevisStatus(devis.id, 'CANCELLED', user.uid, "Annulé par l'administrateur");
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de l\'annulation.');
+      setError(err instanceof Error ? err.message : "Erreur lors de l'annulation.");
     } finally {
       setActionLoading(false);
     }
@@ -115,7 +131,8 @@ export default function AdminDevis() {
           methodologie: quoteForm.methodologie ?? 'Analyse documentaire + collecte terrain',
           perimetre: quoteForm.perimetre ?? selected.territoire,
           livrables: quoteForm.livrables ?? ['Rapport final PDF', 'Dataset structuré'],
-          delais: quoteForm.delais ?? `Livraison selon délai convenu (${DELAI_LABELS[selected.delai]})`,
+          delais:
+            quoteForm.delais ?? `Livraison selon délai convenu (${DELAI_LABELS[selected.delai]})`,
           lignes: quoteForm.lignes ?? [
             {
               description: selected.typesBesoin.map((b) => TYPE_BESOIN_LABELS[b]).join(' + '),
@@ -132,7 +149,7 @@ export default function AdminDevis() {
           validiteExpire: null,
           conditions: quoteForm.conditions ?? 'Paiement à 30 jours. Acompte 30 % à la commande.',
         },
-        user.uid,
+        user.uid
       );
       setShowQuoteModal(false);
       setQuoteForm({});
@@ -143,9 +160,8 @@ export default function AdminDevis() {
     }
   }
 
-  const filtered = filterStatus === 'ALL'
-    ? devisList
-    : devisList.filter((d) => d.status === filterStatus);
+  const filtered =
+    filterStatus === 'ALL' ? devisList : devisList.filter((d) => d.status === filterStatus);
 
   // ── KPIs ──────────────────────────────────────────────────────────────────
   const kpis = {
@@ -164,13 +180,22 @@ export default function AdminDevis() {
       </Helmet>
 
       <div className="min-h-screen bg-gray-50">
+        {isDegradedMode && (
+          <div className="flex items-center gap-2 px-4 py-3 bg-amber-50 border-b border-amber-200 text-amber-800 text-sm">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            Mode preview statique — les devis Firestore ne sont pas disponibles dans cet
+            environnement. Les actions de modification sont désactivées.
+          </div>
+        )}
         {/* Header */}
         <div className="bg-slate-900 text-white py-6 px-4">
           <div className="max-w-6xl mx-auto flex items-center gap-3">
             <FileText className="w-6 h-6" />
             <div>
               <h1 className="text-lg font-bold">Pipeline Devis IA</h1>
-              <p className="text-slate-400 text-xs">Administration — Validation humaine obligatoire</p>
+              <p className="text-slate-400 text-xs">
+                Administration — Validation humaine obligatoire
+              </p>
             </div>
           </div>
         </div>
@@ -180,7 +205,12 @@ export default function AdminDevis() {
           <div className="grid grid-cols-4 gap-3">
             {[
               { label: 'Total devis', value: kpis.total, icon: FileText, color: 'text-gray-700' },
-              { label: 'En attente', value: kpis.draft, icon: AlertTriangle, color: 'text-yellow-600' },
+              {
+                label: 'En attente',
+                value: kpis.draft,
+                icon: AlertTriangle,
+                color: 'text-yellow-600',
+              },
               { label: 'Payés', value: kpis.paid, icon: CheckCircle, color: 'text-green-600' },
               {
                 label: 'Revenu HT payé',
@@ -218,7 +248,9 @@ export default function AdminDevis() {
               >
                 <option value="ALL">Tous les statuts</option>
                 {(Object.keys(STATUS_LABELS) as DevisStatus[]).map((s) => (
-                  <option key={s} value={s}>{STATUS_LABELS[s]}</option>
+                  <option key={s} value={s}>
+                    {STATUS_LABELS[s]}
+                  </option>
                 ))}
               </select>
 
@@ -237,11 +269,15 @@ export default function AdminDevis() {
                     <p className="text-xs font-mono text-gray-400">{d.ref}</p>
                     <p className="text-sm font-medium text-gray-900 truncate">{d.organisation}</p>
                     <div className="flex items-center justify-between mt-1">
-                      <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${STATUS_COLORS[d.status] ?? ''}`}>
+                      <span
+                        className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${STATUS_COLORS[d.status] ?? ''}`}
+                      >
                         {STATUS_LABELS[d.status] ?? d.status}
                       </span>
                       <span className="text-xs text-gray-400">
-                        {d.estimation?.prixTTC ? `${d.estimation.prixTTC.toLocaleString('fr-FR')} €` : '—'}
+                        {d.estimation?.prixTTC
+                          ? `${d.estimation.prixTTC.toLocaleString('fr-FR')} €`
+                          : '—'}
                       </span>
                     </div>
                   </button>
@@ -262,13 +298,18 @@ export default function AdminDevis() {
                         {CLIENT_TYPE_LABELS[selected.clientType]} · SIRET {selected.siret}
                       </p>
                     </div>
-                    <span className={`text-sm px-3 py-1 rounded-full font-medium ${STATUS_COLORS[selected.status] ?? ''}`}>
+                    <span
+                      className={`text-sm px-3 py-1 rounded-full font-medium ${STATUS_COLORS[selected.status] ?? ''}`}
+                    >
                       {STATUS_LABELS[selected.status]}
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm mb-5">
-                    <Row label="Contact" value={`${selected.contactNom} — ${selected.contactEmail}`} />
+                    <Row
+                      label="Contact"
+                      value={`${selected.contactNom} — ${selected.contactEmail}`}
+                    />
                     {selected.contactTel && <Row label="Téléphone" value={selected.contactTel} />}
                     <Row label="Territoire" value={selected.territoire} />
                     <Row
@@ -295,14 +336,22 @@ export default function AdminDevis() {
                     </p>
                     <div className="grid grid-cols-3 gap-3 mb-3">
                       <EstCard label="Charge" value={`${selected.estimation.joursCharge} j`} />
-                      <EstCard label="Montant HT" value={`${selected.estimation.prixHT.toLocaleString('fr-FR')} €`} />
-                      <EstCard label="Montant TTC" value={`${selected.estimation.prixTTC.toLocaleString('fr-FR')} €`} />
+                      <EstCard
+                        label="Montant HT"
+                        value={`${selected.estimation.prixHT.toLocaleString('fr-FR')} €`}
+                      />
+                      <EstCard
+                        label="Montant TTC"
+                        value={`${selected.estimation.prixTTC.toLocaleString('fr-FR')} €`}
+                      />
                     </div>
                     <div className="bg-gray-50 rounded-lg p-3">
                       <p className="text-xs font-medium text-gray-600 mb-1">Facteurs de calcul</p>
                       <ul className="space-y-0.5">
                         {selected.estimation.justification.map((line, i) => (
-                          <li key={i} className="text-xs font-mono text-gray-600">{line}</li>
+                          <li key={i} className="text-xs font-mono text-gray-600">
+                            {line}
+                          </li>
                         ))}
                       </ul>
                     </div>
@@ -319,8 +368,14 @@ export default function AdminDevis() {
                     <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
                       <Row label="Mission" value={selected.quote.descriptionMission} />
                       <Row label="Livraison" value={selected.quote.delais} />
-                      <Row label="HT" value={`${selected.quote.prixHT.toLocaleString('fr-FR')} €`} />
-                      <Row label="TTC" value={`${selected.quote.prixTTC.toLocaleString('fr-FR')} €`} />
+                      <Row
+                        label="HT"
+                        value={`${selected.quote.prixHT.toLocaleString('fr-FR')} €`}
+                      />
+                      <Row
+                        label="TTC"
+                        value={`${selected.quote.prixTTC.toLocaleString('fr-FR')} €`}
+                      />
                       <Row label="Validité" value={`${selected.quote.validiteJours} jours`} />
                       <Row label="Conditions" value={selected.quote.conditions} />
                     </div>
@@ -339,9 +394,7 @@ export default function AdminDevis() {
                           {entry.details && (
                             <p className="text-xs text-gray-500">{entry.details}</p>
                           )}
-                          {entry.by && (
-                            <p className="text-xs text-gray-400">par {entry.by}</p>
-                          )}
+                          {entry.by && <p className="text-xs text-gray-400">par {entry.by}</p>}
                         </li>
                       ))}
                     </ol>
@@ -367,10 +420,16 @@ export default function AdminDevis() {
                       {PIPELINE_ACTIONS[selected.status] && (
                         <button
                           onClick={() => handleAdvance(selected)}
-                          disabled={actionLoading || (selected.status === 'DRAFT' && !selected.quote)}
+                          disabled={
+                            actionLoading || (selected.status === 'DRAFT' && !selected.quote)
+                          }
                           className={`flex items-center gap-2 text-white px-4 py-2 rounded-xl text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed ${PIPELINE_ACTIONS[selected.status]?.color ?? ''}`}
                         >
-                          {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                          {actionLoading ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Send className="w-4 h-4" />
+                          )}
                           {PIPELINE_ACTIONS[selected.status]?.label}
                         </button>
                       )}
@@ -445,13 +504,17 @@ export default function AdminDevis() {
                     <Field
                       label="Validité (jours)"
                       value={String(quoteForm.validiteJours ?? 30)}
-                      onChange={(v) => setQuoteForm((f) => ({ ...f, validiteJours: parseInt(v) || 30 }))}
+                      onChange={(v) =>
+                        setQuoteForm((f) => ({ ...f, validiteJours: parseInt(v) || 30 }))
+                      }
                       type="number"
                     />
                   </div>
                   <Field
                     label="Conditions de paiement"
-                    value={quoteForm.conditions ?? 'Paiement à 30 jours. Acompte 30 % à la commande.'}
+                    value={
+                      quoteForm.conditions ?? 'Paiement à 30 jours. Acompte 30 % à la commande.'
+                    }
                     onChange={(v) => setQuoteForm((f) => ({ ...f, conditions: v }))}
                     multiline
                   />
@@ -465,7 +528,10 @@ export default function AdminDevis() {
 
                 <div className="flex gap-3 mt-5">
                   <button
-                    onClick={() => { setShowQuoteModal(false); setQuoteForm({}); }}
+                    onClick={() => {
+                      setShowQuoteModal(false);
+                      setQuoteForm({});
+                    }}
                     className="flex-1 border border-gray-300 text-gray-700 px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-50 transition"
                   >
                     Annuler
@@ -520,7 +586,8 @@ function Field({
   multiline?: boolean;
   type?: string;
 }) {
-  const cls = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500';
+  const cls =
+    'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500';
   return (
     <div>
       <label className="block text-xs font-medium text-gray-700 mb-1">{label}</label>

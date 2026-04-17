@@ -16,21 +16,36 @@ import {
   ChevronRight,
   Gift,
 } from 'lucide-react';
-
 const COMMISSION_PLANS = [
-  { plan: 'CITIZEN_PREMIUM', price: '4,99€/mois', commission: '10%', earn: '0,50€', perClick: '0,10€' },
+  {
+    plan: 'CITIZEN_PREMIUM',
+    price: '4,99€/mois',
+    commission: '10%',
+    earn: '0,50€',
+    perClick: '0,10€',
+  },
   { plan: 'SME', price: '29,99€/mois', commission: '10%', earn: '3,00€', perClick: '0,90€' },
-  { plan: 'BUSINESS_PRO', price: '79,99€/mois', commission: '10%', earn: '8,00€', perClick: '4,00€' },
-  { plan: 'INSTITUTIONAL', price: '299€/mois', commission: '5%', earn: '14,95€', perClick: '5,98€' },
+  {
+    plan: 'BUSINESS_PRO',
+    price: '79,99€/mois',
+    commission: '10%',
+    earn: '8,00€',
+    perClick: '4,00€',
+  },
+  {
+    plan: 'INSTITUTIONAL',
+    price: '299€/mois',
+    commission: '5%',
+    earn: '14,95€',
+    perClick: '5,98€',
+  },
 ];
-
 const MARKETING_ASSETS = [
   { icon: '🖼️', type: 'Landing pages', desc: 'Templates HTML prêts à déployer', format: '.zip' },
   { icon: '✉️', type: 'Templates email', desc: 'Emails HTML prêts à envoyer', format: '.zip' },
   { icon: '📱', type: 'Visuels réseaux', desc: 'Instagram, Facebook, TikTok', format: '.zip' },
   { icon: '💬', type: 'Snippets SMS', desc: 'Messages SMS pré-rédigés', format: '.txt' },
 ];
-
 const LEADERBOARD = [
   { rank: 1, name: 'Marie K.', conversions: 47, commission: '186€', badge: '🥇' },
   { rank: 2, name: 'Jean-Louis P.', conversions: 32, commission: '128€', badge: '🥈' },
@@ -38,25 +53,25 @@ const LEADERBOARD = [
   { rank: 4, name: 'Thomas R.', conversions: 21, commission: '84€', badge: '' },
   { rank: 5, name: 'Claire D.', conversions: 17, commission: '68€', badge: '' },
 ];
-
 export default function AffiliatePortal() {
   const [email, setEmail] = useState('');
   const [registered, setRegistered] = useState(false);
   const [referralCode, setReferralCode] = useState('');
   const [trackedUrl, setTrackedUrl] = useState('');
   const [copied, setCopied] = useState(false);
-
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    const affiliateId = email.replace(/[^a-z0-9]/gi, '').slice(0, 8).toUpperCase();
+    const affiliateId = email
+      .replace(/[^a-z0-9]/gi, '')
+      .slice(0, 8)
+      .toUpperCase();
     const code = `AKI-${affiliateId}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
     const url = `https://akiprisaye.re/tarifs?ref=${code}&utm_source=affiliate&utm_medium=referral`;
     setReferralCode(code);
     setTrackedUrl(url);
     setRegistered(true);
   };
-
   const copyUrl = async () => {
     try {
       await navigator.clipboard.writeText(trackedUrl);
@@ -67,14 +82,15 @@ export default function AffiliatePortal() {
       console.error('Failed to copy tracked URL to clipboard:', error);
     }
   };
-
   return (
     <div className="min-h-screen bg-slate-950 p-4 md:p-8">
       <Helmet>
         <title>Programme Affilié — A KI PRI SA YÉ</title>
-        <meta name="description" content="Rejoignez le programme d'affiliation Akiprisaye. 10% de commission sur chaque abonnement." />
+        <meta
+          name="description"
+          content="Rejoignez le programme d'affiliation Akiprisaye. 10% de commission sur chaque abonnement."
+        />
       </Helmet>
-
       {/* Hero */}
       <div className="max-w-5xl mx-auto mb-10 text-center">
         <div className="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/20 rounded-full px-4 py-2 mb-4">
@@ -82,16 +98,13 @@ export default function AffiliatePortal() {
           <span className="text-purple-400 text-sm">Programme Affilié</span>
         </div>
         <h1 className="text-4xl font-bold text-white mb-4">
-          Gagnez jusqu'à{' '}
-          <span className="text-purple-400">14,95€</span>
-          {' '}par abonnement
+          Gagnez jusqu'à <span className="text-purple-400">14,95€</span> par abonnement
         </h1>
         <p className="text-gray-400 text-lg">
-          Partagez Akiprisaye et recevez une commission sur chaque abonnement converti.
-          Paiement mensuel via Stripe dès 50€ accumulés.
+          Partagez Akiprisaye et recevez une commission sur chaque abonnement converti. Paiement
+          mensuel via Stripe dès 50€ accumulés.
         </p>
       </div>
-
       {/* Stats */}
       <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
         {[
@@ -100,14 +113,16 @@ export default function AffiliatePortal() {
           { label: 'Paiement min.', value: '50€', icon: Gift, color: 'text-amber-400' },
           { label: 'Affiliés actifs', value: '127', icon: Users, color: 'text-blue-400' },
         ].map((s) => (
-          <div key={s.label} className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
+          <div
+            key={s.label}
+            className="bg-white/5 border border-white/10 rounded-xl p-4 text-center"
+          >
             <s.icon className={`w-5 h-5 ${s.color} mx-auto mb-2`} />
             <div className="text-xl font-bold text-white">{s.value}</div>
             <div className="text-xs text-gray-400">{s.label}</div>
           </div>
         ))}
       </div>
-
       <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
         {/* Registration */}
         <div className="bg-white/5 border border-white/10 rounded-xl p-6">
@@ -118,8 +133,11 @@ export default function AffiliatePortal() {
           {!registered ? (
             <form onSubmit={handleRegister} className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Votre email</label>
+                <label htmlFor="ap-email" className="block text-sm text-gray-400 mb-1">
+                  Votre email
+                </label>
                 <input
+                  id="ap-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -158,7 +176,6 @@ export default function AffiliatePortal() {
             </div>
           )}
         </div>
-
         {/* Commission Grid */}
         <div className="bg-white/5 border border-white/10 rounded-xl p-6">
           <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
@@ -167,7 +184,10 @@ export default function AffiliatePortal() {
           </h2>
           <div className="space-y-3">
             {COMMISSION_PLANS.map((p) => (
-              <div key={p.plan} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+              <div
+                key={p.plan}
+                className="flex items-center justify-between py-2 border-b border-white/5 last:border-0"
+              >
                 <div>
                   <div className="text-sm font-medium text-white">{p.plan}</div>
                   <div className="text-xs text-gray-400">{p.price}</div>
@@ -181,7 +201,6 @@ export default function AffiliatePortal() {
           </div>
         </div>
       </div>
-
       {/* Marketing Assets */}
       <div className="max-w-5xl mx-auto bg-white/5 border border-white/10 rounded-xl p-6 mb-10">
         <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
@@ -202,7 +221,6 @@ export default function AffiliatePortal() {
           ))}
         </div>
       </div>
-
       {/* Leaderboard */}
       <div className="max-w-5xl mx-auto bg-white/5 border border-white/10 rounded-xl p-6">
         <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">

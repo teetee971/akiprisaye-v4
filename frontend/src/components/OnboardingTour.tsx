@@ -4,7 +4,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import Joyride, { CallBackProps, STATUS, Step, Locale } from 'react-joyride';
+import { Joyride, EventData, STATUS, Step } from 'react-joyride';
+import type { Locale } from 'react-joyride';
 import { useOnboarding } from '../context/OnboardingContext';
 
 // Traduction française pour React Joyride
@@ -28,13 +29,13 @@ const tourSteps: Step[] = [
       <div>
         <h3 className="text-lg font-bold mb-2">Bienvenue sur A KI PRI SA YÉ ! 👋</h3>
         <p>
-          Découvrez comment comparer les prix et économiser sur vos achats.
-          Ce guide rapide vous présente les fonctionnalités principales.
+          Découvrez comment comparer les prix et économiser sur vos achats. Ce guide rapide vous
+          présente les fonctionnalités principales.
         </p>
       </div>
     ),
     placement: 'center',
-    disableBeacon: true,
+    skipBeacon: true,
   },
   {
     target: 'nav a[href*="carte"], nav a[href="#/carte"]',
@@ -42,8 +43,8 @@ const tourSteps: Step[] = [
       <div>
         <h4 className="font-bold mb-1">🗺️ Carte interactive</h4>
         <p>
-          Localisez les magasins autour de vous et consultez les prix en temps réel.
-          Trouvez les meilleures offres près de chez vous.
+          Localisez les magasins autour de vous et consultez les prix en temps réel. Trouvez les
+          meilleures offres près de chez vous.
         </p>
       </div>
     ),
@@ -55,8 +56,8 @@ const tourSteps: Step[] = [
       <div>
         <h4 className="font-bold mb-1">📊 Comparateur de prix</h4>
         <p>
-          Comparez les prix des produits entre différents magasins.
-          Identifiez rapidement où acheter moins cher.
+          Comparez les prix des produits entre différents magasins. Identifiez rapidement où acheter
+          moins cher.
         </p>
       </div>
     ),
@@ -68,8 +69,8 @@ const tourSteps: Step[] = [
       <div>
         <h4 className="font-bold mb-1">📈 Observatoire des prix</h4>
         <p>
-          Suivez l'évolution des prix dans le temps.
-          Analysez les tendances et anticipez les hausses.
+          Suivez l'évolution des prix dans le temps. Analysez les tendances et anticipez les
+          hausses.
         </p>
       </div>
     ),
@@ -81,13 +82,13 @@ const tourSteps: Step[] = [
       <div>
         <h4 className="font-bold mb-1">🛒 Ti-panier intelligent</h4>
         <p>
-          Créez votre liste de courses et optimisez votre budget.
-          Recevez des alertes sur les prix de vos produits favoris.
+          Créez votre liste de courses et optimisez votre budget. Recevez des alertes sur les prix
+          de vos produits favoris.
         </p>
       </div>
     ),
     placement: 'bottom',
-    disableBeacon: true,
+    skipBeacon: true,
   },
   {
     target: 'body',
@@ -95,11 +96,12 @@ const tourSteps: Step[] = [
       <div>
         <h3 className="text-lg font-bold mb-2">🎉 C'est parti !</h3>
         <p>
-          Vous êtes maintenant prêt à utiliser A KI PRI SA YÉ.
-          Explorez les fonctionnalités et économisez sur vos achats !
+          Vous êtes maintenant prêt à utiliser A KI PRI SA YÉ. Explorez les fonctionnalités et
+          économisez sur vos achats !
         </p>
         <p className="mt-2 text-sm text-slate-600">
-          💡 Astuce : Vous pouvez relancer ce guide à tout moment via le bouton "Aide" en bas à droite.
+          💡 Astuce : Vous pouvez relancer ce guide à tout moment via le bouton "Aide" en bas à
+          droite.
         </p>
       </div>
     ),
@@ -123,7 +125,7 @@ export default function OnboardingTour() {
     }
   }, [isTourActive]);
 
-  const handleJoyrideCallback = (data: CallBackProps) => {
+  const handleJoyrideCallback = (data: EventData) => {
     const { status, action } = data;
     const finishedStatuses: string[] = [STATUS.FINISHED, STATUS.SKIPPED];
 
@@ -145,19 +147,20 @@ export default function OnboardingTour() {
       steps={tourSteps}
       run={run}
       continuous
-      showProgress
-      showSkipButton
       locale={locale}
-      callback={handleJoyrideCallback}
+      onEvent={handleJoyrideCallback}
+      options={{
+        primaryColor: '#1d4ed8', // blue-700 — WCAG AA contrast ≥4.5:1 with white
+        textColor: '#1e293b', // slate-800
+        backgroundColor: '#ffffff',
+        arrowColor: '#ffffff',
+        overlayColor: 'rgba(0, 0, 0, 0.5)',
+        zIndex: 10000,
+        showProgress: true,
+        buttons: ['back', 'close', 'primary', 'skip'],
+        overlayClickAction: false,
+      }}
       styles={{
-        options: {
-          primaryColor: '#1d4ed8', // blue-700 — WCAG AA contrast ≥4.5:1 with white
-          textColor: '#1e293b', // slate-800
-          backgroundColor: '#ffffff',
-          arrowColor: '#ffffff',
-          overlayColor: 'rgba(0, 0, 0, 0.5)',
-          zIndex: 10000,
-        },
         tooltip: {
           borderRadius: 8,
           fontSize: 15,
@@ -165,7 +168,7 @@ export default function OnboardingTour() {
         tooltipContainer: {
           textAlign: 'left',
         },
-        buttonNext: {
+        buttonPrimary: {
           backgroundColor: '#1d4ed8', // blue-700 — WCAG AA contrast ≥4.5:1 with white
           fontSize: 14,
           fontWeight: 600,
@@ -182,13 +185,6 @@ export default function OnboardingTour() {
           fontSize: 14,
         },
       }}
-      floaterProps={{
-        disableAnimation: false,
-      }}
-      // Accessibilité
-      disableOverlayClose
-      spotlightClicks={false}
-      disableScrolling={false}
     />
   );
 }

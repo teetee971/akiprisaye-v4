@@ -1,11 +1,21 @@
- 
 /**
  * Leaderboard Page
  * Leaderboard page with filters (all-time, monthly, weekly, by territory)
  */
 
 import React, { useState } from 'react';
-import { Trophy, Filter, ArrowLeft, RefreshCw, MapPin, Calendar } from 'lucide-react';
+import {
+  Trophy,
+  Filter,
+  ArrowLeft,
+  RefreshCw,
+  MapPin,
+  Calendar,
+  Gift,
+  CheckCircle,
+  AlertCircle,
+} from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useLeaderboard } from '../hooks/useLeaderboard';
 import { HeroImage } from '../components/ui/HeroImage';
@@ -24,13 +34,13 @@ const TERRITORIES = [
   { code: 'WF', label: 'Wallis-et-Futuna' },
   { code: 'PM', label: 'Saint-Pierre-et-Miquelon' },
   { code: 'BL', label: 'Saint-Barthélemy' },
-  { code: 'MF', label: 'Saint-Martin' }
+  { code: 'MF', label: 'Saint-Martin' },
 ];
 
 const PERIODS = [
   { value: 'all_time', label: 'Tout temps', icon: '🏆' },
   { value: 'monthly', label: 'Ce mois', icon: '📅' },
-  { value: 'weekly', label: 'Cette semaine', icon: '📆' }
+  { value: 'weekly', label: 'Cette semaine', icon: '📆' },
 ] as const;
 
 export default function LeaderboardPage() {
@@ -41,20 +51,13 @@ export default function LeaderboardPage() {
   const [period, setPeriod] = useState<'all_time' | 'monthly' | 'weekly'>('all_time');
   const [territory, setTerritory] = useState<string>('');
 
-  const { 
-    leaderboard, 
-    userRank, 
-    neighbors,
-    loading, 
-    error, 
-    refresh,
-    updateFilters
-  } = useLeaderboard({ 
-    userId, 
-    period, 
-    territory,
-    limit: 100
-  });
+  const { leaderboard, userRank, neighbors, loading, error, refresh, updateFilters } =
+    useLeaderboard({
+      userId,
+      period,
+      territory,
+      limit: 100,
+    });
 
   const handlePeriodChange = (newPeriod: 'all_time' | 'monthly' | 'weekly') => {
     setPeriod(newPeriod);
@@ -97,7 +100,9 @@ export default function LeaderboardPage() {
             <Trophy size={32} />
             <h1 className="text-2xl md:text-3xl font-bold text-white drop-shadow">Classement</h1>
           </div>
-          <p className="text-slate-200 text-sm drop-shadow">Les meilleurs contributeurs de la plateforme</p>
+          <p className="text-slate-200 text-sm drop-shadow">
+            Les meilleurs contributeurs de la plateforme
+          </p>
         </HeroImage>
       </div>
 
@@ -118,7 +123,7 @@ export default function LeaderboardPage() {
                 Période
               </span>
               <div className="flex gap-2">
-                {PERIODS.map(p => (
+                {PERIODS.map((p) => (
                   <button
                     key={p.value}
                     onClick={() => handlePeriodChange(p.value)}
@@ -137,7 +142,10 @@ export default function LeaderboardPage() {
 
             {/* Territory Filter */}
             <div>
-              <label htmlFor="territory" className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="territory"
+                className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2"
+              >
                 <MapPin size={16} />
                 Territoire
               </label>
@@ -147,7 +155,7 @@ export default function LeaderboardPage() {
                 onChange={(e) => handleTerritoryChange(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                {TERRITORIES.map(t => (
+                {TERRITORIES.map((t) => (
                   <option key={t.code} value={t.code}>
                     {t.label}
                   </option>
@@ -191,7 +199,9 @@ export default function LeaderboardPage() {
               </div>
               <div className="bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg p-4 text-white">
                 <div className="text-3xl font-bold mb-1">
-                  {Math.floor(leaderboard.reduce((sum, e) => sum + e.totalXP, 0) / leaderboard.length).toLocaleString()}
+                  {Math.floor(
+                    leaderboard.reduce((sum, e) => sum + e.totalXP, 0) / leaderboard.length
+                  ).toLocaleString()}
                 </div>
                 <div className="text-sm text-white/80">XP moyen</div>
               </div>
@@ -220,7 +230,103 @@ export default function LeaderboardPage() {
             </div>
           </div>
         )}
+
+        {/* Parrainage Section */}
+        <ParrainageSection userId={userId} />
       </div>
+    </div>
+  );
+}
+
+// ── Parrainage Section ──────────────────────────────────────────────────────
+
+const REFERRALS_KEY = 'akiprisaye_referral_used';
+
+function loadUsedReferrals(): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(REFERRALS_KEY) ?? '[]');
+  } catch {
+    return [];
+  }
+}
+
+function saveUsedReferrals(codes: string[]) {
+  localStorage.setItem(REFERRALS_KEY, JSON.stringify(codes));
+}
+
+function ParrainageSection({ userId }: { userId: string }) {
+  const [code, setCode] = useState('');
+  const [usedCodes, setUsedCodes] = useState<string[]>(loadUsedReferrals);
+
+  function handleVerify() {
+    const trimmed = code.trim().toUpperCase();
+    if (!trimmed) {
+      toast.error('Veuillez saisir un code');
+      return;
+    }
+    if (usedCodes.includes(trimmed)) {
+      toast.error(`Code "${trimmed}" déjà utilisé`);
+      return;
+    }
+    if (trimmed.startsWith('AKI-')) {
+      const updated = [trimmed, ...usedCodes];
+      setUsedCodes(updated);
+      saveUsedReferrals(updated);
+      setCode('');
+      toast.success(`✅ Code valide ! +50 XP ajoutés à votre compte`);
+    } else {
+      toast.error(`Code "${trimmed}" invalide — Les codes valides commencent par "AKI-"`);
+    }
+  }
+
+  return (
+    <div className="bg-white rounded-xl shadow-md p-6 mt-6">
+      <div className="flex items-center gap-3 mb-4">
+        <Gift size={22} className="text-yellow-500" />
+        <h2 className="text-lg font-semibold text-gray-900">Mes parrainages</h2>
+      </div>
+
+      <div className="flex gap-2 mb-4">
+        <input
+          type="text"
+          placeholder="Code parrainage (ex: AKI-XXXXX)"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleVerify()}
+          className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent uppercase"
+        />
+        <button
+          onClick={handleVerify}
+          className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5"
+        >
+          <CheckCircle size={16} />
+          Vérifier
+        </button>
+      </div>
+
+      <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-xs text-blue-700 mb-4 flex items-start gap-2">
+        <AlertCircle size={14} className="mt-0.5 flex-shrink-0" />
+        <span>
+          Les codes valides commencent par <strong>AKI-</strong> et donnent <strong>+50 XP</strong>
+        </span>
+      </div>
+
+      {usedCodes.length > 0 && (
+        <div>
+          <p className="text-sm font-medium text-gray-700 mb-2">Codes utilisés :</p>
+          <div className="flex flex-wrap gap-2">
+            {usedCodes.map((c) => (
+              <span
+                key={c}
+                className="inline-flex items-center gap-1 bg-green-100 text-green-700 text-xs px-2.5 py-1 rounded-full font-medium"
+              >
+                <CheckCircle size={12} />
+                {c} (+50 XP)
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

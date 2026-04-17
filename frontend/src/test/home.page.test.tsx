@@ -93,6 +93,45 @@ vi.mock('../components/home/LettreJourWidget', () => ({
   default: () => <section>Mock lettre jour</section>,
 }));
 
+vi.mock('../components/home/ConseilBudgetDuJour', () => ({
+  default: () => <section>Mock conseil budget</section>,
+}));
+
+vi.mock('../components/home/PersonalizedDealOfDay', () => ({
+  default: () => <section>Mock deal du jour</section>,
+  PersonalizedDealOfDay: () => <section>Mock deal du jour</section>,
+}));
+
+vi.mock('../components/home/DailyShockCard', () => ({
+  DailyShockCard: () => <section>Mock daily shock</section>,
+}));
+
+vi.mock('../components/home/AnonymousSocialComparison', () => ({
+  default: () => <section>Mock social comparison</section>,
+  AnonymousSocialComparison: () => <section>Mock social comparison</section>,
+}));
+
+vi.mock('../components/home/MonthlySavingsDashboard', () => ({
+  MonthlySavingsDashboard: () => <section>Mock monthly savings</section>,
+}));
+
+vi.mock('../components/home/TerritorySignal', () => ({
+  TerritorySignal: () => <section>Mock territory signal</section>,
+}));
+
+vi.mock('../components/home/SmartShoppingList', () => ({
+  SmartShoppingList: () => <section>Mock smart shopping</section>,
+}));
+
+vi.mock('../components/home/ShareVictory', () => ({
+  default: () => <section>Mock share victory</section>,
+  ShareVictory: () => <section>Mock share victory</section>,
+}));
+
+vi.mock('../components/home/ProofStats', () => ({
+  default: () => <section>Mock proof stats</section>,
+}));
+
 import Home from '../pages/Home';
 
 describe('Home page', () => {
@@ -104,35 +143,38 @@ describe('Home page', () => {
         observe() {}
         disconnect() {}
         unobserve() {}
-      },
+      }
     );
   });
 
-  it('renders the compact homepage by default', async () => {
+  it('renders the homepage with search bar and value proposition', async () => {
     render(
       <MemoryRouter>
         <Home />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
-    expect(screen.getByText(/le plus utile, sans surcharge/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /voir toute la page d’accueil/i })).toBeInTheDocument();
-    expect(screen.queryByText(/ce que disent nos utilisateurs/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/mock observatory section/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/page d’accueil simplifiée/i)).toBeInTheDocument();
+    // Search bar is visible
+    expect(screen.getByRole('textbox', { name: /rechercher un produit/i })).toBeInTheDocument();
+    // Value proposition subtitle
+    expect(screen.getByText(/comparez les prix des supermarch/i)).toBeInTheDocument();
+    // CTAs visible
+    expect(screen.getByRole('button', { name: /comparer les prix/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /scanner un code-barres/i })).toBeInTheDocument();
+    // Toggle is gone
+    expect(
+      screen.queryByRole('button', { name: /voir toute la page d'accueil/i })
+    ).not.toBeInTheDocument();
   });
 
-  it('can show the extended homepage on demand', async () => {
+  it('extended homepage content is always visible without any toggle', async () => {
     render(
       <MemoryRouter>
         <Home />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /voir toute la page d’accueil/i }));
-
-    expect(screen.getByRole('button', { name: /masquer la vue complète/i })).toBeInTheDocument();
-    expect(await screen.findByText(/ce que disent nos utilisateurs/i)).toBeInTheDocument();
+    expect(await screen.findByText(/mock proof stats/i)).toBeInTheDocument();
     expect(await screen.findByText(/mock observatory section/i)).toBeInTheDocument();
   });
 
@@ -140,7 +182,7 @@ describe('Home page', () => {
     render(
       <MemoryRouter>
         <Home />
-      </MemoryRouter>,
+      </MemoryRouter>
     );
 
     const searchInput = screen.getByRole('textbox', { name: /rechercher un produit/i });

@@ -50,7 +50,11 @@ export default function PromoCodeWidget({
       };
 
       const normalizedResult: PromoResult =
-        resp.ok && data.success !== false && data.valid === true && typeof data.discount === 'number'
+        resp.ok &&
+        data.success !== false &&
+        data.valid === true &&
+        typeof data.discount === 'number' &&
+        data.discount > 0
           ? {
               valid: true,
               discount: data.discount,
@@ -64,7 +68,9 @@ export default function PromoCodeWidget({
               message:
                 data.message ||
                 data.error ||
-                'Impossible de valider le code. Réessayez.',
+                (data.valid === true && (data.discount ?? 0) <= 0
+                  ? 'Ce code ne confère aucune réduction.'
+                  : 'Impossible de valider le code. Réessayez.'),
             };
 
       setResult(normalizedResult);
@@ -74,7 +80,11 @@ export default function PromoCodeWidget({
         onApply?.(normalizedResult.discount, code.trim().toUpperCase());
       }
     } catch {
-      setResult({ valid: false, discount: 0, message: 'Impossible de valider le code. Réessayez.' });
+      setResult({
+        valid: false,
+        discount: 0,
+        message: 'Impossible de valider le code. Réessayez.',
+      });
     } finally {
       setLoading(false);
     }
@@ -89,7 +99,10 @@ export default function PromoCodeWidget({
 
   return (
     <div className={`space-y-2 ${className}`}>
-      <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+      <label
+        htmlFor="promo-code-input"
+        className="flex items-center gap-2 text-sm font-medium text-gray-300"
+      >
         <Tag className="w-4 h-4 text-blue-400" />
         Avez-vous un code promo&nbsp;?
       </label>
@@ -113,6 +126,7 @@ export default function PromoCodeWidget({
       ) : (
         <div className="flex gap-2">
           <input
+            id="promo-code-input"
             type="text"
             value={code}
             onChange={(e) => {
@@ -138,9 +152,11 @@ export default function PromoCodeWidget({
       {result && !applied && (
         <div
           className={`flex items-start gap-2 text-sm px-3 py-2 rounded-lg ${
-            result.valid
-              ? 'bg-green-900/20 text-green-300'
-              : 'bg-red-900/20 text-red-300'
+            result.valid && result.discount === 0
+              ? 'bg-amber-900/20 text-amber-300'
+              : result.valid
+                ? 'bg-green-900/20 text-green-300'
+                : 'bg-red-900/20 text-red-300'
           }`}
         >
           {result.valid ? (
@@ -148,8 +164,12 @@ export default function PromoCodeWidget({
           ) : (
             <XCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
           )}
-          <span>{result.message}</span>
-          {result.usesRemaining !== undefined && result.valid && (
+          <span>
+            {result.valid && result.discount === 0
+              ? 'Code valide mais aucune remise applicable à ce plan'
+              : result.message}
+          </span>
+          {result.usesRemaining !== undefined && result.valid && result.discount > 0 && (
             <span className="ml-auto text-xs text-gray-400">
               {result.usesRemaining} util. restantes
             </span>

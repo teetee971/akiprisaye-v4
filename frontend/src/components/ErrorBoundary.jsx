@@ -42,12 +42,13 @@ class ErrorBoundary extends Component {
             <img
               src={imgSrc}
               alt="A KI PRI SA YÉ"
+              loading="lazy"
+              width={64}
+              height={64}
               style={{ height: '64px', margin: '0 auto 24px' }}
             />
-            
-            <h1 className="text-3xl font-bold text-white mb-4">
-              Une erreur est survenue
-            </h1>
+
+            <h1 className="text-3xl font-bold text-white mb-4">Une erreur est survenue</h1>
 
             <p className="text-slate-300 mb-6">
               Une erreur temporaire est survenue. Le service reste accessible.
@@ -67,7 +68,7 @@ class ErrorBoundary extends Component {
               }}
             >
               {safeToText(this.state.error)}
-              {"\n"}
+              {'\n'}
               {safeToText(this.state.errorInfo)}
             </pre>
 

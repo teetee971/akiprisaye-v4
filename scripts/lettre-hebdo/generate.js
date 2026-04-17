@@ -57,6 +57,9 @@ const RSS_FEEDS = [
   { url: 'https://la1ere.franceinfo.fr/economie/rss?r=reunion',      source: 'La1ère Réunion Éco',     territory: 'La Réunion' },
   { url: 'https://la1ere.franceinfo.fr/economie/rss?r=guyane',       source: 'La1ère Guyane Éco',      territory: 'Guyane'     },
   { url: 'https://la1ere.franceinfo.fr/economie/rss?r=mayotte',      source: 'La1ère Mayotte Éco',     territory: 'Mayotte'    },
+  { urls: ['https://la1ere.franceinfo.fr/economie/rss?r=polynesie', 'https://la1ere.franceinfo.fr/polynesie/actu/rss'], source: 'La1ère Polynésie Éco', territory: 'Polynésie française' },
+  { urls: ['https://la1ere.franceinfo.fr/economie/rss?r=nouvellecaledonie', 'https://la1ere.franceinfo.fr/nouvelle-caledonie/actu/rss'], source: 'La1ère Nouvelle-Calédonie Éco', territory: 'Nouvelle-Calédonie' },
+  { urls: ['https://la1ere.franceinfo.fr/economie/rss?r=saintpierreetmiquelon', 'https://la1ere.franceinfo.fr/saint-pierre-et-miquelon/actu/rss'], source: 'La1ère Saint-Pierre-et-Miquelon Éco', territory: 'Saint-Pierre-et-Miquelon' },
   // Société (conditions de vie, social, éducation)
   { url: 'https://la1ere.franceinfo.fr/societe/rss',                 source: 'La1ère — Société DOM',   territory: 'Outre-Mer'  },
   // Martinique actualités complètes
@@ -64,6 +67,9 @@ const RSS_FEEDS = [
   // ── Presse indépendante ───────────────────────────────────────────────────
   // ImazPress — presse indépendante La Réunion
   { url: 'https://imazpress.com/feed',                               source: 'ImazPress Réunion',      territory: 'La Réunion' },
+  // RCI — Antilles (flux principal + fallback WordPress)
+  { urls: ['https://www.rci.fm/guadeloupe/rss.xml', 'https://rci.fm/guadeloupe/rss.xml'], source: 'RCI Guadeloupe', territory: 'Guadeloupe' },
+  { urls: ['https://www.rci.fm/martinique/rss.xml', 'https://rci.fm/martinique/rss.xml'], source: 'RCI Martinique', territory: 'Martinique' },
 ];
 
 // ─── Utilitaires temporels ──────────────────────────────────────────────────────
@@ -93,30 +99,34 @@ function getWeekPeriode(date = new Date()) {
 
 /** Récupère et parse un flux RSS. Retourne une liste d'articles ou [] si échec. */
 async function fetchFeed(feed, parser) {
-  try {
-    const res = await fetch(feed.url, {
-      headers: { 'User-Agent': 'AKiPriSaYe-Bot/1.0 (+https://akiprisaye.pf)' },
-      signal: AbortSignal.timeout(12000),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const xml = await res.text();
-    const parsed = parser.parse(xml);
-    const rawItems = parsed?.rss?.channel?.item ?? [];
-    const items = Array.isArray(rawItems) ? rawItems : [rawItems];
-    return items.slice(0, 10).map((item) => ({
-      title: stripHtmlToText(item.title ?? '').trim(),
-      description: stripHtmlToText(item.description ?? '')
-        .trim()
-        .slice(0, 350),
-      url: String(item.link ?? item.guid ?? ''),
-      publishedAt: String(item.pubDate ?? ''),
-      source: feed.source,
-      territory: feed.territory,
-    }));
-  } catch (err) {
-    console.warn(`⚠️  Flux ignoré (${feed.source}) : ${err.message}`);
-    return [];
+  const candidates = Array.isArray(feed.urls) ? feed.urls : [feed.url];
+  for (const url of candidates) {
+    try {
+      const res = await fetch(url, {
+        headers: { 'User-Agent': 'AKiPriSaYe-Bot/1.0 (+https://akiprisaye.pf)' },
+        signal: AbortSignal.timeout(12000),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const xml = await res.text();
+      const parsed = parser.parse(xml);
+      const rawItems = parsed?.rss?.channel?.item ?? [];
+      const items = Array.isArray(rawItems) ? rawItems : [rawItems];
+      return items.slice(0, 10).map((item) => ({
+        title: stripHtmlToText(item.title ?? '').trim(),
+        description: stripHtmlToText(item.description ?? '')
+          .trim()
+          .slice(0, 350),
+        url: String(item.link ?? item.guid ?? ''),
+        publishedAt: String(item.pubDate ?? ''),
+        source: feed.source,
+        territory: feed.territory,
+      }));
+    } catch (err) {
+      console.warn(`⚠️  Tentative flux échouée (${feed.source}) [${url}] : ${err.message}`);
+    }
   }
+  console.warn(`⚠️  Flux ignoré (${feed.source}) : aucune URL disponible`);
+  return [];
 }
 
 // ─── Prompt IA ─────────────────────────────────────────────────────────────────
@@ -295,7 +305,36 @@ async function main() {
   console.log(`\n🎉 Lettre "${doc.titre}" publiée pour la semaine ${weekId}`);
 }
 
+function isOpenAIQuotaError(err) {
+  if (!err || typeof err !== 'object') return false;
+
+  const msg = String(err.message ?? '').toLowerCase();
+  const code = String(err.code ?? '').toLowerCase();
+  const type = String(err.type ?? err.error?.type ?? '').toLowerCase();
+  const name = String(err.name ?? '').toLowerCase();
+  const status = err.status ?? err.response?.status;
+
+  if (status !== 429) return false;
+
+  return (
+    code === 'rate_limit_exceeded' ||
+    type.includes('rate_limit') ||
+    name.includes('openai') ||
+    msg.includes('openai') ||
+    msg.includes('rate limit') ||
+    msg.includes('too many requests') ||
+    msg.includes('insufficient_quota')
+  );
+}
+
 main().catch((err) => {
-  console.error('❌ Erreur fatale :', err.message);
+  const msg = err?.message ?? '';
+  // 429 OpenAI uniquement = quota/rate limit dépassé — pas une erreur du code, sortie propre
+  if (isOpenAIQuotaError(err)) {
+    console.warn('⚠️  Quota OpenAI dépassé — génération ignorée ce cycle :', msg);
+    process.exit(0);
+  }
+  console.error('❌ Erreur fatale :', msg);
+  console.error(err?.stack ?? err);
   process.exit(1);
 });
