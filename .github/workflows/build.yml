@@ -1,0 +1,16 @@
+name: Generate ZIP
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npx vite build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site-v4-dist
+          path: dist/
