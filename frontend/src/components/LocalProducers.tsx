@@ -31,7 +31,7 @@ export const LocalProducers = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {producers.map((p, i) => (
-          <div key={i} className="bg-white border border-slate-100 p-6 rounded-[2rem] hover:shadow-2xl hover:border-blue-900/10 transition-all group relative">
+          <div key={p.url} className="bg-white border border-slate-100 p-6 rounded-[2rem] hover:shadow-2xl hover:border-blue-900/10 transition-all group relative">
             <div className="absolute top-4 right-4">
               <span className="text-[8px] font-black bg-slate-900 text-white px-2 py-1 rounded-lg uppercase tracking-widest">{p.type}</span>
             </div>
