@@ -35,7 +35,7 @@ const hubComparatorPaths = Array.from(
 
 const appComparatorRoutes = Array.from(
   new Set(
-    [...appSource.matchAll(/<Route path="([^"]+)"/g)]
+    [...appSource.matchAll(/<Route\s+path="([^"]+)"/g)]
       .map(([, path]) => `/${path}`)
       .filter(isComparatorPath)
       .filter((path) => !['/comparateurs', '/comparateurs-hub'].includes(path))

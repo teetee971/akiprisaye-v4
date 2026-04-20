@@ -84,8 +84,8 @@ describe('static hosting SPA routing config', () => {
     );
 
     expect(inscriptionProBatimentSource).toContain('<Link to="/espace-pro-batiment"');
-    expect(appSource).toContain(
-      '<Route path="espace-pro-batiment" element={<Navigate to="/espace-pro" replace />} />'
+    expect(appSource).toMatch(
+      /<Route\s+path="espace-pro-batiment"\s+element={<Navigate to="\/espace-pro" replace \/>}\s*\/>/
     );
   });
 
