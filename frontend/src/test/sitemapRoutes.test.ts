@@ -15,7 +15,7 @@ const normalizePath = (rawPath: string) => {
 const appRoutes = Array.from(
   new Set([
     '/',
-    ...[...appSource.matchAll(/<Route path="([^"]+)"/g)].map(([, routePath]) =>
+    ...[...appSource.matchAll(/<Route\s+path="([^"]+)"/g)].map(([, routePath]) =>
       normalizePath(`/${routePath}`)
     ),
   ])
