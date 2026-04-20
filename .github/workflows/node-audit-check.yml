@@ -1,13 +1,7 @@
 name: Node.js CI Audit & Linting
 
 on:
-  push:
-    branches:
-      - main
-      - dependabot-ci-config
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   build_audit:
