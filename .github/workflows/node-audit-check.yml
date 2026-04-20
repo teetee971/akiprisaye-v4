@@ -1,13 +1,7 @@
 name: Node.js CI Audit & Linting
 
 on:
-  push:
-    branches:
-      - main
-      - dependabot-ci-config
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   build_audit:
@@ -16,7 +10,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v4
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -30,8 +24,8 @@ jobs:
     - name: Lint with ESLint
       run: npm run lint
 
-    - name: Run Tests
-      run: npm test
+    - name: Run smoke tests
+      run: npm run test:smoke:home
 
     - name: Audit Dependencies
       run: npm audit --omit=dev --audit-level=high

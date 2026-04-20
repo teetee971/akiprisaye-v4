@@ -1,10 +1,7 @@
 name: Deploy to Cloudflare Pages
 
 on:
-  push:
-    branches: [main, "work", "feat/**", "codex/**"]
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read

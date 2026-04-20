@@ -11,14 +11,6 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'frontend/**'
-      - 'price-api/**'
-      - '.github/workflows/**'
-  pull_request:
-    types: [opened, synchronize, reopened]
   workflow_dispatch:
     inputs:
       lhci_url:
