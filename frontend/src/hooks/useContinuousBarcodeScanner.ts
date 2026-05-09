@@ -39,6 +39,8 @@ const SUPPORTED_FORMATS: BarcodeDetectorFormat[] = ['ean_13', 'ean_8', 'upc_a', 
 const DEFAULT_LOOKUP_TERRITORY: Territoire = 'martinique';
 const RESULT_LIMIT = 50;
 const RESOLVED_CACHE = new Map<string, ResolvedProduct | null>();
+const SCANNER_BACKEND_UNAVAILABLE_MESSAGE =
+  'Service scanner indisponible sur ce déploiement. Réessaie plus tard.';
 
 declare global {
   interface Window {
@@ -96,10 +98,23 @@ export async function resolveBarcode(
   const cached = RESOLVED_CACHE.get(barcode);
   if (cached !== undefined) return cached;
 
-  const result = await lookupProductByEan(barcode, {
-    territoire,
-    source,
-  });
+  let result: Awaited<ReturnType<typeof lookupProductByEan>>;
+  try {
+    result = await lookupProductByEan(barcode, {
+      territoire,
+      source,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (
+      /Failed to fetch|fetch|NetworkError|network|ECONN|timeout|abort|Unexpected token|JSON/i.test(
+        message
+      )
+    ) {
+      throw new Error(SCANNER_BACKEND_UNAVAILABLE_MESSAGE);
+    }
+    throw error;
+  }
 
   if (!result.success || !result.product || result.product.status === 'non_référencé') {
     RESOLVED_CACHE.set(barcode, null);
