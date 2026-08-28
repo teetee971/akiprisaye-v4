@@ -2,22 +2,16 @@
 # 🔍 Détection Automatique des Chocs de Prix
 # ──────────────────────────────────────────────────────────────────────────────
 #
-# S'exécute après le scraping pour analyser statistiquement les variations
-# et créer des alertes si des chocs graves sont détectés (≥20%).
-#
-# Flux :
-#   1. Charge les snapshots Firestore des 30 derniers jours
-#   2. Calcule z-scores et variations vs historique
-#   3. Génère un résumé IA (GPT-4o-mini)
-#   4. Crée un GitHub Issue si choc grave ≥20%
-#   5. Écrit les résultats dans Firestore
+# Analyse les snapshots Firestore et crée des alertes pour les variations
+# significatives. Le workflow est volontairement déclenché après un scraping
+# réussi ou manuellement; le schedule sert de filet de sécurité.
 # ──────────────────────────────────────────────────────────────────────────────
 
 name: 🔍 Détection Chocs de Prix
 
 on:
   schedule:
-    - cron: '0 8 * * *'   # 8h UTC — après scraping (6h) + carburants (6h30)
+    - cron: '0 8 * * *'
   workflow_run:
     workflows: ['🤖 Scraping Automatique — Prix DOM-TOM']
     types: [completed]
@@ -26,12 +20,16 @@ on:
       dry_run:
         description: 'Simulation'
         required: false
-        default: 'false'
+        default: false
         type: boolean
 
 permissions:
   contents: read
   issues: write
+
+concurrency:
+  group: price-shock-detection
+  cancel-in-progress: false
 
 jobs:
   detect-shocks:
@@ -44,8 +42,8 @@ jobs:
       - name: 📥 Checkout
         uses: actions/checkout@v4
 
-      - name: ⚙️ Setup Node.js 20
-        uses: actions/setup-node@v6
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: 'npm'
@@ -53,7 +51,7 @@ jobs:
 
       - name: 📦 Installer dépendances
         working-directory: scripts/auto-shocks
-        run: npm install
+        run: npm install --no-audit --no-fund
 
       - name: 🔍 Détection des chocs
         working-directory: scripts/auto-shocks
@@ -71,7 +69,7 @@ jobs:
 
       - name: 📢 Notification en cas d'échec
         if: failure()
-        uses: actions/github-script@v9
+        uses: actions/github-script@v7
         with:
           script: |
             core.warning('⚠️ Échec détection chocs de prix');
