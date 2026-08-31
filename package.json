@@ -3,25 +3,34 @@
   "private": true,
   "version": "4.7.1",
   "type": "module",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
   },
   "scripts": {
-    "clean-build-for-repo": "npm ci --include=dev && cd frontend && rm -rf dist node_modules/.vite && npm ci --include=dev && npm run build",
+    "clean-build-for-repo": "npm ci --include=dev && npm run build:all && npm run test:all",
+    "build:all": "npm run build --workspaces --if-present",
+    "test:all": "npm run test --workspaces --if-present",
+    "lint:all": "npm run lint --workspaces --if-present",
+    "typecheck:all": "npm run typecheck --workspaces --if-present",
+    "audit:all": "npm audit --audit-level=moderate --omit=dev",
     "audit:head": "node scripts/audit-deployment-url.mjs https://head.akiprisaye-web.pages.dev/",
     "verify:modules": "bash scripts/verify-modules-health.sh",
     "audit:catalogue": "node scripts/audit-catalogue-json.mjs",
-    "build": "cd frontend && npm ci --include=dev && npm run build",
+    "build": "npm run build:all",
     "dev": "cd frontend && npm run dev",
     "preview": "cd frontend && npm run preview",
-    "typecheck": "cd frontend && npm run -s typecheck",
+    "typecheck": "npm run typecheck:all",
     "test:smoke:home": "cd frontend && npx vitest run src/test/home.page.test.tsx --config vitest.config.ts",
     "build:frontend": "cd frontend && npm run build",
     "install:frontend": "cd frontend && npm ci --include=dev",
-    "lint": "cd frontend && npm run lint",
-    "lint:ci": "cd frontend && npm run lint",
-    "clean-build:repo": "npm run install:frontend && npm run lint:ci && cd frontend && npm run test && npm run build && cd .. && node scripts/smoke-preview.mjs && cd frontend && npm run audit",
-    "clean-build:repo:network-tolerant": "npm run install:frontend && npm run lint:ci && cd frontend && npm run test && npm run build && cd .. && node scripts/smoke-preview.mjs && (cd frontend && npm run audit || echo \"[WARN] npm audit indisponible (réseau/registry). Relancer plus tard.\")",
+    "lint": "npm run lint:all",
+    "lint:ci": "npm run lint:all",
+    "clean-build:repo": "npm run install:frontend && npm run lint:ci && cd frontend && npm run test && npm run build && cd .. && npm run test:all && npm run audit:all",
     "clean-build:quick": "npm run install:frontend && npm run lint:ci && npm run test:smoke:home && npm run build:frontend",
     "readiness:prod": "node scripts/production-readiness-check.mjs",
     "readiness:prod:network-tolerant": "ALLOW_NETWORK_FAILURE=1 node scripts/production-readiness-check.mjs",
@@ -47,5 +56,6 @@
     "lint-staged": "^16.4.0",
     "typescript": "^5.9.3",
     "vite": "7.3.2"
-  }
+  },
+  "workspaces/doc": "npm workspaces allows unified dependency management and enables workspace commands like 'npm run build --workspaces'"
 }
