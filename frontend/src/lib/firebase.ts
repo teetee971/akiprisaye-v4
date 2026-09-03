@@ -1,4 +1,4 @@
-import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
+import { getApp, getApps, initializeApp, type FirebaseApp } from 'firebase/app';
 import type { Analytics } from 'firebase/analytics';
 import { browserLocalPersistence, getAuth, setPersistence, type Auth } from 'firebase/auth';
 import { initializeFirestore, type Firestore } from 'firebase/firestore';
@@ -51,16 +51,16 @@ const wrongApiKeyDetected: boolean =
   firebaseConfig.apiKey.charAt(10) === 'B' && // wrong key: 'B' here; correct key: '8'
   firebaseConfig.apiKey.charAt(11) === '8'; // wrong key: '8' here; correct key: 'B'
 
-let firebaseError: string | null = null;
-let app: FirebaseApp | null = null;
-let auth: Auth | null = null;
-let db: Firestore | null = null;
-let analytics: Analytics | null = null;
+export let firebaseError: string | null = null;
+export let app: FirebaseApp | null = null;
+export let auth: Auth | null = null;
+export let db: Firestore | null = null;
+export let analytics: Analytics | null = null;
 
-function safeInitInstallations(appInstance: FirebaseApp): void {
+function safeInitInstallations(firebaseApp: FirebaseApp): void {
   const init = () => {
     try {
-      getInstallations(appInstance);
+      getInstallations(firebaseApp);
     } catch (error) {
       console.warn('Firebase Installations unavailable (non-blocking):', error);
     }
@@ -130,13 +130,4 @@ try {
   console.error('Firebase initialization failed:', firebaseError);
 }
 
-export {
-  app,
-  auth,
-  db,
-  analytics,
-  firebaseError,
-  firebaseConfig,
-  missingCriticalEnvKeys,
-  wrongApiKeyDetected,
-};
+export { firebaseConfig, missingCriticalEnvKeys, wrongApiKeyDetected };
