@@ -19,7 +19,7 @@ jobs:
       contents: read
       deployments: write
     outputs:
-      deployment_url: ${{ steps.deployment.outputs.url }}
+      deployment_url: ${{ steps.deployment.outputs.deployment-url }}
     defaults:
       run:
         working-directory: frontend
@@ -79,12 +79,13 @@ jobs:
 
       - name: Deploy to Cloudflare Pages
         id: deployment
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: akiprisaye-web
-          directory: frontend/dist
+          command: pages deploy dist --project-name=akiprisaye-web
+          workingDirectory: frontend
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
   validate:
     needs: deploy
