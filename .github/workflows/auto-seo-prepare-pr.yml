@@ -64,7 +64,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0   # full history needed for branch creation
 
@@ -149,7 +149,7 @@ jobs:
 
       # ── Upload review artifacts ────────────────────────────────────────────
       - name: Upload staged files as artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: auto-seo-pr-${{ github.run_number }}
