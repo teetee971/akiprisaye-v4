@@ -4,8 +4,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: 'npm'
@@ -15,8 +15,11 @@ jobs:
           cd frontend
           npm ci --include=dev
           npm run build
+      - name: Package build artifact
+        run: tar -C frontend -czf site-v4-dist.tar.gz dist
+
       - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: site-v4-dist
-          path: frontend/dist/
+          path: site-v4-dist.tar.gz

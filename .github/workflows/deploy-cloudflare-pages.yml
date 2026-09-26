@@ -19,13 +19,13 @@ jobs:
       contents: read
       deployments: write
     outputs:
-      deployment_url: ${{ steps.deployment.outputs.url }}
+      deployment_url: ${{ steps.deployment.outputs.deployment-url }}
     defaults:
       run:
         working-directory: frontend
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -79,12 +79,13 @@ jobs:
 
       - name: Deploy to Cloudflare Pages
         id: deployment
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: akiprisaye-web
-          directory: frontend/dist
+          command: pages deploy dist --project-name=akiprisaye-web
+          workingDirectory: frontend
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
   validate:
     needs: deploy
@@ -107,7 +108,7 @@ jobs:
           echo "site_url=$SITE_URL" >> "$GITHUB_OUTPUT"
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -156,7 +157,7 @@ jobs:
         working-directory: frontend
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -189,14 +190,14 @@ jobs:
         run: node scripts/lighthouse-summary.mjs
 
       - name: Upload lighthouse reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: lighthouse-cloudflare-reports
           path: frontend/.lighthouseci/**
           if-no-files-found: warn
 
       - name: Upload lighthouse scores baseline artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: lighthouse-scores-cloudflare
           path: frontend/.lighthouseci/lighthouse-scores.json
@@ -211,7 +212,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -233,7 +234,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload audit-head report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: audit-head-report
           path: frontend/audit-head-report.json

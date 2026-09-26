@@ -24,17 +24,22 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
 
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version-file: .nvmrc
         cache: npm
-        cache-dependency-path: package-lock.json
+        cache-dependency-path: |
+          package-lock.json
+          frontend/package-lock.json
 
-    - name: Install Dependencies
+    - name: Install root dependencies
       run: npm ci --include=dev --no-audit --no-fund
+
+    - name: Install frontend dependencies
+      run: npm --prefix frontend ci --include=dev --legacy-peer-deps --no-audit --no-fund
 
     - name: Lint with ESLint
       run: npm run lint
