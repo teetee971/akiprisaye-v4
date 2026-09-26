@@ -15,8 +15,11 @@ jobs:
           cd frontend
           npm ci --include=dev
           npm run build
+      - name: Package build artifact
+        run: tar -C frontend -czf site-v4-dist.tar.gz dist
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v7
         with:
           name: site-v4-dist
-          path: frontend/dist/
+          path: site-v4-dist.tar.gz
